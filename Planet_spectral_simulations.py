@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
 
 # Spectrum Simulations
 # To determine the recovery of planetary spectra.
@@ -9,6 +11,10 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 from spectrum_overload import Spectrum
 
+import os
+os.path
+from todcor import todcor
+from todcor import create_cross_correlations
 
 def RV_shift():
     """ Doppler shift spectrum"""
@@ -89,8 +95,8 @@ def main():
     bd_spec = Spectrum.Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
     # Wavelength selection from 2100-2200nm
-    star_spec.wav_select(2100,2200)
-    bd_spec.wav_select(2100,2200)
+    star_spec.wav_select(2100, 2200)
+    bd_spec.wav_select(2100, 2200)
 
     star_spec = simple_normalization(star_spec)
     bd_spec = simple_normalization(bd_spec)
@@ -99,22 +105,39 @@ def main():
     print(star_spec.xaxis)
     print(bd_spec.xaxis)
     combined = combine_spectra(star_spec, bd_spec, alpha = 0.01)
+    combined2 = combine_spectra(star_spec, bd_spec, alpha = 0.1)
 
-    plotter(star_spec)
-    plotter(bd_spec)
-    plotter(combined, show=True)
-    # why does this plot things twice???
+    #plotter(bd_spec)
+    #plotter(star_spec)
+    #plotter(combined2)
+    #plotter(combined, show=True)
 
+    # Why does this plot things twice???
+    # Add rv attributes to spectrum for TODCOR  # Don't yet know what the parameters are though
+    bd_spec.rv = 10
+    star_spec.rv = 10
+    # Try run todoc stuff
 
+    # Probably need to change my formating into ajriddles format to use his code.
+    ccf1,ccf2,ccf12,images = create_cross_correlations(combined2, star_spec, bd_spec)
 
-
+    #plt.plot(ccf1)
+    #plt.plot(ccf2)
+    #plt.plot(ccf12)
+    #plt.show()
+    pshift = 5     #????
+    sshift = 0    #????
+    cps_R,cps_m,cps_fits,cps_vp,cps_vs,cps_cntr = todcor(ccf1,ccf2,ccf12,pshift,sshift,images)
 
 def plotter(spectra, show=False):
     """ """
     plt.plot(spectra.xaxis, spectra.flux)
+
     if show:
         plt.show()
 
 main()
+
+
 if __name__ == "__main__":
     main()
