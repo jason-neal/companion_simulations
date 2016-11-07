@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 from spectrum_overload import Spectrum
-
+import copy
 import os
 os.path
 from todcor import todcor
@@ -33,10 +33,13 @@ def combine_spectra(star, planet, alpha):
 
     """
     if np.all(star.xaxis == planet.xaxis):   # make sure wavelenghts even first
-          # Even though spectrum overload does do it.
+        # Even though spectrum overload does do it.
         combined_spectrum = star + (planet*alpha)
     else:
-        print("Warning! The axis are not equal. Fix this to procede")
+        # Add
+        planet.interpolate1d_to(star)
+        combined_spectrum = star + (planet*alpha)
+        #print("\nWarning! The axis are not equal. Fix this to procede\n")
     return combined_spectrum
 
 def simple_normalization(spectrum):
@@ -72,7 +75,33 @@ def simple_normalization(spectrum):
 #    print("maxes", maxes)
 #    print("indixes", indexes)
 
+def load_PHOENIX_hd30501():
+    """ Load in the phoenix spectra of HD30501 and HD30501b
 
+    Returns:
+    w_mod : Wavelength in nm
+    I_star : stellar intensity
+    I_bd : companion intensity
+    hdr_star : Star header
+    hdr_bd : Companion header
+    """
+
+    pathwave = "/home/jneal/Phd/data/phoenixmodels/" \
+               "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
+    bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
+               "HD30501b-lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    star_model = "/home/jneal/Phd/data/phoenixmodels/" \
+                 "HD30501-lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+
+    I_bdmod = fits.getdata(bd_model)
+    I_star = fits.getdata(star_model)
+    hdr_bd = fits.getheader(bd_model)
+    hdr_star = fits.getheader(star_model)
+    w_mod = fits.getdata(pathwave)
+
+    w_mod /= 10   # turn into nm
+
+    return w_mod, I_star, I_bdmod, hdr_star, hdr_bd
 
 def main():
     # Load in the pheonix spectra
@@ -97,6 +126,8 @@ def main():
     # Wavelength selection from 2100-2200nm
     star_spec.wav_select(2100, 2200)
     bd_spec.wav_select(2100, 2200)
+    # star_spec.wav_select(100, 3000)
+    # bd_spec.wav_select(100, 3000)
 
     star_spec = simple_normalization(star_spec)
     bd_spec = simple_normalization(bd_spec)
@@ -107,32 +138,59 @@ def main():
     combined = combine_spectra(star_spec, bd_spec, alpha = 0.01)
     combined2 = combine_spectra(star_spec, bd_spec, alpha = 0.1)
 
-    #plotter(bd_spec)
-    #plotter(star_spec)
+    plotter(bd_spec, label="HD30501b")
+    plt.title("Pheonix Spectra HD30501A and HD30501b")
+    plt.ylabel("Flux [ergs/s/cm^2/cm]")
+    #plt.ylabel("Normalized Flux")
+    plt.xlabel("Wavelength [nm]")
+    plotter(star_spec + 1, label="HD30501A")
+
     #plotter(combined2)
-    #plotter(combined, show=True)
+    plotter(combined + 1, label="Combined", show=True)
 
     # Why does this plot things twice???
     # Add rv attributes to spectrum for TODCOR  # Don't yet know what the parameters are though
-    bd_spec.rv = 10
-    star_spec.rv = 10
+    #bd_spec.rv = 10
+    #star_spec.rv = 10
+
+    RV_shift = np.arange(0, 20, 3)
+    alpha = 0.005
+    #alpha = 0.01
+    for RV in RV_shift:
+        """ """
+        bd_shifted = copy.copy(bd_spec)
+        # RV shift BD spectra
+        bd_shifted.doppler_shift(RV)
+
+        combined_spec = combine_spectra(star_spec, bd_shifted, alpha=alpha)
+
+        combined_spec.wav_select(2158, 2159)
+        plotter(combined_spec + (RV/200), label="RV shift={} km/s".format(RV))
+
+    plt.title("Combined spectra (star + alpha*planet), alpha = {}".format(alpha))
+    plt.legend(loc=0)#, bbox_to_anchor=(1.4, 0.9), ncol=1, fancybox=True, shadow=True)
+    plt.ylabel("Norm Flux")
+    plt.xlabel("Wavelength (nm)")
+    plt.show()
+
     # Try run todoc stuff
 
     # Probably need to change my formating into ajriddles format to use his code.
-    ccf1,ccf2,ccf12,images = create_cross_correlations(combined2, star_spec, bd_spec)
+    #ccf1,ccf2,ccf12,images = create_cross_correlations(combined2, star_spec, bd_spec)
 
     #plt.plot(ccf1)
     #plt.plot(ccf2)
     #plt.plot(ccf12)
     #plt.show()
-    pshift = 5     #????
-    sshift = 0    #????
-    cps_R,cps_m,cps_fits,cps_vp,cps_vs,cps_cntr = todcor(ccf1,ccf2,ccf12,pshift,sshift,images)
+    #pshift = 5     #????
+    #sshift = 0    #????
+    #cps_R,cps_m,cps_fits,cps_vp,cps_vs,cps_cntr = todcor(ccf1,ccf2,ccf12,pshift,sshift,images)
 
-def plotter(spectra, show=False):
+def plotter(spectra, label=None, show=False):
     """ """
-    plt.plot(spectra.xaxis, spectra.flux)
-
+    plt.plot(spectra.xaxis, spectra.flux, label=label)
+    if label:
+        plt.legend(loc=0, bbox_to_anchor=(1.4, 0.9), ncol=1, fancybox=True, shadow=True)
     if show:
         plt.show()
 
