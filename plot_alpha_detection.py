@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 def main():
     """ Plot the chi squared"""
-    path = "/home/jneal/Phd/Phd-codes/Simulations/saves"
+    path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"
     X = np.load(os.path.join(path, "RV_mesgrid.npy"))
     Y = np.load(os.path.join(path, "alpha_meshgrid.npy"))
     snrs = np.load(os.path.join(path, "snr_values.npy"))

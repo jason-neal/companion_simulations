@@ -76,8 +76,8 @@ def main():
 
     snrs = [50, 100, 200]   # Signal to noise levels
     # alphas = 10**np.linspace(-3,-0.5, 10)
-    alphas = 10**np.linspace(-7, -0.3, 100)
-    RVs = np.arange(15, 40, 0.1)
+    alphas = 10**np.linspace(-7, -0.3, 200)
+    RVs = np.arange(0, 100, 0.1)
 
     chisqr_snr_dict = dict()  # store 2d array in dict of SNR
     for snr in snrs:
@@ -104,7 +104,6 @@ def main():
                 model = combine_spectra(star_spec, planet_shifted, alpha)
                 model.wav_select(2100, 2200)
 
-                # chisqr = chi_squared(Alpha_Combine.flux, model.flux)
                 # Try scipy chi_squared
                 scipy_chisquare = chisquare(Alpha_Combine.flux, model.flux)
 
@@ -115,7 +114,7 @@ def main():
         print("Loop time = {}".format(time.time() - loop_start))
     # Save the results to a file to stop repeating loops
     X, Y = np.meshgrid(RVs, alphas)
-    path = "/home/jneal/Phd/Phd-codes/Simulations/saves"
+    path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"
     # np.save(os.path.join(path, "chisquare_data"), chisqr_store)
     for key, val in chisqr_snr_dict.items():
         np.save(os.path.join(path,
