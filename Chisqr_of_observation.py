@@ -8,11 +8,13 @@
 
 import os
 import numpy as np
-
-
+import copy
+import matplotlib.pyplot as plt
+from Get_filenames import get_filenames
 from scipy.stats import chisquare
 from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
+from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 
 
@@ -21,7 +23,13 @@ def plot_obs_with_model(obs, model1, model2=None):
     """ Plot the obseved spectrum against the model to check that they are
     "compatiable"
     """
-    pass
+    plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
+    plt.plot(model1.xaxis, model1.flux + 1.2, label="model1")
+    if model2:
+        plt.plot(model2.xaxis, model2.flux, label="model2")
+    plt.legend(loc=0)
+    plt.show()
+
 
 
 # I should already have these sorts of functions
@@ -33,10 +41,20 @@ def select_observation(obs_num, chip):
     chip: crires detetor chip number
 
     returns:
-    crires_name: name of file"""
-
-    crires_name = ""
-    return crires_name
+    crires_name: name of file
+    """
+    if str(chip) not in "1234":
+        print("The Chip is not correct. It needs to be 1,2,3 or 4")
+        raise Exception("Chip Error")
+    else:
+# from Get_filenames import get_filenames
+# chip = 1
+# obs_num = 1
+        path = "/home/jneal/Phd/data/Crires/BDs-DRACS/HD30501-{}/Combined_Nods".format(obs_num)
+        filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits","*_{}.nod.ms.*".format(chip))
+# print(filenames)
+        crires_name = filenames[0]
+        return os.path.join(path, crires_name)
 
 
 def load_spectrum(name):
