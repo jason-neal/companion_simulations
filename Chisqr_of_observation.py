@@ -66,15 +66,28 @@ def load_spectrum(name):
                         calibrated=True, header=hdr)
     return spectrum
 
+def berv_correct(spectrum):
+    """ Berv Correct spectrum from header information """
+    spectrum = copy.copy(spectrum)
+    date = spectrum.header["Date"]
+    # Calculate corrections
+    # Need to find the notebook with this
+    RV = 0
+
+    spectrum.doppler_shift(RV)
+    return spectrum
 
 def main():
     """ """
+    obs_num = 1
+    chip = 1
+    obs_name = select_observation(obs_num, chip)
 
     # Load observation
-    observed_spectra = load_spectrum()
+    observed_spectra = load_spectrum(obs_name)
     # load models
-    w_mod, I_star, I_bdmod, hdr_star, hdr_bd =
-        load_PHOENIX_hd30501(limits=[2100,2200], normalize=True)
+    (w_mod, I_star, I_bdmod, hdr_star,
+        hdr_bd) = load_PHOENIX_hd30501(limits=[2100,2200], normalize=True)
 
     star_spec = Spectrum(flux=I_star, xaxis=w_mod, header=hdr_star)
     bd_spec = Spectrum(flux=I_bdmod, xaxis=w_mod, header=hdr_bd)
@@ -82,6 +95,9 @@ def main():
     plot_obs_with_model(observed_spectra, star_spec, bd_spec)
 
     # Prepare data / wavelength select,
+    # Berv Correct
+    observed_spectra = berv_correct(observed_spectra)
+
     # Shift to star RV
 
     # Chisquared fitting
