@@ -62,8 +62,8 @@ def main():
     bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
     # Wavelength selection from 2100-2200nm
-    #star_spec.wav_select(2080, 2220)  # extra 20 nm for overlaps to be removed
-    #bd_spec.wav_select(2080, 2220)
+    # star_spec.wav_select(2080, 2220)  # extra 20nm for overlaps to be removed
+    # bd_spec.wav_select(2080, 2220)
     # star_spec.wav_select(100, 3000)
     # bd_spec.wav_select(100, 3000)
 
@@ -72,57 +72,70 @@ def main():
     planet_shifted = copy.copy(bd_spec)
     # RV shift BD spectra
     planet_shifted.doppler_shift(RV_val)
-    Alpha = 0.2  # Vary this to determine detection limit
+    Alpha = 0.05  # Vary this to determine detection limit
 
     snrs = [50, 100, 200]   # Signal to noise levels
     # alphas = 10**np.linspace(-3,-0.5, 10)
     alphas = 10**np.linspace(-7, -0.3, 200)
     RVs = np.arange(0, 100, 0.1)
+    Resolutions = [None, 20000, 50000, 100000]
 
+    path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
     chisqr_snr_dict = dict()  # store 2d array in dict of SNR
-    for snr in snrs:
-        loop_start = time.time()
-        print("Calculation with snr level", snr)
-        # This is the signal to try and recover
-        Alpha_Combine = combine_spectra(star_spec, planet_shifted, Alpha)
-        Alpha_Combine.wav_select(2100, 2200)
-        Alpha_Combine.flux = add_noise(Alpha_Combine.flux, snr)
+    for resolution in Resolutions:
 
-        # Test plot
-        # plt.plot(Alpha_Combine.xaxis, Alpha_Combine.flux)
-        # plt.show()
-        # chisqr_store = np.empty((len(alphas), len(RVs)))
-        scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
+        for snr in snrs:
+            loop_start = time.time()
+            print("Calculation with snr level", snr)
+            # This is the signal to try and recover
+            Alpha_Combine = combine_spectra(star_spec, planet_shifted, Alpha)
+            if resolution is None:
+                pass
+            else:
+                pass
+            Alpha_Combine.wav_select(2100, 2200)
+            Alpha_Combine.flux = add_noise(Alpha_Combine.flux, snr)
 
-        for i, alpha in enumerate(alphas):
-            for j, RV in enumerate(RVs):
-                # print("RV", RV, "alpha", alpha)
+            # Test plot
+            # plt.plot(Alpha_Combine.xaxis, Alpha_Combine.flux)
+            # plt.show()
+            # chisqr_store = np.empty((len(alphas), len(RVs)))
+            scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
 
-                # Generate model for this RV and alhpa
-                planet_shifted = copy.copy(bd_spec)
-                planet_shifted.doppler_shift(RV)
-                model = combine_spectra(star_spec, planet_shifted, alpha)
-                model.wav_select(2100, 2200)
+            for i, alpha in enumerate(alphas):
+                for j, RV in enumerate(RVs):
+                    # print("RV", RV, "alpha", alpha)
 
-                # Try scipy chi_squared
-                scipy_chisquare = chisquare(Alpha_Combine.flux, model.flux)
+                    # Generate model for this RV and alhpa
+                    planet_shifted = copy.copy(bd_spec)
+                    planet_shifted.doppler_shift(RV)
+                    model = combine_spectra(star_spec, planet_shifted, alpha)
+                    model.wav_select(2100, 2200)
 
-                # print("Mine, scipy", chisqr, scipy_chisquare)
-                # chisqr_store[i, j] = chisqr
-                scipy_chisqr_store[i, j] = scipy_chisquare.statistic
-        chisqr_snr_dict[str(snr)] = scipy_chisqr_store
-        print("Loop time = {}".format(time.time() - loop_start))
+                    # Try scipy chi_squared
+                    scipy_chisquare = chisquare(Alpha_Combine.flux, model.flux)
+
+                    # print("Mine, scipy", chisqr, scipy_chisquare)
+                    # chisqr_store[i, j] = chisqr
+                    scipy_chisqr_store[i, j] = scipy_chisquare.statistic
+            chisqr_snr_dict[str(snr)] = scipy_chisqr_store
+
+            # Save the results to a file to stop repeating loops
+            for key, val in chisqr_snr_dict.items():
+                np.save(os.path.join(path,
+                        "scipy_chisquare_data_snr_{0}_res{1}".format(key,
+                                                                     resolution
+                                                                     )
+                                     ), val)
+           print("SNR Loop time = {}".format(time.time() - loop_start))
+
+    print("Finished Resolution {}".format(resolution))
     # Save the results to a file to stop repeating loops
     X, Y = np.meshgrid(RVs, alphas)
-    path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"
-    # np.save(os.path.join(path, "chisquare_data"), chisqr_store)
-    for key, val in chisqr_snr_dict.items():
-        np.save(os.path.join(path,
-                "scipy_chisquare_data_snr_{}".format(key)), val)
     np.save(os.path.join(path, "RV_mesgrid"), X)
     np.save(os.path.join(path, "alpha_meshgrid"), Y)
     np.save(os.path.join(path, "snr_values"), snrs)
-
+    np.save(os.path.join(path, "Resolutions", Resolutions))
 
 if __name__ == "__main__":
     start = time.time()
