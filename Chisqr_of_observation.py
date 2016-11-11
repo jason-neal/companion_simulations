@@ -5,11 +5,11 @@
 
 # Jason Neal November 2016
 
-
 import os
 import numpy as np
 import copy
 import matplotlib.pyplot as plt
+from IP_multi_Convolution import IPconvolution
 from Get_filenames import get_filenames
 from scipy.stats import chisquare
 from astropy.io import fits
@@ -29,7 +29,6 @@ def plot_obs_with_model(obs, model1, model2=None):
         plt.plot(model2.xaxis, model2.flux, label="model2")
     plt.legend(loc=0)
     plt.show()
-
 
 
 # I should already have these sorts of functions
@@ -115,6 +114,13 @@ def main():
             model = combine_spectra(star_spec, planet_shifted, alpha)
             model.wav_select(2100, 2200)
 
+            # Convovle to R50000
+            chip_limits = [model.xaxis[0], model.xaxis[-1]]
+            R = 50000
+            model.xaxis, model.flux = IPconvolution(model.xaxis, model.flux,
+                                                    chip_limits, R,
+                                                    FWHM_lim=5.0, plot=True,
+                                                    verbose=True)
             # Interpolate to observed_spectra
 
             # Try scipy chi_squared
