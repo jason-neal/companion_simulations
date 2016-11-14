@@ -86,12 +86,12 @@ def main():
     # RV shift BD spectra
     goal_planet_shifted.doppler_shift(RV_val)
 
-    Alpha = 0.05  # Vary this to determine detection limit
+    Alpha = 0.1  # Vary this to determine detection limit
 
-    snrs = [50, 100, 200]   # Signal to noise levels
+    snrs = [50, 100, 200, 1000]   # Signal to noise levels
     # alphas = 10**np.linspace(-3,-0.5, 10)
-    alphas = 10**np.linspace(-7, -0.3, 200)
-    RVs = np.arange(0, 100, 0.1)
+    alphas = 10**np.linspace(-5, -0.7, 50)
+    RVs = np.arange(15, 25, 0.1)
     #Resolutions = [None, 50000]
     Resolutions = [10000, 50000, 100000, 150000]
 
