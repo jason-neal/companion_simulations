@@ -66,6 +66,7 @@ def add_noise2(flux, SNR):
 # @jit
 def main():
     """ Chisquare determinination to detect minimum alpha value"""
+    print("Loading Data")
     (w_mod, I_star, I_bdmod,
         hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=[2080, 2220],
                                                  normalize=True)
@@ -81,36 +82,52 @@ def main():
 
     # RV_shift bd_spec
     RV_val = 20
-    planet_shifted = copy.copy(bd_spec)
+    goal_planet_shifted = copy.copy(org_bd_spec)
     # RV shift BD spectra
-    planet_shifted.doppler_shift(RV_val)
+    goal_planet_shifted.doppler_shift(RV_val)
+
     Alpha = 0.05  # Vary this to determine detection limit
 
     snrs = [50, 100, 200]   # Signal to noise levels
     # alphas = 10**np.linspace(-3,-0.5, 10)
     alphas = 10**np.linspace(-7, -0.3, 200)
     RVs = np.arange(0, 100, 0.1)
-    Resolutions = [None, 20000, 50000, 100000]
     #Resolutions = [None, 50000]
     Resolutions = [10000, 50000, 100000, 150000]
 
+    chip_limits = [2080, 2220]
 
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
     chisqr_snr_dict = dict()  # store 2d array in dict of SNR
     print("Starting loop")
     for resolution in tqdm(Resolutions):
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
+        if resolution is None:
+            star_spec = copy.copy(org_star_spec)
+            goal_planet_shifted = goal_planet_shifted
+        else:
+            ip_xaxis, ip_flux = IPconvolution(org_star_spec.xaxis,
+                org_star_spec.flux, chip_limits, resolution,
+                FWHM_lim=5.0, plot=False, verbose=True)
+
+            star_spec = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
+                                         calibrated=True,
+                                         header=org_star_spec.header)
+
+            ip_xaxis, ip_flux = IPconvolution(goal_planet_shifted.xaxis,
+                goal_planet_shifted.flux, chip_limits, resolution,
+                FWHM_lim=5.0, plot=False, verbose=False)
+
+            goal_planet_shifted = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
+                                         calibrated=True,
+                                         header=goal_planet_shifted.header)
 
         print("Starting SNR loop")
         for snr in snrs:
             loop_start = time.time()
             print("Calculation with snr level", snr)
             # This is the signal to try and recover
-            Alpha_Combine = combine_spectra(star_spec, planet_shifted, Alpha)
-            if resolution is None:
-                pass
-            else:
-                pass
+            Alpha_Combine = combine_spectra(star_spec, goal_planet_shifted, Alpha)
             Alpha_Combine.wav_select(2100, 2200)
             Alpha_Combine.flux = add_noise2(Alpha_Combine.flux, snr)
 
