@@ -51,6 +51,14 @@ def add_noise(flux, SNR):
     return noisey_flux
 
 
+@jit
+def add_noise2(flux, SNR):
+    "Using the formulation mu/sigma"
+    sigma = flux / SNR
+    # Add normal distributed noise at the SNR level.
+    noisey_flux = flux + np.random.normal(0, sigma)
+    return noisey_flux
+
 # @jit
 def main():
     """ Chisquare determinination to detect minimum alpha value"""
@@ -94,7 +102,7 @@ def main():
             else:
                 pass
             Alpha_Combine.wav_select(2100, 2200)
-            Alpha_Combine.flux = add_noise(Alpha_Combine.flux, snr)
+            Alpha_Combine.flux = add_noise2(Alpha_Combine.flux, snr)
 
             # Test plot
             # plt.plot(Alpha_Combine.xaxis, Alpha_Combine.flux)
