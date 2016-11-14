@@ -22,6 +22,10 @@ import copy
 from numba import jit
 
 import os
+import sys
+sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
+from IP_multi_Convolution import IPconvolution
+from tqdm import tqdm
 from scipy.stats import chisquare
 from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
@@ -66,8 +70,8 @@ def main():
         hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=[2080, 2220],
                                                  normalize=True)
 
-    star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
-    bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
+    org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
+    org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
     # Wavelength selection from 2100-2200nm
     # star_spec.wav_select(2080, 2220)  # extra 20nm for overlaps to be removed
@@ -87,11 +91,17 @@ def main():
     alphas = 10**np.linspace(-7, -0.3, 200)
     RVs = np.arange(0, 100, 0.1)
     Resolutions = [None, 20000, 50000, 100000]
+    #Resolutions = [None, 50000]
+    Resolutions = [10000, 50000, 100000, 150000]
+
 
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
     chisqr_snr_dict = dict()  # store 2d array in dict of SNR
-    for resolution in Resolutions:
+    print("Starting loop")
+    for resolution in tqdm(Resolutions):
+        print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
 
+        print("Starting SNR loop")
         for snr in snrs:
             loop_start = time.time()
             print("Calculation with snr level", snr)
@@ -113,10 +123,10 @@ def main():
 
             for i, alpha in enumerate(alphas):
                 for j, RV in enumerate(RVs):
-                    # print("RV", RV, "alpha", alpha)
+                    # print("RV", RV, "alpha", alpha, "snr", snr, "res", resolution)
 
                     # Generate model for this RV and alhpa
-                    planet_shifted = copy.copy(bd_spec)
+                    planet_shifted = copy.copy(org_bd_spec)
                     planet_shifted.doppler_shift(RV)
                     model = combine_spectra(star_spec, planet_shifted, alpha)
                     model.wav_select(2100, 2200)
@@ -151,7 +161,7 @@ def main():
     np.save(os.path.join(path, "RV_mesgrid"), X)
     np.save(os.path.join(path, "alpha_meshgrid"), Y)
     np.save(os.path.join(path, "snr_values"), snrs)
-    np.save(os.path.join(path, "Resolutions", Resolutions))
+    np.save(os.path.join(path, "Resolutions"), Resolutions)
 
 if __name__ == "__main__":
     start = time.time()
