@@ -36,14 +36,17 @@ def combine_spectra(star, planet, alpha):
 
     """
     star = copy.copy(star)
+    planet = copy.copy(planet)
+
     if np.all(star.xaxis == planet.xaxis):   # make sure wavelenghts even first
-        # Even though spectrum overload does do it.
-        combined_spectrum = star + (planet*alpha)
+        pass
     else:
-        # Add
         planet.interpolate1d_to(star)
-        combined_spectrum = star + (planet*alpha)
-        # print("\nWarning! The axis are not equal. Fix this to procede\n")
+    # combined_spectrum = star + (planet*alpha)
+    # Combined spectra with proper normalization
+    norm_factor = 1 / (1 + alpha)
+    combined_spectrum = norm_factor * (star + (alpha*planet))
+
     return combined_spectrum
 
 
