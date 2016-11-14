@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # Test alpha variation at which cannot detect a planet
 
 # Create a combined spectra with a planet at an alpha value.

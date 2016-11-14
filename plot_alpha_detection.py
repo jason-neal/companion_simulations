@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # Plot the chisquare for alpha detection
 import os
 import numpy as np
