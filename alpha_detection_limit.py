@@ -33,7 +33,7 @@ def chi_squared(observed, expected, error=None):
     Same result as as scipy.stats.chisquare
     """
     if error:
-        pass
+        chisqr = np.sum((observed-expected)**2 / error**2)
     else:
         # chisqr = np.sum((observed-expected)**2)
         chisqr = np.sum((observed-expected)**2 / expected)
@@ -101,6 +101,7 @@ def main():
             # plt.show()
             # chisqr_store = np.empty((len(alphas), len(RVs)))
             scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
+            error_chisqr_store = np.empty((len(alphas), len(RVs)))
 
             for i, alpha in enumerate(alphas):
                 for j, RV in enumerate(RVs):
@@ -114,12 +115,13 @@ def main():
 
                     # Try scipy chi_squared
                     scipy_chisquare = chisquare(Alpha_Combine.flux, model.flux)
+                    error_chisquare = chi_square(Alpha_Combine.flux, model.flux, error=Alpha_Combine.flux/SNR)
 
                     # print("Mine, scipy", chisqr, scipy_chisquare)
-                    # chisqr_store[i, j] = chisqr
+                    error_chisqr_store[i, j] = error_chisquare
                     scipy_chisqr_store[i, j] = scipy_chisquare.statistic
             chisqr_snr_dict[str(snr)] = scipy_chisqr_store
-
+            error_chisqr_snr_dict[str(snr)] = error_chisqr_store
             # Save the results to a file to stop repeating loops
             for key, val in chisqr_snr_dict.items():
                 np.save(os.path.join(path,
@@ -127,7 +129,13 @@ def main():
                                                                      resolution
                                                                      )
                                      ), val)
-           print("SNR Loop time = {}".format(time.time() - loop_start))
+            for key, val in error_chisqr_snr_dict.items():
+                np.save(os.path.join(path,
+                        "error_chisquare_data_snr_{0}_res{1}".format(key,
+                                                                     resolution
+                                                                     )
+                                     ), val)
+            print("SNR Loop time = {}".format(time.time() - loop_start))
 
     print("Finished Resolution {}".format(resolution))
     # Save the results to a file to stop repeating loops
