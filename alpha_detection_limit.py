@@ -15,6 +15,7 @@
 from __future__ import division, print_function
 import numpy as np
 import time
+import pickle
 import matplotlib.pyplot as plt
 # from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
@@ -182,6 +183,10 @@ def main():
                                                                      resolution
                                                                      )
                                      ), val)
+            #Store in dictionary
+            res_stored_chisquared[resolution] = chisqr_snr_dict
+            res_error_stored_chisquared[resolution] = error_chisqr_snr_dict
+
             print("SNR Loop time = {}".format(time.time() - loop_start))
 
     print("Finished Resolution {}".format(resolution))
@@ -191,6 +196,13 @@ def main():
     np.save(os.path.join(path, "alpha_meshgrid"), Y)
     np.save(os.path.join(path, "snr_values"), snrs)
     np.save(os.path.join(path, "Resolutions"), Resolutions)
+
+    with open(os.path.join(path, "input_params.pickle"), "wb") as f:
+        pickle.dump(input_parameters, f)
+    # Try pickling the data
+
+    with open(os.path.join(path, "alpha_chisquare.pickle"), "wb") as f:
+        pickle.dump((Resolutions, snrs, X, Y, res_stored_chisquared, res_error_stored_chisquared), f)
 
 if __name__ == "__main__":
     start = time.time()
