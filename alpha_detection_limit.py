@@ -37,7 +37,7 @@ def chi_squared(observed, expected, error=None):
     """Calculate chi squared.
     Same result as as scipy.stats.chisquare
     """
-    if error:
+    if np.any(error):
         chisqr = np.sum((observed-expected)**2 / error**2)
     else:
         # chisqr = np.sum((observed-expected)**2)
