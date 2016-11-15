@@ -58,10 +58,10 @@ def simple_normalization(spectrum):
     p1.c1 = ((spectrum.flux[-1]-spectrum.flux[0]) /
              (spectrum.xaxis[-1]-spectrum.xaxis[0]))
 
-    print("Printing p1", p1)
+    #print("Printing p1", p1)
     pfit = fitting.LinearLSQFitter()
     new_model = pfit(p1, spectrum.xaxis, spectrum.flux)
-    print(new_model)
+    #print(new_model)
     fit_norm = new_model(spectrum.xaxis)
     norm_spectrum = spectrum / fit_norm
     flux = norm_spectrum.flux
