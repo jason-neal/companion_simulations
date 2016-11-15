@@ -45,7 +45,7 @@ def combine_spectra(star, planet, alpha):
     # combined_spectrum = star + (planet*alpha)
     # Combined spectra with proper normalization
     norm_factor = 1 / (1 + alpha)
-    combined_spectrum = norm_factor * (star + (alpha*planet))
+    combined_spectrum = (star + (planet*alpha)) * norm_factor
 
     return combined_spectrum
 
