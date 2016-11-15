@@ -76,6 +76,23 @@ def add_noise2(flux, SNR):
     noisey_flux = flux + np.random.normal(0, sigma)
     return noisey_flux
 
+def apply_convolution(model_spectrum, R=None, chip_limits=None):
+    """ Apply convolution to spectrum object"""
+    if chip_limits is None:
+        chip_limits = (np.min(model_spectrum.xaxis), np.max(model_spectrum.xaxis))
+
+    if R is None:
+        return copy.copy(model_spectrum)
+    else:
+        ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
+            model_spectrum.flux[:], chip_limits, R,
+            FWHM_lim=5.0, plot=False, verbose=True)
+
+        new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
+                                     calibrated=model_spectrum.calibrated,
+                                     header=model_spectrum.header)
+
+        return new_model
 # @jit
 def main():
     """ Chisquare determinination to detect minimum alpha value"""
@@ -115,27 +132,32 @@ def main():
     print("Starting loop")
     for resolution in tqdm(Resolutions):
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
-        if resolution is None:
-            star_spec = copy.copy(org_star_spec)
-            goal_planet_shifted = goal_planet_shifted
-        else:
-            ip_xaxis, ip_flux = IPconvolution(org_star_spec.xaxis,
-                org_star_spec.flux, chip_limits, resolution,
-                FWHM_lim=5.0, plot=False, verbose=True)
 
-            star_spec = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-                                         calibrated=True,
-                                         header=org_star_spec.header)
+        star_spec = apply_convolution(org_star_spec, R=resolution,
+                                      chip_limits=chip_limits)
+        goal_planet = apply_convolution(goal_planet_shifted, R=resolution,
+                                        chip_limits=chip_limits)
+        #if resolution is None:
+        #    star_spec = copy.copy(org_star_spec)
+        #    goal_planet = copy.copy(goal_planet_shifted)
+        #else:
+        #    ip_xaxis, ip_flux = IPconvolution(org_star_spec.xaxis,
+    #             org_star_spec.flux, chip_limits, resolution,
+    #            FWHM_lim=5.0, plot=False, verbose=True)
 
-            ip_xaxis, ip_flux = IPconvolution(goal_planet_shifted.xaxis,
-                goal_planet_shifted.flux, chip_limits, resolution,
-                FWHM_lim=5.0, plot=False, verbose=False)
+    #        star_spec = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
+        #                                 calibrated=True,
+        #                                 header=org_star_spec.header)
 
-            goal_planet_shifted = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-                                         calibrated=True,
-                                         header=goal_planet_shifted.header)
+    #        ip_xaxis, ip_flux = IPconvolution(goal_planet_shifted.xaxis,
+    #            goal_planet_shifted.flux, chip_limits, resolution,
+    #            FWHM_lim=5.0, plot=False, verbose=False)
 
-        print("Starting SNR loop")
+    #        goal_planet = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
+    #                                     calibrated=True,
+    #                                     header=goal_planet_shifted.header)
+
+        print("Starting SNR loop for resolution value of {}".format(resolution))
         for snr in snrs:
             loop_start = time.time()
             print("Calculation with snr level", snr)
