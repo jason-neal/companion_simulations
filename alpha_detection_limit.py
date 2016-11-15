@@ -112,25 +112,33 @@ def main():
 
     # RV_shift bd_spec
     RV_val = 20
+    Alpha = 0.1  # Vary this to determine detection limit
+    input_parameters = (RV_val, Alpha)
     goal_planet_shifted = copy.copy(org_bd_spec)
     # RV shift BD spectra
     goal_planet_shifted.doppler_shift(RV_val)
 
-    Alpha = 0.1  # Vary this to determine detection limit
 
-    snrs = [50, 100, 200, 1000]   # Signal to noise levels
-    # alphas = 10**np.linspace(-3,-0.5, 10)
-    alphas = 10**np.linspace(-5, -0.7, 50)
-    RVs = np.arange(15, 25, 0.1)
-    #Resolutions = [None, 50000]
-    Resolutions = [10000, 50000, 100000, 150000]
+
+    snrs = [100, 101, 110, 111]   # Signal to noise levels
+    alphas = 10**np.linspace(-5, -0.2, 200)
+    Resolutions = [None, 50000]
+    RVs = np.arange(10, 30, 0.1)
+    # Resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
+    # snrs = [50, 100, 200, 500, 1000]   # Signal to noise levels
+    # alphas = 10**np.linspace(-4, -0.1, 200)
+    # RVs = np.arange(-100, 100, 0.05)
+
 
     chip_limits = [2080, 2220]
 
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
-    chisqr_snr_dict = dict()  # store 2d array in dict of SNR
+    res_stored_chisquared = dict()
+    res_error_stored_chisquared = dict()
     print("Starting loop")
     for resolution in tqdm(Resolutions):
+        chisqr_snr_dict = dict()  # store 2d array in dict of SNR
+        error_chisqr_snr_dict = dict()
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
 
         star_spec = apply_convolution(org_star_spec, R=resolution,
@@ -162,7 +170,7 @@ def main():
             loop_start = time.time()
             print("Calculation with snr level", snr)
             # This is the signal to try and recover
-            Alpha_Combine = combine_spectra(star_spec, goal_planet_shifted, Alpha)
+            Alpha_Combine = combine_spectra(star_spec, goal_planet, Alpha)
             Alpha_Combine.wav_select(2100, 2200)
             Alpha_Combine.flux = add_noise2(Alpha_Combine.flux, snr)
 
@@ -185,7 +193,7 @@ def main():
 
                     # Try scipy chi_squared
                     scipy_chisquare = chisquare(Alpha_Combine.flux, model.flux)
-                    error_chisquare = chi_square(Alpha_Combine.flux, model.flux, error=Alpha_Combine.flux/SNR)
+                    error_chisquare = chi_squared(Alpha_Combine.flux, model.flux, error=Alpha_Combine.flux/snr)
 
                     # print("Mine, scipy", chisqr, scipy_chisquare)
                     error_chisqr_store[i, j] = error_chisquare
@@ -193,6 +201,7 @@ def main():
             chisqr_snr_dict[str(snr)] = scipy_chisqr_store
             error_chisqr_snr_dict[str(snr)] = error_chisqr_store
             # Save the results to a file to stop repeating loops
+
             for key, val in chisqr_snr_dict.items():
                 np.save(os.path.join(path,
                         "scipy_chisquare_data_snr_{0}_res{1}".format(key,
