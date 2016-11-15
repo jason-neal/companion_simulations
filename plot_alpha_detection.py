@@ -17,10 +17,7 @@ def main():
     # chisqr_store = np.load(os.path.join(path, "chisquare_data.npy"))
 # scipy_chisqr_store = np.load(os.path.join(path, "scipy_chisquare_data.npy"))
     # X, Y = np.meshgrid(RVs, alphas)
-    chisqr_snr = dict()
-    for snr in snrs:
-        chisqr_snr[snr] = np.load(os.path.join(path,
-                                  "scipy_chisquare_data_snr_{}.npy".format(snr)
+
     # unpickle parameter
     try:
         with open(os.path.join(path, "input_params.pickle"),"rb") as f:
@@ -28,7 +25,24 @@ def main():
     except:
         raise
         input_parameters = (999, 999)
+
+    res_chisqr_snr = dict()
+    res_error_chisqr_snr = dict()  # uses sigma on model instead of expected
+    for resolution in Resolutions:
+        chisqr_snr = dict()
+        error_chisqr_snr = dict()  # uses sigma on model instead of expected
+        for snr in snrs:
+        #chisqr_snr[snr] = np.load(os.path.join(path,
+        #                          "scipy_chisquare_data_snr_{}.npy".format(snr)
+        #                                       ))
+            chisqr_snr[snr] = np.load(os.path.join(path,
+                                    "scipy_chisquare_data_snr_{0}_res{1}.npy".format(snr, resolution)
+                                              ))
+            error_chisqr_snr[snr] = np.load(os.path.join(path,
+                                     "error_chisquare_data_snr_{0}_res{1}.npy".format(snr, resolution)
                                                ))
+        res_chisqr_snr[resolution] = chisqr_snr
+        res_error_chisqr_snr[resolution] = error_chisqr_snr
 
     df_list = []   # To make data frame
     for resolution in Resolutions:
@@ -59,26 +73,58 @@ def main():
                                         "Recovered Alpha", "chi**2"])
     print(df)
 
-    # plt.contourf(X, Y, np.log(chis
-    # plt.contourf(X, Y, np.log(chisqr_store), 40)
-    # plt.title("my chisquared ".format(snr))
-    # plt.show()
-    for snr in snrs:
-        this_chisqr_snr = chisqr_snr[snr]
-        plt.contourf(X, Y, np.log(this_chisqr_snr), 100)
-        plt.title("Log Chi squared with snr of {}".format(snr))
-        plt.show()
-        print("snr = ", snr)
-        print("min chisquared value", np.min(this_chisqr_snr),
-              "location", np.argmin(this_chisqr_snr))
-        print("min scipy chisquared value", np.min(this_chisqr_snr),
-              "location", np.argmin(this_chisqr_snr))
 
-    for snr in snrs:
-        this_chisqr_snr = chisqr_snr[snr]
-        plt.contourf(X, Y, this_chisqr_snr, 100)
-        plt.title("Chi squared with snr of {}".format(snr))
-        plt.show()
+    plt.plot(df.loc[:,"Resolution"], df.loc[:,"Recovered RV"], "o")
+    plt.xlabel("Resolutions")
+    plt.ylabel("RV")
+    plt.show()
+    plt.plot(df.loc[:,"SNR"], df.loc[:,"Recovered RV"], "o")
+    plt.xlabel("snr")
+    plt.ylabel("RV")
+    plt.show()
+    plt.plot(df.loc[:,"Resolution"], df.loc[:,"Recovered Alpha"], "o")
+    plt.xlabel("Resolutions")
+    plt.ylabel("Alpha")
+    plt.show()
+    plt.plot(df.loc[:,"SNR"], df.loc[:,"Recovered Alpha"], "o")
+    plt.xlabel("snr")
+    plt.ylabel("Alpha")
+    plt.show()
+
+
+
+
+
+
+    #df_list = []   # To make data frame
+    for resolution in Resolutions:
+        for snr in snrs:
+            this_chisqr_snr = res_chisqr_snr[resolution][snr]
+            this_error_chisqr_snr = res_error_chisqr_snr[resolution][snr]
+            log_chisqr = np.log(this_chisqr_snr)
+            log_error_chisqr = np.log(this_error_chisqr_snr)
+            plt.figure(figsize=(10, 9))
+            plt.suptitle("Log Chi squared with SNR = {0}, Resolution = {1}\n Correct RV={2}, Correct alpha={3}".format(snr, resolution, input_parameters[0], input_parameters[1]), fontsize=16)
+            plt.subplot(2, 1, 1)
+            plt.contourf(X, Y, log_chisqr, 100)
+            plt.ylabel("Flux ratio")
+            plt.title("Scipy chisquared")
+            plt.subplot(2, 1, 2)
+            plt.contourf(X, Y, log_error_chisqr, 100)
+            plt.title("Sigma chisquared")
+            plt.ylabel("Flux ratio")
+            plt.xlabel("RV (km/s)")
+            plt.show()
+
+            #plt.contourf(X, Y, this_chisqr_snr, 100)
+            #plt.title("Chi squared with snr of {} and resolution {}".format(snr, resolution))
+            #plt.show()
+
+
+    plt.show()
+
+
+
 
 
 if __name__ == "__main__":
