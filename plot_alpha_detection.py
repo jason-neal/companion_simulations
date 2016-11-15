@@ -3,6 +3,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 # import numba
 import pickle
 
@@ -29,6 +30,35 @@ def main():
         input_parameters = (999, 999)
                                                ))
 
+    df_list = []   # To make data frame
+    for resolution in Resolutions:
+        for snr in snrs:
+            this_chisqr_snr = res_chisqr_snr[resolution][snr]
+            this_error_chisqr_snr = res_error_chisqr_snr[resolution][snr]
+            # Calculating the minimum location
+            print("snr = ", snr)
+            #print("min chisquared value", np.min(this_chisqr_snr),
+            #      "location", np.argmin(this_chisqr_snr))
+            #print("min scipy chisquared value", np.min(this_chisqr_snr),
+            #      "location", np.argmin(this_chisqr_snr))
+            print("\n Using expectation value chi sqaure")
+            print("min scipy chisquared value",
+                  np.min(this_chisqr_snr, axis=(0, 1)), "location",
+                  np.argmin(this_chisqr_snr))
+            print("RV = ", X.ravel()[np.argmin(this_chisqr_snr)], "APLHA = ", Y.ravel()[np.argmin(this_chisqr_snr)])
+            print("\n Using sigma value chi sqaure")
+            print("min scipy chisquared value",
+                  np.min(this_error_chisqr_snr, axis=(0, 1)), "location",
+                  np.argmin(this_error_chisqr_snr))
+            print("RV = ", X.ravel()[np.argmin(this_error_chisqr_snr)], "APLHA = ", Y.ravel()[np.argmin(this_error_chisqr_snr)], "\n")
+
+            rv_at_min = X.ravel()[np.argmin(this_chisqr_snr)]
+            alpha_at_min = Y.ravel()[np.argmin(this_chisqr_snr)]
+            df_list.append([resolution, snr, rv_at_min, alpha_at_min, np.min(this_error_chisqr_snr, axis=(0, 1))])
+    df = pd.DataFrame(df_list, columns=["Resolution", "SNR", "Recovered RV",
+                                        "Recovered Alpha", "chi**2"])
+    print(df)
+
     # plt.contourf(X, Y, np.log(chis
     # plt.contourf(X, Y, np.log(chisqr_store), 40)
     # plt.title("my chisquared ".format(snr))
@@ -49,20 +79,7 @@ def main():
         plt.contourf(X, Y, this_chisqr_snr, 100)
         plt.title("Chi squared with snr of {}".format(snr))
         plt.show()
-        print("snr = ", snr)
-        print("min chisquared value", np.min(this_chisqr_snr),
-              "location", np.argmin(this_chisqr_snr))
-        print("min scipy chisquared value", np.min(this_chisqr_snr),
-              "location", np.argmin(this_chisqr_snr))
-        print("min scipy chisquared value",
-              np.min(this_chisqr_snr, axis=(0, 1)), "location",
-              np.argmin(this_chisqr_snr))
 
-# print("chisqr_store[650]", chisqr_store[650])
-
-    # print("division of chisqr and scipy chisqr",
-    # chisqr_store/scipy_chisqr_store)
-# main()
 
 if __name__ == "__main__":
     main()
