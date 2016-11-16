@@ -97,28 +97,20 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
 def main():
     """ Chisquare determinination to detect minimum alpha value"""
     print("Loading Data")
+
+    path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
+
+    chip_limits = [2080, 2220]
+
     (w_mod, I_star, I_bdmod,
-        hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=[2080, 2220],
+        hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=chip_limits,
                                                  normalize=True)
 
     org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
     org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
-    # Wavelength selection from 2100-2200nm
-    # star_spec.wav_select(2080, 2220)  # extra 20nm for overlaps to be removed
-    # bd_spec.wav_select(2080, 2220)
-    # star_spec.wav_select(100, 3000)
-    # bd_spec.wav_select(100, 3000)
-
-    # RV_shift bd_spec
-    RV_val = 20
-    Alpha = 0.1  # Vary this to determine detection limit
-    input_parameters = (RV_val, Alpha)
-    goal_planet_shifted = copy.copy(org_bd_spec)
     # RV shift BD spectra
     goal_planet_shifted.doppler_shift(RV_val)
-
-
 
     snrs = [100, 101, 110, 111]   # Signal to noise levels
     alphas = 10**np.linspace(-5, -0.2, 200)
@@ -130,12 +122,16 @@ def main():
     # RVs = np.arange(-100, 100, 0.05)
 
 
-    chip_limits = [2080, 2220]
+    # RV and alpha value of Simulations
+    RV_val = 20
+    Alpha = 0.1  # Vary this to determine detection limit
+    input_parameters = (RV_val, Alpha)
 
-    path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
+    convolved_star_model = store_convolutions(org_star_spec, Resolutions, chip_limits=chip_limits)
     res_stored_chisquared = dict()
     res_error_stored_chisquared = dict()
     print("Starting loop")
+
     for resolution in tqdm(Resolutions):
         chisqr_snr_dict = dict()  # store 2d array in dict of SNR
         error_chisqr_snr_dict = dict()
