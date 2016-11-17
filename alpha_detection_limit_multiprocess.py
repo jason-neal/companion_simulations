@@ -90,9 +90,8 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
         return copy.copy(model_spectrum)
     else:
         ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-                                          model_spectrum.flux[:], chip_limits,
-                                          R, FWHM_lim=5.0, plot=False,
-                                          verbose=True)
+                                          model_spectrum.flux[:], chip_limits, R,
+                                          FWHM_lim=5.0, plot=False, verbose=True)
 
         new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
                              calibrated=model_spectrum.calibrated,
@@ -108,7 +107,6 @@ def store_convolutions(spectrum, resolutions, chip_limits=None):
     d = dict()
     for resolution in resolutions:
         d[resolution] = apply_convolution(spectrum, resolution, chip_limits=chip_limits)
-
     return d
 
 @memory.cache
@@ -199,10 +197,11 @@ def main():
     org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
     org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
-    Resolutions = [None, 50000]
-    snrs = [100, 101, 110, 111]   # Signal to noise levels
-    alphas = 10**np.linspace(-5, -0.2, 200)
-    RVs = np.arange(10, 30, 0.1)
+    # Resolutions = [None, 50000]
+    Resolutions = [50000, 100000]
+    snrs = [100, 1000]   # Signal to noise levels
+    alphas = 10**np.linspace(-5, -0.2, 100)
+    RVs = np.arange(15, 25, 0.1)
     # Resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
     # snrs = [50, 100, 200, 500, 1000]   # Signal to noise levels
     # alphas = 10**np.linspace(-4, -0.1, 200)
@@ -213,13 +212,17 @@ def main():
     Alpha = 0.1  # Vary this to determine detection limit
     input_parameters = (RV_val, Alpha)
 
-    convolved_star_model = store_convolutions(org_star_spec, Resolutions, chip_limits=chip_limits)
-    convolved_planet_model = store_convolutions(org_bd_spec, Resolutions, chip_limits=chip_limits)
+    # starting convolution
+    print("Begining convolution of models")
+    timeInit = dt.now()
+    convolved_star_models = store_convolutions(org_star_spec, Resolutions, chip_limits=chip_limits)
+    convolved_planet_models = store_convolutions(org_bd_spec, Resolutions, chip_limits=chip_limits)
+    print("Convolution of models took {} seconds". format(dt.now()-timeInit))
 
-    # print(type(convolved_star_model))
-    # print(type(convolved_planet_model))
-    simulated_obersvations = generate_observations(convolved_star_model,
-                                                   convolved_planet_model,
+    # print(type(convolved_star_models))
+    # print(type(convolved_planet_models))
+    simulated_observations = generate_observations(convolved_star_models,
+                                                   convolved_planet_models,
                                                    RV_val, Alpha,
                                                    Resolutions, snrs)
 
