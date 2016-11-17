@@ -100,6 +100,50 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
         return new_model
 
 
+def store_convolutions(spectrum, resolutions, chip_limits=None):
+    """ Convolve spectrum to many resolutions and store in a dict to retreive.
+     This prevents multiple convolution at the same resolution.
+    """
+    d = dict()
+    for resolution in resolutions:
+        d[resolution] = apply_convolution(spectrum, resolution, chip_limits=chip_limits)
+
+    return d
+
+
+def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
+    """ Create an simulated obervation for combinations of resolution and snr.
+
+    Paramters:
+    model_1: and model_2 are Spectrum objects.
+    rv: the rv offset applied to model_2
+    alpha: flux ratio I(model_2)/I(model_1)
+    resolutions: list of resolutions to simulate
+    snrs: list of snr values to simulate
+
+    Returns:
+    observations: dict[resolution][snr] containing a simulated spectrum.
+
+    """
+    observations = defaultdict(dict)
+    iterator = itertools.product(resolutions, snrs)
+    for resolution, snr in iterator:
+        # Preform tasks to simulate an observation
+        spec_1 = model_1[resolution]
+
+        spec_2 = model_2[resolution]
+        spec_2.doppler_shift(rv)
+        # model1 and model2 are already normalized and convovled to each resolution using
+        # store_convolutions
+        combined_model = combine_spectra(spec_1, spec_2, alpha)
+
+        combined_model.flux = add_noise2(combined_model.flux, snr)
+
+        observations[resolution][snr] = combined_model
+
+    return observations
+
+
 # @jit
 def main():
     """ Chisquare determinination to detect minimum alpha value"""
@@ -131,6 +175,14 @@ def main():
     input_parameters = (RV_val, Alpha)
 
     convolved_star_model = store_convolutions(org_star_spec, Resolutions, chip_limits=chip_limits)
+    convolved_planet_model = store_convolutions(org_bd_spec, Resolutions, chip_limits=chip_limits)
+
+    # print(type(convolved_star_model))
+    # print(type(convolved_planet_model))
+    simulated_obersvations = generate_observations(convolved_star_model,
+                                                   convolved_planet_model,
+                                                   RV_val, Alpha,
+                                                   Resolutions, snrs)
     res_stored_chisquared = dict()
     res_error_stored_chisquared = dict()
     print("Starting loop")
@@ -176,6 +228,9 @@ def main():
 
             # Test plot
             # plt.plot(Alpha_Combine.xaxis, Alpha_Combine.flux)
+            sim_observation = simulated_obersvations[resolution][snr]
+            # plt.plot(this_simulation.xaxis, this_simulation.flux, label="function generatred")
+            # plt.legend()
             # plt.show()
 
             # chisqr_store = np.empty((len(alphas), len(RVs)))
