@@ -229,11 +229,11 @@ def main():
     goal_planet_shifted.doppler_shift(RV_val)
 
     # These should be replaced by
-    res_stored_chisquared = dict()
-    res_error_stored_chisquared = dict()
+    # res_stored_chisquared = dict()
+    # res_error_stored_chisquared = dict()
     # This
-    res_snr_storage_dict = defaultdict(dict)  # Dictionary of dictionaries
-    error_res_snr_storage_dict = defaultdict(dict)  # Dictionary of dictionaries
+    res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries
+    error_res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries
     # Iterable over resolution and snr to process
     # res_snr_iter = itertools.product(Resolutions, snrs)
     # Can then store to dict store_dict[res][snr]
@@ -247,10 +247,8 @@ def main():
 
     # mprocPool = mprocess.Pool(processes=numProcs)
     timeInit = dt.now()
+    for resolution in Resolutions:
 
-    for resolution in tqdm(Resolutions):
-        chisqr_snr_dict = dict()  # store 2d array in dict of SNR
-        error_chisqr_snr_dict = dict()
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
         # chisqr_snr_dict = dict()  # store 2d array in dict of SNR
         # error_chisqr_snr_dict = dict()
@@ -269,8 +267,8 @@ def main():
 
             # mprocPool.map(wrapper_parallel_chisquare, args_generator)
 
-    with open(os.path.join(path, "input_params.pickle"), "wb") as f:
-        pickle.dump(input_parameters, f)
+            Parallel(n_jobs=numProcs)(delayed(parallel_chisquared)(i, j, alpha, rv, resolution, snr, sim_observation, convolved_star_models, convolved_planet_models, scipy_memmap, my_chisqr_memmap) for j, rv in enumerate(RVs) for i, alpha in enumerate(alphas) )
+
             print(scipy_memmap)
             res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
             error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
