@@ -94,6 +94,44 @@ def set_crires_resolution(header):
         print("Instrument is not CRIRES")
     return resolving_power
 
+
+def apply_convolution(model_spectrum, R=None, chip_limits=None):
+    """ Apply convolution to spectrum object"""
+    if chip_limits is None:
+        chip_limits = (np.min(model_spectrum.xaxis), np.max(model_spectrum.xaxis))
+
+    if R is None:
+        return copy.copy(model_spectrum)
+    else:
+        ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
+                                          model_spectrum.flux[:], chip_limits, R,
+                                          FWHM_lim=5.0, plot=False, verbose=True)
+
+        new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
+                             calibrated=model_spectrum.calibrated,
+                             header=model_spectrum.header)
+
+        return new_model
+
+
+    def convolve_models(models, R, chip_limits=None):
+        """ Convolve all model spectra to resolution R.
+        This prevents multiple convolution at the same resolution.
+
+        inputs:
+        models: list, tuple of spectum objects
+
+        returns:
+        new_models: tuple of the convovled spectral models
+        """
+        new_models = []
+        for model in models:
+            convovled_model = apply_convolution(spectrum, resolution,
+                                                chip_limits=chip_limits)
+        new_models.append(convovled_model)
+        return tuple(new_models)
+
+
 def main():
     """ """
     obs_num = 1
@@ -104,13 +142,16 @@ def main():
     observed_spectra = load_spectrum(obs_name)
     # load models
     (w_mod, I_star, I_bdmod, hdr_star,
-        hdr_bd) = load_PHOENIX_hd30501(limits=[2100,2200], normalize=True)
+        hdr_bd) = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
 
     obs_resolution = set_crires_resolution(observed_spectra.header)
 
 
     star_spec = Spectrum(flux=I_star, xaxis=w_mod, header=hdr_star)
     bd_spec = Spectrum(flux=I_bdmod, xaxis=w_mod, header=hdr_bd)
+
+    # Convolve models to resolution of instrument
+    star_spec, bd_spec = convolve_models((star_spec, bd_spec), obs_resolution, chip_limits=None)
 
     plot_obs_with_model(observed_spectra, star_spec, bd_spec)
 
