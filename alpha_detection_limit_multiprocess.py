@@ -266,74 +266,6 @@ def main():
 
             # args_generator = tqdm([[i, j, alpha, rv, resolution, snr, sim_observation, convolved_star_models, convolved_planet_models, scipy_memmap, my_chisqr_memmap]
             #                      for i, alpha in enumerate(alphas) for j, rv in enumerate(RVs)])
-        # if resolution is None:
-        #    star_spec = copy.copy(org_star_spec)
-        #    goal_planet = copy.copy(goal_planet_shifted)
-        # else:
-        #    ip_xaxis, ip_flux = IPconvolution(org_star_spec.xaxis,
-    #             org_star_spec.flux, chip_limits, resolution,
-    #            FWHM_lim=5.0, plot=False, verbose=True)
-
-    #        star_spec = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-        #                                 calibrated=True,
-        #                                 header=org_star_spec.header)
-
-    #        ip_xaxis, ip_flux = IPconvolution(goal_planet_shifted.xaxis,
-    #            goal_planet_shifted.flux, chip_limits, resolution,
-    #            FWHM_lim=5.0, plot=False, verbose=False)
-
-    #        goal_planet = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-    #                                     calibrated=True,
-    #                                     header=goal_planet_shifted.header)
-
-        print("Starting SNR loop for resolution value of {}".format(resolution))
-        for snr in snrs:
-            loop_start = time.time()
-            print("Calculation with snr level", snr)
-            # This is the signal to try and recover
-            Alpha_Combine = combine_spectra(star_spec, goal_planet, Alpha)
-            Alpha_Combine.wav_select(2100, 2200)
-            Alpha_Combine.flux = add_noise2(Alpha_Combine.flux, snr)
-
-            # Test plot
-            # plt.plot(Alpha_Combine.xaxis, Alpha_Combine.flux)
-            sim_observation = simulated_obersvations[resolution][snr]
-            # plt.plot(this_simulation.xaxis, this_simulation.flux, label="function generatred")
-            # plt.legend()
-            # plt.show()
-
-            # chisqr_store = np.empty((len(alphas), len(RVs)))
-            scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
-            error_chisqr_store = np.empty((len(alphas), len(RVs)))
-            new_scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
-            new_error_chisqr_store = np.empty((len(alphas), len(RVs)))
-            # Save the results to a file to stop repeating loops
-
-            for key, val in chisqr_snr_dict.items():
-                np.save(os.path.join(path,
-                        "scipy_chisquare_data_snr_{0}_res{1}".format(key,
-                                                                     resolution
-                                                                     )
-                                     ), val)
-            for key, val in error_chisqr_snr_dict.items():
-                np.save(os.path.join(path,
-                        "error_chisquare_data_snr_{0}_res{1}".format(key,
-                                                                     resolution
-                                                                     )
-                                     ), val)
-            # Store in dictionary
-            res_stored_chisquared[resolution] = chisqr_snr_dict
-            res_error_stored_chisquared[resolution] = error_chisqr_snr_dict
-
-            print("SNR Loop time = {}".format(time.time() - loop_start))
-
-    print("Finished Resolution {}".format(resolution))
-    # Save the results to a file to stop repeating loops
-    X, Y = np.meshgrid(RVs, alphas)
-    np.save(os.path.join(path, "RV_mesgrid"), X)
-    np.save(os.path.join(path, "alpha_meshgrid"), Y)
-    np.save(os.path.join(path, "snr_values"), snrs)
-    np.save(os.path.join(path, "Resolutions"), Resolutions)
 
             # mprocPool.map(wrapper_parallel_chisquare, args_generator)
 
@@ -350,14 +282,27 @@ def main():
                                            mprocess.cpu_count()))
 
     # Save the results to a file to stop repeating loops
+    # X, Y = np.meshgrid(RVs, alphas)
+    # np.save(os.path.join(path, "RV_mesgrid"), X)
+    # np.save(os.path.join(path, "alpha_meshgrid"), Y)
+    # np.save(os.path.join(path, "snr_values"), snrs)
+    # np.save(os.path.join(path, "Resolutions"), Resolutions)
+
+    # with open(os.path.join(path, "input_params.pickle"), "wb") as f:
+    #    pickle.dump(input_parameters, f)
     # Try pickling the data
 
-    with open(os.path.join(path, "alpha_chisquare.pickle"), "wb") as f:
-        pickle.dump((Resolutions, snrs, X, Y, res_stored_chisquared, res_error_stored_chisquared), f)
+    # with open(os.path.join(path, "alpha_chisquare.pickle"), "wb") as f:
+    #    pickle.dump((Resolutions, snrs, X, Y, res_stored_chisquared, res_error_stored_chisquared), f)
 
-        with open(os.path.join(path, "new_res_snr_chisquare.pickle"), "wb") as f:
-            pickle.dump((Resolutions, snrs, X, Y, res_snr_storage_dict, error_res_snr_storage_dict), f)
+    # with open(os.path.join(path, "new_res_snr_chisquare.pickle"), "wb") as f:
+    #        pickle.dump((Resolutions, snrs, X, Y, res_snr_chisqr_dict, error_res_snr_chisqr_dict), f)
 
+    with open(os.path.join(path, "parallel_chisquare.pickle"), "wb") as f:
+        """Pickle all the necessary parameters to store
+
+        """
+        pickle.dump((Resolutions, snrs, alphas, RVs, input_parameters, simulated_observations, convolved_star_models, convolved_planet_models, res_snr_chisqr_dict, error_res_snr_chisqr_dict), f)
 
 if __name__ == "__main__":
     start = time.time()
