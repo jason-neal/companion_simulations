@@ -76,6 +76,24 @@ def berv_correct(spectrum):
     spectrum.doppler_shift(RV)
     return spectrum
 
+
+def set_crires_resolution(header):
+    """ Set CRIRES resolution based on rule of thumb equation from the manual.
+    Warning! The use of adpative optics is not checked for!!
+    # This code has been copied from tapas xml request script.
+    """
+    instrument = header["INSTRUME"]
+
+    slit_width = header["HIERARCH ESO INS SLIT1 WID"]
+    if "CRIRES" in instrument:
+        # print("Resolving Power\nUsing the rule of thumb equation from the CRIRES manual. \nWarning! The use of adpative optics is not checked for!!")
+        R = 100000*0.2 / slit_width
+        resolving_power = int(R)
+        # print("Slit width was {0} inches.\nTherefore the resolving_power is set = {1}".format(slit_width, resolving_power))
+    else:
+        print("Instrument is not CRIRES")
+    return resolving_power
+
 def main():
     """ """
     obs_num = 1
@@ -87,6 +105,9 @@ def main():
     # load models
     (w_mod, I_star, I_bdmod, hdr_star,
         hdr_bd) = load_PHOENIX_hd30501(limits=[2100,2200], normalize=True)
+
+    obs_resolution = set_crires_resolution(observed_spectra.header)
+
 
     star_spec = Spectrum(flux=I_star, xaxis=w_mod, header=hdr_star)
     bd_spec = Spectrum(flux=I_bdmod, xaxis=w_mod, header=hdr_bd)
