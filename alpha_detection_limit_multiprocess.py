@@ -39,6 +39,10 @@ import sys
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
 
+path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
+cachedir = os.path.join(path, "cache")  # save path
+memory = Memory(cachedir=cachedir, verbose=0)
+
 @jit
 def chi_squared(observed, expected, error=None):
     """Calculate chi squared.
@@ -86,6 +90,7 @@ def add_noise2(flux, SNR):
     return noisey_flux
 
 
+@memory.cache
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
     """ Apply convolution to spectrum object"""
     if chip_limits is None:
@@ -105,7 +110,7 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
 
         return new_model
 
-
+@memory.cache
 def store_convolutions(spectrum, resolutions, chip_limits=None):
     """ Convolve spectrum to many resolutions and store in a dict to retreive.
      This prevents multiple convolution at the same resolution.
@@ -116,9 +121,9 @@ def store_convolutions(spectrum, resolutions, chip_limits=None):
 
     return d
 
-
+@memory.cache
 def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
-    """ Create an simulated obervation for combinations of resolution and snr.
+    """ Create an simulated observation for combinations of resolution and snr.
 
     Paramters:
     model_1: and model_2 are Spectrum objects.
