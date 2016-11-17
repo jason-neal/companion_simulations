@@ -30,6 +30,7 @@ from tqdm import tqdm
 from scipy.stats import chisquare
 from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
+from collections import defaultdict
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
 
@@ -183,8 +184,22 @@ def main():
                                                    convolved_planet_model,
                                                    RV_val, Alpha,
                                                    Resolutions, snrs)
+
+    # Not used with gernerator function
+    goal_planet_shifted = copy.copy(org_bd_spec)
+    # RV shift BD spectra
+    goal_planet_shifted.doppler_shift(RV_val)
+
+    # These should be replaced by
     res_stored_chisquared = dict()
     res_error_stored_chisquared = dict()
+    # This
+    res_snr_storage_dict = defaultdict(dict)  # Dictionary of dictionaries
+    error_res_snr_storage_dict = defaultdict(dict)  # Dictionary of dictionaries
+    # Iterable over resolution and snr to process
+    # res_snr_iter = itertools.product(Resolutions, snrs)
+    # Can then store to dict store_dict[res][snr]
+
     print("Starting loop")
 
     for resolution in tqdm(Resolutions):
@@ -236,7 +251,8 @@ def main():
             # chisqr_store = np.empty((len(alphas), len(RVs)))
             scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
             error_chisqr_store = np.empty((len(alphas), len(RVs)))
-
+            new_scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
+            new_error_chisqr_store = np.empty((len(alphas), len(RVs)))
             for i, alpha in enumerate(alphas):
                 for j, RV in enumerate(RVs):
                     # print("RV", RV, "alpha", alpha, "snr", snr, "res", resolution)
@@ -254,8 +270,32 @@ def main():
                     # print("Mine, scipy", chisqr, scipy_chisquare)
                     error_chisqr_store[i, j] = error_chisquare
                     scipy_chisqr_store[i, j] = scipy_chisquare.statistic
+
+                    #########################
+                    # using dictionary values
+                    host_model = convolved_star_model[resolution]
+                    companion_model = convolved_planet_model[resolution]
+                    companion_model.doppler_shift(RV)
+                    model_new = combine_spectra(host_model, companion_model,
+                                                alpha)
+
+                    # model_new = combine_spectra(convolved_star_model[resolution], convolved_planet_model[resolution].doppler_shift(RV), alpha)
+                    model_new.wav_select(2100, 2200)
+                    sim_observation.wav_select(2100, 2200)
+
+                    new_scipy_chisquare = chisquare(sim_observation.flux, model_new.flux)
+                    new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux, error=sim_observation.flux/snr)
+
+                    new_error_chisqr_store[i, j] = new_error_chisquare
+                    new_scipy_chisqr_store[i, j] = new_scipy_chisquare.statistic
+                    ##############################
+
             chisqr_snr_dict[str(snr)] = scipy_chisqr_store
             error_chisqr_snr_dict[str(snr)] = error_chisqr_store
+
+            res_snr_storage_dict[resolution][snr] = new_scipy_chisqr_store
+            error_res_snr_storage_dict[resolution][snr] = new_error_chisqr_store
+
             # Save the results to a file to stop repeating loops
 
             for key, val in chisqr_snr_dict.items():
@@ -290,6 +330,10 @@ def main():
 
     with open(os.path.join(path, "alpha_chisquare.pickle"), "wb") as f:
         pickle.dump((Resolutions, snrs, X, Y, res_stored_chisquared, res_error_stored_chisquared), f)
+
+        with open(os.path.join(path, "new_res_snr_chisquare.pickle"), "wb") as f:
+            pickle.dump((Resolutions, snrs, X, Y, res_snr_storage_dict, error_res_snr_storage_dict), f)
+
 
 if __name__ == "__main__":
     start = time.time()
