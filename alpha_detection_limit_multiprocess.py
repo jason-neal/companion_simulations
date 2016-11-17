@@ -174,6 +174,15 @@ def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models, com
     output1[i, j] = scipy.stats.chisquare(observation.flux, combined_model.flux).statistic
     output2[i, j] = chi_squared(observation.flux, combined_model.flux, error=observation.flux/snr)
 
+
+def wrapper_parallel_chisquare(args):
+    """ Wrapper for parallel_chisquare needed to unpack the arguments for
+    parallel_chisquare as multiprocess.Pool.map does not accept multiple
+    arguments
+    """
+    return parallel_chisquared(*args)
+
+
 # @jit
 def main():
     """ Chisquare determinination to detect minimum alpha value"""
@@ -229,18 +238,34 @@ def main():
     # res_snr_iter = itertools.product(Resolutions, snrs)
     # Can then store to dict store_dict[res][snr]
 
-    print("Starting loop")
+    print("Starting loops")
+
+    # multiprocessing part
+    numProcs = None
+    if numProcs is None:
+        numProcs = mprocess.cpu_count() - 1
+
+    # mprocPool = mprocess.Pool(processes=numProcs)
+    timeInit = dt.now()
 
     for resolution in tqdm(Resolutions):
         chisqr_snr_dict = dict()  # store 2d array in dict of SNR
         error_chisqr_snr_dict = dict()
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
+        # chisqr_snr_dict = dict()  # store 2d array in dict of SNR
+        # error_chisqr_snr_dict = dict()
 
-        star_spec = apply_convolution(org_star_spec, R=resolution,
-                                      chip_limits=chip_limits)
-        goal_planet = apply_convolution(goal_planet_shifted, R=resolution,
-                                        chip_limits=chip_limits)
+        for snr in snrs:
+            sim_observation = simulated_observations[resolution][snr]
 
+            # Multiprocessing part
+            scipy_filename = os.path.join(path, "scipychisqr.memmap")
+            my_filename = os.path.join(path, "mychisqr.memmap")
+            scipy_memmap = np.memmap(scipy_filename, dtype='float32', mode='w+', shape=X.shape)
+            my_chisqr_memmap = np.memmap(my_filename, dtype='float32', mode='w+', shape=X.shape)
+
+            # args_generator = tqdm([[i, j, alpha, rv, resolution, snr, sim_observation, convolved_star_models, convolved_planet_models, scipy_memmap, my_chisqr_memmap]
+            #                      for i, alpha in enumerate(alphas) for j, rv in enumerate(RVs)])
         # if resolution is None:
         #    star_spec = copy.copy(org_star_spec)
         #    goal_planet = copy.copy(goal_planet_shifted)
@@ -282,49 +307,6 @@ def main():
             error_chisqr_store = np.empty((len(alphas), len(RVs)))
             new_scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
             new_error_chisqr_store = np.empty((len(alphas), len(RVs)))
-            for i, alpha in enumerate(alphas):
-                for j, RV in enumerate(RVs):
-                    # print("RV", RV, "alpha", alpha, "snr", snr, "res", resolution)
-
-                    # Generate model for this RV and alhpa
-                    planet_shifted = copy.copy(org_bd_spec)
-                    planet_shifted.doppler_shift(RV)
-                    model = combine_spectra(star_spec, planet_shifted, alpha)
-                    model.wav_select(2100, 2200)
-
-                    # Try scipy chi_squared
-                    scipy_chisquare = chisquare(Alpha_Combine.flux, model.flux)
-                    error_chisquare = chi_squared(Alpha_Combine.flux, model.flux, error=Alpha_Combine.flux/snr)
-
-                    # print("Mine, scipy", chisqr, scipy_chisquare)
-                    error_chisqr_store[i, j] = error_chisquare
-                    scipy_chisqr_store[i, j] = scipy_chisquare.statistic
-
-                    #########################
-                    # using dictionary values
-                    host_model = convolved_star_model[resolution]
-                    companion_model = convolved_planet_model[resolution]
-                    companion_model.doppler_shift(RV)
-                    model_new = combine_spectra(host_model, companion_model,
-                                                alpha)
-
-                    # model_new = combine_spectra(convolved_star_model[resolution], convolved_planet_model[resolution].doppler_shift(RV), alpha)
-                    model_new.wav_select(2100, 2200)
-                    sim_observation.wav_select(2100, 2200)
-
-                    new_scipy_chisquare = chisquare(sim_observation.flux, model_new.flux)
-                    new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux, error=sim_observation.flux/snr)
-
-                    new_error_chisqr_store[i, j] = new_error_chisquare
-                    new_scipy_chisqr_store[i, j] = new_scipy_chisquare.statistic
-                    ##############################
-
-            chisqr_snr_dict[str(snr)] = scipy_chisqr_store
-            error_chisqr_snr_dict[str(snr)] = error_chisqr_store
-
-            res_snr_storage_dict[resolution][snr] = new_scipy_chisqr_store
-            error_res_snr_storage_dict[resolution][snr] = new_error_chisqr_store
-
             # Save the results to a file to stop repeating loops
 
             for key, val in chisqr_snr_dict.items():
@@ -353,8 +335,21 @@ def main():
     np.save(os.path.join(path, "snr_values"), snrs)
     np.save(os.path.join(path, "Resolutions"), Resolutions)
 
+            # mprocPool.map(wrapper_parallel_chisquare, args_generator)
+
     with open(os.path.join(path, "input_params.pickle"), "wb") as f:
         pickle.dump(input_parameters, f)
+            print(scipy_memmap)
+            res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
+            error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
+
+    # mprocPool.close()
+    timeEnd = dt.now()
+    print("Multi-Proc chisqr has been completed in "
+          "{} using {}/{} cores.\n".format(timeEnd-timeInit, numProcs,
+                                           mprocess.cpu_count()))
+
+    # Save the results to a file to stop repeating loops
     # Try pickling the data
 
     with open(os.path.join(path, "alpha_chisquare.pickle"), "wb") as f:
