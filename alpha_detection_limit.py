@@ -16,7 +16,7 @@ from __future__ import division, print_function
 import numpy as np
 import time
 import pickle
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 # from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 import copy
@@ -24,12 +24,13 @@ from numba import jit
 
 import os
 import sys
-sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
+
 from IP_multi_Convolution import IPconvolution
 from tqdm import tqdm
 from scipy.stats import chisquare
 from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
+sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
 
 @jit
@@ -45,6 +46,7 @@ def chi_squared(observed, expected, error=None):
         # When divided by exted the result is identical to scipy
     return chisqr
 
+
 @jit
 def alternate_chi_squared(observed, expected, error=None):
     """Calculate chi squared.
@@ -57,6 +59,7 @@ def alternate_chi_squared(observed, expected, error=None):
         chisqr = np.sum((observed-expected)**2 / expected)
         # When divided by exted the result is identical to scipy
     return chisqr
+
 
 @jit
 def add_noise(flux, SNR):
@@ -76,6 +79,7 @@ def add_noise2(flux, SNR):
     noisey_flux = flux + np.random.normal(0, sigma)
     return noisey_flux
 
+
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
     """ Apply convolution to spectrum object"""
     if chip_limits is None:
@@ -85,14 +89,17 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
         return copy.copy(model_spectrum)
     else:
         ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-            model_spectrum.flux[:], chip_limits, R,
-            FWHM_lim=5.0, plot=False, verbose=True)
+                                          model_spectrum.flux[:], chip_limits,
+                                          R, FWHM_lim=5.0, plot=False,
+                                          verbose=True)
 
         new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-                                     calibrated=model_spectrum.calibrated,
-                                     header=model_spectrum.header)
+                             calibrated=model_spectrum.calibrated,
+                             header=model_spectrum.header)
 
         return new_model
+
+
 # @jit
 def main():
     """ Chisquare determinination to detect minimum alpha value"""
@@ -109,18 +116,14 @@ def main():
     org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
     org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
-    # RV shift BD spectra
-    goal_planet_shifted.doppler_shift(RV_val)
-
+    Resolutions = [None, 50000]
     snrs = [100, 101, 110, 111]   # Signal to noise levels
     alphas = 10**np.linspace(-5, -0.2, 200)
-    Resolutions = [None, 50000]
     RVs = np.arange(10, 30, 0.1)
     # Resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
     # snrs = [50, 100, 200, 500, 1000]   # Signal to noise levels
     # alphas = 10**np.linspace(-4, -0.1, 200)
     # RVs = np.arange(-100, 100, 0.05)
-
 
     # RV and alpha value of Simulations
     RV_val = 20
@@ -141,10 +144,11 @@ def main():
                                       chip_limits=chip_limits)
         goal_planet = apply_convolution(goal_planet_shifted, R=resolution,
                                         chip_limits=chip_limits)
-        #if resolution is None:
+
+        # if resolution is None:
         #    star_spec = copy.copy(org_star_spec)
         #    goal_planet = copy.copy(goal_planet_shifted)
-        #else:
+        # else:
         #    ip_xaxis, ip_flux = IPconvolution(org_star_spec.xaxis,
     #             org_star_spec.flux, chip_limits, resolution,
     #            FWHM_lim=5.0, plot=False, verbose=True)
@@ -173,6 +177,7 @@ def main():
             # Test plot
             # plt.plot(Alpha_Combine.xaxis, Alpha_Combine.flux)
             # plt.show()
+
             # chisqr_store = np.empty((len(alphas), len(RVs)))
             scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
             error_chisqr_store = np.empty((len(alphas), len(RVs)))
@@ -210,7 +215,7 @@ def main():
                                                                      resolution
                                                                      )
                                      ), val)
-            #Store in dictionary
+            # Store in dictionary
             res_stored_chisquared[resolution] = chisqr_snr_dict
             res_error_stored_chisquared[resolution] = error_chisqr_snr_dict
 
