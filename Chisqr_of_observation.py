@@ -16,6 +16,8 @@ from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
+from joblib import Memory
+from joblib import Parallel, delayed
 
 
 # First plot the observation with the model
@@ -173,10 +175,35 @@ def main():
     RVs = np.arange(15, 40, 0.1)
     # chisqr_store = np.empty((len(alphas), len(RVs)))
 
-    for i, alpha in enumerate(alphas):
-        for j, RV in enumerate(RVs):
-            # print("RV", RV, "alpha", alpha)
+    numProcs = None
+    if numProcs is None:
+        numProcs = mprocess.cpu_count() - 1
 
+    # mprocPool = mprocess.Pool(processes=numProcs)
+        timeInit = dt.now()
+        X = np.meshgrid(alphas, RVs)
+        map_filename = os.path.join(path, "obs_chisqr.memmap")
+        chisqr_memmap = np.memmap(map_filename, dtype='float32', mode='w+',
+                                  shape=X.shape)
+
+        # args_generator = tqdm([[i, j, alpha, rv, sim_observation, host_model,
+        #                        companion_model, chisqr_memmap]
+        #                        for i, alpha in enumerate(alphas)
+        #                        for j, rv in enumerate(RVs)])
+
+        # mprocPool.map(wrapper_parallel_chisquare, args_generator)
+        Parallel(n_jobs=numProcs)(delayed(parallel_chisquared)(i, j, alpha, rv,
+                                  resolution, snr, sim_observation,
+                                  convolved_star_models,
+                                  convolved_planet_models, chisqr_memmap)
+                                  for j, rv in enumerate(RVs)
+                                  for i, alpha in enumerate(alphas))
+
+        res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
+        error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
+
+    # mprocPool.close()
+    timeEnd = dt.now()
 
 
     # Incomplete after here
@@ -201,6 +228,11 @@ def main():
             chisqr_store[i, j] = chisquared.statistic
     # Save results
     pass
+
+
+
+
+
 
 
 if __name__ == "__main__":
