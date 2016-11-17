@@ -74,16 +74,6 @@ def alternate_chi_squared(observed, expected, error=None):
 @jit
 def add_noise(flux, SNR):
     "Using the formulation mu/sigma"
-    mu = np.mean(flux)
-    sigma = mu / SNR
-    # Add normal distributed noise at the SNR level.
-    noisey_flux = flux + np.random.normal(0, sigma, len(flux))
-    return noisey_flux
-
-
-@jit
-def add_noise2(flux, SNR):
-    "Using the formulation mu/sigma"
     sigma = flux / SNR
     # Add normal distributed noise at the SNR level.
     noisey_flux = flux + np.random.normal(0, sigma)
@@ -148,7 +138,7 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
         # store_convolutions
         combined_model = combine_spectra(spec_1, spec_2, alpha)
 
-        combined_model.flux = add_noise2(combined_model.flux, snr)
+        combined_model.flux = add_noise(combined_model.flux, snr)
 
         observations[resolution][snr] = combined_model
 
