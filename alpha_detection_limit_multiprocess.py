@@ -13,7 +13,18 @@
 
 # Create the test spectra.
 from __future__ import division, print_function
+
+from IP_multi_Convolution import IPconvolution
 import numpy as np
+import multiprocess as mprocess
+from tqdm import tqdm
+import scipy.stats
+# from scipy.stats import chisquare
+from Planet_spectral_simulations import combine_spectra
+from Planet_spectral_simulations import load_PHOENIX_hd30501
+import itertools
+from collections import defaultdict
+from datetime import datetime as dt
 import time
 import pickle
 # import matplotlib.pyplot as plt
@@ -21,17 +32,10 @@ import pickle
 from spectrum_overload.Spectrum import Spectrum
 import copy
 from numba import jit
-
+from joblib import Memory
+from joblib import Parallel, delayed
 import os
 import sys
-
-from IP_multi_Convolution import IPconvolution
-from tqdm import tqdm
-from scipy.stats import chisquare
-from Planet_spectral_simulations import combine_spectra
-from Planet_spectral_simulations import load_PHOENIX_hd30501
-import itertools
-from collections import defaultdict
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
 
