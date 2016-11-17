@@ -145,6 +145,35 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
     return observations
 
 
+def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models, companion_models, output1, output2):
+    """ Function for parallel processing in chisqr for resolution and snr
+    uses numpy memap to store data.
+
+    Inputs:
+    i,j = matrix locations of this alpha and rv
+    alpha =  flux ratio
+    rv = radial velocity offset of companion
+    snr = signal to noise ratio of observation
+
+    Output:
+    None: Changes data in output1 and output2 numpy memmaps.
+    """
+    # print("i, j, Resolution, snr, alpha, RV")
+    # print(i, j, res, snr, alpha, rv)
+    host_model = host_models[res]
+    companion_model = companion_models[res]
+    companion_model.doppler_shift(rv)
+    combined_model = combine_spectra(host_model, companion_model, alpha)
+    # model_new = combine_spectra(convolved_star_models[resolution], convolved_planet_models[resolution].doppler_shift(RV), alpha)
+
+    combined_model.wav_select(2100, 2200)
+    observation.wav_select(2100, 2200)
+
+    # print("i", i, "j", j, "chisqr", scipy.stats.chisquare(observation.flux, combined_model.flux).statistic)
+
+    output1[i, j] = scipy.stats.chisquare(observation.flux, combined_model.flux).statistic
+    output2[i, j] = chi_squared(observation.flux, combined_model.flux, error=observation.flux/snr)
+
 # @jit
 def main():
     """ Chisquare determinination to detect minimum alpha value"""
