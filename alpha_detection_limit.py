@@ -30,6 +30,7 @@ from tqdm import tqdm
 from scipy.stats import chisquare
 from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
+import itertools
 from collections import defaultdict
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
