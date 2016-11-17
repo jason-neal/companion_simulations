@@ -46,12 +46,12 @@ def select_observation(obs_num, chip):
         print("The Chip is not correct. It needs to be 1,2,3 or 4")
         raise Exception("Chip Error")
     else:
-# from Get_filenames import get_filenames
-# chip = 1
-# obs_num = 1
-        path = "/home/jneal/Phd/data/Crires/BDs-DRACS/HD30501-{}/Combined_Nods".format(obs_num)
-        filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits","*_{}.nod.ms.*".format(chip))
-# print(filenames)
+
+        path = "/home/jneal/Phd/data/Crires/BDs-DRACS/HD30501-", \
+               "{}/Combined_Nods".format(obs_num)
+        filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
+                                  "*_{}.nod.ms.*".format(chip))
+
         crires_name = filenames[0]
         return os.path.join(path, crires_name)
 
@@ -64,6 +64,7 @@ def load_spectrum(name):
     spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Extracted_DRACS"],
                         calibrated=True, header=hdr)
     return spectrum
+
 
 def berv_correct(spectrum):
     """ Berv Correct spectrum from header information """
@@ -86,10 +87,14 @@ def set_crires_resolution(header):
 
     slit_width = header["HIERARCH ESO INS SLIT1 WID"]
     if "CRIRES" in instrument:
-        # print("Resolving Power\nUsing the rule of thumb equation from the CRIRES manual. \nWarning! The use of adpative optics is not checked for!!")
+        # print("Resolving Power\nUsing the rule of thumb equation from the
+        # CRIRES manual. \nWarning! The use of adpative optics is not
+        # checked for!!")
         R = 100000*0.2 / slit_width
         resolving_power = int(R)
-        # print("Slit width was {0} inches.\nTherefore the resolving_power is set = {1}".format(slit_width, resolving_power))
+        # print("Slit width was {0} inches.\n
+        # Therefore the resolving_power is set = {1}".format(slit_width,
+        # resolving_power))
     else:
         print("Instrument is not CRIRES")
     return resolving_power
@@ -98,14 +103,16 @@ def set_crires_resolution(header):
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
     """ Apply convolution to spectrum object"""
     if chip_limits is None:
-        chip_limits = (np.min(model_spectrum.xaxis), np.max(model_spectrum.xaxis))
+        chip_limits = (np.min(model_spectrum.xaxis),
+                       np.max(model_spectrum.xaxis))
 
     if R is None:
         return copy.copy(model_spectrum)
     else:
         ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-                                          model_spectrum.flux[:], chip_limits, R,
-                                          FWHM_lim=5.0, plot=False, verbose=True)
+                                          model_spectrum.flux[:], chip_limits,
+                                          R, FWHM_lim=5.0, plot=False,
+                                          verbose=True)
 
         new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
                              calibrated=model_spectrum.calibrated,
@@ -114,7 +121,7 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
         return new_model
 
 
-    def convolve_models(models, R, chip_limits=None):
+def convolve_models(models, R, chip_limits=None):
         """ Convolve all model spectra to resolution R.
         This prevents multiple convolution at the same resolution.
 
@@ -146,12 +153,12 @@ def main():
 
     obs_resolution = set_crires_resolution(observed_spectra.header)
 
-
     star_spec = Spectrum(flux=I_star, xaxis=w_mod, header=hdr_star)
     bd_spec = Spectrum(flux=I_bdmod, xaxis=w_mod, header=hdr_bd)
 
     # Convolve models to resolution of instrument
-    star_spec, bd_spec = convolve_models((star_spec, bd_spec), obs_resolution, chip_limits=None)
+    star_spec, bd_spec = convolve_models((star_spec, bd_spec), obs_resolution,
+                                         chip_limits=None)
 
     plot_obs_with_model(observed_spectra, star_spec, bd_spec)
 
@@ -164,12 +171,15 @@ def main():
     # Chisquared fitting
     alphas = 10**np.linspace(-7, -0.3, 100)
     RVs = np.arange(15, 40, 0.1)
-    chisqr_store = np.empty((len(alphas), len(RVs)))
+    # chisqr_store = np.empty((len(alphas), len(RVs)))
 
     for i, alpha in enumerate(alphas):
         for j, RV in enumerate(RVs):
             # print("RV", RV, "alpha", alpha)
 
+
+
+    # Incomplete after here
             # Generate model for this RV and alhpa
             planet_shifted = copy.copy(bd_spec)
             planet_shifted.doppler_shift(RV)
