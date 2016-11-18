@@ -199,8 +199,8 @@ def main():
                                   for j, rv in enumerate(RVs)
                                   for i, alpha in enumerate(alphas))
 
-        res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
-        error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
+        #res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
+        #error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
 
     # mprocPool.close()
     timeEnd = dt.now()
@@ -208,26 +208,26 @@ def main():
 
     # Incomplete after here
             # Generate model for this RV and alhpa
-            planet_shifted = copy.copy(bd_spec)
-            planet_shifted.doppler_shift(RV)
-            model = combine_spectra(star_spec, planet_shifted, alpha)
-            model.wav_select(2100, 2200)
+#            planet_shifted = copy.copy(bd_spec)
+#            planet_shifted.doppler_shift(RV)
+#            model = combine_spectra(star_spec, planet_shifted, alpha)
+#            model.wav_select(2100, 2200)
 
             # Convovle to R50000
-            chip_limits = [model.xaxis[0], model.xaxis[-1]]
-            R = 50000
-            model.xaxis, model.flux = IPconvolution(model.xaxis, model.flux,
-                                                    chip_limits, R,
-                                                    FWHM_lim=5.0, plot=True,
-                                                    verbose=True)
+#            chip_limits = [model.xaxis[0], model.xaxis[-1]]
+#            R = 50000
+#            model.xaxis, model.flux = IPconvolution(model.xaxis, model.flux,
+#                                                    chip_limits, R,
+#                                                    FWHM_lim=5.0, plot=True,
+#                                                    verbose=True)
             # Interpolate to observed_spectra
 
             # Try scipy chi_squared
-            chisquared = chisquare(observed_spectra.flux, model.flux)
+#            chisquared = chisquare(observed_spectra.flux, model.flux)
 
-            chisqr_store[i, j] = chisquared.statistic
+#            chisqr_store[i, j] = chisquared.statistic
     # Save results
-    pass
+#    pass
 
 
 
