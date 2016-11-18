@@ -283,28 +283,21 @@ def main():
           "{} using {}/{} cores.\n".format(timeEnd-timeInit, numProcs,
                                            mprocess.cpu_count()))
 
-    # Save the results to a file to stop repeating loops
-    # X, Y = np.meshgrid(RVs, alphas)
-    # np.save(os.path.join(path, "RV_mesgrid"), X)
-    # np.save(os.path.join(path, "alpha_meshgrid"), Y)
-    # np.save(os.path.join(path, "snr_values"), snrs)
-    # np.save(os.path.join(path, "Resolutions"), Resolutions)
-
-    # with open(os.path.join(path, "input_params.pickle"), "wb") as f:
-    #    pickle.dump(input_parameters, f)
-    # Try pickling the data
-
-    # with open(os.path.join(path, "alpha_chisquare.pickle"), "wb") as f:
-    #    pickle.dump((Resolutions, snrs, X, Y, res_stored_chisquared, res_error_stored_chisquared), f)
-
-    # with open(os.path.join(path, "new_res_snr_chisquare.pickle"), "wb") as f:
-    #        pickle.dump((Resolutions, snrs, X, Y, res_snr_chisqr_dict, error_res_snr_chisqr_dict), f)
-
     with open(os.path.join(path, "parallel_chisquare.pickle"), "wb") as f:
         """Pickle all the necessary parameters to store
 
         """
-        pickle.dump((Resolutions, snrs, alphas, RVs, input_parameters, simulated_observations, convolved_star_models, convolved_planet_models, res_snr_chisqr_dict, error_res_snr_chisqr_dict), f)
+        pickle.dump((Resolutions, snrs, alphas, RVs, input_parameters,
+                    simulated_observations, convolved_star_models,
+                    convolved_planet_models, res_snr_chisqr_dict,
+                    error_res_snr_chisqr_dict), f)
+
+        plot_after_running(Resolutions, snrs, alphas, RVs, input_parameters,
+
+
+def plot_after_running(Resolutions, snrs, alphas, RVs, input_parameters,
+
+    X, Y = np.meshgrid(RVs, alphas, indexing="xy")
 
 if __name__ == "__main__":
     start = time.time()
