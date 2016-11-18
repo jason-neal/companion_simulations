@@ -205,7 +205,14 @@ def main():
     # mprocPool.close()
     timeEnd = dt.now()
 
+    # Plot memmap
+    plt.subplot(2, 1, 1)
+    plt.contourf(X, Y, np.log10(chisqr_memmap), 100)
 
+    plt.title("Sigma chisquared")
+    plt.ylabel("Flux ratio")
+    plt.xlabel("RV (km/s)")
+    plt.show()
     # Incomplete after here
             # Generate model for this RV and alhpa
 #            planet_shifted = copy.copy(bd_spec)
