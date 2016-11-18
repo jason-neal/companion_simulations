@@ -133,7 +133,8 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
     return observations
 
 
-def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models, companion_models, output1, output2):
+def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
+                        companion_models, output1, output2, X_memmap, Y_memmap):
     """ Function for parallel processing in chisqr for resolution and snr
     uses numpy memap to store data.
 
@@ -165,6 +166,8 @@ def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models, com
                                           combined_model.flux).statistic
     output2[i, j] = chi_squared(observation.flux, combined_model.flux,
                                 error=observation.flux/snr)
+    X_memmap[i, j] = alpha
+    Y_memmap[i, j] = rv
 
 
 def wrapper_parallel_chisquare(args):
@@ -230,6 +233,9 @@ def main():
 
     res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries
     error_res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries
+    multi_alpha = defaultdict(dict)  # Dictionary of dictionaries
+    multi_rv = defaultdict(dict)  # Dictionary of dictionaries
+
     # Iterable over resolution and snr to process
     # res_snr_iter = itertools.product(Resolutions, snrs)
     # Can then store to dict store_dict[res][snr]
@@ -255,11 +261,18 @@ def main():
             # Multiprocessing part
             scipy_filename = os.path.join(path, "scipychisqr.memmap")
             my_filename = os.path.join(path, "mychisqr.memmap")
-            scipy_memmap = np.memmap(scipy_filename, dtype='float32', mode='w+', shape=X.shape)
-            my_chisqr_memmap = np.memmap(my_filename, dtype='float32', mode='w+', shape=X.shape)
-
-            # args_generator = tqdm([[i, j, alpha, rv, resolution, snr, sim_observation, convolved_star_models, convolved_planet_models, scipy_memmap, my_chisqr_memmap]
-            #                      for i, alpha in enumerate(alphas) for j, rv in enumerate(RVs)])
+            scipy_memmap = np.memmap(scipy_filename, dtype='float32',
+                                     mode='w+', shape=X.shape)
+            my_chisqr_memmap = np.memmap(my_filename, dtype='float32',
+                                         mode='w+', shape=X.shape)
+            new_X_memmap = np.memmap(os.path.join(path, "X.memmap"),
+                                     dtype='float32', mode='w+', shape=X.shape)
+            new_Y_memmap = np.memmap(os.path.join(path, "Y.memmap"),
+                                     dtype='float32', mode='w+', shape=X.shape)
+            # args_generator = tqdm([[i, j, alpha, rv, resolution, snr,
+            # sim_observation, convolved_star_models, convolved_planet_models,
+            # scipy_memmap, my_chisqr_memmap]
+            # for i, alpha in enumerate(alphas) for j, rv in enumerate(RVs)])
 
             # mprocPool.map(wrapper_parallel_chisquare, args_generator)
 
@@ -268,6 +281,8 @@ def main():
             print(scipy_memmap)
             res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
             error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
+            multi_alpha[resolution][snr] = np.copy(new_X_memmap)
+            multi_rv[resolution][snr] = np.copy(new_Y_memmap)
 
     # mprocPool.close()
     timeEnd = dt.now()
@@ -318,6 +333,7 @@ def plot_after_running(Resolutions, snrs, alphas, RVs, input_parameters,
         plt.ylabel("Flux ratio")
         plt.xlabel("RV (km/s)")
         plt.show()
+
 if __name__ == "__main__":
     start = time.time()
     main()
