@@ -164,10 +164,20 @@ def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
 
     output1[i, j] = scipy.stats.chisquare(observation.flux,
                                           combined_model.flux).statistic
+    # output2[i, j] = chi_squared(observation.flux, combined_model.flux,
+    #                            error=observation.flux/snr)
     output2[i, j] = chi_squared(observation.flux, combined_model.flux,
-                                error=observation.flux/snr)
+                                error=None)
     X_memmap[i, j] = alpha
     Y_memmap[i, j] = rv
+
+    if False:
+        # if i == j:
+        plt.plot(observation.xaxis, observation.flux, "Simulated obs")
+        plt.plot(combined_model.xaxis, combined_model.flux, "This model")
+        plt.legend()
+        plt.title("Parallel printing, alpha={},RV={}".format(alpha, rv))
+        plt.show()
 
 
 def wrapper_parallel_chisquare(args):
