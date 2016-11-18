@@ -276,7 +276,14 @@ def main():
 
             # mprocPool.map(wrapper_parallel_chisquare, args_generator)
 
-            Parallel(n_jobs=numProcs)(delayed(parallel_chisquared)(i, j, alpha, rv, resolution, snr, sim_observation, convolved_star_models, convolved_planet_models, scipy_memmap, my_chisqr_memmap) for j, rv in enumerate(RVs) for i, alpha in enumerate(alphas) )
+            Parallel(n_jobs=numProcs)(delayed(parallel_chisquared)(i, j, alpha,
+                                      rv, resolution, snr, sim_observation,
+                                      convolved_star_models,
+                                      convolved_planet_models, scipy_memmap,
+                                      my_chisqr_memmap, new_X_memmap,
+                                      new_Y_memmap)
+                                      for j, alpha in enumerate(alphas)
+                                      for i, rv in enumerate(RVs))
 
             print(scipy_memmap)
             res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
