@@ -13,11 +13,10 @@
 
 # Create the test spectra.
 from __future__ import division, print_function
-
 from IP_multi_Convolution import IPconvolution
 import numpy as np
 import multiprocess as mprocess
-from tqdm import tqdm
+# from tqdm import tqdm
 import scipy.stats
 # from scipy.stats import chisquare
 from Planet_spectral_simulations import combine_spectra
@@ -27,7 +26,7 @@ from collections import defaultdict
 from datetime import datetime as dt
 import time
 import pickle
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 # from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 import copy
@@ -38,10 +37,10 @@ import os
 import sys
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
-
 path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
 cachedir = os.path.join(path, "cache")  # save path
 memory = Memory(cachedir=cachedir, verbose=0)
+
 
 @jit
 def chi_squared(observed, expected, error=None):
@@ -70,20 +69,23 @@ def add_noise(flux, SNR):
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
     """ Apply convolution to spectrum object"""
     if chip_limits is None:
-        chip_limits = (np.min(model_spectrum.xaxis), np.max(model_spectrum.xaxis))
+        chip_limits = (np.min(model_spectrum.xaxis),
+                       np.max(model_spectrum.xaxis))
 
     if R is None:
         return copy.copy(model_spectrum)
     else:
         ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-                                          model_spectrum.flux[:], chip_limits, R,
-                                          FWHM_lim=5.0, plot=False, verbose=True)
+                                          model_spectrum.flux[:], chip_limits,
+                                          R, FWHM_lim=5.0, plot=False,
+                                          verbose=True)
 
         new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
                              calibrated=model_spectrum.calibrated,
                              header=model_spectrum.header)
 
         return new_model
+
 
 @memory.cache
 def store_convolutions(spectrum, resolutions, chip_limits=None):
@@ -92,8 +94,10 @@ def store_convolutions(spectrum, resolutions, chip_limits=None):
     """
     d = dict()
     for resolution in resolutions:
-        d[resolution] = apply_convolution(spectrum, resolution, chip_limits=chip_limits)
+        d[resolution] = apply_convolution(spectrum, resolution,
+                                          chip_limits=chip_limits)
     return d
+
 
 @memory.cache
 def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
@@ -118,8 +122,8 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
 
         spec_2 = model_2[resolution]
         spec_2.doppler_shift(rv)
-        # model1 and model2 are already normalized and convovled to each resolution using
-        # store_convolutions
+        # model1 and model2 are already normalized
+        # and convovled to each resolution using store_convolutions.
         combined_model = combine_spectra(spec_1, spec_2, alpha)
 
         combined_model.flux = add_noise(combined_model.flux, snr)
@@ -148,15 +152,19 @@ def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models, com
     companion_model = companion_models[res]
     companion_model.doppler_shift(rv)
     combined_model = combine_spectra(host_model, companion_model, alpha)
-    # model_new = combine_spectra(convolved_star_models[resolution], convolved_planet_models[resolution].doppler_shift(RV), alpha)
+    # model_new = combine_spectra(convolved_star_models[resolution],
+    # convolved_planet_models[resolution].doppler_shift(RV), alpha)
 
     combined_model.wav_select(2100, 2200)
     observation.wav_select(2100, 2200)
 
-    # print("i", i, "j", j, "chisqr", scipy.stats.chisquare(observation.flux, combined_model.flux).statistic)
+    # print("i", i, "j", j, "chisqr",
+    # scipy.stats.chisquare(observation.flux, combined_model.flux).statistic)
 
-    output1[i, j] = scipy.stats.chisquare(observation.flux, combined_model.flux).statistic
-    output2[i, j] = chi_squared(observation.flux, combined_model.flux, error=observation.flux/snr)
+    output1[i, j] = scipy.stats.chisquare(observation.flux,
+                                          combined_model.flux).statistic
+    output2[i, j] = chi_squared(observation.flux, combined_model.flux,
+                                error=observation.flux/snr)
 
 
 def wrapper_parallel_chisquare(args):
@@ -202,8 +210,10 @@ def main():
     # starting convolution
     print("Begining convolution of models")
     timeInit = dt.now()
-    convolved_star_models = store_convolutions(org_star_spec, Resolutions, chip_limits=chip_limits)
-    convolved_planet_models = store_convolutions(org_bd_spec, Resolutions, chip_limits=chip_limits)
+    convolved_star_models = store_convolutions(org_star_spec, Resolutions,
+                                               chip_limits=chip_limits)
+    convolved_planet_models = store_convolutions(org_bd_spec, Resolutions,
+                                                 chip_limits=chip_limits)
     print("Convolution of models took {} seconds". format(dt.now()-timeInit))
 
     # print(type(convolved_star_models))
@@ -214,14 +224,10 @@ def main():
                                                    Resolutions, snrs)
 
     # Not used with gernerator function
-    goal_planet_shifted = copy.copy(org_bd_spec)
+    # goal_planet_shifted = copy.copy(org_bd_spec)
     # RV shift BD spectra
-    goal_planet_shifted.doppler_shift(RV_val)
+    # goal_planet_shifted.doppler_shift(RV_val)
 
-    # These should be replaced by
-    # res_stored_chisquared = dict()
-    # res_error_stored_chisquared = dict()
-    # This
     res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries
     error_res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries
     # Iterable over resolution and snr to process
