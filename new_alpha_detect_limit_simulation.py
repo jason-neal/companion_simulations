@@ -96,5 +96,27 @@ def plot_spectrum(spectrum, label=False, show=True):
 
 
 
+    reshape1 = chisqr_parallel.reshape(len(alphas), len(RVs))
+    # reshape2 = chisqr_parallel.reshape(len(RVs), len(alphas))
+
+    # R, S = np.meshgrid(alphas, RVs)
+    T, U = np.meshgrid(RVs, alphas)
+
+    print(reshape1.shape)
+    # print(reshape2.shape)
+    # print(R.shape)
+    # print(T.shape)
+    # contour_plot_stuff(R, S, np.log10(reshape2), label="reshape2")
+    contour_plot_stuff(T, U, np.log10(reshape1), label="reshape1")
+    # contour_plot_stuff(R, S, np.log10(reshape1).T, label="reshape1.T")
+    # contour_plot_stuff(T, U, np.log10(reshape2).T, label="reshape2.T")
+
+
+def contour_plot_stuff(X, Y, Z, label=""):
+    plt.contourf(X, Y, Z)
+    plt.title(label)
+    plt.show()
+
+
 if __name__ == "__main__":
     main()
