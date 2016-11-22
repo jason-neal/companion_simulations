@@ -1,7 +1,17 @@
 
-# New Version of alpha_detection using Parallel and methodolgy from grid_chisquare.
+# New Version of alpha_detection using Parallel and
+# methodolgy from grid_chisquare.
 
- 
+import numpy as np
+import copy
+import matplotlib.pyplot as plt
+from joblib import Parallel, delayed
+# self written modules
+from grid_chisquare import chi_squared
+from spectrum_overload.Spectrum import Spectrum
+from Planet_spectral_simulations import combine_spectra
+from Planet_spectral_simulations import load_PHOENIX_hd30501
+
 
 def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
     """ Chi squared for specturm objects. """
@@ -82,3 +92,7 @@ def plot_spectrum(spectrum, label=False, show=True):
     if show:
         plt.show()
 
+
+
+if __name__ == "__main__":
+    main()
