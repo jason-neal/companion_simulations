@@ -265,7 +265,7 @@ def main():
 
     # mprocPool = mprocess.Pool(processes=numProcs)
     timeInit = dt.now()
-    for resolution in Resolutions:
+    for resolution in tqdm(Resolutions):
 
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
         # chisqr_snr_dict = dict()  # store 2d array in dict of SNR
