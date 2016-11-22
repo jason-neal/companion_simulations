@@ -275,37 +275,37 @@ def main():
             sim_observation = simulated_observations[resolution][snr]
 
             # Multiprocessing part
-            scipy_filename = os.path.join(path, "scipychisqr.memmap")
-            my_filename = os.path.join(path, "mychisqr.memmap")
-            scipy_memmap = np.memmap(scipy_filename, dtype='float32',
-                                     mode='w+', shape=X.shape)
-            my_chisqr_memmap = np.memmap(my_filename, dtype='float32',
-                                         mode='w+', shape=X.shape)
-            new_X_memmap = np.memmap(os.path.join(path, "X.memmap"),
-                                     dtype='float32', mode='w+', shape=X.shape)
-            new_Y_memmap = np.memmap(os.path.join(path, "Y.memmap"),
-                                     dtype='float32', mode='w+', shape=X.shape)
-            # args_generator = tqdm([[i, j, alpha, rv, resolution, snr,
-            # sim_observation, convolved_star_models, convolved_planet_models,
-            # scipy_memmap, my_chisqr_memmap]
-            # for i, alpha in enumerate(alphas) for j, rv in enumerate(RVs)])
-
-            # mprocPool.map(wrapper_parallel_chisquare, args_generator)
-
-            Parallel(n_jobs=numProcs)(delayed(parallel_chisquared)(i, j, alpha,
-                                      rv, resolution, snr, sim_observation,
-                                      convolved_star_models,
-                                      convolved_planet_models, scipy_memmap,
-                                      my_chisqr_memmap, new_X_memmap,
-                                      new_Y_memmap)
-                                      for j, alpha in enumerate(alphas)
-                                      for i, rv in enumerate(RVs))
-
-            print(scipy_memmap)
-            res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
-            error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
-            multi_alpha[resolution][snr] = np.copy(new_X_memmap)
-            multi_rv[resolution][snr] = np.copy(new_Y_memmap)
+            # scipy_filename = os.path.join(path, "scipychisqr.memmap")
+            # my_filename = os.path.join(path, "mychisqr.memmap")
+            # scipy_memmap = np.memmap(scipy_filename, dtype='float32',
+            #                          mode='w+', shape=X.shape)
+            # my_chisqr_memmap = np.memmap(my_filename, dtype='float32',
+            #                              mode='w+', shape=X.shape)
+            # new_X_memmap = np.memmap(os.path.join(path, "X.memmap"),
+            #                          dtype='float32', mode='w+', shape=X.shape)
+            # new_Y_memmap = np.memmap(os.path.join(path, "Y.memmap"),
+            #                          dtype='float32', mode='w+', shape=X.shape)
+            # # args_generator = tqdm([[i, j, alpha, rv, resolution, snr,
+            # # sim_observation, convolved_star_models, convolved_planet_models,
+            # # scipy_memmap, my_chisqr_memmap]
+            # # for i, alpha in enumerate(alphas) for j, rv in enumerate(RVs)])
+            #
+            # # mprocPool.map(wrapper_parallel_chisquare, args_generator)
+            #
+            # Parallel(n_jobs=numProcs)(delayed(parallel_chisquared)(i, j, alpha,
+            #                           rv, resolution, snr, sim_observation,
+            #                           convolved_star_models,
+            #                           convolved_planet_models, scipy_memmap,
+            #                           my_chisqr_memmap, new_X_memmap,
+            #                           new_Y_memmap)
+            #                           for j, alpha in enumerate(alphas)
+            #                           for i, rv in enumerate(RVs))
+            #
+            # print(scipy_memmap)
+            # res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
+            # error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
+            # multi_alpha[resolution][snr] = np.copy(new_X_memmap)
+            # multi_rv[resolution][snr] = np.copy(new_Y_memmap)
 
     # mprocPool.close()
     timeEnd = dt.now()
