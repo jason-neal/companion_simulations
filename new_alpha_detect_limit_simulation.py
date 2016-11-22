@@ -95,6 +95,38 @@ def plot_spectrum(spectrum, label=False, show=True):
         plt.show()
 
 
+def main():
+
+    """ Chisquare determinination to detect minimum alpha value"""
+    path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves2"  # save path
+    print("Loading Data")
+
+    chip_limits = [2080, 2220]
+
+    (w_mod, I_star, I_bdmod,
+        hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=chip_limits,
+                                                 normalize=True)
+
+    org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
+    # org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
+    # Assume binary stars
+    org_bd_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
+
+    alphas = 10 ** np.linspace(-2, -0.2, 79)
+    RVs = np.arange(10, 40, 0.1)
+
+    # RV and alpha value of Simulations
+    RV_val = 20.2
+    Alpha = 0.1  # Vary this to determine detection limit
+    input_parameters = (RV_val, Alpha)
+
+    # # Testing alpha_model
+    # model_spec = alpha_model(org_star_spec, org_bd_spec, Alpha, RV_val)
+
+    # plt.plot(org_star_spec.xaxis, org_bd_spec.flux, label="star")
+    # plt.plot(model_spec.xaxis, model_spec.flux, label="alpha model")
+    # plt.show()
+
 
     reshape1 = chisqr_parallel.reshape(len(alphas), len(RVs))
     # reshape2 = chisqr_parallel.reshape(len(RVs), len(alphas))
