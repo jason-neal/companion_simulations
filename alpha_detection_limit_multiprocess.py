@@ -351,7 +351,7 @@ def plot_after_running(Resolutions, snrs, alphas, RVs, input_parameters,
             log_chisqr = log_chisqr.reshape(len(alphas), len(RVs))
 
             # T, U = np.meshgrid(RVs, alphas)
-            plt.figure(figsize=(5, 5))
+            plt.figure(figsize=(7, 7))
             plt.title("Log Chi squared with SNR = {0}, Resolution = {1}\n Correct RV = {2}, Correct alpha = {3}"
                       "".format(snr, resolution, input_parameters[0], input_parameters[1]), fontsize=16)
 
