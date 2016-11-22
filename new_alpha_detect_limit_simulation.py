@@ -24,3 +24,11 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
         #print(len(spectrum_1), len(spectrum_2))
         raise Exception("TODO: make xaxis equal in chisquare of spectrum")
 
+def model_chisqr_wrapper(spectrum_1, model, params, error=None):
+    """ Evaluate model and call chisquare """
+    # print("params for model", params)
+    # params = copy.copy(params)
+    evaluated_model = model(*params)  # # unpack parameters
+
+    return spectrum_chisqr(spectrum_1, evaluated_model, error=error)
+
