@@ -41,6 +41,33 @@ def parallel_chisqr(iter1, iter2, observation, model_func, model_params, numProc
     return np.asarray(grid)
 
 
+def alpha_model(alpha, rv, host, companion, limits, new_x=None):
+    """ Entangled spectrum model.
+    inputs:
+    spectrum_1
+    spectrum_2
+    alpha
+    rv - rv offset of spec2
+    xrange = location of points to return for spectrum. e.g. observation.xaxis.
+    should find better name.
+
+    returns:
+    Spectrum object
+    """
+    # this copy solved my nan issue.
+    companion = copy.copy(companion)
+    host = copy.copy(host)
+
+    companion.doppler_shift(rv)
+    combined = combine_spectra(host, companion, alpha)
+
+    if new_x:
+        combined.spline_interpolate_to(new_x)
+    combined.wav_select(limits[0], limits[1])
+    # observation.wav_select(2100, 2200)
+
+    return combined
+
 def plot_spectrum(spectrum, label=False, show=True):
     """Plot a spectrum object"""
     if label:
