@@ -209,7 +209,7 @@ def main():
     snrs = [102, 1001]   # Signal to noise levels
     alphas = 10**np.linspace(-5, -0.2, 70)
     RVs = np.arange(15, 25, 0.15)
-    X, Y = np.meshgrid(alphas, RVs, indexing="xy")
+    X, Y = np.meshgrid(RVs, alphas, indexing="xy")
     # Resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
     # snrs = [50, 100, 200, 500, 1000]   # Signal to noise levels
     # alphas = 10**np.linspace(-4, -0.1, 200)
