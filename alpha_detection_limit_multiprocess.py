@@ -103,7 +103,8 @@ def store_convolutions(spectrum, resolutions, chip_limits=None):
 
 
 @memory.cache
-def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
+def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs,
+                          limits):
     """ Create an simulated observation for combinations of resolution and snr.
 
     Paramters:
@@ -121,13 +122,14 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
     iterator = itertools.product(resolutions, snrs)
     for resolution, snr in iterator:
         # Preform tasks to simulate an observation
-        spec_1 = model_1[resolution]
+        # spec_1 = model_1[resolution]
+        # spec_2 = model_2[resolution]
+        # spec_2.doppler_shift(rv)
+        # combined_model = combine_spectra(spec_1, spec_2, alpha)
 
-        spec_2 = model_2[resolution]
-        spec_2.doppler_shift(rv)
-        # model1 and model2 are already normalized
-        # and convovled to each resolution using store_convolutions.
-        combined_model = combine_spectra(spec_1, spec_2, alpha)
+        # Using alpha_model
+        combined_model = alpha_model(alpha, rv, model_1[resolution],
+                                     model_2[resolution], limits)
 
         combined_model.flux = add_noise(combined_model.flux, snr)
 
@@ -199,7 +201,7 @@ def main():
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
 
     chip_limits = [2080, 2220]
-
+    chisqr_limits = [2110, 2120]  # Smaller limits after rv and convolutoin etc.
     (w_mod, I_star, I_bdmod,
         hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=chip_limits,
                                                  normalize=True)
@@ -237,7 +239,8 @@ def main():
     simulated_observations = generate_observations(convolved_star_models,
                                                    convolved_planet_models,
                                                    RV_val, Alpha,
-                                                   Resolutions, snrs)
+                                                   Resolutions, snrs,
+                                                   chisqr_limits)
 
     # Not used with gernerator function
     # goal_planet_shifted = copy.copy(org_bd_spec)
