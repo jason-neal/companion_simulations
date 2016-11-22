@@ -32,6 +32,14 @@ def model_chisqr_wrapper(spectrum_1, model, params, error=None):
 
     return spectrum_chisqr(spectrum_1, evaluated_model, error=error)
 
+# @memory.cache
+def parallel_chisqr(iter1, iter2, observation, model_func, model_params, numProcs=1):
+
+    grid = Parallel(n_jobs=numProcs)(delayed(model_chisqr_wrapper)(observation,
+                                     model_func, (a, b, *model_params))
+                                     for a in iter1 for b in iter2)
+    return np.asarray(grid)
+
 
 def plot_spectrum(spectrum, label=False, show=True):
     """Plot a spectrum object"""
