@@ -340,28 +340,32 @@ def plot_after_running(Resolutions, snrs, alphas, RVs, input_parameters,
                        convolved_planet_models, res_snr_chisqr_dict,
                        error_res_snr_chisqr_dict):
 
-    X, Y = np.meshgrid(RVs, alphas, indexing="xy")
+    X, Y = np.meshgrid(RVs, alphas)
 
     for resolution in Resolutions:
         for snr in snrs:
             this_chisqr_snr = res_snr_chisqr_dict[resolution][snr]
-            this_error_chisqr_snr = error_res_snr_chisqr_dict[resolution][snr]
+            # this_error_chisqr_snr = error_res_snr_chisqr_dict[resolution][snr]
             log_chisqr = np.log(this_chisqr_snr)
-            log_error_chisqr = np.log(this_error_chisqr_snr)
+            # log_error_chisqr = np.log(this_error_chisqr_snr)
+            log_chisqr = log_chisqr.reshape(len(alphas), len(RVs))
 
-        plt.figure(figsize=(10, 9))
-        plt.suptitle("Log Chi squared with SNR = {0}, Resolution = {1}\n Correct RV = {2}, Correct alpha = {3}".format(snr, resolution, input_parameters[0], input_parameters[1]), fontsize=16)
+            # T, U = np.meshgrid(RVs, alphas)
+            plt.figure(figsize=(5, 5))
+            plt.title("Log Chi squared with SNR = {0}, Resolution = {1}\n Correct RV = {2}, Correct alpha = {3}"
+                      "".format(snr, resolution, input_parameters[0], input_parameters[1]), fontsize=16)
 
-        plt.subplot(2, 1, 1)
-        plt.contourf(X, Y, log_chisqr, 100)
-        plt.ylabel("Flux ratio")
-        plt.title("Scipy chisquared")
+            # plt.subplot(2, 1, 1)
+            plt.contourf(X, Y, log_chisqr, 100)
+            plt.ylabel("Flux ratio")
+            plt.xlabel("RV (km/s)")
+            # plt.title("Chisquared")
 
-        plt.subplot(2, 1, 2)
-        plt.contourf(X, Y, log_error_chisqr, 100)
-        plt.title("Sigma chisquared")
-        plt.ylabel("Flux ratio")
-        plt.xlabel("RV (km/s)")
+        # plt.subplot(2, 1, 2)
+        # plt.contourf(X, Y, log_error_chisqr, 100)
+        # plt.title("Sigma chisquared")
+        # plt.ylabel("Flux ratio")
+
         plt.show()
 
 if __name__ == "__main__":
