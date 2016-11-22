@@ -210,10 +210,10 @@ def main():
     org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
     # Resolutions = [None, 50000]
-    Resolutions = [50000, 100001]
-    snrs = [102, 1001]   # Signal to noise levels
-    alphas = 10**np.linspace(-5, -0.2, 70)
-    RVs = np.arange(15, 25, 0.15)
+    Resolutions = [50000, 100000]
+    snrs = [50, 100, 1000]   # Signal to noise levels
+    alphas = 10**np.linspace(-5, -1, 70)
+    RVs = np.arange(1, 35, 0.15)
     X, Y = np.meshgrid(RVs, alphas, indexing="xy")
     # Resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
     # snrs = [50, 100, 200, 500, 1000]   # Signal to noise levels
@@ -221,8 +221,8 @@ def main():
     # RVs = np.arange(-100, 100, 0.05)
 
     # RV and alpha value of Simulations
-    RV_val = 22
-    Alpha = 0.2  # Vary this to determine detection limit
+    RV_val = 20
+    Alpha = 0.01  # Vary this to determine detection limit
     input_parameters = (RV_val, Alpha)
 
     # starting convolution
