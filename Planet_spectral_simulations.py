@@ -41,7 +41,7 @@ def combine_spectra(star, planet, alpha):
     if np.all(star.xaxis == planet.xaxis):   # make sure wavelenghts even first
         pass
     else:
-        planet.interpolate1d_to(star)
+        planet.spline_interpolate_to(star)
     # combined_spectrum = star + (planet*alpha)
     # Combined spectra with proper normalization
     norm_factor = 1 / (1 + alpha)
