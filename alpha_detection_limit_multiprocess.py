@@ -16,7 +16,7 @@ from __future__ import division, print_function
 from IP_multi_Convolution import IPconvolution
 import numpy as np
 import multiprocess as mprocess
-# from tqdm import tqdm
+from tqdm import tqdm
 import scipy.stats
 # from scipy.stats import chisquare
 from Planet_spectral_simulations import combine_spectra
@@ -32,9 +32,12 @@ from spectrum_overload.Spectrum import Spectrum
 import copy
 from numba import jit
 from joblib import Memory
-from joblib import Parallel, delayed
+# from joblib import Parallel, delayed
 import os
 import sys
+sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
+
+from new_alpha_detect_limit_simulation import alpha_model, parallel_chisqr
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
 path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
