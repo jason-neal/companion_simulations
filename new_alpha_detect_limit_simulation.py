@@ -127,6 +127,11 @@ def main():
     # plt.plot(model_spec.xaxis, model_spec.flux, label="alpha model")
     # plt.show()
 
+    # Alpha model seems ok
+    new_limits = [2100, 2200]
+    # Create observation
+    simlulated_obs = alpha_model(Alpha, RV_val, org_star_spec, org_bd_spec, new_limits)
+
 
     reshape1 = chisqr_parallel.reshape(len(alphas), len(RVs))
     # reshape2 = chisqr_parallel.reshape(len(RVs), len(alphas))
