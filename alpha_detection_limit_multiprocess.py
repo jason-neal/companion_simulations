@@ -248,9 +248,9 @@ def main():
     # goal_planet_shifted.doppler_shift(RV_val)
 
     res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries
-    error_res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries
-    multi_alpha = defaultdict(dict)  # Dictionary of dictionaries
-    multi_rv = defaultdict(dict)  # Dictionary of dictionaries
+    error_res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries # Empty now
+    # multi_alpha = defaultdict(dict)  # Dictionary of dictionaries
+    # multi_rv = defaultdict(dict)  # Dictionary of dictionaries
 
     # Iterable over resolution and snr to process
     # res_snr_iter = itertools.product(Resolutions, snrs)
@@ -259,7 +259,7 @@ def main():
     print("Starting loops")
 
     # multiprocessing part
-    numProcs = 2
+    numProcs = 4
     if numProcs is None:
         numProcs = mprocess.cpu_count() - 1
 
@@ -270,6 +270,8 @@ def main():
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
         # chisqr_snr_dict = dict()  # store 2d array in dict of SNR
         # error_chisqr_snr_dict = dict()
+        host_model = convolved_star_models[resolution]
+        companion_model = convolved_planet_models[resolution]
 
         for snr in snrs:
             sim_observation = simulated_observations[resolution][snr]
@@ -306,6 +308,11 @@ def main():
             # error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
             # multi_alpha[resolution][snr] = np.copy(new_X_memmap)
             # multi_rv[resolution][snr] = np.copy(new_Y_memmap)
+
+            # Trying new methodolgy
+            chisqr_parallel = parallel_chisqr(alphas, RVs, sim_observation, alpha_model, (host_model, companion_model, chisqr_limits), numProcs=numProcs)
+            # chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model, (org_star_spec, org_bd_spec, new_limits), numProcs=4)
+            res_snr_chisqr_dict[resolution][snr] = chisqr_parallel
 
     # mprocPool.close()
     timeEnd = dt.now()
