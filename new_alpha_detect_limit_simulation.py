@@ -7,10 +7,22 @@ import copy
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
 # self written modules
-from grid_chisquare import chi_squared
+# from grid_chisquare import chi_squared
 from spectrum_overload.Spectrum import Spectrum
 from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
+
+def chi_squared(observed, expected, error=None):
+    """Calculate chi squared.
+    Same result as as scipy.stats.chisquare
+    """
+    if np.any(error):
+        chisqr = np.sum((observed - expected) ** 2 / (error ** 2))
+    else:
+        # chisqr = np.sum((observed-expected)**2)
+        chisqr = np.sum((observed - expected)**2 / expected)
+        # When divided by exted the result is identical to scipy
+    return chisqr
 
 
 def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
