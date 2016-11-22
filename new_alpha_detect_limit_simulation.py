@@ -32,3 +32,18 @@ def model_chisqr_wrapper(spectrum_1, model, params, error=None):
 
     return spectrum_chisqr(spectrum_1, evaluated_model, error=error)
 
+
+def plot_spectrum(spectrum, label=False, show=True):
+    """Plot a spectrum object"""
+    if label:
+        plt.plot(spectrum.xaxis, spectrum.flux, label=label)
+        plt.legend()
+    else:
+        plt.plot(spectrum.xaxis, spectrum.flux)
+
+    plt.ylabel("Flux")
+    plt.xlabel("xaxis")
+
+    if show:
+        plt.show()
+
