@@ -132,6 +132,14 @@ def main():
     # Create observation
     simlulated_obs = alpha_model(Alpha, RV_val, org_star_spec, org_bd_spec, new_limits)
 
+    # function to run parallel
+
+    params = (org_star_spec, org_bd_spec)
+    chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model, (org_star_spec, org_bd_spec, new_limits), numProcs=4)
+    chisqr_parallel = np.array(chisqr_parallel)
+    print("Chisqr from parallel run")
+    print(chisqr_parallel)
+    print("Finished Chisqr parallel run")
 
     reshape1 = chisqr_parallel.reshape(len(alphas), len(RVs))
     # reshape2 = chisqr_parallel.reshape(len(RVs), len(alphas))
