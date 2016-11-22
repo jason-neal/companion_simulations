@@ -31,8 +31,9 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
         return c2
     else:
 
-        #print(len(spectrum_1), len(spectrum_2))
+        # print(len(spectrum_1), len(spectrum_2))
         raise Exception("TODO: make xaxis equal in chisquare of spectrum")
+
 
 def model_chisqr_wrapper(spectrum_1, model, params, error=None):
     """ Evaluate model and call chisquare """
@@ -77,6 +78,7 @@ def alpha_model(alpha, rv, host, companion, limits, new_x=None):
     # observation.wav_select(2100, 2200)
 
     return combined
+
 
 def plot_spectrum(spectrum, label=False, show=True):
     """Plot a spectrum object"""
