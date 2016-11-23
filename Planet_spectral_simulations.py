@@ -6,8 +6,8 @@
 
 # imports
 from __future__ import division, print_function
-from todcor import todcor
-from todcor import create_cross_correlations
+# from todcor import todcor
+# from todcor import create_cross_correlations
 from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 import numpy as np
