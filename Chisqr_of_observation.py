@@ -179,30 +179,6 @@ def main():
     if n_jobs is None:
         n_jobs = mprocess.cpu_count() - 1
 
-    # mprocPool = mprocess.Pool(processes=numProcs)
-        timeInit = dt.now()
-        X = np.meshgrid(alphas, RVs)
-        map_filename = os.path.join(path, "obs_chisqr.memmap")
-        chisqr_memmap = np.memmap(map_filename, dtype='float32', mode='w+',
-                                  shape=X.shape)
-
-        # args_generator = tqdm([[i, j, alpha, rv, sim_observation, host_model,
-        #                        companion_model, chisqr_memmap]
-        #                        for i, alpha in enumerate(alphas)
-        #                        for j, rv in enumerate(RVs)])
-
-        # mprocPool.map(wrapper_parallel_chisquare, args_generator)
-        Parallel(n_jobs=numProcs)(delayed(parallel_chisquared)(i, j, alpha, rv,
-                                  resolution, snr, sim_observation,
-                                  convolved_star_models,
-                                  convolved_planet_models, chisqr_memmap)
-                                  for j, rv in enumerate(RVs)
-                                  for i, alpha in enumerate(alphas))
-
-        #res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
-        #error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
-
-    # mprocPool.close()
     timeEnd = dt.now()
 
     # Plot memmap
