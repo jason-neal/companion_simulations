@@ -175,9 +175,9 @@ def main():
     RVs = np.arange(15, 40, 0.1)
     # chisqr_store = np.empty((len(alphas), len(RVs)))
 
-    numProcs = None
-    if numProcs is None:
-        numProcs = mprocess.cpu_count() - 1
+    n_jobs = 4
+    if n_jobs is None:
+        n_jobs = mprocess.cpu_count() - 1
 
     # mprocPool = mprocess.Pool(processes=numProcs)
         timeInit = dt.now()

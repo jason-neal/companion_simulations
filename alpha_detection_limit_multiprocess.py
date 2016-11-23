@@ -258,11 +258,11 @@ def main():
     print("Starting loops")
 
     # multiprocessing part
-    numProcs = 4
-    if numProcs is None:
-        numProcs = mprocess.cpu_count() - 1
+    n_jobs = 4
+    if n_jobs is None:
+        n_jobs = mprocess.cpu_count() - 1
 
-    # mprocPool = mprocess.Pool(processes=numProcs)
+    # mprocPool = mprocess.Pool(processes=n_jobs)
     timeInit = dt.now()
     for resolution in tqdm(Resolutions):
 
@@ -293,7 +293,7 @@ def main():
             #
             # # mprocPool.map(wrapper_parallel_chisquare, args_generator)
             #
-            # Parallel(n_jobs=numProcs)(delayed(parallel_chisquared)(i, j, alpha,
+            # Parallel(n_jobs=n_jobs)(delayed(parallel_chisquared)(i, j, alpha,
             #                           rv, resolution, snr, sim_observation,
             #                           convolved_star_models,
             #                           convolved_planet_models, scipy_memmap,
@@ -309,14 +309,14 @@ def main():
             # multi_rv[resolution][snr] = np.copy(new_Y_memmap)
 
             # Trying new methodolgy
-            chisqr_parallel = parallel_chisqr(alphas, RVs, sim_observation, alpha_model, (host_model, companion_model, chisqr_limits), numProcs=numProcs)
-            # chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model, (org_star_spec, org_bd_spec, new_limits), numProcs=4)
+            chisqr_parallel = parallel_chisqr(alphas, RVs, sim_observation, alpha_model, (host_model, companion_model, chisqr_limits), n_jobs=n_jobs)
+            # chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model, (org_star_spec, org_bd_spec, new_limits), n_jobs=4)
             res_snr_chisqr_dict[resolution][snr] = chisqr_parallel
 
     # mprocPool.close()
     timeEnd = dt.now()
     print("Multi-Proc chisqr has been completed in "
-          "{} using {}/{} cores.\n".format(timeEnd-timeInit, numProcs,
+          "{} using {}/{} cores.\n".format(timeEnd-timeInit, n_jobs,
                                            mprocess.cpu_count()))
 
     with open(os.path.join(path, "parallel_chisquare.pickle"), "wb") as f:

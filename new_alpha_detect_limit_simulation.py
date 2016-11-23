@@ -57,9 +57,9 @@ def model_chisqr_wrapper(spectrum_1, model, params, error=None):
     return spectrum_chisqr(spectrum_1, evaluated_model, error=error)
 
 # @memory.cache
-def parallel_chisqr(iter1, iter2, observation, model_func, model_params, numProcs=1):
+def parallel_chisqr(iter1, iter2, observation, model_func, model_params, n_jobs=1):
 
-    grid = Parallel(n_jobs=numProcs)(delayed(model_chisqr_wrapper)(observation,
+    grid = Parallel(n_jobs=n_jobs)(delayed(model_chisqr_wrapper)(observation,
                                      model_func, (a, b, *model_params))
                                      for a in iter1 for b in iter2)
     return np.asarray(grid)
@@ -133,7 +133,7 @@ def main():
     # function to run parallel
 
     params = (org_star_spec, org_bd_spec)
-    chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model, (org_star_spec, org_bd_spec, new_limits), numProcs=4)
+    chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model, (org_star_spec, org_bd_spec, new_limits), n_jobs=4)
     chisqr_parallel = np.array(chisqr_parallel)
     print("Chisqr from parallel run")
     print(chisqr_parallel)
