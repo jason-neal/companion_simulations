@@ -19,7 +19,7 @@ import multiprocess as mprocess
 from tqdm import tqdm
 import scipy.stats
 # from scipy.stats import chisquare
-from Planet_spectral_simulations import combine_spectra
+from simulation_utilities import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 import itertools
 from collections import defaultdict

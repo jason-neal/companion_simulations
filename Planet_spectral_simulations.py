@@ -30,25 +30,25 @@ from simulation_utilities import add_noise
 # def add_noise(spectra, snr):
 #    """Add noise to spectrum at the level given by snr"""
 
-
-def combine_spectra(star, planet, alpha):
-    """"Combine the Spectrum objects "star" and "planet" with a strength ratio of aplha
-    spec = star + planet * alpha
-
-    """
-    star = copy.copy(star)
-    planet = copy.copy(planet)
-
-    if np.all(star.xaxis == planet.xaxis):   # make sure wavelenghts even first
-        pass
-    else:
-        planet.spline_interpolate_to(star)
-    # combined_spectrum = star + (planet*alpha)
-    # Combined spectra with proper normalization
-    norm_factor = 1 / (1 + alpha)
-    combined_spectrum = (star + (planet * alpha)) * norm_factor
-
-    return combined_spectrum
+from simulation_utilities import combine_spectra
+# def combine_spectra(star, planet, alpha):
+#     """"Combine the Spectrum objects "star" and "planet" with a strength ratio of aplha
+#     spec = star + planet * alpha
+#
+#     """
+#     star = copy.copy(star)
+#     planet = copy.copy(planet)
+#
+#     if np.all(star.xaxis == planet.xaxis):   # make sure wavelenghts even first
+#         pass
+#     else:
+#         planet.interpolate1d_to(star)
+#     # combined_spectrum = star + (planet*alpha)
+#     # Combined spectra with proper normalization
+#     norm_factor = 1 / (1 + alpha)
+#     combined_spectrum = (star + (planet * alpha)) * norm_factor
+#
+#     return combined_spectrum
 
 
 def simple_normalization(spectrum):

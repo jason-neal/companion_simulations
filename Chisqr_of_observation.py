@@ -14,7 +14,7 @@ from Get_filenames import get_filenames
 from scipy.stats import chisquare
 from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
-from Planet_spectral_simulations import combine_spectra
+from simulation_utilities import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 from joblib import Memory
 from joblib import Parallel, delayed
