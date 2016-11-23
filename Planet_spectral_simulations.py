@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import copy
 import os
 
+from simulation_utilities import spectrum_plotter
 
 def RV_shift():
     """ Doppler shift spectrum"""
@@ -167,15 +168,15 @@ def main():
     combined = combine_spectra(star_spec, bd_spec, alpha=0.01)
     combined2 = combine_spectra(star_spec, bd_spec, alpha=0.1)
 
-    plotter(bd_spec, label="HD30501b")
+    spectrum_plotter(bd_spec, label="HD30501b")
     plt.title("Pheonix Spectra HD30501A and HD30501b")
     plt.ylabel("Flux [ergs/s/cm^2/cm]")
     # plt.ylabel("Normalized Flux")
     plt.xlabel("Wavelength [nm]")
-    plotter(star_spec + 1, label="HD30501A")
+    spectrum_plotter(star_spec + 1, label="HD30501A")
 
     # plotter(combined2)
-    plotter(combined + 1, label="Combined", show=True)
+    spectrum_plotter(combined + 1, label="Combined", show=True)
 
     # Why does this plot things twice???
     # Add rv attributes to spectrum for TODCOR
@@ -195,7 +196,7 @@ def main():
         combined_spec = combine_spectra(star_spec, bd_shifted, alpha=alpha)
 
         combined_spec.wav_select(2158, 2159)
-        plotter(combined_spec + (RV/200), label="RV shift={} km/s".format(RV))
+        spectrum_plotter(combined_spec + (RV/200), label="RV shift={} km/s".format(RV))
 
     plt.title("Combined spectra (star+alpha*planet), alpha = {}".format(alpha))
     plt.legend(loc=0)
@@ -218,14 +219,7 @@ def main():
     # cps_R,cps_m,cps_fits,cps_vp,cps_vs,cps_cntr = todcor(ccf1,ccf2,ccf12,pshift,sshift,images)
 
 
-def plotter(spectra, label=None, show=False):
-    """ """
-    plt.plot(spectra.xaxis, spectra.flux, label=label)
-    if label:
-        plt.legend(loc=0, bbox_to_anchor=(1.4, 0.9), ncol=1,
-                   fancybox=True, shadow=True)
-    if show:
-        plt.show()
+
 
 # main()
 

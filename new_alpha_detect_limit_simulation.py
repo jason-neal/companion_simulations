@@ -11,6 +11,7 @@ from joblib import Parallel, delayed
 from spectrum_overload.Spectrum import Spectrum
 from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
+from simulation_utilities import spectrum_plotter
 
 def chi_squared(observed, expected, error=None):
     """Calculate chi squared.
@@ -35,8 +36,8 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
         c2 = chi_squared(spectrum_1.flux, spectrum_2.flux, error=error)
         # return chi_squared(spectrum_1.flux, spectrum_2.flux, error=None)
         # print("chisqrayured value", c2)
-        # plot_spectrum(spectrum_1, label="obs", show=False)
-        # plot_spectrum(spectrum_2, label="evauated")
+        # spectrum_plotter(spectrum_1, label="obs", show=False)
+        # spectrum_plotter(spectrum_2, label="evauated")
         if np.isnan(c2):
             print(" Nan chisqr")
             # print(spectrum_1.xaxis, spectrum_1.flux, spectrum_2.xaxis, spectrum_2.flux)
@@ -90,21 +91,6 @@ def alpha_model(alpha, rv, host, companion, limits, new_x=None):
     # observation.wav_select(2100, 2200)
 
     return combined
-
-
-def plot_spectrum(spectrum, label=False, show=True):
-    """Plot a spectrum object"""
-    if label:
-        plt.plot(spectrum.xaxis, spectrum.flux, label=label)
-        plt.legend()
-    else:
-        plt.plot(spectrum.xaxis, spectrum.flux)
-
-    plt.ylabel("Flux")
-    plt.xlabel("xaxis")
-
-    if show:
-        plt.show()
 
 
 def main():

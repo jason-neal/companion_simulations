@@ -178,9 +178,8 @@ def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
 
     if False:
         # if i == j:
-        plt.plot(observation.xaxis, observation.flux, "Simulated obs")
-        plt.plot(combined_model.xaxis, combined_model.flux, "This model")
-        plt.legend()
+        spectrum_plotter(observation, label="Simulated obs", show=False)
+        spectrum_plotter(combined_model, label="This model", show=False)
         plt.title("Parallel printing, alpha={},RV={}".format(alpha, rv))
         plt.show()
 
