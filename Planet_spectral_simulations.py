@@ -46,7 +46,7 @@ def combine_spectra(star, planet, alpha):
     # combined_spectrum = star + (planet*alpha)
     # Combined spectra with proper normalization
     norm_factor = 1 / (1 + alpha)
-    combined_spectrum = (star + (planet*alpha)) * norm_factor
+    combined_spectrum = (star + (planet * alpha)) * norm_factor
 
     return combined_spectrum
 
@@ -56,13 +56,12 @@ def simple_normalization(spectrum):
     from astropy.modeling import models, fitting
     p1 = models.Polynomial1D(1)
     p1.c0 = spectrum.flux[0]
-    p1.c1 = ((spectrum.flux[-1]-spectrum.flux[0]) /
-             (spectrum.xaxis[-1]-spectrum.xaxis[0]))
+    p1.c1 = ((spectrum.flux[-1] - spectrum.flux[0]) / (spectrum.xaxis[-1] - spectrum.xaxis[0]))
 
-    #print("Printing p1", p1)
+    # print("Printing p1", p1)
     pfit = fitting.LinearLSQFitter()
     new_model = pfit(p1, spectrum.xaxis, spectrum.flux)
-    #print(new_model)
+    # print(new_model)
     fit_norm = new_model(spectrum.xaxis)
     norm_spectrum = spectrum / fit_norm
     flux = norm_spectrum.flux
