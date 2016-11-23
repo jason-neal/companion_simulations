@@ -25,9 +25,9 @@ def log_RV_shift():
     """ Doppler shift when log-linear spectrum is used"""
     pass
 
-
-def add_noise(spectra, snr):
-    """Add noise to spectrum at the level given by snr"""
+from simulation_utilities import add_noise
+# def add_noise(spectra, snr):
+#    """Add noise to spectrum at the level given by snr"""
 
 
 def combine_spectra(star, planet, alpha):

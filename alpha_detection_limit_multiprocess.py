@@ -58,14 +58,14 @@ def chi_squared(observed, expected, error=None):
         # When divided by exted the result is identical to scipy
     return chisqr
 
-
-@jit
-def add_noise(flux, SNR):
-    "Using the formulation mu/sigma"
-    sigma = flux / SNR
-    # Add normal distributed noise at the SNR level.
-    noisey_flux = flux + np.random.normal(0, sigma)
-    return noisey_flux
+from simulation_utilities import add_noise
+# @jit
+# def add_noise(flux, SNR):
+#     "Using the formulation mu/sigma from wikipedia"
+#     sigma = flux / SNR
+#     # Add normal distributed noise at the SNR level.
+#     noisey_flux = flux + np.random.normal(0, sigma)
+#     return noisey_flux
 
 
 @memory.cache
