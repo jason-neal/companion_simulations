@@ -33,6 +33,7 @@ import copy
 from numba import jit
 from joblib import Memory
 # from joblib import Parallel, delayed
+from simulation_utilities import spectrum_plotter
 import os
 import sys
 sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
