@@ -155,16 +155,15 @@ def main():
 
     obs_resolution = set_crires_resolution(observed_spectra.header)
 
-    star_spec = Spectrum(flux=I_star, xaxis=w_mod, header=hdr_star)
-    bd_spec = Spectrum(flux=I_bdmod, xaxis=w_mod, header=hdr_bd)
+    host_spectrum_model = Spectrum(flux=I_star, xaxis=w_mod, calibrated=True, header=hdr_star)
+    companion_spectrum_model = Spectrum(flux=I_bdmod, xaxis=w_mod, calibrated=True, header=hdr_bd)
 
     # Convolve models to resolution of instrument
-    star_spec, bd_spec = convolve_models((star_spec, bd_spec), obs_resolution,
-                                         chip_limits=None)
+    host_spectrum_model, companion_spectrum_model = convolve_models((host_spectrum_model, companion_spectrum_model),
+                                                                    obs_resolution, chip_limits=None)
 
-    plot_obs_with_model(observed_spectra, star_spec, bd_spec)
+    # plot_obs_with_model(observed_spectra, host_spectrum_model, companion_spectrum_model, show=False)
 
-    # Prepare data / wavelength select,
     # Berv Correct
     observed_spectra = berv_correct(observed_spectra)
 
