@@ -31,6 +31,12 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
     # Spectrum wrapper for chissquare
     # make sure xaxis is the Same
     # if len(spectrum_1) == len(spectrum_2):
+    nan_number = np.sum(np.isnan(spectrum_1.flux))
+    if nan_number:
+        print("There are {} nans in spectrum_1".format(nan_number))
+
+    if np.all(np.isnan(spectrum_2.flux)):
+        print("spectrum 2 is all nans")
     if np.all(spectrum_1.xaxis == spectrum_2.xaxis):
         # print("xaxis are equal")
         c2 = chi_squared(spectrum_1.flux, spectrum_2.flux, error=error)
@@ -44,7 +50,9 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
         return c2
     else:
 
-        # print(len(spectrum_1), len(spectrum_2))
+        print("Spectrum_1", len(spectrum_1))
+        print("Spectrum_2", len(spectrum_2))
+
         raise Exception("TODO: make xaxis equal in chisquare of spectrum")
 
 
@@ -53,6 +61,9 @@ def model_chisqr_wrapper(spectrum_1, model, params, error=None):
     # print("params for model", params)
     # params = copy.copy(params)
     evaluated_model = model(*params)  # # unpack parameters
+
+    if np.all(np.isnan(evaluated_model.flux)):
+        raise Exception("Evaluated model is all Nans")
 
     return spectrum_chisqr(spectrum_1, evaluated_model, error=error)
 
@@ -85,7 +96,7 @@ def alpha_model(alpha, rv, host, companion, limits, new_x=None):
     companion.doppler_shift(rv)
     combined = combine_spectra(host, companion, alpha)
 
-    if new_x:
+    if np.any(new_x):
         combined.spline_interpolate_to(new_x)
     combined.wav_select(limits[0], limits[1])
     # observation.wav_select(2100, 2200)
