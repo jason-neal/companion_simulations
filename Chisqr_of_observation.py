@@ -80,7 +80,9 @@ def load_spectrum(name):
     hdr = fits.getheader(name)
     # Turn into Spectrum
     # Check for telluric corrected column
-    spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Extracted_DRACS"],
+    # spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Extracted_DRACS"],
+    #                    calibrated=True, header=hdr)
+    spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Corrected_DRACS"],
                         calibrated=True, header=hdr)
     return spectrum
 
