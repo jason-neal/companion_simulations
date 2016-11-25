@@ -6,23 +6,24 @@
 
 import time
 import datetime
-import PyAstronomy as pyasl
+from PyAstronomy import pyasl
 
 # TODO: Add a line in the header to check if this script has already been
 # applied.
 # TODO: wrapper to handle Specturm objects
 
 
-def spectrum_wrapper(spectrum):
+def barycorr_crires_spectrum(spectrum, extra_offset=None):
     """ Wrapper to apply barycorr for crires spectra if given a Spectrum object
     """
     from spectrum_overload.Spectrum import Spectrum
-    nflux, wlprime = barycorr_CRIRES(spectrum.xaxis, spectrum.flux,
-                                     spectrum.header)
-   new_spec = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
-   return new_spectrum
+    nflux, wlprime = barycorr_crires(spectrum.xaxis, spectrum.flux,
+                                     spectrum.header, extra_offset=extra_offset)
+    new_spectrum = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
+    return new_spectrum
 
-def barycorr_CRIRES(wavelength, flux, header, extra_offset=None):
+
+def barycorr_crires(wavelength, flux, header, extra_offset=None):
     # ""
     # Calculate Heliocenteric correction values and apply to spectrum.
 
@@ -46,7 +47,7 @@ def barycorr_CRIRES(wavelength, flux, header, extra_offset=None):
     # Account for fractions of a second
 
     # Divide by seconds in a day
-    seconds_fractionalpart = float("0." + fractionaltime) / (24*60*60)
+    seconds_fractionalpart = float("0." + fractionaltime) / (24 * 60 * 60)
 
     # Including the fractional part of seconds changes pyasl.helcorr
     # RV by the order of 1cm/s
@@ -65,7 +66,7 @@ def barycorr_CRIRES(wavelength, flux, header, extra_offset=None):
     nflux, wlprime = pyasl.dopplerShift(wavelength, flux, helcorr_val,
                                         edgeHandling=None, fillValue=None)
 
-    print(" RV s}ize of heliocenter correction for spectra", helcorr_val)
+    print(" RV size of heliocenter correction for spectra", helcorr_val)
     return nflux, wlprime
 
 
