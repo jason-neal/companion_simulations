@@ -49,10 +49,11 @@ def plot_obs_with_model(obs, model1, model2=None, show=True):
 
 
 # I should already have these sorts of functions
-def select_observation(obs_num, chip):
+def select_observation(star, obs_num, chip):
     """ Select the observation to load in
 
     inputs:
+    star: name of host star target
     obs_num: observation number
     chip: crires detetor chip number
 
@@ -64,8 +65,9 @@ def select_observation(obs_num, chip):
         raise Exception("Chip Error")
     else:
 
-        path = "/home/jneal/Phd/data/Crires/BDs-DRACS/HD30501-", \
-               "{}/Combined_Nods".format(obs_num)
+        path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/{}-"
+                "{}/Combined_Nods".format(star, obs_num))
+        print("Path =", path)
         filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
                                   "*_{}.nod.ms.*".format(chip))
 
@@ -158,9 +160,10 @@ def convolve_models(models, R, chip_limits=None):
 
 def main():
     """ """
+    star = "HD30501"
     obs_num = 1
     chip = 1
-    obs_name = select_observation(obs_num, chip)
+    obs_name = select_observation(star, obs_num, chip)
 
     # Load observation
     observed_spectra = load_spectrum(obs_name)
