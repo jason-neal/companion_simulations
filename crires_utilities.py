@@ -67,3 +67,25 @@ def barycorr_CRIRES(wavelength, flux, header, extra_offset=None):
 
     print(" RV s}ize of heliocenter correction for spectra", helcorr_val)
     return nflux, wlprime
+
+
+def crires_resolution(header):
+    """ Set CRIRES resolution based on rule of thumb equation from the manual.
+    Warning! The use of adpative optics is not checked for!!
+    # This code has been copied from tapas xml request script.
+    """
+    instrument = header["INSTRUME"]
+
+    slit_width = header["HIERARCH ESO INS SLIT1 WID"]
+    if "CRIRES" in instrument:
+        # print("Resolving Power\nUsing the rule of thumb equation from the
+        # CRIRES manual. \nWarning! The use of adpative optics is not
+        # checked for!!")
+        R = 100000 * 0.2 / slit_width
+        resolving_power = int(R)
+        # print("Slit width was {0} inches.\n
+        # Therefore the resolving_power is set = {1}".format(slit_width,
+        # resolving_power))
+    else:
+        print("Instrument is not CRIRES")
+    return resolving_power
