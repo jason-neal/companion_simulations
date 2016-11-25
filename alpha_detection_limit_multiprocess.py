@@ -212,7 +212,7 @@ def main():
     # Resolutions = [None, 50000]
     Resolutions = [50000, 100000]
     snrs = [50, 100, 1000]   # Signal to noise levels
-    alphas = 10**np.linspace(-5, -1, 70)
+    alphas = 10**np.linspace(-5, -1, 1000)
     RVs = np.arange(1, 35, 0.15)
     X, Y = np.meshgrid(RVs, alphas, indexing="xy")
     # Resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
@@ -222,7 +222,7 @@ def main():
 
     # RV and alpha value of Simulations
     RV_val = 20
-    Alpha = 0.01  # Vary this to determine detection limit
+    Alpha = 0.005  # Vary this to determine detection limit
     input_parameters = (RV_val, Alpha)
 
     # starting convolution
