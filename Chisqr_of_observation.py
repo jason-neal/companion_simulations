@@ -26,6 +26,9 @@ from crires_utilities import crires_resolution
 from crires_utilities import barycorr_crires_spectrum
 
 
+path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
+cachedir = os.path.join(path, "cache")  # save path
+memory = Memory(cachedir=cachedir, verbose=0)
 
 
 # First plot the observation with the model
