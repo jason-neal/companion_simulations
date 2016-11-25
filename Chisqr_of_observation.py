@@ -32,16 +32,20 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 
 # First plot the observation with the model
-def plot_obs_with_model(obs, model1, model2=None):
+def plot_obs_with_model(obs, model1, model2=None, show=True):
     """ Plot the obseved spectrum against the model to check that they are
     "compatiable"
     """
+    plt.figure()
     plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
-    plt.plot(model1.xaxis, model1.flux + 1.2, label="model1")
+    # plt.plot(obs.xaxis, np.isnan(obs.flux) + 1, "o", ms=15, label="Nans in obs")
+    plt.plot(model1.xaxis, model1.flux + 1.1, label="model1")
     if model2:
         plt.plot(model2.xaxis, model2.flux, label="model2")
     plt.legend(loc=0)
-    plt.show()
+    plt.xlim(-1 + obs.xaxis[0], 1 + obs.xaxis[-1])
+    if show:
+        plt.show()
 
 
 # I should already have these sorts of functions
