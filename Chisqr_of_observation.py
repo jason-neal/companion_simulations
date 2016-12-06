@@ -273,7 +273,7 @@ def main():
 
 
     # Dump the results into a pickle file
-    pickle_name = "Chisqr_results_HD30501_{0}_chip_{1}.pickle".format(star, obs_num, chip)
+    pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obs_num, chip)
     with open(os.path.join(path, pickle_name), "wb") as f:
         """Pickle all the necessary parameters to store
         """
