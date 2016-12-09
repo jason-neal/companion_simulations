@@ -4,8 +4,7 @@
 # A script/module to barycentric correct a crires observation
 # Barycentric correction of CRIRES spectrum given the header information
 
-import time
-import datetime
+import ephem
 from PyAstronomy import pyasl
 
 # TODO: Add a line in the header to check if this script has already been
@@ -40,18 +39,9 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
     # Pyastronomy helcorr needs the time of observation in julian Days
     # #############################################
     Time = header["DATE-OBS"]    # Observing date  '2012-08-02T08:47:30.8425'
-    # Get Average time **** from all raw files!!!
-    wholetime, fractionaltime = Time.split(".")
-    Time_time = time.strptime(wholetime, "%Y-%m-%dT%H:%M:%S")
-    dt = datetime.datetime(*Time_time[:6])   # Turn into datetime object
-    # Account for fractions of a second
 
-    # Divide by seconds in a day
-    seconds_fractionalpart = float("0." + fractionaltime) / (24 * 60 * 60)
-
-    # Including the fractional part of seconds changes pyasl.helcorr
-    # RV by the order of 1cm/s
-    jd = pyasl.asl.astroTimeLegacy.jdcnv(dt) + seconds_fractionalpart
+    # Convert easily to julian date with ephem
+    jd_ephem = ephem.julian_date(Time.replace("T"," ").split(".")[0])
 
     # Calculate helocentric velocity
     helcorr = pyasl.helcorr(longitude, latitude, altitude, ra, dec, jd,
