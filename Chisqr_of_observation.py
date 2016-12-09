@@ -7,6 +7,7 @@
 import os
 import sys
 import copy
+import ephem
 import pickle
 import numpy as np
 from joblib import Memory
@@ -25,6 +26,7 @@ from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 from crires_utilities import crires_resolution
 from crires_utilities import barycorr_crires_spectrum
 
+from ajplanet import pl_rv_array
 
 path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
 cachedir = os.path.join(path, "cache")  # save path
@@ -182,6 +184,8 @@ def main():
     # Load observation
     observed_spectra = load_spectrum(obs_name)
 
+
+
     # Load models
     (w_mod, I_star, I_bdmod, hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
 
@@ -197,7 +201,24 @@ def main():
     # plot_obs_with_model(observed_spectra, host_spectrum_model, companion_spectrum_model, show=False)
 
     # Berv Correct
-    offset = 0  # -22
+    # Calculate the star RV
+    parameters = {"HD30501":[23.710, 1703.1,   70.4, 0.741,   53851.5,   2073.6, 0.81, 90]}
+    try:
+        host_params =  parameters[star]
+    except:
+        raise ValueError("Parameters for {} are not in parameters list. Improve this.".format(star))
+    host_params[1] = host_params[1] / 1000   # Convert K! to km/s
+    host_params[2] = np.deg2rad(host_params[2]) # Omega needs to be in radians for ajplanet
+
+    obs_time = observed_spectra.header["DATE-OBS"]
+    print(obs_time, isinstance(obs_time, str))
+    print(obs_time.replace("T"," ").split("."))
+    jd = ephem.julian_date(obs_time.replace("T"," ").split(".")[0])
+    Host_RV = pl_rv_array(jd, *host_params[0:6])[0]
+    print("Host_RV", Host_RV, "km/s")
+
+    offset = -Host_RV  # -22
+    # offset = 0  # -22
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum
     berv_corrected_observed_spectra.wav_select(*berv_corrected_observed_spectra.xaxis[

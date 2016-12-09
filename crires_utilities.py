@@ -41,7 +41,7 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
     Time = header["DATE-OBS"]    # Observing date  '2012-08-02T08:47:30.8425'
 
     # Convert easily to julian date with ephem
-    jd_ephem = ephem.julian_date(Time.replace("T"," ").split(".")[0])
+    jd = ephem.julian_date(Time.replace("T"," ").split(".")[0])
 
     # Calculate helocentric velocity
     helcorr = pyasl.helcorr(longitude, latitude, altitude, ra, dec, jd,
