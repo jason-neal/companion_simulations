@@ -164,8 +164,9 @@ def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
     # model_new = combine_spectra(convolved_star_models[resolution],
     # convolved_planet_models[resolution].doppler_shift(RV), alpha)
 
-    combined_model.wav_select(2100, 2200)
     observation.wav_select(2100, 2200)
+    # INTERPOLATE COMBINED MODEL VALUES TO OBSERVATION VALUES
+    combined_model.spline_interpolate_to(observation)
 
     # print("i", i, "j", j, "chisqr",
     # scipy.stats.chisquare(observation.flux, combined_model.flux).statistic)
