@@ -13,7 +13,7 @@
 
 # Create the test spectra.
 from __future__ import division, print_function
-from IP_multi_Convolution import IPconvolution
+
 import numpy as np
 import multiprocess as mprocess
 from tqdm import tqdm
@@ -36,6 +36,8 @@ from joblib import Memory
 from simulation_utilities import spectrum_plotter
 import os
 import sys
+sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
+from IP_multi_Convolution import IPconvolution
 sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 
 from new_alpha_detect_limit_simulation import alpha_model, parallel_chisqr
