@@ -34,7 +34,7 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 
 # First plot the observation with the model
-def plot_obs_with_model(obs, model1, model2=None, show=True):
+def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
     """ Plot the obseved spectrum against the model to check that they are
     "compatiable"
     """
@@ -46,6 +46,8 @@ def plot_obs_with_model(obs, model1, model2=None, show=True):
         plt.plot(model2.xaxis, model2.flux, label="model2")
     plt.legend(loc=0)
     plt.xlim(-1 + obs.xaxis[0], 1 + obs.xaxis[-1])
+    if title is not None:
+        plt.title(title)
     if show:
         plt.show()
 
@@ -177,13 +179,12 @@ def alpha_model2(alpha, rv, host, companion, limits, new_x=None):
 def main():
     """ """
     star = "HD30501"
-    obs_num = 1
+    obs_num = "1"
     chip = 1
     obs_name = select_observation(star, obs_num, chip)
 
     # Load observation
     observed_spectra = load_spectrum(obs_name)
-
 
 
     # Load models
@@ -198,11 +199,11 @@ def main():
     host_spectrum_model, companion_spectrum_model = convolve_models((host_spectrum_model, companion_spectrum_model),
                                                                     obs_resolution, chip_limits=None)
 
-    # plot_obs_with_model(observed_spectra, host_spectrum_model, companion_spectrum_model, show=False)
+    plot_obs_with_model(observed_spectra, host_spectrum_model, companion_spectrum_model, show=False, title="Before BERV Correction")
 
     # Berv Correct
     # Calculate the star RV
-    parameters = {"HD30501":[23.710, 1703.1,   70.4, 0.741,   53851.5,   2073.6, 0.81, 90]}
+    parameters = {"HD30501":[23.710, 1703.1, 70.4, 0.741, 53851.5, 2073.6, 0.81, 90]}
     try:
         host_params =  parameters[star]
     except:
@@ -224,13 +225,14 @@ def main():
     berv_corrected_observed_spectra.wav_select(*berv_corrected_observed_spectra.xaxis[
                                                np.isfinite(berv_corrected_observed_spectra.flux)][[0, -1]])
     # Shift to star RV
-    plt.title("Before BERV Correction")
-    # plot_obs_with_model(berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model)
-    print("\nWarning!!!\n BERV is not good have added a offset to get rest working\n")
+
+    plot_obs_with_model(berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model, title="After BERV Correction")
+
+    #print("\nWarning!!!\n BERV is not good have added a offset to get rest working\n")
 
     # Chisquared fitting
     alphas = 10**np.linspace(-4, 0.1, 100)
-    RVs = np.arange(-1000, 1000, 1)
+    RVs = np.arange(-50, 50, 0.05)
 
     # chisqr_store = np.empty((len(alphas), len(RVs)))
     observed_limits = [np.floor(berv_corrected_observed_spectra.xaxis[0]),
@@ -288,7 +290,7 @@ def main():
     # alpha_model2(alpha, rv, host, companion, limits, new_x=None):
 
     plt.plot(Solution_model.xaxis, Solution_model.flux, label="Min chisqr solution")
-    plt.plot(observed_spectra.xaxis, observed_spectra.flux, label="Observation")
+    plt.plot(berv_corrected_observed_spectra.xaxis, berv_corrected_observed_spectra.flux, label="Observation")
     plt.legend(loc=0)
     plt.show()
 
