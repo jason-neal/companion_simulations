@@ -51,8 +51,8 @@ def RV_cross_corr(spectrum, model, plot=False):
     # from PyAstronomy example
     #
     # TAPAS is the "template" shifted to match Molecfit
-    rv, cc = pyasl.crosscorrRV(observed_spectra.xaxis, observed_spectra.flux,
-                               model.xaxis,  model.flux, rvmin=-60.,
+    rv, cc = pyasl.crosscorrRV(spectrum.xaxis, spectrum.flux,
+                               model.xaxis, model.flux, rvmin=-60.,
                                rvmax=60.0, drv=0.1, mode='doppler', skipedge=50)
 
     maxind = np.argmax(cc)
