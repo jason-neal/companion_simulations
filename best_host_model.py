@@ -95,7 +95,7 @@ def main():
     wav_model = fits.getdata(model_base_dir + "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
     wav_model /= 10   # turn into nm
 
-    orginal_model = "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    original_model = "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
 
     # Function to find the good models I need
     models = find_phoenix_models(model_base_dir, original_model)
