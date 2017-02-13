@@ -9,8 +9,8 @@ Need to determine the best RV offset to apply to the spectra.
 Possibly bu sampling a few and then taking average value (they should be all
 the same I would think unless the lines changed dramatically).
 
-
 """
+from __future__ import division, print_function
 import os
 import sys
 import copy
@@ -23,23 +23,23 @@ import multiprocess as mprocess
 import matplotlib.pyplot as plt
 from datetime import datetime as dt
 
-# from Get_filenames import get_filenames
-sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
-from IP_multi_Convolution import IPconvolution
+from crires_utilities import crires_resolution
+from crires_utilities import barycorr_crires_spectrum
 from spectrum_overload.Spectrum import Spectrum
 from simulation_utilities import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501, simple_normalization
+
+# from Get_filenames import get_filenames
+sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
+from IP_multi_Convolution import IPconvolution
+
 sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 from new_alpha_detect_limit_simulation import parallel_chisqr, chi_squared  # , alpha_model
-from crires_utilities import crires_resolution
-from crires_utilities import barycorr_crires_spectrum
-
 from Chisqr_of_observation import plot_obs_with_model, select_observation
 
 path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
 cachedir = os.path.join(path, "cache")  # save path
 memory = Memory(cachedir=cachedir, verbose=0)
-
 
 model_base_dir = "../../../data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
 
@@ -62,6 +62,7 @@ def RV_cross_corr(spectrum, model, plot=False):
         plt.title("Cross correlation plot")
         plt.show()
     return rv[maxind]
+
 
 def find_phoenix_models(base_dir, original_model):
     """ Find other phoenix models with similar temp and metalicities.
@@ -99,7 +100,7 @@ def main():
 
     # Function to find the good models I need
     models = find_phoenix_models(model_base_dir, original_model)
-    #models = ["", "", "", ""]
+    # models = ["", "", "", ""]
     model_chisqr_vals = np.empty_like(models)
 
     for ii, model_name in enumerate(models):
@@ -121,7 +122,7 @@ def main():
         conv_mod_spectrum = convolve_models(norm_mod_spectrum, obs_resolution, chip_limits=None)
 
         # Find crosscorrelation RV
-        ## Should run though all models and find best rv to apply uniformly
+        # # Should run though all models and find best rv to apply uniformly
         rvoffset = RV_cross_corr(observed_spectra, conv_mod_spectrum, plot=True)
 
         # Interpolate to obs
@@ -136,6 +137,7 @@ def main():
     print("chisqr argmin index ", argmin_indx)
     print("min chisqr =", model_chisqr_vals[argmin_indx])
     print("min chisqr model = ", models[argmin_indx])
+
 
 if __name__ == "__main__":
     main()

@@ -2,6 +2,7 @@
 # New Version of alpha_detection using Parallel and
 # methodolgy from grid_chisquare.
 
+from __future__ import division, print_function
 import numpy as np
 import copy
 import matplotlib.pyplot as plt
@@ -12,6 +13,7 @@ from spectrum_overload.Spectrum import Spectrum
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 from simulation_utilities import combine_spectra
 from simulation_utilities import spectrum_plotter
+
 
 def chi_squared(observed, expected, error=None):
     """Calculate chi squared.
@@ -67,12 +69,13 @@ def model_chisqr_wrapper(spectrum_1, model, params, error=None):
 
     return spectrum_chisqr(spectrum_1, evaluated_model, error=error)
 
+
 # @memory.cache
 def parallel_chisqr(iter1, iter2, observation, model_func, model_params, n_jobs=1):
 
     grid = Parallel(n_jobs=n_jobs)(delayed(model_chisqr_wrapper)(observation,
-                                     model_func, (a, b, *model_params))
-                                     for a in iter1 for b in iter2)
+                                   model_func, (a, b, *model_params))
+                                   for a in iter1 for b in iter2)
     return np.asarray(grid)
 
 
@@ -144,7 +147,8 @@ def main():
     # function to run parallel
 
     params = (org_star_spec, org_bd_spec)
-    chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model, (org_star_spec, org_bd_spec, new_limits), n_jobs=4)
+    chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model,
+                                      (org_star_spec, org_bd_spec, new_limits), n_jobs=4)
     chisqr_parallel = np.array(chisqr_parallel)
     print("Chisqr from parallel run")
     print(chisqr_parallel)

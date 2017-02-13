@@ -41,10 +41,10 @@ def chi_squared(observed, expected, error=None):
     Same result as as scipy.stats.chisquare
     """
     if np.any(error):
-        chisqr = np.sum((observed-expected)**2 / error**2)
+        chisqr = np.sum((observed - expected)**2 / error**2)
     else:
         # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed-expected)**2 / expected)
+        chisqr = np.sum((observed - expected)**2 / expected)
         # When divided by exted the result is identical to scipy
     return chisqr
 
@@ -55,10 +55,10 @@ def alternate_chi_squared(observed, expected, error=None):
     Same result as as scipy.stats.chisquare
     """
     if error:
-        chisqr = np.sum((observed-expected)**2 / observed)
+        chisqr = np.sum((observed - expected)**2 / observed)
     else:
         # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed-expected)**2 / expected)
+        chisqr = np.sum((observed - expected)**2 / expected)
         # When divided by exted the result is identical to scipy
     return chisqr
 
@@ -266,7 +266,7 @@ def main():
 
                     # Try scipy chi_squared
                     scipy_chisquare = chisquare(Alpha_Combine.flux, model.flux)
-                    error_chisquare = chi_squared(Alpha_Combine.flux, model.flux, error=Alpha_Combine.flux/snr)
+                    error_chisquare = chi_squared(Alpha_Combine.flux, model.flux, error=Alpha_Combine.flux / snr)
 
                     # print("Mine, scipy", chisqr, scipy_chisquare)
                     error_chisqr_store[i, j] = error_chisquare
@@ -280,12 +280,14 @@ def main():
                     model_new = combine_spectra(host_model, companion_model,
                                                 alpha)
 
-                    # model_new = combine_spectra(convolved_star_model[resolution], convolved_planet_model[resolution].doppler_shift(RV), alpha)
+                    # model_new = combine_spectra(convolved_star_model[resolution],
+                    #                             convolved_planet_model[resolution].doppler_shift(RV), alpha)
                     model_new.wav_select(2100, 2200)
                     sim_observation.wav_select(2100, 2200)
 
                     new_scipy_chisquare = chisquare(sim_observation.flux, model_new.flux)
-                    new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux, error=sim_observation.flux/snr)
+                    new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux,
+                                                      error=sim_observation.flux / snr)
 
                     new_error_chisqr_store[i, j] = new_error_chisquare
                     new_scipy_chisqr_store[i, j] = new_scipy_chisquare.statistic
@@ -339,4 +341,4 @@ def main():
 if __name__ == "__main__":
     start = time.time()
     main()
-    print("Time to run = {} seconds".format(time.time()-start))
+    print("Time to run = {} seconds".format(time.time() - start))

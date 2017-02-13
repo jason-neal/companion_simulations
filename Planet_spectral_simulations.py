@@ -8,14 +8,17 @@
 from __future__ import division, print_function
 # from todcor import todcor
 # from todcor import create_cross_correlations
+import os
+import copy
 from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 import numpy as np
 import matplotlib.pyplot as plt
-import copy
-import os
 
+from simulation_utilities import add_noise
 from simulation_utilities import spectrum_plotter
+from simulation_utilities import combine_spectra
+
 
 def RV_shift():
     """ Doppler shift spectrum"""
@@ -26,11 +29,9 @@ def log_RV_shift():
     """ Doppler shift when log-linear spectrum is used"""
     pass
 
-from simulation_utilities import add_noise
 # def add_noise(spectra, snr):
 #    """Add noise to spectrum at the level given by snr"""
 
-from simulation_utilities import combine_spectra
 # def combine_spectra(star, planet, alpha):
 #     """"Combine the Spectrum objects "star" and "planet" with a strength ratio of aplha
 #     spec = star + planet * alpha
@@ -195,7 +196,7 @@ def main():
         combined_spec = combine_spectra(star_spec, bd_shifted, alpha=alpha)
 
         combined_spec.wav_select(2158, 2159)
-        spectrum_plotter(combined_spec + (RV/200), label="RV shift={} km/s".format(RV))
+        spectrum_plotter(combined_spec + (RV / 200), label="RV shift={} km/s".format(RV))
 
     plt.title("Combined spectra (star+alpha*planet), alpha = {}".format(alpha))
     plt.legend(loc=0)
@@ -216,9 +217,6 @@ def main():
     # pshift = 5     #????
     # sshift = 0    #????
     # cps_R,cps_m,cps_fits,cps_vp,cps_vs,cps_cntr = todcor(ccf1,ccf2,ccf12,pshift,sshift,images)
-
-
-
 
 # main()
 
