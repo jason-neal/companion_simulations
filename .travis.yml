@@ -24,7 +24,7 @@ install:
 
 # command to run tests
 script:
-    pytest --cov=eniric --cov-report term-missing --durations 5
+    pytest --cov=utilities --cov-report term-missing --durations 5
 
 after_success:
   - coveralls
