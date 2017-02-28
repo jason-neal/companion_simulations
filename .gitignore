@@ -1,4 +1,6 @@
 saves/*
+chisquare_images/
+images/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

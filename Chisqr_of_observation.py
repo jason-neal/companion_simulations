@@ -4,6 +4,7 @@
 
 # Jason Neal November 2016
 
+from __future__ import division, print_function
 import os
 import sys
 import copy
@@ -203,18 +204,19 @@ def main():
 
     # Berv Correct
     # Calculate the star RV
-    parameters = {"HD30501":[23.710, 1703.1, 70.4, 0.741, 53851.5, 2073.6, 0.81, 90]}
+    parameters = {"HD30501": [23.710, 1703.1, 70.4, 0.741, 53851.5, 2073.6, 0.81, 90]}
+
     try:
-        host_params =  parameters[star]
+        host_params = parameters[star]
     except:
         raise ValueError("Parameters for {} are not in parameters list. Improve this.".format(star))
     host_params[1] = host_params[1] / 1000   # Convert K! to km/s
-    host_params[2] = np.deg2rad(host_params[2]) # Omega needs to be in radians for ajplanet
+    host_params[2] = np.deg2rad(host_params[2])  # Omega needs to be in radians for ajplanet
 
     obs_time = observed_spectra.header["DATE-OBS"]
     print(obs_time, isinstance(obs_time, str))
-    print(obs_time.replace("T"," ").split("."))
-    jd = ephem.julian_date(obs_time.replace("T"," ").split(".")[0])
+    print(obs_time.replace("T", " ").split("."))
+    jd = ephem.julian_date(obs_time.replace("T", " ").split(".")[0])
     Host_RV = pl_rv_array(jd, *host_params[0:6])[0]
     print("Host_RV", Host_RV, "km/s")
 

@@ -13,29 +13,35 @@
 
 # Create the test spectra.
 from __future__ import division, print_function
-from IP_multi_Convolution import IPconvolution
-import numpy as np
-import multiprocess as mprocess
-from tqdm import tqdm
-import scipy.stats
-# from scipy.stats import chisquare
-from simulation_utilities import combine_spectra
-from Planet_spectral_simulations import load_PHOENIX_hd30501
-import itertools
-from collections import defaultdict
-from datetime import datetime as dt
-import time
-import pickle
-import matplotlib.pyplot as plt
-# from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
-import copy
-from numba import jit
-from joblib import Memory
-# from joblib import Parallel, delayed
-from simulation_utilities import spectrum_plotter
+
 import os
 import sys
+import time
+import copy
+import pickle
+import itertools
+import scipy.stats
+import numpy as np
+from numba import jit
+from tqdm import tqdm
+from joblib import Memory
+import matplotlib.pyplot as plt
+import multiprocess as mprocess
+from collections import defaultdict
+from datetime import datetime as dt
+
+# from scipy.stats import chisquare
+from simulation_utilities import combine_spectra
+from simulation_utilities import add_noise
+from Planet_spectral_simulations import load_PHOENIX_hd30501
+
+# from astropy.io import fits
+from spectrum_overload.Spectrum import Spectrum
+# from joblib import Parallel, delayed
+from simulation_utilities import spectrum_plotter
+
+sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
+from IP_multi_Convolution import IPconvolution
 sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 
 from new_alpha_detect_limit_simulation import alpha_model, parallel_chisqr
@@ -59,7 +65,7 @@ def chi_squared(observed, expected, error=None):
         # When divided by exted the result is identical to scipy
     return chisqr
 
-from simulation_utilities import add_noise
+
 # @jit
 # def add_noise(flux, SNR):
 #     "Using the formulation mu/sigma from wikipedia"
@@ -162,8 +168,9 @@ def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
     # model_new = combine_spectra(convolved_star_models[resolution],
     # convolved_planet_models[resolution].doppler_shift(RV), alpha)
 
-    combined_model.wav_select(2100, 2200)
     observation.wav_select(2100, 2200)
+    # INTERPOLATE COMBINED MODEL VALUES TO OBSERVATION VALUES
+    combined_model.spline_interpolate_to(observation)
 
     # print("i", i, "j", j, "chisqr",
     # scipy.stats.chisquare(observation.flux, combined_model.flux).statistic)
@@ -232,7 +239,7 @@ def main():
                                                chip_limits=chip_limits)
     convolved_planet_models = store_convolutions(org_bd_spec, Resolutions,
                                                  chip_limits=chip_limits)
-    print("Convolution of models took {} seconds". format(dt.now()-timeInit))
+    print("Convolution of models took {} seconds". format(dt.now() - timeInit))
 
     # print(type(convolved_star_models))
     # print(type(convolved_planet_models))
@@ -317,7 +324,7 @@ def main():
     # mprocPool.close()
     timeEnd = dt.now()
     print("Multi-Proc chisqr has been completed in "
-          "{} using {}/{} cores.\n".format(timeEnd-timeInit, n_jobs,
+          "{} using {}/{} cores.\n".format(timeEnd - timeInit, n_jobs,
                                            mprocess.cpu_count()))
 
     with open(os.path.join(path, "parallel_chisquare.pickle"), "wb") as f:
@@ -368,7 +375,8 @@ def plot_after_running(Resolutions, snrs, alphas, RVs, input_parameters,
 
         plt.show()
 
+
 if __name__ == "__main__":
     start = time.time()
     main()
-    print("Time to run = {} seconds".format(time.time()-start))
+    print("Time to run = {} seconds".format(time.time() - start))
