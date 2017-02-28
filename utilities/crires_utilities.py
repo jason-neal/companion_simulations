@@ -14,8 +14,7 @@ from PyAstronomy import pyasl
 
 
 def barycorr_crires_spectrum(spectrum, extra_offset=None):
-    """ Wrapper to apply barycorr for crires spectra if given a Spectrum object
-    """
+    """Wrapper to apply barycorr for crires spectra if given a Spectrum object."""
     from spectrum_overload.Spectrum import Spectrum
     nflux, wlprime = barycorr_crires(spectrum.xaxis, spectrum.flux,
                                      spectrum.header, extra_offset=extra_offset)
@@ -24,11 +23,10 @@ def barycorr_crires_spectrum(spectrum, extra_offset=None):
 
 
 def barycorr_crires(wavelength, flux, header, extra_offset=None):
-    # ""
-    # Calculate Heliocenteric correction values and apply to spectrum.
+    """Calculate Heliocenteric correction values and apply to spectrum.
 
     # SHOULD test again with bary and see what the  difference is.
-    # """
+    """
 
     longitude = float(header["HIERARCH ESO TEL GEOLON"])
     latitude = float(header["HIERARCH ESO TEL GEOLAT"])
@@ -39,10 +37,10 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
 
     # Pyastronomy helcorr needs the time of observation in julian Days
     # #############################################
-    Time = header["DATE-OBS"]    # Observing date  '2012-08-02T08:47:30.8425'
+    time = header["DATE-OBS"]    # Observing date  '2012-08-02T08:47:30.8425'
 
     # Convert easily to julian date with ephem
-    jd = ephem.julian_date(Time.replace("T", " ").split(".")[0])
+    jd = ephem.julian_date(time.replace("T", " ").split(".")[0])
 
     # Calculate helocentric velocity
     helcorr = pyasl.helcorr(longitude, latitude, altitude, ra, dec, jd,
@@ -62,7 +60,8 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
 
 
 def crires_resolution(header):
-    """ Set CRIRES resolution based on rule of thumb equation from the manual.
+    """Set CRIRES resolution based on rule of thumb equation from the manual.
+
     Warning! The use of adpative optics is not checked for!!
     # This code has been copied from tapas xml request script.
     """
