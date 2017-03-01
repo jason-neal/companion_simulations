@@ -1,32 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
+"""Spectrum Simulations.
 
-# Spectrum Simulations
-# To determine the recovery of planetary spectra.
+To determine the recovery of planetary spectra.
+"""
 
-# imports
 from __future__ import division, print_function
-# from todcor import todcor
-# from todcor import create_cross_correlations
 import os
 import copy
-from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
 import numpy as np
+from astropy.io import fits
 import matplotlib.pyplot as plt
-
+from spectrum_overload.Spectrum import Spectrum
+# from todcor import todcor
+# from todcor import create_cross_correlations
 from simulation_utilities import add_noise
 from simulation_utilities import spectrum_plotter
 from simulation_utilities import combine_spectra
 
 
 def RV_shift():
-    """ Doppler shift spectrum"""
+    """Doppler shift spectrum."""
     pass
 
 
 def log_RV_shift():
-    """ Doppler shift when log-linear spectrum is used"""
+    """Doppler shift when log-linear spectrum is used."""
     pass
 
 # def add_noise(spectra, snr):
@@ -53,7 +52,7 @@ def log_RV_shift():
 
 
 def simple_normalization(spectrum):
-    """ Simple normalization of pheonix spectra """
+    """Simple normalization of pheonix spectra."""
     from astropy.modeling import models, fitting
     p1 = models.Polynomial1D(1)
     p1.c0 = spectrum.flux[0]
@@ -87,16 +86,16 @@ def simple_normalization(spectrum):
 
 
 def load_PHOENIX_hd30501(limits=None, normalize=False):
-    """ Load in the phoenix spectra of HD30501 and HD30501b
+    """Load in the phoenix spectra of HD30501 and HD30501b.
 
     Returns:
     w_mod : Wavelength in nm
-    I_star : stellar intensity
+    i_star : stellar intensity
     I_bd : companion intensity
     hdr_star : Star header
     hdr_bd : Companion header
-    """
 
+    """
     pathwave = "/home/jneal/Phd/data/phoenixmodels/" \
                "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
     bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
@@ -104,8 +103,8 @@ def load_PHOENIX_hd30501(limits=None, normalize=False):
     star_model = "/home/jneal/Phd/data/phoenixmodels/" \
                  "HD30501-lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
 
-    I_bdmod = fits.getdata(bd_model)
-    I_star = fits.getdata(star_model)
+    i_bdmod = fits.getdata(bd_model)
+    i_star = fits.getdata(star_model)
     hdr_bd = fits.getheader(bd_model)
     hdr_star = fits.getheader(star_model)
     w_mod = fits.getdata(pathwave)
@@ -113,27 +112,28 @@ def load_PHOENIX_hd30501(limits=None, normalize=False):
     w_mod /= 10   # turn into nm
 
     if limits:
-        """ Apply wavelength limits with slicing"""
+        """Apply wavelength limits with slicing."""
         mask = (w_mod > limits[0]) & (w_mod < limits[1])
         w_mod = w_mod[mask]
-        I_star = I_star[mask]
-        I_bdmod = I_bdmod[mask]
+        i_star = i_star[mask]
+        i_bdmod = i_bdmod[mask]
 
     if normalize:
-        """ Apply normalization to loaded spectrum"""
+        """Apply normalization to loaded spectrum."""
         if limits is None:
             print("Warning! Limits should be given when using normalization")
-        star_spec = Spectrum(flux=I_star, xaxis=w_mod)
+        star_spec = Spectrum(flux=i_star, xaxis=w_mod)
         result = simple_normalization(star_spec)
-        I_star = result.flux
-        bd_spec = Spectrum(flux=I_bdmod, xaxis=w_mod)
+        i_star = result.flux
+        bd_spec = Spectrum(flux=i_bdmod, xaxis=w_mod)
         result = simple_normalization(bd_spec)
-        I_bdmod = result.flux
+        i_bdmod = result.flux
 
-    return w_mod, I_star, I_bdmod, hdr_star, hdr_bd
+    return w_mod, i_star, i_bdmod, hdr_star, hdr_bd
 
 
 def main():
+    """Main."""
     # Load in the pheonix spectra
     pathwave = "/home/jneal/Phd/data/phoenixmodels/" \
                "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
@@ -142,16 +142,16 @@ def main():
     star_model = "/home/jneal/Phd/data/phoenixmodels/" \
                  "HD30501-lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
 
-    I_bdmod = fits.getdata(bd_model)
-    I_star = fits.getdata(star_model)
+    i_bdmod = fits.getdata(bd_model)
+    i_star = fits.getdata(star_model)
     hdr_bd = fits.getheader(bd_model)
     hdr_star = fits.getheader(star_model)
     w_mod = fits.getdata(pathwave)
 
     w_mod /= 10   # turn into nm
 
-    star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
-    bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
+    star_spec = Spectrum(xaxis=w_mod, flux=i_star, calibrated=True)
+    bd_spec = Spectrum(xaxis=w_mod, flux=i_bdmod, calibrated=True)
 
     # Wavelength selection from 2100-2200nm
     star_spec.wav_select(2100, 2200)
@@ -184,19 +184,19 @@ def main():
     # bd_spec.rv = 10
     # star_spec.rv = 10
 
-    RV_shift = np.arange(0, 20, 3)
+    rv_shift = np.arange(0, 20, 3)
     alpha = 0.005
     # alpha = 0.01
-    for RV in RV_shift:
-        """ """
+    for rv in rv_shift:
+        """"""
         bd_shifted = copy.copy(bd_spec)
         # RV shift BD spectra
-        bd_shifted.doppler_shift(RV)
+        bd_shifted.doppler_shift(rv)
 
         combined_spec = combine_spectra(star_spec, bd_shifted, alpha=alpha)
 
         combined_spec.wav_select(2158, 2159)
-        spectrum_plotter(combined_spec + (RV / 200), label="RV shift={} km/s".format(RV))
+        spectrum_plotter(combined_spec + (rv / 200), label="RV shift={} km/s".format(rv))
 
     plt.title("Combined spectra (star+alpha*planet), alpha = {}".format(alpha))
     plt.legend(loc=0)

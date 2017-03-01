@@ -2,7 +2,7 @@
 # Test alpha variation at which cannot detect a planet
 
 # Create a combined spectra with a planet at an alpha value.
-# try and detect it by varying RV and alpha.
+# try and detect it by varying rv and alpha.
 # At some stage the alpha will not vary when it becomes to small
 # This will be the alpha detection limit.
 
@@ -38,6 +38,7 @@ sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 @jit
 def chi_squared(observed, expected, error=None):
     """Calculate chi squared.
+
     Same result as as scipy.stats.chisquare
     """
     if np.any(error):
@@ -52,6 +53,7 @@ def chi_squared(observed, expected, error=None):
 @jit
 def alternate_chi_squared(observed, expected, error=None):
     """Calculate chi squared.
+
     Same result as as scipy.stats.chisquare
     """
     if error:
@@ -65,7 +67,7 @@ def alternate_chi_squared(observed, expected, error=None):
 
 @jit
 def add_noise(flux, SNR):
-    "Using the formulation mu/sigma"
+    """Using the formulation mu/sigma."""
     mu = np.mean(flux)
     sigma = mu / SNR
     # Add normal distributed noise at the SNR level.
@@ -75,7 +77,7 @@ def add_noise(flux, SNR):
 
 @jit
 def add_noise2(flux, SNR):
-    "Using the formulation mu/sigma"
+    """Using the formulation mu/sigma."""
     sigma = flux / SNR
     # Add normal distributed noise at the SNR level.
     noisey_flux = flux + np.random.normal(0, sigma)
@@ -83,7 +85,7 @@ def add_noise2(flux, SNR):
 
 
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
-    """ Apply convolution to spectrum object"""
+    """Apply convolution to spectrum object."""
     if chip_limits is None:
         chip_limits = (np.min(model_spectrum.xaxis), np.max(model_spectrum.xaxis))
 
@@ -103,8 +105,9 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
 
 
 def store_convolutions(spectrum, resolutions, chip_limits=None):
-    """ Convolve spectrum to many resolutions and store in a dict to retreive.
-     This prevents multiple convolution at the same resolution.
+    """Convolve spectrum to many resolutions and store in a dict to retreive.
+
+    This prevents multiple convolution at the same resolution.
     """
     d = dict()
     for resolution in resolutions:
@@ -114,7 +117,7 @@ def store_convolutions(spectrum, resolutions, chip_limits=None):
 
 
 def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
-    """ Create an simulated obervation for combinations of resolution and snr.
+    """Create an simulated obervation for combinations of resolution and snr.
 
     Paramters:
     model_1: and model_2 are Spectrum objects.
@@ -148,7 +151,7 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
 
 # @jit
 def main():
-    """ Chisquare determinination to detect minimum alpha value"""
+    """Chisquare determinination to detect minimum alpha value."""
     print("Loading Data")
 
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
@@ -162,34 +165,34 @@ def main():
     org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
     org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
-    Resolutions = [None, 50000]
+    resolutions = [None, 50000]
     snrs = [100, 101, 110, 111]   # Signal to noise levels
     alphas = 10**np.linspace(-5, -0.2, 200)
-    RVs = np.arange(10, 30, 0.1)
-    # Resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
+    rvs = np.arange(10, 30, 0.1)
+    # resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
     # snrs = [50, 100, 200, 500, 1000]   # Signal to noise levels
     # alphas = 10**np.linspace(-4, -0.1, 200)
-    # RVs = np.arange(-100, 100, 0.05)
+    # rvs = np.arange(-100, 100, 0.05)
 
-    # RV and alpha value of Simulations
-    RV_val = 20
-    Alpha = 0.1  # Vary this to determine detection limit
-    input_parameters = (RV_val, Alpha)
+    # rv and alpha value of Simulations
+    rv_val = 20
+    alpha_val = 0.1  # Vary this to determine detection limit
+    input_parameters = (rv_val, alpha_val)
 
-    convolved_star_model = store_convolutions(org_star_spec, Resolutions, chip_limits=chip_limits)
-    convolved_planet_model = store_convolutions(org_bd_spec, Resolutions, chip_limits=chip_limits)
+    convolved_star_model = store_convolutions(org_star_spec, resolutions, chip_limits=chip_limits)
+    convolved_planet_model = store_convolutions(org_bd_spec, resolutions, chip_limits=chip_limits)
 
     # print(type(convolved_star_model))
     # print(type(convolved_planet_model))
     simulated_obersvations = generate_observations(convolved_star_model,
                                                    convolved_planet_model,
-                                                   RV_val, Alpha,
-                                                   Resolutions, snrs)
+                                                   rv_val, alpha_val,
+                                                   resolutions, snrs)
 
     # Not used with gernerator function
     goal_planet_shifted = copy.copy(org_bd_spec)
-    # RV shift BD spectra
-    goal_planet_shifted.doppler_shift(RV_val)
+    # rv shift BD spectra
+    goal_planet_shifted.doppler_shift(rv_val)
 
     # These should be replaced by
     res_stored_chisquared = dict()
@@ -198,12 +201,12 @@ def main():
     res_snr_storage_dict = defaultdict(dict)  # Dictionary of dictionaries
     error_res_snr_storage_dict = defaultdict(dict)  # Dictionary of dictionaries
     # Iterable over resolution and snr to process
-    # res_snr_iter = itertools.product(Resolutions, snrs)
+    # res_snr_iter = itertools.product(resolutions, snrs)
     # Can then store to dict store_dict[res][snr]
 
     print("Starting loop")
 
-    for resolution in tqdm(Resolutions):
+    for resolution in tqdm(resolutions):
         chisqr_snr_dict = dict()  # store 2d array in dict of SNR
         error_chisqr_snr_dict = dict()
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
@@ -238,35 +241,35 @@ def main():
             loop_start = time.time()
             print("Calculation with snr level", snr)
             # This is the signal to try and recover
-            Alpha_Combine = combine_spectra(star_spec, goal_planet, Alpha)
-            Alpha_Combine.wav_select(2100, 2200)
-            Alpha_Combine.flux = add_noise2(Alpha_Combine.flux, snr)
+            alpha_combine = combine_spectra(star_spec, goal_planet, alpha_val)
+            alpha_combine.wav_select(2100, 2200)
+            alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
 
             # Test plot
-            # plt.plot(Alpha_Combine.xaxis, Alpha_Combine.flux)
+            # plt.plot(alpha_combine.xaxis, alpha_combine.flux)
             sim_observation = simulated_obersvations[resolution][snr]
             # plt.plot(this_simulation.xaxis, this_simulation.flux, label="function generatred")
             # plt.legend()
             # plt.show()
 
-            # chisqr_store = np.empty((len(alphas), len(RVs)))
-            scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
-            error_chisqr_store = np.empty((len(alphas), len(RVs)))
-            new_scipy_chisqr_store = np.empty((len(alphas), len(RVs)))
-            new_error_chisqr_store = np.empty((len(alphas), len(RVs)))
+            # chisqr_store = np.empty((len(alphas), len(rvs)))
+            scipy_chisqr_store = np.empty((len(alphas), len(rvs)))
+            error_chisqr_store = np.empty((len(alphas), len(rvs)))
+            new_scipy_chisqr_store = np.empty((len(alphas), len(rvs)))
+            new_error_chisqr_store = np.empty((len(alphas), len(rvs)))
             for i, alpha in enumerate(alphas):
-                for j, RV in enumerate(RVs):
-                    # print("RV", RV, "alpha", alpha, "snr", snr, "res", resolution)
+                for j, rv in enumerate(rvs):
+                    # print("rv", rv, "alpha", alpha, "snr", snr, "res", resolution)
 
-                    # Generate model for this RV and alhpa
+                    # Generate model for this rv and alhpa
                     planet_shifted = copy.copy(org_bd_spec)
-                    planet_shifted.doppler_shift(RV)
+                    planet_shifted.doppler_shift(rv)
                     model = combine_spectra(star_spec, planet_shifted, alpha)
                     model.wav_select(2100, 2200)
 
                     # Try scipy chi_squared
-                    scipy_chisquare = chisquare(Alpha_Combine.flux, model.flux)
-                    error_chisquare = chi_squared(Alpha_Combine.flux, model.flux, error=Alpha_Combine.flux / snr)
+                    scipy_chisquare = chisquare(alpha_combine.flux, model.flux)
+                    error_chisquare = chi_squared(alpha_combine.flux, model.flux, error=alpha_combine.flux / snr)
 
                     # print("Mine, scipy", chisqr, scipy_chisquare)
                     error_chisqr_store[i, j] = error_chisquare
@@ -276,12 +279,12 @@ def main():
                     # using dictionary values
                     host_model = convolved_star_model[resolution]
                     companion_model = convolved_planet_model[resolution]
-                    companion_model.doppler_shift(RV)
+                    companion_model.doppler_shift(rv)
                     model_new = combine_spectra(host_model, companion_model,
                                                 alpha)
 
                     # model_new = combine_spectra(convolved_star_model[resolution],
-                    #                             convolved_planet_model[resolution].doppler_shift(RV), alpha)
+                    #                             convolved_planet_model[resolution].doppler_shift(rv), alpha)
                     model_new.wav_select(2100, 2200)
                     sim_observation.wav_select(2100, 2200)
 
@@ -321,21 +324,21 @@ def main():
 
     print("Finished Resolution {}".format(resolution))
     # Save the results to a file to stop repeating loops
-    X, Y = np.meshgrid(RVs, alphas)
-    np.save(os.path.join(path, "RV_mesgrid"), X)
-    np.save(os.path.join(path, "alpha_meshgrid"), Y)
+    x, y = np.meshgrid(rvs, alphas)
+    np.save(os.path.join(path, "rv_mesgrid"), x)
+    np.save(os.path.join(path, "alpha_meshgrid"), y)
     np.save(os.path.join(path, "snr_values"), snrs)
-    np.save(os.path.join(path, "Resolutions"), Resolutions)
+    np.save(os.path.join(path, "resolutions"), resolutions)
 
     with open(os.path.join(path, "input_params.pickle"), "wb") as f:
         pickle.dump(input_parameters, f)
     # Try pickling the data
 
     with open(os.path.join(path, "alpha_chisquare.pickle"), "wb") as f:
-        pickle.dump((Resolutions, snrs, X, Y, res_stored_chisquared, res_error_stored_chisquared), f)
+        pickle.dump((resolutions, snrs, x, y, res_stored_chisquared, res_error_stored_chisquared), f)
 
         with open(os.path.join(path, "new_res_snr_chisquare.pickle"), "wb") as f:
-            pickle.dump((Resolutions, snrs, X, Y, res_snr_storage_dict, error_res_snr_storage_dict), f)
+            pickle.dump((resolutions, snrs, x, y, res_snr_storage_dict, error_res_snr_storage_dict), f)
 
 
 if __name__ == "__main__":
