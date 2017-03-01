@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-# Chi square of actual data observation
+"""Chi square of actual data observation.
 
-# Jason Neal November 2016
+Jason Neal November 2016.
+"""
 
 from __future__ import division, print_function
 import os
@@ -36,9 +37,7 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 # First plot the observation with the model
 def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
-    """ Plot the obseved spectrum against the model to check that they are
-    "compatiable"
-    """
+    """Plot the obseved spectrum against the model to check that they are "compatiable"."""
     plt.figure()
     plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
     # plt.plot(obs.xaxis, np.isnan(obs.flux) + 1, "o", ms=15, label="Nans in obs")
@@ -55,7 +54,7 @@ def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
 
 # I should already have these sorts of functions
 def select_observation(star, obs_num, chip):
-    """ Select the observation to load in
+    """Select the observation to load in.
 
     inputs:
     star: name of host star target
@@ -94,7 +93,7 @@ def load_spectrum(name):
 
 @memory.cache
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
-    """ Apply convolution to spectrum object"""
+    """Apply convolution to spectrum object."""
     if chip_limits is None:
         chip_limits = (np.min(model_spectrum.xaxis),
                        np.max(model_spectrum.xaxis))
@@ -116,7 +115,8 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
 
 @memory.cache
 def convolve_models(models, R, chip_limits=None):
-        """ Convolve all model spectra to resolution R.
+        """Convolve all model spectra to resolution R.
+
         This prevents multiple convolution at the same resolution.
 
         inputs:
@@ -135,7 +135,8 @@ def convolve_models(models, R, chip_limits=None):
 
 # TO find why answer is all nans
 def alpha_model2(alpha, rv, host, companion, limits, new_x=None):
-    """ Entangled spectrum model.
+    """Entangled spectrum model.
+
     inputs:
     spectrum_1
     spectrum_2
@@ -176,7 +177,6 @@ def alpha_model2(alpha, rv, host, companion, limits, new_x=None):
     return combined
 
 
-
 def main():
     """ """
     star = "HD30501"
@@ -186,7 +186,6 @@ def main():
 
     # Load observation
     observed_spectra = load_spectrum(obs_name)
-
 
     # Load models
     (w_mod, I_star, I_bdmod, hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
@@ -200,7 +199,8 @@ def main():
     host_spectrum_model, companion_spectrum_model = convolve_models((host_spectrum_model, companion_spectrum_model),
                                                                     obs_resolution, chip_limits=None)
 
-    plot_obs_with_model(observed_spectra, host_spectrum_model, companion_spectrum_model, show=False, title="Before BERV Correction")
+    plot_obs_with_model(observed_spectra, host_spectrum_model, companion_spectrum_model,
+                        show=False, title="Before BERV Correction")
 
     # Berv Correct
     # Calculate the star RV
@@ -217,10 +217,10 @@ def main():
     print(obs_time, isinstance(obs_time, str))
     print(obs_time.replace("T", " ").split("."))
     jd = ephem.julian_date(obs_time.replace("T", " ").split(".")[0])
-    Host_RV = pl_rv_array(jd, *host_params[0:6])[0]
-    print("Host_RV", Host_RV, "km/s")
+    host_rv = pl_rv_array(jd, *host_params[0:6])[0]
+    print("host_rv", host_rv, "km/s")
 
-    offset = -Host_RV  # -22
+    offset = -host_rv  # -22
     # offset = 0  # -22
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum
@@ -228,15 +228,16 @@ def main():
                                                np.isfinite(berv_corrected_observed_spectra.flux)][[0, -1]])
     # Shift to star RV
 
-    plot_obs_with_model(berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model, title="After BERV Correction")
+    plot_obs_with_model(berv_corrected_observed_spectra, host_spectrum_model,
+                        companion_spectrum_model, title="After BERV Correction")
 
-    #print("\nWarning!!!\n BERV is not good have added a offset to get rest working\n")
+    # print("\nWarning!!!\n BERV is not good have added a offset to get rest working\n")
 
     # Chisquared fitting
     alphas = 10**np.linspace(-4, 0.1, 100)
-    RVs = np.arange(-50, 50, 0.05)
+    rvs = np.arange(-50, 50, 0.05)
 
-    # chisqr_store = np.empty((len(alphas), len(RVs)))
+    # chisqr_store = np.empty((len(alphas), len(rvs)))
     observed_limits = [np.floor(berv_corrected_observed_spectra.xaxis[0]),
                        np.ceil(berv_corrected_observed_spectra.xaxis[-1])]
     print("Observed_limits ", observed_limits)
@@ -252,59 +253,55 @@ def main():
         print("Companion spectrum is all Nans")
 
     print("Now performing the Chisqr grid analaysis")
-    obs_chisqr_parallel = parallel_chisqr(alphas, RVs, berv_corrected_observed_spectra, alpha_model2,
+    obs_chisqr_parallel = parallel_chisqr(alphas, rvs, berv_corrected_observed_spectra, alpha_model2,
                                           (host_spectrum_model, companion_spectrum_model,
                                            observed_limits, berv_corrected_observed_spectra), n_jobs=n_jobs)
-    # chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model, (org_star_spec,
+    # chisqr_parallel = parallel_chisqr(alphas, rvs, simlulated_obs, alpha_model, (org_star_spec,
     #                                   org_bd_spec, new_limits), n_jobs=4)
 
     end_time = dt.now()
     print("Time to run parallel chisquared = {}".format(end_time - start_time))
     # Plot memmap
     # plt.subplot(2, 1, 1)
-    X, Y = np.meshgrid(RVs, alphas)
+    x, y = np.meshgrid(rvs, alphas)
     plt.figure(figsize=(7, 7))
-    plt.contourf(X, Y, np.log10(obs_chisqr_parallel.reshape(len(alphas), len(RVs))), 100)
+    plt.contourf(x, y, np.log10(obs_chisqr_parallel.reshape(len(alphas), len(rvs))), 100)
 
     plt.title("Sigma chisquared")
     plt.ylabel("Flux ratio")
     plt.xlabel("RV (km/s)")
     plt.show()
 
-
     # Locate minimum and plot resulting model next to observation
-
-    def find_min_chisquared(X, Y, Z):
+    def find_min_chisquared(x, y, z):
         """ """
-        min_loc = np.argmin(Z)
+        min_loc = np.argmin(z)
         print("min location", min_loc)
 
-        X_sol = X.ravel()[min_loc]
-        Y_sol = Y.ravel()[min_loc]
-        Z_sol = Z.ravel()[min_loc]
-        return X_sol, Y_sol, Z_sol, min_loc
+        x_sol = x.ravel()[min_loc]
+        y_sol = y.ravel()[min_loc]
+        z_sol = z.ravel()[min_loc]
+        return x_sol, y_sol, z_sol, min_loc
 
-    rv_solution, alpha_solution, min_chisqr, min_loc = find_min_chisquared(X, Y, obs_chisqr_parallel)
+    rv_solution, alpha_solution, min_chisqr, min_loc = find_min_chisquared(x, y, obs_chisqr_parallel)
     print("Minium Chisqr value {2}\n RV sol = {0}\nAlpha Sol = {1}".format(rv_solution, alpha_solution, min_chisqr))
 
-    Solution_model = alpha_model2(alpha_solution, rv_solution, host_spectrum_model, companion_spectrum_model,
+    solution_model = alpha_model2(alpha_solution, rv_solution, host_spectrum_model, companion_spectrum_model,
                                   observed_limits)
     # alpha_model2(alpha, rv, host, companion, limits, new_x=None):
 
-    plt.plot(Solution_model.xaxis, Solution_model.flux, label="Min chisqr solution")
+    plt.plot(solution_model.xaxis, solution_model.flux, label="Min chisqr solution")
     plt.plot(berv_corrected_observed_spectra.xaxis, berv_corrected_observed_spectra.flux, label="Observation")
     plt.legend(loc=0)
     plt.show()
-
 
     # Dump the results into a pickle file
     pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obs_num, chip)
     with open(os.path.join(path, pickle_name), "wb") as f:
         """Pickle all the necessary parameters to store
         """
-        pickle.dump((RVs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,
-                    rv_solution, alpha_solution, min_chisqr, min_loc, Solution_model), f)
-
+        pickle.dump((rvs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,
+                    rv_solution, alpha_solution, min_chisqr, min_loc, solution_model), f)
 
 
 if __name__ == "__main__":

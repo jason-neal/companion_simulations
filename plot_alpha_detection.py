@@ -9,12 +9,12 @@ import pickle
 
 
 def main():
-    """ Plot the chi squared"""
+    """Plot the chi squared."""
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"
     X = np.load(os.path.join(path, "RV_mesgrid.npy"))
     Y = np.load(os.path.join(path, "alpha_meshgrid.npy"))
     snrs = np.load(os.path.join(path, "snr_values.npy"))
-    Resolutions = np.load(os.path.join(path, "Resolutions.npy"))
+    resolutions = np.load(os.path.join(path, "Resolutions.npy"))
     # chisqr_store = np.load(os.path.join(path, "chisquare_data.npy"))
 # scipy_chisqr_store = np.load(os.path.join(path, "scipy_chisquare_data.npy"))
     # X, Y = np.meshgrid(RVs, alphas)
@@ -29,7 +29,7 @@ def main():
 
     res_chisqr_snr = dict()
     res_error_chisqr_snr = dict()  # uses sigma on model instead of expected
-    for resolution in Resolutions:
+    for resolution in resolutions:
         chisqr_snr = dict()
         error_chisqr_snr = dict()  # uses sigma on model instead of expected
         for snr in snrs:
@@ -46,7 +46,7 @@ def main():
         res_error_chisqr_snr[resolution] = error_chisqr_snr
 
     df_list = []   # To make data frame
-    for resolution in Resolutions:
+    for resolution in resolutions:
         for snr in snrs:
             this_chisqr_snr = res_chisqr_snr[resolution][snr]
             this_error_chisqr_snr = res_error_chisqr_snr[resolution][snr]
@@ -75,7 +75,6 @@ def main():
                                         "Recovered Alpha", "chi**2"])
     print(df)
 
-
     plt.plot(df.loc[:, "Resolution"], df.loc[:, "Recovered RV"], "o")
     plt.xlabel("Resolutions")
     plt.ylabel("RV")
@@ -93,13 +92,8 @@ def main():
     plt.ylabel("Alpha")
     plt.show()
 
-
-
-
-
-
     # df_list = []   # To make data frame
-    for resolution in Resolutions:
+    for resolution in resolutions:
         for snr in snrs:
             this_chisqr_snr = res_chisqr_snr[resolution][snr]
             this_error_chisqr_snr = res_error_chisqr_snr[resolution][snr]
@@ -124,11 +118,7 @@ def main():
             # plt.title("Chi squared with snr of {} and resolution {}".format(snr, resolution))
             # plt.show()
 
-
     plt.show()
-
-
-
 
 
 if __name__ == "__main__":

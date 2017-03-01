@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    """ Plot the chi squared"""
+    """Plot the chi squared."""
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves/new"
     X = np.load(os.path.join(path, "RV_mesgrid.npy"))
     Y = np.load(os.path.join(path, "alpha_meshgrid.npy"))

@@ -2,7 +2,7 @@
 # Test alpha variation at which cannot detect a planet
 
 # Create a combined spectra with a planet at an alpha value.
-# try and detect it by varying RV and alpha.
+# try and detect it by varying rv and alpha.
 # At some stage the alpha will not vary when it becomes to small
 # This will be the alpha detection limit.
 
@@ -55,6 +55,7 @@ memory = Memory(cachedir=cachedir, verbose=0)
 @jit
 def chi_squared(observed, expected, error=None):
     """Calculate chi squared.
+
     Same result as as scipy.stats.chisquare
     """
     if np.any(error):
@@ -77,7 +78,7 @@ def chi_squared(observed, expected, error=None):
 
 @memory.cache
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
-    """ Apply convolution to spectrum object"""
+    """Apply convolution to spectrum object."""
     if chip_limits is None:
         chip_limits = (np.min(model_spectrum.xaxis),
                        np.max(model_spectrum.xaxis))
@@ -99,8 +100,9 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
 
 @memory.cache
 def store_convolutions(spectrum, resolutions, chip_limits=None):
-    """ Convolve spectrum to many resolutions and store in a dict to retreive.
-     This prevents multiple convolution at the same resolution.
+    """Convolve spectrum to many resolutions and store in a dict to retreive.
+
+    This prevents multiple convolution at the same resolution.
     """
     d = dict()
     for resolution in resolutions:
@@ -112,7 +114,7 @@ def store_convolutions(spectrum, resolutions, chip_limits=None):
 @memory.cache
 def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs,
                           limits):
-    """ Create an simulated observation for combinations of resolution and snr.
+    """Create an simulated observation for combinations of resolution and snr.
 
     Paramters:
     model_1: and model_2 are Spectrum objects.
@@ -146,9 +148,8 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs,
 
 
 def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
-                        companion_models, output1, output2, X_memmap, Y_memmap):
-    """ Function for parallel processing in chisqr for resolution and snr
-    uses numpy memap to store data.
+                        companion_models, output1, output2, x_memmap, y_memmap):
+    """Function for parallel processing in chisqr for resolution and snr uses numpy memap to store data.
 
     Inputs:
     i,j = matrix locations of this alpha and rv
@@ -159,14 +160,14 @@ def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
     Output:
     None: Changes data in output1 and output2 numpy memmaps.
     """
-    # print("i, j, Resolution, snr, alpha, RV")
+    # print("i, j, Resolution, snr, alpha, rv")
     # print(i, j, res, snr, alpha, rv)
     host_model = host_models[res]
     companion_model = companion_models[res]
     companion_model.doppler_shift(rv)
     combined_model = combine_spectra(host_model, companion_model, alpha)
     # model_new = combine_spectra(convolved_star_models[resolution],
-    # convolved_planet_models[resolution].doppler_shift(RV), alpha)
+    # convolved_planet_models[resolution].doppler_shift(rv), alpha)
 
     observation.wav_select(2100, 2200)
     # INTERPOLATE COMBINED MODEL VALUES TO OBSERVATION VALUES
@@ -181,28 +182,29 @@ def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
     #                            error=observation.flux/snr)
     output2[i, j] = chi_squared(observation.flux, combined_model.flux,
                                 error=None)
-    X_memmap[i, j] = alpha
-    Y_memmap[i, j] = rv
+    x_memmap[i, j] = alpha
+    y_memmap[i, j] = rv
 
     if False:
         # if i == j:
         spectrum_plotter(observation, label="Simulated obs", show=False)
         spectrum_plotter(combined_model, label="This model", show=False)
-        plt.title("Parallel printing, alpha={},RV={}".format(alpha, rv))
+        plt.title("Parallel printing, alpha={},rv={}".format(alpha, rv))
         plt.show()
 
 
 def wrapper_parallel_chisquare(args):
-    """ Wrapper for parallel_chisquare needed to unpack the arguments for
-    parallel_chisquare as multiprocess.Pool.map does not accept multiple
-    arguments
+    """Wrapper for parallel_chisquare.
+
+    It is needed to unpack the arguments for parallel_chisquare as
+    multiprocess.Pool.map does not accept multiple arguments.
     """
     return parallel_chisquared(*args)
 
 
 # @jit
 def main():
-    """ Chisquare determinination to detect minimum alpha value"""
+    """Chisquare determinination to detect minimum alpha value."""
     print("Loading Data")
 
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
@@ -216,43 +218,43 @@ def main():
     org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
     org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
-    # Resolutions = [None, 50000]
-    Resolutions = [50000, 100000]
+    # resolutions = [None, 50000]
+    resolutions = [50000, 100000]
     snrs = [50, 100, 1000]   # Signal to noise levels
     alphas = 10**np.linspace(-5, -1, 1000)
-    RVs = np.arange(1, 35, 0.15)
-    X, Y = np.meshgrid(RVs, alphas, indexing="xy")
-    # Resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
+    rvs = np.arange(1, 35, 0.15)
+    x, y = np.meshgrid(rvs, alphas, indexing="xy")
+    # resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
     # snrs = [50, 100, 200, 500, 1000]   # Signal to noise levels
     # alphas = 10**np.linspace(-4, -0.1, 200)
-    # RVs = np.arange(-100, 100, 0.05)
+    # rvs = np.arange(-100, 100, 0.05)
 
-    # RV and alpha value of Simulations
-    RV_val = 20
-    Alpha = 0.005  # Vary this to determine detection limit
-    input_parameters = (RV_val, Alpha)
+    # rv and alpha value of Simulations
+    rv_val = 20
+    alpha_val = 0.005  # Vary this to determine detection limit
+    input_parameters = (rv_val, alpha_val)
 
     # starting convolution
     print("Begining convolution of models")
-    timeInit = dt.now()
-    convolved_star_models = store_convolutions(org_star_spec, Resolutions,
+    time_init = dt.now()
+    convolved_star_models = store_convolutions(org_star_spec, resolutions,
                                                chip_limits=chip_limits)
-    convolved_planet_models = store_convolutions(org_bd_spec, Resolutions,
+    convolved_planet_models = store_convolutions(org_bd_spec, resolutions,
                                                  chip_limits=chip_limits)
-    print("Convolution of models took {} seconds". format(dt.now() - timeInit))
+    print("Convolution of models took {} seconds". format(dt.now() - time_init))
 
     # print(type(convolved_star_models))
     # print(type(convolved_planet_models))
     simulated_observations = generate_observations(convolved_star_models,
                                                    convolved_planet_models,
-                                                   RV_val, Alpha,
-                                                   Resolutions, snrs,
+                                                   rv_val, alpha_val,
+                                                   resolutions, snrs,
                                                    chisqr_limits)
 
     # Not used with gernerator function
     # goal_planet_shifted = copy.copy(org_bd_spec)
-    # RV shift BD spectra
-    # goal_planet_shifted.doppler_shift(RV_val)
+    # rv shift BD spectra
+    # goal_planet_shifted.doppler_shift(rv_val)
 
     res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries
     error_res_snr_chisqr_dict = defaultdict(dict)  # Dictionary of dictionaries # Empty now
@@ -260,7 +262,7 @@ def main():
     # multi_rv = defaultdict(dict)  # Dictionary of dictionaries
 
     # Iterable over resolution and snr to process
-    # res_snr_iter = itertools.product(Resolutions, snrs)
+    # res_snr_iter = itertools.product(resolutions, snrs)
     # Can then store to dict store_dict[res][snr]
 
     print("Starting loops")
@@ -271,8 +273,8 @@ def main():
         n_jobs = mprocess.cpu_count() - 1
 
     # mprocPool = mprocess.Pool(processes=n_jobs)
-    timeInit = dt.now()
-    for resolution in tqdm(Resolutions):
+    time_init = dt.now()
+    for resolution in tqdm(resolutions):
 
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
         # chisqr_snr_dict = dict()  # store 2d array in dict of SNR
@@ -287,17 +289,17 @@ def main():
             # scipy_filename = os.path.join(path, "scipychisqr.memmap")
             # my_filename = os.path.join(path, "mychisqr.memmap")
             # scipy_memmap = np.memmap(scipy_filename, dtype='float32',
-            #                          mode='w+', shape=X.shape)
+            #                          mode='w+', shape=x.shape)
             # my_chisqr_memmap = np.memmap(my_filename, dtype='float32',
-            #                              mode='w+', shape=X.shape)
-            # new_X_memmap = np.memmap(os.path.join(path, "X.memmap"),
-            #                          dtype='float32', mode='w+', shape=X.shape)
-            # new_Y_memmap = np.memmap(os.path.join(path, "Y.memmap"),
-            #                          dtype='float32', mode='w+', shape=X.shape)
+            #                              mode='w+', shape=x.shape)
+            # new_x_memmap = np.memmap(os.path.join(path, "x.memmap"),
+            #                          dtype='float32', mode='w+', shape=x.shape)
+            # new_y_memmap = np.memmap(os.path.join(path, "y.memmap"),
+            #                          dtype='float32', mode='w+', shape=x.shape)
             # # args_generator = tqdm([[i, j, alpha, rv, resolution, snr,
             # # sim_observation, convolved_star_models, convolved_planet_models,
             # # scipy_memmap, my_chisqr_memmap]
-            # # for i, alpha in enumerate(alphas) for j, rv in enumerate(RVs)])
+            # # for i, alpha in enumerate(alphas) for j, rv in enumerate(rvs)])
             #
             # # mprocPool.map(wrapper_parallel_chisquare, args_generator)
             #
@@ -305,71 +307,75 @@ def main():
             #                           rv, resolution, snr, sim_observation,
             #                           convolved_star_models,
             #                           convolved_planet_models, scipy_memmap,
-            #                           my_chisqr_memmap, new_X_memmap,
-            #                           new_Y_memmap)
+            #                           my_chisqr_memmap, new_x_memmap,
+            #                           new_y_memmap)
             #                           for j, alpha in enumerate(alphas)
-            #                           for i, rv in enumerate(RVs))
+            #                           for i, rv in enumerate(rvs))
             #
             # print(scipy_memmap)
             # res_snr_chisqr_dict[resolution][snr] = np.copy(scipy_memmap)
             # error_res_snr_chisqr_dict[resolution][snr] = np.copy(my_chisqr_memmap)
-            # multi_alpha[resolution][snr] = np.copy(new_X_memmap)
-            # multi_rv[resolution][snr] = np.copy(new_Y_memmap)
+            # multi_alpha[resolution][snr] = np.copy(new_x_memmap)
+            # multi_rv[resolution][snr] = np.copy(new_y_memmap)
 
             # Trying new methodolgy
-            chisqr_parallel = parallel_chisqr(alphas, RVs, sim_observation, alpha_model, (host_model, companion_model, chisqr_limits), n_jobs=n_jobs)
-            # chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model, (org_star_spec, org_bd_spec, new_limits), n_jobs=4)
+            chisqr_parallel = parallel_chisqr(alphas, rvs, sim_observation, alpha_model,
+                                              (host_model, companion_model, chisqr_limits),
+                                              n_jobs=n_jobs)
+            # chisqr_parallel = parallel_chisqr(alphas, rvs, simlulated_obs, alpha_model,
+            #                                   (org_star_spec, org_bd_spec, new_limits),
+            #                                   n_jobs=4)
             res_snr_chisqr_dict[resolution][snr] = chisqr_parallel
 
     # mprocPool.close()
-    timeEnd = dt.now()
+    time_end = dt.now()
     print("Multi-Proc chisqr has been completed in "
-          "{} using {}/{} cores.\n".format(timeEnd - timeInit, n_jobs,
+          "{} using {}/{} cores.\n".format(time_end - time_init, n_jobs,
                                            mprocess.cpu_count()))
 
     with open(os.path.join(path, "parallel_chisquare.pickle"), "wb") as f:
         """Pickle all the necessary parameters to store
 
         """
-        pickle.dump((Resolutions, snrs, alphas, RVs, input_parameters,
+        pickle.dump((resolutions, snrs, alphas, rvs, input_parameters,
                     simulated_observations, convolved_star_models,
                     convolved_planet_models, res_snr_chisqr_dict,
                     error_res_snr_chisqr_dict), f)
 
-        plot_after_running(Resolutions, snrs, alphas, RVs, input_parameters,
+        plot_after_running(resolutions, snrs, alphas, rvs, input_parameters,
                            simulated_observations, convolved_star_models,
                            convolved_planet_models, res_snr_chisqr_dict,
                            error_res_snr_chisqr_dict)
 
 
-def plot_after_running(Resolutions, snrs, alphas, RVs, input_parameters,
+def plot_after_running(resolutions, snrs, alphas, rvs, input_parameters,
                        simulated_observations, convolved_star_models,
                        convolved_planet_models, res_snr_chisqr_dict,
                        error_res_snr_chisqr_dict):
 
-    X, Y = np.meshgrid(RVs, alphas)
+    x, y = np.meshgrid(rvs, alphas)
 
-    for resolution in Resolutions:
+    for resolution in resolutions:
         for snr in snrs:
             this_chisqr_snr = res_snr_chisqr_dict[resolution][snr]
             # this_error_chisqr_snr = error_res_snr_chisqr_dict[resolution][snr]
             log_chisqr = np.log(this_chisqr_snr)
             # log_error_chisqr = np.log(this_error_chisqr_snr)
-            log_chisqr = log_chisqr.reshape(len(alphas), len(RVs))
+            log_chisqr = log_chisqr.reshape(len(alphas), len(rvs))
 
-            # T, U = np.meshgrid(RVs, alphas)
+            # T, U = np.meshgrid(rvs, alphas)
             plt.figure(figsize=(7, 7))
-            plt.title("Log Chi squared with SNR = {0}, Resolution = {1}\n Correct RV = {2}, Correct alpha = {3}"
+            plt.title("Log Chi squared with SNR = {0}, Resolution = {1}\n Correct rv = {2}, Correct alpha = {3}"
                       "".format(snr, resolution, input_parameters[0], input_parameters[1]), fontsize=16)
 
             # plt.subplot(2, 1, 1)
-            plt.contourf(X, Y, log_chisqr, 100)
+            plt.contourf(x, y, log_chisqr, 100)
             plt.ylabel("Flux ratio")
-            plt.xlabel("RV (km/s)")
+            plt.xlabel("rv (km/s)")
             # plt.title("Chisquared")
 
         # plt.subplot(2, 1, 2)
-        # plt.contourf(X, Y, log_error_chisqr, 100)
+        # plt.contourf(x, y, log_error_chisqr, 100)
         # plt.title("Sigma chisquared")
         # plt.ylabel("Flux ratio")
 
