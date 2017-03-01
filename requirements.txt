@@ -7,5 +7,4 @@ ephem
 joblib
 numba
 multiprocess
-pickle
 tqdm
