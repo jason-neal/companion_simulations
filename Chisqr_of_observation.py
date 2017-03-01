@@ -80,6 +80,7 @@ def select_observation(star, obs_num, chip):
 
 
 def load_spectrum(name):
+    """Load in fits file and return as a Spectrum object."""
     data = fits.getdata(name)
     hdr = fits.getheader(name)
     # Turn into Spectrum
@@ -178,7 +179,7 @@ def alpha_model2(alpha, rv, host, companion, limits, new_x=None):
 
 
 def main():
-    """ """
+    """Main."""
     star = "HD30501"
     obs_num = "1"
     chip = 1
@@ -274,7 +275,7 @@ def main():
 
     # Locate minimum and plot resulting model next to observation
     def find_min_chisquared(x, y, z):
-        """ """
+        """Find minimum vlaue in chisqr grid."""
         min_loc = np.argmin(z)
         print("min location", min_loc)
 
@@ -298,8 +299,7 @@ def main():
     # Dump the results into a pickle file
     pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obs_num, chip)
     with open(os.path.join(path, pickle_name), "wb") as f:
-        """Pickle all the necessary parameters to store
-        """
+        """Pickle all the necessary parameters to store."""
         pickle.dump((rvs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,
                     rv_solution, alpha_solution, min_chisqr, min_loc, solution_model), f)
 

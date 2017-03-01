@@ -45,8 +45,7 @@ model_base_dir = "../../../data/fullphoenix/phoenix.astro.physik.uni-goettingen.
 
 
 def RV_cross_corr(spectrum, model, plot=False):
-    """ Find RV offset between a spectrum and a model using pyastronomy.
-    """
+    """Find RV offset between a spectrum and a model using pyastronomy."""
     # Cross-correlation
     # from PyAstronomy example
     #
@@ -65,9 +64,11 @@ def RV_cross_corr(spectrum, model, plot=False):
 
 
 def find_phoenix_models(base_dir, original_model):
-    """ Find other phoenix models with similar temp and metalicities.
+    """Find other phoenix models with similar temp and metalicities.
 
-    Returns list of model name strings"""
+    Returns list of model name strings.
+
+    """
     # "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     temp = int(original_model[4:8])
     logg = float(original_model[9:13])
@@ -83,7 +84,7 @@ def find_phoenix_models(base_dir, original_model):
 
 
 def main():
-    """ """
+    """Main function."""
     star = "HD30501"
     obs_num = 1
     chip = 1

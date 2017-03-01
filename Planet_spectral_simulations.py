@@ -94,8 +94,8 @@ def load_PHOENIX_hd30501(limits=None, normalize=False):
     I_bd : companion intensity
     hdr_star : Star header
     hdr_bd : Companion header
-    """
 
+    """
     pathwave = "/home/jneal/Phd/data/phoenixmodels/" \
                "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
     bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
@@ -133,6 +133,7 @@ def load_PHOENIX_hd30501(limits=None, normalize=False):
 
 
 def main():
+    """Main."""
     # Load in the pheonix spectra
     pathwave = "/home/jneal/Phd/data/phoenixmodels/" \
                "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
