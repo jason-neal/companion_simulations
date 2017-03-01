@@ -1,16 +1,21 @@
 #!/usr/bin/python
+"""snr_verse_chisquare.py.
+Analyse how the addition of noise effects the chisquare on a spectrum with no companion.
+Jason Neal, December 2016
+"""
 
-#  snr_verse_chisquare.py
-#  Analyse how the addition of noise effects the chisquare on a spectrum with no companion.
-#  Jason Neal, December 2016
-
-
+import os
+import time
+import tqdm
+import itertools
+import numpy as np
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 
 
 def store_convolutions(spectrum, resolutions, chip_limits=None):
-    """ Convolve spectrum to many resolutions and store in a dict to retreive.
-     This prevents multiple convolution at the same resolution.
+    """Convolve spectrum to many resolutions and store in a dict to retreive.
+
+    This prevents multiple convolution at the same resolution.
     """
     d = dict()
     for resolution in resolutions:
@@ -20,7 +25,7 @@ def store_convolutions(spectrum, resolutions, chip_limits=None):
 
 
 def generate_noise_observations(model_1, resolutions, snrs):
-    """ Create an simulated obervation for combinations of resolution and snr.
+    """Create an simulated obervation for combinations of resolution and snr.
 
     Paramters:
     model_1: dictionary of Spectrum objects convolved to different resolutions.
@@ -45,9 +50,10 @@ def generate_noise_observations(model_1, resolutions, snrs):
 
     return observations
 
+
 # @jit
 def main():
-    """ Chisquare determinination to detect minimum alpha value"""
+    """Chisquare determinination to detect minimum alpha value."""
     print("Loading Data")
 
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
@@ -61,30 +67,30 @@ def main():
     org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
     # org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
-    Resolutions = [50000]
+    resolutions = [50000]
     snrs = [100, 101, 110, 111]   # Signal to noise levels
     # alphas = 10**np.linspace(-5, -0.2, 200)
     # RVs = np.arange(10, 30, 0.1)
 
     # RV and alpha value of Simulations
-    # RV_val = 0
+    # rv_val = 0
     # Alpha = 0  # Vary this to determine detection limit
-    # input_parameters = (RV_val, Alpha)
+    # input_parameters = (rv_val, Alpha)
 
-    convolved_star_model = store_convolutions(org_star_spec, Resolutions, chip_limits=chip_limits)
-    # convolved_planet_model = store_convolutions(org_bd_spec, Resolutions, chip_limits=chip_limits)
+    convolved_star_model = store_convolutions(org_star_spec, resolutions, chip_limits=chip_limits)
+    # convolved_planet_model = store_convolutions(org_bd_spec, resolutions, chip_limits=chip_limits)
 
     # print(type(convolved_star_model))
     # print(type(convolved_planet_model))
     noisey_obersvations = generate_noise_observations(convolved_star_model,
-                                                   convolved_planet_model,
-                                                   RV_val, Alpha,
-                                                   Resolutions, snrs)
+                                                      convolved_planet_model,
+                                                      rv_val, Alpha,
+                                                      resolutions, snrs)
 
     # Not used with gernerator function
     goal_planet_shifted = copy.copy(org_bd_spec)
     # RV shift BD spectra
-    goal_planet_shifted.doppler_shift(RV_val)
+    goal_planet_shifted.doppler_shift(rv_val)
 
     # These should be replaced by
     res_stored_chisquared = dict()
@@ -93,12 +99,12 @@ def main():
     res_snr_storage_dict = defaultdict(dict)  # Dictionary of dictionaries
     error_res_snr_storage_dict = defaultdict(dict)  # Dictionary of dictionaries
     # Iterable over resolution and snr to process
-    # res_snr_iter = itertools.product(Resolutions, snrs)
+    # res_snr_iter = itertools.product(resolutions, snrs)
     # Can then store to dict store_dict[res][snr]
 
     print("Starting loop")
 
-    for resolution in tqdm(Resolutions):
+    for resolution in tqdm(resolutions):
         chisqr_snr_dict = dict()  # store 2d array in dict of SNR
         error_chisqr_snr_dict = dict()
         print("\nSTARTING run of RESOLUTION={}\n".format(resolution))
@@ -133,12 +139,12 @@ def main():
             loop_start = time.time()
             print("Calculation with snr level", snr)
             # This is the signal to try and recover
-            Alpha_Combine = combine_spectra(star_spec, goal_planet, Alpha)
-            Alpha_Combine.wav_select(2100, 2200)
-            Alpha_Combine.flux = add_noise2(Alpha_Combine.flux, snr)
+            alpha_combine = combine_spectra(star_spec, goal_planet, Alpha)
+            alpha_combine.wav_select(2100, 2200)
+            alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
 
             # Test plot
-            # plt.plot(Alpha_Combine.xaxis, Alpha_Combine.flux)
+            # plt.plot(alpha_combine.xaxis, alpha_combine.flux)
             sim_observation = simulated_obersvations[resolution][snr]
             # plt.plot(this_simulation.xaxis, this_simulation.flux, label="function generatred")
             # plt.legend()
@@ -160,8 +166,8 @@ def main():
                     model.wav_select(2100, 2200)
 
                     # Try scipy chi_squared
-                    scipy_chisquare = chisquare(Alpha_Combine.flux, model.flux)
-                    error_chisquare = chi_squared(Alpha_Combine.flux, model.flux, error=Alpha_Combine.flux/snr)
+                    scipy_chisquare = chisquare(alpha_combine.flux, model.flux)
+                    error_chisquare = chi_squared(alpha_combine.flux, model.flux, error=alpha_combine.flux / snr)
 
                     # print("Mine, scipy", chisqr, scipy_chisquare)
                     error_chisqr_store[i, j] = error_chisquare
@@ -180,7 +186,8 @@ def main():
                     sim_observation.wav_select(2100, 2200)
 
                     new_scipy_chisquare = chisquare(sim_observation.flux, model_new.flux)
-                    new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux, error=sim_observation.flux/snr)
+                    new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux,
+                                                      error=sim_observation.flux / snr)
 
                     new_error_chisqr_store[i, j] = new_error_chisquare
                     new_scipy_chisqr_store[i, j] = new_scipy_chisquare.statistic
@@ -214,7 +221,8 @@ def main():
 
     print("Finished Resolution {}".format(resolution))
 
+
 if __name__ == "__main__":
     start = time.time()
     main()
-    print("Time to run = {} seconds".format(time.time()-start))
+    print("Time to run = {} seconds".format(time.time() - start))

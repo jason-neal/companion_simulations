@@ -1,0 +1,11 @@
+numpy
+scipy
+astropy
+matplotlib
+pandas
+ephem
+joblib
+numba
+multiprocess
+pickle
+tqdm

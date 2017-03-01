@@ -17,7 +17,8 @@ from simulation_utilities import spectrum_plotter
 
 def chi_squared(observed, expected, error=None):
     """Calculate chi squared.
-    Same result as as scipy.stats.chisquare
+
+    Same result as as scipy.stats.chisquare.
     """
     if np.any(error):
         chisqr = np.sum((observed - expected) ** 2 / (error ** 2))
@@ -29,7 +30,7 @@ def chi_squared(observed, expected, error=None):
 
 
 def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
-    """ Chi squared for specturm objects. """
+    """Chi squared for specturm objects."""
     # Spectrum wrapper for chissquare
     # make sure xaxis is the Same
     # if len(spectrum_1) == len(spectrum_2):
@@ -59,7 +60,7 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
 
 
 def model_chisqr_wrapper(spectrum_1, model, params, error=None):
-    """ Evaluate model and call chisquare """
+    """Evaluate model and call chisquare."""
     # print("params for model", params)
     # params = copy.copy(params)
     evaluated_model = model(*params)  # # unpack parameters
@@ -80,7 +81,8 @@ def parallel_chisqr(iter1, iter2, observation, model_func, model_params, n_jobs=
 
 
 def alpha_model(alpha, rv, host, companion, limits, new_x=None):
-    """ Entangled spectrum model.
+    """Entangled spectrum model.
+
     inputs:
     spectrum_1
     spectrum_2
@@ -91,6 +93,7 @@ def alpha_model(alpha, rv, host, companion, limits, new_x=None):
 
     returns:
     Spectrum object
+
     """
     # this copy solved my nan issue.
     companion = copy.copy(companion)
@@ -108,8 +111,7 @@ def alpha_model(alpha, rv, host, companion, limits, new_x=None):
 
 
 def main():
-
-    """ Chisquare determinination to detect minimum alpha value"""
+    """Chisquare determinination to detect minimum alpha value."""
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves2"  # save path
     print("Loading Data")
 

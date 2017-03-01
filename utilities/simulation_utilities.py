@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Simulation Utilities
+"""Simulation Utilities."""
 
 # File to contain function necessary for the chi_square simulations
 from __future__ import division, print_function
@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 
 def add_noise(flux, SNR):
-    "Using the formulation mu/sigma from wikipedia"
+    """Using the formulation mu/sigma from wikipedia."""
     sigma = flux / SNR
     # Add normal distributed noise at the SNR level.
     noisey_flux = flux + np.random.normal(0, sigma)
@@ -17,7 +17,7 @@ def add_noise(flux, SNR):
 
 
 def spectrum_plotter(spectra, label=None, show=False):
-    """ Plot a Spectrum object """
+    """Plot a Spectrum object."""
     plt.figure()
     plt.plot(spectra.xaxis, spectra.flux, label=label)
     plt.ylabel("Flux")
@@ -30,7 +30,9 @@ def spectrum_plotter(spectra, label=None, show=False):
 
 
 def combine_spectra(star, planet, alpha):
-    """"Combine the Spectrum objects "star" and "planet" with a strength ratio of aplha
+    """Combine the Spectrum objects "star" and "planet".
+
+    Strength ratio of aplha
     spec = star + planet * alpha
 
     """
