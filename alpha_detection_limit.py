@@ -13,26 +13,24 @@
 
 # Create the test spectra.
 from __future__ import division, print_function
-import numpy as np
-import time
-import pickle
-# import matplotlib.pyplot as plt
-# from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
-import copy
-from numba import jit
 
 import os
 import sys
-
-from IP_multi_Convolution import IPconvolution
+import time
+import copy
+import pickle
+import itertools
+import numpy as np
+from numba import jit
 from tqdm import tqdm
 from scipy.stats import chisquare
+from collections import defaultdict
+
+sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
+from IP_multi_Convolution import IPconvolution
+from spectrum_overload.Spectrum import Spectrum
 from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
-import itertools
-from collections import defaultdict
-sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
 
 @jit

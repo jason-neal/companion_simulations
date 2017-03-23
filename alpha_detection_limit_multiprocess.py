@@ -31,14 +31,14 @@ from collections import defaultdict
 from datetime import datetime as dt
 
 # from scipy.stats import chisquare
-from simulation_utilities import combine_spectra
-from simulation_utilities import add_noise
+from utilities.simulation_utilities import combine_spectra
+from utilities.simulation_utilities import add_noise
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 
 # from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 # from joblib import Parallel, delayed
-from simulation_utilities import spectrum_plotter
+from utilities.simulation_utilities import spectrum_plotter
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 from IP_multi_Convolution import IPconvolution

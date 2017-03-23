@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 from spectrum_overload.Spectrum import Spectrum
 # from todcor import todcor
 # from todcor import create_cross_correlations
-from simulation_utilities import add_noise
-from simulation_utilities import spectrum_plotter
-from simulation_utilities import combine_spectra
+from utilities.simulation_utilities import add_noise
+from utilities.simulation_utilities import spectrum_plotter
+from utilities.simulation_utilities import combine_spectra
 
 
 def RV_shift():

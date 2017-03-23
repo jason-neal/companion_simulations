@@ -1,10 +1,8 @@
 #!/usr/bin/env python
-
 """Chi square of actual data observation.
 
 Jason Neal November 2016.
 """
-
 from __future__ import division, print_function
 import os
 import sys
@@ -16,19 +14,19 @@ from joblib import Memory
 from astropy.io import fits
 import multiprocess as mprocess
 import matplotlib.pyplot as plt
+from ajplanet import pl_rv_array
 from datetime import datetime as dt
 
 from Get_filenames import get_filenames
 from IP_multi_Convolution import IPconvolution
 from spectrum_overload.Spectrum import Spectrum
-from simulation_utilities import combine_spectra
+from utilities.simulation_utilities import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
-from crires_utilities import crires_resolution
-from crires_utilities import barycorr_crires_spectrum
+from utilities.crires_utilities import crires_resolution
+from utilities.crires_utilities import barycorr_crires_spectrum
 
-from ajplanet import pl_rv_array
 
 path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
 cachedir = os.path.join(path, "cache")  # save path
