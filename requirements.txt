@@ -8,3 +8,4 @@ joblib
 numba
 multiprocess
 tqdm
+PyAstronomy
