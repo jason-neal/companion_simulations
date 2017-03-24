@@ -39,6 +39,7 @@ from Planet_spectral_simulations import load_PHOENIX_hd30501
 from spectrum_overload.Spectrum import Spectrum
 # from joblib import Parallel, delayed
 from utilities.simulation_utilities import spectrum_plotter
+from utilities.chisqr import chi_squared
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 from IP_multi_Convolution import IPconvolution
@@ -50,21 +51,6 @@ sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
 cachedir = os.path.join(path, "cache")  # save path
 memory = Memory(cachedir=cachedir, verbose=0)
-
-
-@jit
-def chi_squared(observed, expected, error=None):
-    """Calculate chi squared.
-
-    Same result as as scipy.stats.chisquare
-    """
-    if np.any(error):
-        chisqr = np.sum((observed - expected) ** 2 / (error ** 2))
-    else:
-        # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected)
-        # When divided by exted the result is identical to scipy
-    return chisqr
 
 
 @memory.cache

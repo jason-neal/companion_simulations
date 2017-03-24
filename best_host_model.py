@@ -33,7 +33,8 @@ sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 from IP_multi_Convolution import IPconvolution
 
 sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
-from new_alpha_detect_limit_simulation import parallel_chisqr, chi_squared  # , alpha_model
+from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
+from utilities.chisqr import chi_squared
 from Chisqr_of_observation import plot_obs_with_model, select_observation
 
 path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path

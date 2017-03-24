@@ -9,8 +9,10 @@ import time
 import tqdm
 import itertools
 import numpy as np
+import scipy
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 # from utilities.simulation_utilities import add_noise
+from utilities.chisqr import chi_squared
 
 def store_convolutions(spectrum, resolutions, chip_limits=None):
     """Convolve spectrum to many resolutions and store in a dict to retreive.
@@ -168,7 +170,7 @@ def main():
                     model.wav_select(2100, 2200)
 
                     # Try scipy chi_squared
-                    scipy_chisquare = chisquare(alpha_combine.flux, model.flux)
+                    scipy_chisquare = scipy.stats.chisquare(alpha_combine.flux, model.flux)
                     error_chisquare = chi_squared(alpha_combine.flux, model.flux, error=alpha_combine.flux / snr)
 
                     # print("Mine, scipy", chisqr, scipy_chisquare)
@@ -187,7 +189,7 @@ def main():
                     model_new.wav_select(2100, 2200)
                     sim_observation.wav_select(2100, 2200)
 
-                    new_scipy_chisquare = chisquare(sim_observation.flux, model_new.flux)
+                    new_scipy_chisquare = scipy.stats.chisquare(sim_observation.flux, model_new.flux)
                     new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux,
                                                       error=sim_observation.flux / snr)
 

@@ -14,20 +14,7 @@ from spectrum_overload.Spectrum import Spectrum
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 from utilities.simulation_utilities import combine_spectra
 from utilities.simulation_utilities import spectrum_plotter
-
-
-def chi_squared(observed, expected, error=None):
-    """Calculate chi squared.
-
-    Same result as as scipy.stats.chisquare.
-    """
-    if np.any(error):
-        chisqr = np.sum((observed - expected) ** 2 / (error ** 2))
-    else:
-        # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected)
-        # When divided by exted the result is identical to scipy
-    return chisqr
+from utilities.chisqr import chi_squared
 
 
 def spectrum_chisqr(spectrum_1, spectrum_2, error=None):

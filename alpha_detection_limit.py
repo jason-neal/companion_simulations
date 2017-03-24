@@ -23,7 +23,8 @@ import itertools
 import numpy as np
 from numba import jit
 from tqdm import tqdm
-from scipy.stats import chisquare
+import scipy
+# from scipy.stats import chisquare
 from collections import defaultdict
 
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
@@ -35,35 +36,7 @@ from Planet_spectral_simulations import load_PHOENIX_hd30501
 
 # from utilities.simulation_utilities import add_noise
 
-
-@jit
-def chi_squared(observed, expected, error=None):
-    """Calculate chi squared.
-
-    Same result as as scipy.stats.chisquare
-    """
-    if np.any(error):
-        chisqr = np.sum((observed - expected)**2 / error**2)
-    else:
-        # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected)
-        # When divided by exted the result is identical to scipy
-    return chisqr
-
-
-@jit
-def alternate_chi_squared(observed, expected, error=None):
-    """Calculate chi squared.
-
-    Same result as as scipy.stats.chisquare
-    """
-    if error:
-        chisqr = np.sum((observed - expected)**2 / observed)
-    else:
-        # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected)
-        # When divided by exted the result is identical to scipy
-    return chisqr
+from utilities.chisqr import chi_squared, alternate_chi_squared
 
 
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
@@ -252,7 +225,7 @@ def main():
                     model.wav_select(2100, 2200)
 
                     # Try scipy chi_squared
-                    scipy_chisquare = chisquare(alpha_combine.flux, model.flux)
+                    scipy_chisquare = scipy.stats.chisquare(alpha_combine.flux, model.flux)
                     error_chisquare = chi_squared(alpha_combine.flux, model.flux, error=alpha_combine.flux / snr)
 
                     # print("Mine, scipy", chisqr, scipy_chisquare)
@@ -272,7 +245,7 @@ def main():
                     model_new.wav_select(2100, 2200)
                     sim_observation.wav_select(2100, 2200)
 
-                    new_scipy_chisquare = chisquare(sim_observation.flux, model_new.flux)
+                    new_scipy_chisquare = scipy.stats.chisquare(sim_observation.flux, model_new.flux)
                     new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux,
                                                       error=sim_observation.flux / snr)
 
