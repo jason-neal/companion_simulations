@@ -16,15 +16,15 @@ def main():
         print("Applying a snr of {}".format(snr))
         noisey_flux = add_noise2(org_flux, snr)
 
-        spec = Spectrum(flux=copy.copy(org_flux))   # Copy becasue org_flux is mutable when passed in here and was being changed each time.
+        spec = Spectrum(flux=copy.copy(org_flux))   # Copy becasue org_flux is mutable.
         spec.add_noise(snr)
 
         std = np.std(noisey_flux)
         print("Standard deviation of signal = {}".format(std))
-        SNR = 1 / std
-        SNR_spectrum = 1. / np.std(spec.flux)
-        print("Estimated SNR from stddev                   = {}".format(SNR))
-        print("Estimated SNR from stddev of Spectrum class = {}".format(SNR_spectrum))
+        snr_est = 1 / std
+        snr_spectrum = 1. / np.std(spec.flux)
+        print("Estimated SNR from stddev                   = {}".format(snr_est))
+        print("Estimated SNR from stddev of Spectrum class = {}".format(snr_spectrum))
         plt.plot(noisey_flux + 0.1 * i, label="snr={}".format(snr))
         plt.plot(spec.flux + 0.1 * i, "--", label="Spectrum snr={}".format(snr))
 
@@ -32,8 +32,7 @@ def main():
         chi2 = np.sum((noisey_flux - 1)**2 / 1 ** 2)
         print("Chisqr for SNR          {} = \t\t{}".format(snr, chi2))
         chi2_spectrum = np.sum((spec.flux - 1)**2 / 1 ** 2)
-        print("Chisqr for SNR_spectrum {} = \t\t{}".format(snr, chi2_spectrum))
-        del spec, noisey_flux
+        print("Chisqr for snr_spectrum {} = \t\t{}".format(snr, chi2_spectrum))
 
     plt.legend()
     plt.show()
