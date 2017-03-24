@@ -13,107 +13,32 @@
 
 # Create the test spectra.
 from __future__ import division, print_function
-import numpy as np
-import time
-import pickle
-# import matplotlib.pyplot as plt
-# from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
-import copy
-from numba import jit
 
 import os
 import sys
-
-from IP_multi_Convolution import IPconvolution
+import time
+import copy
+import pickle
+import itertools
+import numpy as np
+from numba import jit
 from tqdm import tqdm
-from scipy.stats import chisquare
+import scipy
+# from scipy.stats import chisquare
+from collections import defaultdict
+
+sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
+from IP_multi_Convolution import IPconvolution
+from spectrum_overload.Spectrum import Spectrum
 from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
-import itertools
-from collections import defaultdict
-sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
 
-@jit
-def chi_squared(observed, expected, error=None):
-    """Calculate chi squared.
+# from utilities.simulation_utilities import add_noise
 
-    Same result as as scipy.stats.chisquare
-    """
-    if np.any(error):
-        chisqr = np.sum((observed - expected)**2 / error**2)
-    else:
-        # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected)
-        # When divided by exted the result is identical to scipy
-    return chisqr
+from utilities.chisqr import chi_squared, alternate_chi_squared
 
-
-@jit
-def alternate_chi_squared(observed, expected, error=None):
-    """Calculate chi squared.
-
-    Same result as as scipy.stats.chisquare
-    """
-    if error:
-        chisqr = np.sum((observed - expected)**2 / observed)
-    else:
-        # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected)
-        # When divided by exted the result is identical to scipy
-    return chisqr
-
-
-@jit
-def add_noise(flux, SNR):
-    """Using the formulation mu/sigma."""
-    mu = np.mean(flux)
-    sigma = mu / SNR
-    # Add normal distributed noise at the SNR level.
-    noisey_flux = flux + np.random.normal(0, sigma, len(flux))
-    return noisey_flux
-
-
-@jit
-def add_noise2(flux, SNR):
-    """Using the formulation mu/sigma."""
-    sigma = flux / SNR
-    # Add normal distributed noise at the SNR level.
-    noisey_flux = flux + np.random.normal(0, sigma)
-    return noisey_flux
-
-
-def apply_convolution(model_spectrum, R=None, chip_limits=None):
-    """Apply convolution to spectrum object."""
-    if chip_limits is None:
-        chip_limits = (np.min(model_spectrum.xaxis), np.max(model_spectrum.xaxis))
-
-    if R is None:
-        return copy.copy(model_spectrum)
-    else:
-        ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-                                          model_spectrum.flux[:], chip_limits,
-                                          R, FWHM_lim=5.0, plot=False,
-                                          verbose=True)
-
-        new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-                             calibrated=model_spectrum.calibrated,
-                             header=model_spectrum.header)
-
-        return new_model
-
-
-def store_convolutions(spectrum, resolutions, chip_limits=None):
-    """Convolve spectrum to many resolutions and store in a dict to retreive.
-
-    This prevents multiple convolution at the same resolution.
-    """
-    d = dict()
-    for resolution in resolutions:
-        d[resolution] = apply_convolution(spectrum, resolution, chip_limits=chip_limits)
-
-    return d
+from utilities.model_convolution import apply_convolution, store_convolutions
 
 
 def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
@@ -142,7 +67,8 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
         # store_convolutions
         combined_model = combine_spectra(spec_1, spec_2, alpha)
 
-        combined_model.flux = add_noise2(combined_model.flux, snr)
+        # combined_model.flux = add_noise2(combined_model.flux, snr)
+        combined_model.add_noise(snr)
 
         observations[resolution][snr] = combined_model
 
@@ -243,7 +169,8 @@ def main():
             # This is the signal to try and recover
             alpha_combine = combine_spectra(star_spec, goal_planet, alpha_val)
             alpha_combine.wav_select(2100, 2200)
-            alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
+            # alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
+            alpha_combine.add_noise(snr)
 
             # Test plot
             # plt.plot(alpha_combine.xaxis, alpha_combine.flux)
@@ -268,7 +195,7 @@ def main():
                     model.wav_select(2100, 2200)
 
                     # Try scipy chi_squared
-                    scipy_chisquare = chisquare(alpha_combine.flux, model.flux)
+                    scipy_chisquare = scipy.stats.chisquare(alpha_combine.flux, model.flux)
                     error_chisquare = chi_squared(alpha_combine.flux, model.flux, error=alpha_combine.flux / snr)
 
                     # print("Mine, scipy", chisqr, scipy_chisquare)
@@ -288,7 +215,7 @@ def main():
                     model_new.wav_select(2100, 2200)
                     sim_observation.wav_select(2100, 2200)
 
-                    new_scipy_chisquare = chisquare(sim_observation.flux, model_new.flux)
+                    new_scipy_chisquare = scipy.stats.chisquare(sim_observation.flux, model_new.flux)
                     new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux,
                                                       error=sim_observation.flux / snr)
 

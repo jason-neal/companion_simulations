@@ -1,10 +1,8 @@
 #!/usr/bin/env python
-
 """Chi square of actual data observation.
 
 Jason Neal November 2016.
 """
-
 from __future__ import division, print_function
 import os
 import sys
@@ -12,27 +10,23 @@ import copy
 import ephem
 import pickle
 import numpy as np
-from joblib import Memory
 from astropy.io import fits
 import multiprocess as mprocess
 import matplotlib.pyplot as plt
+from ajplanet import pl_rv_array
 from datetime import datetime as dt
 
 from Get_filenames import get_filenames
 from IP_multi_Convolution import IPconvolution
 from spectrum_overload.Spectrum import Spectrum
-from simulation_utilities import combine_spectra
+from utilities.simulation_utilities import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
-from crires_utilities import crires_resolution
-from crires_utilities import barycorr_crires_spectrum
+from utilities.crires_utilities import crires_resolution
+from utilities.crires_utilities import barycorr_crires_spectrum
 
-from ajplanet import pl_rv_array
-
-path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
-cachedir = os.path.join(path, "cache")  # save path
-memory = Memory(cachedir=cachedir, verbose=0)
+from utilities.model_convolution import apply_convolution, convolve_models
 
 
 # First plot the observation with the model
@@ -90,48 +84,6 @@ def load_spectrum(name):
     spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Corrected_DRACS"],
                         calibrated=True, header=hdr)
     return spectrum
-
-
-@memory.cache
-def apply_convolution(model_spectrum, R=None, chip_limits=None):
-    """Apply convolution to spectrum object."""
-    if chip_limits is None:
-        chip_limits = (np.min(model_spectrum.xaxis),
-                       np.max(model_spectrum.xaxis))
-
-    if R is None:
-        return copy.copy(model_spectrum)
-    else:
-        ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-                                          model_spectrum.flux[:], chip_limits,
-                                          R, FWHM_lim=5.0, plot=False,
-                                          verbose=True)
-
-        new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-                             calibrated=model_spectrum.calibrated,
-                             header=model_spectrum.header)
-
-        return new_model
-
-
-@memory.cache
-def convolve_models(models, R, chip_limits=None):
-        """Convolve all model spectra to resolution R.
-
-        This prevents multiple convolution at the same resolution.
-
-        inputs:
-        models: list, tuple of spectum objects
-
-        returns:
-        new_models: tuple of the convovled spectral models
-        """
-        new_models = []
-        for model in models:
-            convovled_model = apply_convolution(model, R,
-                                                chip_limits=chip_limits)
-            new_models.append(convovled_model)
-        return tuple(new_models)
 
 
 # TO find why answer is all nans

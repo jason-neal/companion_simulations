@@ -9,7 +9,10 @@ import matplotlib.pyplot as plt
 
 
 def add_noise(flux, SNR):
-    """Using the formulation mu/sigma from wikipedia."""
+    """Using the formulation mu/sigma from wikipedia.
+
+    Applies noise based on the flux at ech pixel.
+    """
     sigma = flux / SNR
     # Add normal distributed noise at the SNR level.
     noisey_flux = flux + np.random.normal(0, sigma)

@@ -3,30 +3,18 @@
 # methodolgy from grid_chisquare.
 
 from __future__ import division, print_function
-import numpy as np
 import copy
+import numpy as np
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
+
 # self written modules
 # from grid_chisquare import chi_squared
 from spectrum_overload.Spectrum import Spectrum
 from Planet_spectral_simulations import load_PHOENIX_hd30501
-from simulation_utilities import combine_spectra
-from simulation_utilities import spectrum_plotter
-
-
-def chi_squared(observed, expected, error=None):
-    """Calculate chi squared.
-
-    Same result as as scipy.stats.chisquare.
-    """
-    if np.any(error):
-        chisqr = np.sum((observed - expected) ** 2 / (error ** 2))
-    else:
-        # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected)
-        # When divided by exted the result is identical to scipy
-    return chisqr
+from utilities.simulation_utilities import combine_spectra
+from utilities.simulation_utilities import spectrum_plotter
+from utilities.chisqr import chi_squared
 
 
 def spectrum_chisqr(spectrum_1, spectrum_2, error=None):

@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 from spectrum_overload.Spectrum import Spectrum
 # from todcor import todcor
 # from todcor import create_cross_correlations
-from simulation_utilities import add_noise
-from simulation_utilities import spectrum_plotter
-from simulation_utilities import combine_spectra
+from utilities.simulation_utilities import add_noise
+from utilities.simulation_utilities import spectrum_plotter
+from utilities.simulation_utilities import combine_spectra
 
 
 def RV_shift():
@@ -27,28 +27,6 @@ def RV_shift():
 def log_RV_shift():
     """Doppler shift when log-linear spectrum is used."""
     pass
-
-# def add_noise(spectra, snr):
-#    """Add noise to spectrum at the level given by snr"""
-
-# def combine_spectra(star, planet, alpha):
-#     """"Combine the Spectrum objects "star" and "planet" with a strength ratio of aplha
-#     spec = star + planet * alpha
-#
-#     """
-#     star = copy.copy(star)
-#     planet = copy.copy(planet)
-#
-#     if np.all(star.xaxis == planet.xaxis):   # make sure wavelenghts even first
-#         pass
-#     else:
-#         planet.interpolate1d_to(star)
-#     # combined_spectrum = star + (planet*alpha)
-#     # Combined spectra with proper normalization
-#     norm_factor = 1 / (1 + alpha)
-#     combined_spectrum = (star + (planet * alpha)) * norm_factor
-#
-#     return combined_spectrum
 
 
 def simple_normalization(spectrum):

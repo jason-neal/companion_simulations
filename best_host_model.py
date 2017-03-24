@@ -1,5 +1,4 @@
-
-""" best_host_model.py
+"""best_host_model.py
 Jason Neal
 2nd Janurary 2017
 
@@ -17,16 +16,15 @@ import copy
 import ephem
 import pickle
 import numpy as np
-from joblib import Memory
 from astropy.io import fits
 import multiprocess as mprocess
 import matplotlib.pyplot as plt
 from datetime import datetime as dt
 
-from crires_utilities import crires_resolution
-from crires_utilities import barycorr_crires_spectrum
+from utilities.crires_utilities import crires_resolution
+from utilities.crires_utilities import barycorr_crires_spectrum
 from spectrum_overload.Spectrum import Spectrum
-from simulation_utilities import combine_spectra
+from utilities.simulation_utilities import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501, simple_normalization
 
 # from Get_filenames import get_filenames
@@ -34,12 +32,10 @@ sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 from IP_multi_Convolution import IPconvolution
 
 sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
-from new_alpha_detect_limit_simulation import parallel_chisqr, chi_squared  # , alpha_model
+from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
+from utilities.chisqr import chi_squared
+from utilities.model_convolution import convolve_models
 from Chisqr_of_observation import plot_obs_with_model, select_observation
-
-path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
-cachedir = os.path.join(path, "cache")  # save path
-memory = Memory(cachedir=cachedir, verbose=0)
 
 model_base_dir = "../../../data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
 

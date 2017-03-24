@@ -9,19 +9,12 @@ import time
 import tqdm
 import itertools
 import numpy as np
+import scipy
 from Planet_spectral_simulations import load_PHOENIX_hd30501
+# from utilities.simulation_utilities import add_noise
+from utilities.chisqr import chi_squared
 
-
-def store_convolutions(spectrum, resolutions, chip_limits=None):
-    """Convolve spectrum to many resolutions and store in a dict to retreive.
-
-    This prevents multiple convolution at the same resolution.
-    """
-    d = dict()
-    for resolution in resolutions:
-        d[resolution] = apply_convolution(spectrum, resolution, chip_limits=chip_limits)
-
-    return d
+from utilities.model_convolution import apply_convolution, store_convolutions
 
 
 def generate_noise_observations(model_1, resolutions, snrs):
@@ -44,7 +37,8 @@ def generate_noise_observations(model_1, resolutions, snrs):
 
         # combined_model = combine_spectra(spec_1, spec_2, alpha)
 
-        spec_1.flux = add_noise2(spec_1.flux, snr)
+        #spec_1.flux = add_noise2(spec_1.flux, snr)
+        spec_1.add_noise(snr)      # Add noise added to Spectrum class
 
         observations[resolution][snr] = combined_model
 
@@ -141,7 +135,8 @@ def main():
             # This is the signal to try and recover
             alpha_combine = combine_spectra(star_spec, goal_planet, Alpha)
             alpha_combine.wav_select(2100, 2200)
-            alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
+            # alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
+            alpha_combine.add_noise(snr)
 
             # Test plot
             # plt.plot(alpha_combine.xaxis, alpha_combine.flux)
@@ -166,7 +161,7 @@ def main():
                     model.wav_select(2100, 2200)
 
                     # Try scipy chi_squared
-                    scipy_chisquare = chisquare(alpha_combine.flux, model.flux)
+                    scipy_chisquare = scipy.stats.chisquare(alpha_combine.flux, model.flux)
                     error_chisquare = chi_squared(alpha_combine.flux, model.flux, error=alpha_combine.flux / snr)
 
                     # print("Mine, scipy", chisqr, scipy_chisquare)
@@ -185,7 +180,7 @@ def main():
                     model_new.wav_select(2100, 2200)
                     sim_observation.wav_select(2100, 2200)
 
-                    new_scipy_chisquare = chisquare(sim_observation.flux, model_new.flux)
+                    new_scipy_chisquare = scipy.stats.chisquare(sim_observation.flux, model_new.flux)
                     new_error_chisquare = chi_squared(sim_observation.flux, model_new.flux,
                                                       error=sim_observation.flux / snr)
 

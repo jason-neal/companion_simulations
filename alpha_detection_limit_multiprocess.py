@@ -31,14 +31,15 @@ from collections import defaultdict
 from datetime import datetime as dt
 
 # from scipy.stats import chisquare
-from simulation_utilities import combine_spectra
-from simulation_utilities import add_noise
+from utilities.simulation_utilities import combine_spectra
+# from utilities.simulation_utilities import add_noise
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 
 # from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 # from joblib import Parallel, delayed
-from simulation_utilities import spectrum_plotter
+from utilities.simulation_utilities import spectrum_plotter
+from utilities.chisqr import chi_squared
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 from IP_multi_Convolution import IPconvolution
@@ -47,68 +48,12 @@ sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 from new_alpha_detect_limit_simulation import alpha_model, parallel_chisqr
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
-path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
-cachedir = os.path.join(path, "cache")  # save path
+cachedir = "~/.simulation_cache"
+if not os.path.exists(cachedir):
+    os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
 
-
-@jit
-def chi_squared(observed, expected, error=None):
-    """Calculate chi squared.
-
-    Same result as as scipy.stats.chisquare
-    """
-    if np.any(error):
-        chisqr = np.sum((observed - expected) ** 2 / (error ** 2))
-    else:
-        # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected)
-        # When divided by exted the result is identical to scipy
-    return chisqr
-
-
-# @jit
-# def add_noise(flux, SNR):
-#     "Using the formulation mu/sigma from wikipedia"
-#     sigma = flux / SNR
-#     # Add normal distributed noise at the SNR level.
-#     noisey_flux = flux + np.random.normal(0, sigma)
-#     return noisey_flux
-
-
-@memory.cache
-def apply_convolution(model_spectrum, R=None, chip_limits=None):
-    """Apply convolution to spectrum object."""
-    if chip_limits is None:
-        chip_limits = (np.min(model_spectrum.xaxis),
-                       np.max(model_spectrum.xaxis))
-
-    if R is None:
-        return copy.copy(model_spectrum)
-    else:
-        ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-                                          model_spectrum.flux[:], chip_limits,
-                                          R, FWHM_lim=5.0, plot=False,
-                                          verbose=True)
-
-        new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-                             calibrated=model_spectrum.calibrated,
-                             header=model_spectrum.header)
-
-        return new_model
-
-
-@memory.cache
-def store_convolutions(spectrum, resolutions, chip_limits=None):
-    """Convolve spectrum to many resolutions and store in a dict to retreive.
-
-    This prevents multiple convolution at the same resolution.
-    """
-    d = dict()
-    for resolution in resolutions:
-        d[resolution] = apply_convolution(spectrum, resolution,
-                                          chip_limits=chip_limits)
-    return d
+from utilities.model_convolution import apply_convolution, store_convolutions
 
 
 @memory.cache
@@ -140,7 +85,8 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs,
         combined_model = alpha_model(alpha, rv, model_1[resolution],
                                      model_2[resolution], limits)
 
-        combined_model.flux = add_noise(combined_model.flux, snr)
+        # combined_model.flux = add_noise(combined_model.flux, snr)
+        combined_model.add_noise(snr)
 
         observations[resolution][snr] = combined_model
 
