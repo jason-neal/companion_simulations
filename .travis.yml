@@ -1,7 +1,7 @@
 language: python
 python:
     - "3.5"
-    - "3.6"
+    #- "3.6"   nmultiprocess is not yet py36 compatible
 
 before_install:
   # http://conda.pydata.org/docs/travis.html
@@ -15,12 +15,13 @@ before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
+  - conda config --add channels conda-forge
   - conda update -q conda
   - conda info -a
   - conda config --add channels conda-forge
 # command to install dependencies
 install:
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy astropy matplotlib numba llvmlite
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy astropy matplotlib numba llvmlite multiprocess ephem tqdm joblib
   - source activate test-environment
   - pip install -r requirements.txt
   - python setup.py install

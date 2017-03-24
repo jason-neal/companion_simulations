@@ -45,14 +45,22 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
     """Create an simulated obervation for combinations of resolution and snr.
 
     Paramters:
-    model_1: and model_2 are Spectrum objects.
-    rv: the rv offset applied to model_2
-    alpha: flux ratio I(model_2)/I(model_1)
-    resolutions: list of resolutions to simulate
-    snrs: list of snr values to simulate
+    model_1: Spectrum
+        Host spectum model
+    model_2: Spectrum objects.
+        Companion spectum model
+    rv: float
+       Rv offset applied to model_2
+    alpha: flaot
+        Flux ratio I(model_2)/I(model_1)
+    resolutions: list of int
+        List of resolutions to simulate.
+    snrs: List of int
+        List of snr values to simulate.
 
     Returns:
-    observations: dict[resolution][snr] containing a simulated spectrum.
+    observations: dict[resolution][snr]
+        Simulated obserable spectra.
 
     """
     observations = defaultdict(dict)
