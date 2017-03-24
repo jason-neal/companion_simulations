@@ -26,6 +26,7 @@ from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 from utilities.crires_utilities import crires_resolution
 from utilities.crires_utilities import barycorr_crires_spectrum
 
+from utilities.model_convolution import apply_convolution, convolve_models
 
 
 # First plot the observation with the model
@@ -83,46 +84,6 @@ def load_spectrum(name):
     spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Corrected_DRACS"],
                         calibrated=True, header=hdr)
     return spectrum
-
-
-def apply_convolution(model_spectrum, R=None, chip_limits=None):
-    """Apply convolution to spectrum object."""
-    if chip_limits is None:
-        chip_limits = (np.min(model_spectrum.xaxis),
-                       np.max(model_spectrum.xaxis))
-
-    if R is None:
-        return copy.copy(model_spectrum)
-    else:
-        ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-                                          model_spectrum.flux[:], chip_limits,
-                                          R, FWHM_lim=5.0, plot=False,
-                                          verbose=True)
-
-        new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-                             calibrated=model_spectrum.calibrated,
-                             header=model_spectrum.header)
-
-        return new_model
-
-
-def convolve_models(models, R, chip_limits=None):
-        """Convolve all model spectra to resolution R.
-
-        This prevents multiple convolution at the same resolution.
-
-        inputs:
-        models: list, tuple of spectum objects
-
-        returns:
-        new_models: tuple of the convovled spectral models
-        """
-        new_models = []
-        for model in models:
-            convovled_model = apply_convolution(model, R,
-                                                chip_limits=chip_limits)
-            new_models.append(convovled_model)
-        return tuple(new_models)
 
 
 # TO find why answer is all nans

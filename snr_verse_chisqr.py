@@ -14,16 +14,7 @@ from Planet_spectral_simulations import load_PHOENIX_hd30501
 # from utilities.simulation_utilities import add_noise
 from utilities.chisqr import chi_squared
 
-def store_convolutions(spectrum, resolutions, chip_limits=None):
-    """Convolve spectrum to many resolutions and store in a dict to retreive.
-
-    This prevents multiple convolution at the same resolution.
-    """
-    d = dict()
-    for resolution in resolutions:
-        d[resolution] = apply_convolution(spectrum, resolution, chip_limits=chip_limits)
-
-    return d
+from utilities.model_convolution import apply_convolution, store_convolutions
 
 
 def generate_noise_observations(model_1, resolutions, snrs):

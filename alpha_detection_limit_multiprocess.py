@@ -53,38 +53,7 @@ if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
 
-
-def apply_convolution(model_spectrum, R=None, chip_limits=None):
-    """Apply convolution to spectrum object."""
-    if chip_limits is None:
-        chip_limits = (np.min(model_spectrum.xaxis),
-                       np.max(model_spectrum.xaxis))
-
-    if R is None:
-        return copy.copy(model_spectrum)
-    else:
-        ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-                                          model_spectrum.flux[:], chip_limits,
-                                          R, FWHM_lim=5.0, plot=False,
-                                          verbose=True)
-
-        new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-                             calibrated=model_spectrum.calibrated,
-                             header=model_spectrum.header)
-
-        return new_model
-
-
-def store_convolutions(spectrum, resolutions, chip_limits=None):
-    """Convolve spectrum to many resolutions and store in a dict to retreive.
-
-    This prevents multiple convolution at the same resolution.
-    """
-    d = dict()
-    for resolution in resolutions:
-        d[resolution] = apply_convolution(spectrum, resolution,
-                                          chip_limits=chip_limits)
-    return d
+from utilities.model_convolution import apply_convolution, store_convolutions
 
 
 @memory.cache
