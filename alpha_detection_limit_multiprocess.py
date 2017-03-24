@@ -32,7 +32,7 @@ from datetime import datetime as dt
 
 # from scipy.stats import chisquare
 from utilities.simulation_utilities import combine_spectra
-from utilities.simulation_utilities import add_noise
+# from utilities.simulation_utilities import add_noise
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 
 # from astropy.io import fits
@@ -65,15 +65,6 @@ def chi_squared(observed, expected, error=None):
         chisqr = np.sum((observed - expected)**2 / expected)
         # When divided by exted the result is identical to scipy
     return chisqr
-
-
-# @jit
-# def add_noise(flux, SNR):
-#     "Using the formulation mu/sigma from wikipedia"
-#     sigma = flux / SNR
-#     # Add normal distributed noise at the SNR level.
-#     noisey_flux = flux + np.random.normal(0, sigma)
-#     return noisey_flux
 
 
 @memory.cache
@@ -140,7 +131,8 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs,
         combined_model = alpha_model(alpha, rv, model_1[resolution],
                                      model_2[resolution], limits)
 
-        combined_model.flux = add_noise(combined_model.flux, snr)
+        # combined_model.flux = add_noise(combined_model.flux, snr)
+        combined_model.add_noise(snr)
 
         observations[resolution][snr] = combined_model
 

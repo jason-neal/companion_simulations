@@ -28,9 +28,6 @@ def log_RV_shift():
     """Doppler shift when log-linear spectrum is used."""
     pass
 
-# def add_noise(spectra, snr):
-#    """Add noise to spectrum at the level given by snr"""
-
 # def combine_spectra(star, planet, alpha):
 #     """"Combine the Spectrum objects "star" and "planet" with a strength ratio of aplha
 #     spec = star + planet * alpha

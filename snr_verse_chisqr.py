@@ -10,7 +10,7 @@ import tqdm
 import itertools
 import numpy as np
 from Planet_spectral_simulations import load_PHOENIX_hd30501
-
+# from utilities.simulation_utilities import add_noise
 
 def store_convolutions(spectrum, resolutions, chip_limits=None):
     """Convolve spectrum to many resolutions and store in a dict to retreive.
@@ -44,7 +44,8 @@ def generate_noise_observations(model_1, resolutions, snrs):
 
         # combined_model = combine_spectra(spec_1, spec_2, alpha)
 
-        spec_1.flux = add_noise2(spec_1.flux, snr)
+        #spec_1.flux = add_noise2(spec_1.flux, snr)
+        spec_1.add_noise(snr)      # Add noise added to Spectrum class
 
         observations[resolution][snr] = combined_model
 
@@ -141,7 +142,8 @@ def main():
             # This is the signal to try and recover
             alpha_combine = combine_spectra(star_spec, goal_planet, Alpha)
             alpha_combine.wav_select(2100, 2200)
-            alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
+            # alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
+            alpha_combine.add_noise(snr)
 
             # Test plot
             # plt.plot(alpha_combine.xaxis, alpha_combine.flux)

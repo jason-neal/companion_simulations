@@ -33,6 +33,9 @@ from Planet_spectral_simulations import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 
 
+# from utilities.simulation_utilities import add_noise
+
+
 @jit
 def chi_squared(observed, expected, error=None):
     """Calculate chi squared.
@@ -61,25 +64,6 @@ def alternate_chi_squared(observed, expected, error=None):
         chisqr = np.sum((observed - expected)**2 / expected)
         # When divided by exted the result is identical to scipy
     return chisqr
-
-
-@jit
-def add_noise(flux, SNR):
-    """Using the formulation mu/sigma."""
-    mu = np.mean(flux)
-    sigma = mu / SNR
-    # Add normal distributed noise at the SNR level.
-    noisey_flux = flux + np.random.normal(0, sigma, len(flux))
-    return noisey_flux
-
-
-@jit
-def add_noise2(flux, SNR):
-    """Using the formulation mu/sigma."""
-    sigma = flux / SNR
-    # Add normal distributed noise at the SNR level.
-    noisey_flux = flux + np.random.normal(0, sigma)
-    return noisey_flux
 
 
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
@@ -140,7 +124,8 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
         # store_convolutions
         combined_model = combine_spectra(spec_1, spec_2, alpha)
 
-        combined_model.flux = add_noise2(combined_model.flux, snr)
+        # combined_model.flux = add_noise2(combined_model.flux, snr)
+        combined_model.add_noise(snr)
 
         observations[resolution][snr] = combined_model
 
@@ -241,7 +226,8 @@ def main():
             # This is the signal to try and recover
             alpha_combine = combine_spectra(star_spec, goal_planet, alpha_val)
             alpha_combine.wav_select(2100, 2200)
-            alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
+            # alpha_combine.flux = add_noise2(alpha_combine.flux, snr)
+            alpha_combine.add_noise(snr)
 
             # Test plot
             # plt.plot(alpha_combine.xaxis, alpha_combine.flux)
