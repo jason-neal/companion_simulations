@@ -36,6 +36,7 @@ sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 from utilities.chisqr import chi_squared
 from utilities.model_convolution import convolve_models
+from utilities.phoenix_utils import find_phoenix_models
 from Chisqr_of_observation import plot_obs_with_model, select_observation
 
 model_base_dir = "../../../data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
@@ -77,37 +78,6 @@ def xcorr_peak(spectrum, model, plot=False):
         plt.title("Cross correlation plot")
         plt.show()
     return rv[maxind], cc[maxind]
-
-
-def find_phoenix_models(base_dir, original_model):
-    """Find other phoenix models with similar temp and metalicities.
-
-    Returns list of model name strings.
-
-    """
-    # "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-    model_name = os.path.split(original_model.split)[-1]
-    temp = int(model_name[4:8])
-    logg = float(model_name[9:13])
-    metals = float(model_name[14:17])
-
-    new_temps = np.array(-400, -300, -200, -100, 0, 100, 200, 300, 400) + temp
-    new_metals = np.array(-1, -0.5, 0, 0.5, 1) + metals
-    new_loggs = np.array(-1, -0.5, 0, 0.5, 1) + logg
-
-    # TODO: Deal with Z folders.
-    # z = metalicities
-    # "Z{new_metal}/lte0{new_temp}-{newlogg}-{new_metal}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-    close_models = []
-    for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
-        name = os.path.join(base_dir, "lte{:05d}-{:1.20f}{:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
-
-        if "+0.0" in name:   # Positive zero is not alowed in naming
-            name.replace("+0.0", "-0.0")
-
-        if os.path.isfile(name):
-            close_models.append(name)
-    return close_models
 
 
 def main():
