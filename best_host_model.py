@@ -16,7 +16,6 @@ import copy
 import ephem
 import pickle
 import numpy as np
-from joblib import Memory
 from astropy.io import fits
 import multiprocess as mprocess
 import matplotlib.pyplot as plt
@@ -36,10 +35,6 @@ sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 from utilities.chisqr import chi_squared
 from Chisqr_of_observation import plot_obs_with_model, select_observation
-
-path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
-cachedir = os.path.join(path, "cache")  # save path
-memory = Memory(cachedir=cachedir, verbose=0)
 
 model_base_dir = "../../../data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
 

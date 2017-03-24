@@ -10,7 +10,6 @@ import copy
 import ephem
 import pickle
 import numpy as np
-from joblib import Memory
 from astropy.io import fits
 import multiprocess as mprocess
 import matplotlib.pyplot as plt
@@ -27,10 +26,6 @@ from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 from utilities.crires_utilities import crires_resolution
 from utilities.crires_utilities import barycorr_crires_spectrum
 
-
-path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
-cachedir = os.path.join(path, "cache")  # save path
-memory = Memory(cachedir=cachedir, verbose=0)
 
 
 # First plot the observation with the model
@@ -90,7 +85,6 @@ def load_spectrum(name):
     return spectrum
 
 
-@memory.cache
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
     """Apply convolution to spectrum object."""
     if chip_limits is None:
@@ -112,7 +106,6 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
         return new_model
 
 
-@memory.cache
 def convolve_models(models, R, chip_limits=None):
         """Convolve all model spectra to resolution R.
 

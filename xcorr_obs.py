@@ -18,8 +18,9 @@ from utilities.crires_utilities import crires_resolution
 from Planet_spectral_simulations import simple_normalization
 from alpha_detection_limit_multiprocess import apply_convolution
 
-path = "/tmp/saves"  # save path
-cachedir = os.path.join(path, "cache")  # save path
+cachedir = "~/.simulation_cache"
+if not os.path.exists(cachedir):
+    os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
 
 

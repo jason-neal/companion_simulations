@@ -48,12 +48,12 @@ sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 from new_alpha_detect_limit_simulation import alpha_model, parallel_chisqr
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
-path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
-cachedir = os.path.join(path, "cache")  # save path
+cachedir = "~/.simulation_cache"
+if not os.path.exists(cachedir):
+    os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
 
 
-@memory.cache
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
     """Apply convolution to spectrum object."""
     if chip_limits is None:
@@ -75,7 +75,6 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
         return new_model
 
 
-@memory.cache
 def store_convolutions(spectrum, resolutions, chip_limits=None):
     """Convolve spectrum to many resolutions and store in a dict to retreive.
 
