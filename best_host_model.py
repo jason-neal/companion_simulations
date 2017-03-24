@@ -41,23 +41,42 @@ from Chisqr_of_observation import plot_obs_with_model, select_observation
 model_base_dir = "../../../data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
 
 
-def RV_cross_corr(spectrum, model, plot=False):
-    """Find RV offset between a spectrum and a model using pyastronomy."""
-    # Cross-correlation
-    # from PyAstronomy example
-    #
-    # TAPAS is the "template" shifted to match Molecfit
-    rv, cc = pyasl.crosscorrRV(spectrum.xaxis, spectrum.flux,
-                               model.xaxis, model.flux, rvmin=-60.,
-                               rvmax=60.0, drv=0.1, mode='doppler', skipedge=50)
+def xcorr_peak(spectrum, model, plot=False):
+    """Find RV offset between a spectrum and a model using pyastronomy.
+
+    Parameters
+    ----------
+    spectrum: Spectrum
+       Target Spectrum object.
+    model: Spectrum
+        Template Specturm object.
+
+    Returns
+    -------
+    rv_max: float
+        Radial velocity vlaue corresponding to maximum correlation.
+    cc_max: float
+        Cross-correlation value corresponding to maximum correlation.
+    """
+    rv, cc = spectrum.crosscorrRV(model, rvmin=-60., rvmax=60.0, drv=0.1,
+                                  mode='doppler', skipedge=50)  # Specturm method
 
     maxind = np.argmax(cc)
-    print("Cross-correlation function is maximized at dRV = ", rv[maxind], " km/s")
+    rv_max, cc_max = rv[maxind], cc[maxind]
+
+    print("Cross-correlation function is maximized at dRV = ", rv_max, " km/s")
     if plot:
+        plt.subplot(211)
+        plt.plot(spectrum.xaxis, spectrum.flux, label="Target")
+        plt.plot(model.xaxis, model.flux, label="Model")
+        plt.legend()
+        plt.title("Spectra")
+        plt.subplot(212)
         plt.plot(rv, cc)
+        plt.plot(rv_max, cc_max, "o")
         plt.title("Cross correlation plot")
         plt.show()
-    return rv[maxind]
+    return rv[maxind], cc[maxind]
 
 
 def find_phoenix_models(base_dir, original_model):
@@ -132,7 +151,7 @@ def main():
 
         # Find crosscorrelation RV
         # # Should run though all models and find best rv to apply uniformly
-        rvoffset = RV_cross_corr(observed_spectra, conv_mod_spectrum, plot=True)
+        rvoffset, cc_max = xcorr_peak(observed_spectra, conv_mod_spectrum, plot=True)
 
         # Interpolate to obs
         conv_mod_spectrum.spline_interpolate_to(observed_spectra)
