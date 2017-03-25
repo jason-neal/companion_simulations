@@ -45,7 +45,8 @@ sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 from IP_multi_Convolution import IPconvolution
 sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 
-from new_alpha_detect_limit_simulation import alpha_model, parallel_chisqr
+from new_alpha_detect_limit_simulation import parallel_chisqr
+from models.alpha_model import alpha_model
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
 cachedir = "~/.simulation_cache"
