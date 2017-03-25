@@ -3,19 +3,18 @@
 # methodolgy from grid_chisquare.
 
 from __future__ import division, print_function
-import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
 
 # self written modules
-# from grid_chisquare import chi_squared
-from spectrum_overload.Spectrum import Spectrum
-from Planet_spectral_simulations import load_PHOENIX_hd30501
-from utilities.simulation_utilities import combine_spectra
-from utilities.simulation_utilities import spectrum_plotter
 from utilities.chisqr import chi_squared
 from models.alpha_model import alpha_model
+from spectrum_overload.Spectrum import Spectrum
+from utilities.simulation_utilities import combine_spectra
+from utilities.simulation_utilities import spectrum_plotter
+from Planet_spectral_simulations import load_PHOENIX_hd30501
+
 
 def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
     """Chi squared for specturm objects."""

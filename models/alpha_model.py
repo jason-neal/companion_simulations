@@ -1,4 +1,8 @@
 """Alpha combination models."""
+import copy
+import numpy as np
+from utilities.simulation_utilities import combine_spectra
+
 
 def alpha_model(alpha, rv, host, companion, limits, new_x=None):
     """Entangled spectrum model.

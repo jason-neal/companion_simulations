@@ -1,9 +1,17 @@
 """Gernate simulated observations from templates."""
+import os
 import itertools
+from joblib import Memory
 from collection import defaultdict
 
 from utilities.simulation_utilities import combine_spectra
 from models.alpha_model import alpha_model
+
+cachedir = "~/.simulation_cache"
+if not os.path.exists(cachedir):
+    os.makedirs(cachedir)
+memory = Memory(cachedir=cachedir, verbose=0)
+
 
 def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
     """Create an simulated obervation for combinations of resolution and snr.

@@ -14,6 +14,7 @@ if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
 
+
 @memory.cache
 def apply_convolution(model_spectrum, R=None, chip_limits=None):
     """Apply convolution to spectrum object."""

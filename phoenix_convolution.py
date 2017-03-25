@@ -1,7 +1,7 @@
 import os
 import glob
 from astropy.io import fits
-import tempfile
+
 # Convolve All Phoenix Spectra to 50000.
 resolution = 50000
 

@@ -15,34 +15,22 @@
 from __future__ import division, print_function
 
 import os
-import sys
 import time
 import copy
-import pickle
-import itertools
-import numpy as np
-from numba import jit
-from tqdm import tqdm
 import scipy
-# from scipy.stats import chisquare
+import pickle
+import numpy as np
+from tqdm import tqdm
 from collections import defaultdict
 
-sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
-from IP_multi_Convolution import IPconvolution
 from spectrum_overload.Spectrum import Spectrum
 from Planet_spectral_simulations import combine_spectra
+from utilities.simulate_obs import generate_observations
 from Planet_spectral_simulations import load_PHOENIX_hd30501
-
-
-# from utilities.simulation_utilities import add_noise
-
 from utilities.chisqr import chi_squared, alternate_chi_squared
-
 from utilities.model_convolution import apply_convolution, store_convolutions
 
-from utilities.simulate_obs import generate_observations
 
-# @jit
 def main():
     """Chisquare determinination to detect minimum alpha value."""
     print("Loading Data")

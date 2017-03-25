@@ -27,7 +27,6 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
 
     # SHOULD test again with bary and see what the  difference is.
     """
-
     longitude = float(header["HIERARCH ESO TEL GEOLON"])
     latitude = float(header["HIERARCH ESO TEL GEOLAT"])
     altitude = float(header["HIERARCH ESO TEL GEOELEV"])

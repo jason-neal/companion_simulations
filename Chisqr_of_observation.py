@@ -5,8 +5,6 @@ Jason Neal November 2016.
 """
 from __future__ import division, print_function
 import os
-import sys
-import copy
 import ephem
 import pickle
 import numpy as np
@@ -17,17 +15,16 @@ from ajplanet import pl_rv_array
 from datetime import datetime as dt
 
 from Get_filenames import get_filenames
+from models.alpha_model import alpha_model2
 from IP_multi_Convolution import IPconvolution
 from spectrum_overload.Spectrum import Spectrum
+from utilities.crires_utilities import crires_resolution
 from utilities.simulation_utilities import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
-sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
 from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
-from utilities.crires_utilities import crires_resolution
 from utilities.crires_utilities import barycorr_crires_spectrum
-
 from utilities.model_convolution import apply_convolution, convolve_models
-from models.alpha_model import alpha_model2
+
 
 # First plot the observation with the model
 def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):

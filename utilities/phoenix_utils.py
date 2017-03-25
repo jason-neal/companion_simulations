@@ -5,6 +5,7 @@ i.e. searching for models with certian parameters
 
 Jason Neal, Janurary 2017
 """
+import os
 import glob
 import numpy as np
 import itertools

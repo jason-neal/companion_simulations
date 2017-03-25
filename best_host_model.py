@@ -10,34 +10,26 @@ the same I would think unless the lines changed dramatically).
 
 """
 from __future__ import division, print_function
-import os
 import sys
-import copy
-import ephem
-import pickle
-import itertools
 import numpy as np
 from astropy.io import fits
-import multiprocess as mprocess
 import matplotlib.pyplot as plt
 from datetime import datetime as dt
 
-from utilities.crires_utilities import crires_resolution
-from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.chisqr import chi_squared
 from spectrum_overload.Spectrum import Spectrum
+from utilities.model_convolution import convolve_models
+from utilities.phoenix_utils import find_phoenix_models
+from utilities.crires_utilities import crires_resolution
 from utilities.simulation_utilities import combine_spectra
+from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
+from utilities.crires_utilities import barycorr_crires_spectrum
+from Chisqr_of_observation import plot_obs_with_model, select_observation
 from Planet_spectral_simulations import load_PHOENIX_hd30501, simple_normalization
 
 # from Get_filenames import get_filenames
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 from IP_multi_Convolution import IPconvolution
-
-sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
-from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
-from utilities.chisqr import chi_squared
-from utilities.model_convolution import convolve_models
-from utilities.phoenix_utils import find_phoenix_models
-from Chisqr_of_observation import plot_obs_with_model, select_observation
 
 model_base_dir = "../../../data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
 

@@ -17,12 +17,9 @@ from __future__ import division, print_function
 import os
 import sys
 import time
-import copy
 import pickle
-import itertools
 import scipy.stats
 import numpy as np
-from numba import jit
 from tqdm import tqdm
 from joblib import Memory
 import matplotlib.pyplot as plt
@@ -40,23 +37,19 @@ from spectrum_overload.Spectrum import Spectrum
 # from joblib import Parallel, delayed
 from utilities.simulation_utilities import spectrum_plotter
 from utilities.chisqr import chi_squared
-
-sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
-from IP_multi_Convolution import IPconvolution
-sys.path.append("/home/jneal/Phd/Codes/Phd-codes/Simulations")
-
 from new_alpha_detect_limit_simulation import parallel_chisqr
 from models.alpha_model import alpha_model
+
+from utilities.model_convolution import store_convolutions
+from utilities.simulate_obs import generate_observations2 as generate_observations
+
+sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
 cachedir = "~/.simulation_cache"
 if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
-
-from utilities.model_convolution import apply_convolution, store_convolutions
-
-from utilities.simulate_obs import generate_observations2 as generate_observations
 
 
 def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
