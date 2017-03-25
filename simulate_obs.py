@@ -1,4 +1,4 @@
-"""Gernate simulated observations from templates."""
+"""Genarate simulated observations from templates."""
 import os
 import itertools
 from joblib import Memory
@@ -33,7 +33,7 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
 
     Returns
     -------
-    observations: dict[resolution][snr]
+    observations: dict{resolution: dict{snr: Spectrum}}
         Simulated obserable spectra.
 
     """
@@ -60,7 +60,7 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
 # Need to check and combine generate observations.
 @memory.cache
 def generate_observations2(model_1, model_2, rv, alpha, resolutions, snrs,
-                          limits):
+                           limits):
     """Create an simulated observation for combinations of resolution and snr.
 
     Paramters
@@ -81,7 +81,7 @@ def generate_observations2(model_1, model_2, rv, alpha, resolutions, snrs,
 
     Returns
     -------
-    observations: dict[resolution][snr]
+    observations: dict{resolution: dict{snr: Spectrum}}
         Simulated obserable spectra.
 
     """
@@ -120,7 +120,7 @@ def generate_noise_observations(model_1, resolutions, snrs):
 
     Returns
     -------
-    observations: defaultdict{resolution: dict{snr: Spectrum}}
+    observations: dict{resolution: dict{snr: Spectrum}}
         Simulated obserable spectra with noise.
 
     """
@@ -132,7 +132,7 @@ def generate_noise_observations(model_1, resolutions, snrs):
 
         # combined_model = combine_spectra(spec_1, spec_2, alpha)
 
-        #spec_1.flux = add_noise2(spec_1.flux, snr)
+        # spec_1.flux = add_noise2(spec_1.flux, snr)
         spec_1.add_noise(snr)      # Add noise added to Spectrum class
 
         observations[resolution][snr] = spec_1

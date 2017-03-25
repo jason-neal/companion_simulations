@@ -9,8 +9,9 @@ source_path = ("/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goetti
                "HiResFITS/PHOENIX-ACES-AGSS-COND-2011")
 output_path = "/home/jneal/Phd/data/fullphoenix/convolved_R{0:d}k".format(int(resolution / 1000))
 
+
 def make_dirs(old_path, new_path):
-    "Create a copy of folders in a new directory."
+    """Create a copy of folders in a new directory."""
     old_dirs = glob.glob(os.path.join(old_path, "*"))
 
     for d in old_dirs:
@@ -41,9 +42,7 @@ for folder in folders:
 
         # Wavelenght narrow
 
-
         # Convolutions
-
 
         # Save result to fits file in new directory.
 

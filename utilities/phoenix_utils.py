@@ -1,4 +1,4 @@
-""" Phoenix Utilities.
+"""Phoenix Utilities.
 
 Some functions to deal with phoenix models
 i.e. searching for models with certian parameters
@@ -12,7 +12,7 @@ import itertools
 
 
 def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
-    """ Find the closest PHOENIX-ACES model to the stellar parameters given.
+    """Find the closest PHOENIX-ACES model to the stellar parameters given.
 
     alpha parameter is  not implemented yet.
     Parameters
@@ -27,9 +27,9 @@ def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
     Returns
     -------
     phoenix_model: str
-     Path/Filename to the closest matching model.
-    """
+        Path/Filename to the closest matching model.
 
+    """
     if alpha is not None:
         raise NotImplemented("Alpha not implemented")
 
@@ -61,7 +61,7 @@ def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
 
 
 def find_phoenix_models(base_dir, ref_model, mode="temp"):
-    """ Find other phoenix models with similar temp and metalicities.
+    """Find other phoenix models with similar temp and metalicities.
 
     Parameters
     ----------
@@ -150,7 +150,8 @@ def find_phoenix_models2(base_dir, original_model):
     # "Z{new_metal}/lte0{new_temp}-{newlogg}-{new_metal}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     close_models = []
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
-        name = os.path.join(base_dir, "lte{:05d}-{:1.20f}{:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
+        name = os.path.join(base_dir,
+                            "lte{:05d}-{:1.20f}{:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
 
         if "+0.0" in name:   # Positive zero is not alowed in naming
             name.replace("+0.0", "-0.0")
