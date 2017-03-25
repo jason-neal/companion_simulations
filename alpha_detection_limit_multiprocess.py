@@ -56,42 +56,7 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 from utilities.model_convolution import apply_convolution, store_convolutions
 
-
-@memory.cache
-def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs,
-                          limits):
-    """Create an simulated observation for combinations of resolution and snr.
-
-    Paramters:
-    model_1: and model_2 are Spectrum objects.
-    rv: the rv offset applied to model_2
-    alpha: flux ratio I(model_2)/I(model_1)
-    resolutions: list of resolutions to simulate
-    snrs: list of snr values to simulate
-
-    Returns:
-    observations: dict[resolution][snr] containing a simulated spectrum.
-
-    """
-    observations = defaultdict(dict)
-    iterator = itertools.product(resolutions, snrs)
-    for resolution, snr in iterator:
-        # Preform tasks to simulate an observation
-        # spec_1 = model_1[resolution]
-        # spec_2 = model_2[resolution]
-        # spec_2.doppler_shift(rv)
-        # combined_model = combine_spectra(spec_1, spec_2, alpha)
-
-        # Using alpha_model
-        combined_model = alpha_model(alpha, rv, model_1[resolution],
-                                     model_2[resolution], limits)
-
-        # combined_model.flux = add_noise(combined_model.flux, snr)
-        combined_model.add_noise(snr)
-
-        observations[resolution][snr] = combined_model
-
-    return observations
+from utilities.simulate_obs import generate_observations2 as generate_observations
 
 
 def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,

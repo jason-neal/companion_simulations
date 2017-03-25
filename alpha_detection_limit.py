@@ -40,48 +40,7 @@ from utilities.chisqr import chi_squared, alternate_chi_squared
 
 from utilities.model_convolution import apply_convolution, store_convolutions
 
-
-def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
-    """Create an simulated obervation for combinations of resolution and snr.
-
-    Paramters:
-    model_1: Spectrum
-        Host spectum model
-    model_2: Spectrum objects.
-        Companion spectum model
-    rv: float
-       Rv offset applied to model_2
-    alpha: flaot
-        Flux ratio I(model_2)/I(model_1)
-    resolutions: list of int
-        List of resolutions to simulate.
-    snrs: List of int
-        List of snr values to simulate.
-
-    Returns:
-    observations: dict[resolution][snr]
-        Simulated obserable spectra.
-
-    """
-    observations = defaultdict(dict)
-    iterator = itertools.product(resolutions, snrs)
-    for resolution, snr in iterator:
-        # Preform tasks to simulate an observation
-        spec_1 = model_1[resolution]
-
-        spec_2 = model_2[resolution]
-        spec_2.doppler_shift(rv)
-        # model1 and model2 are already normalized and convovled to each resolution using
-        # store_convolutions
-        combined_model = combine_spectra(spec_1, spec_2, alpha)
-
-        # combined_model.flux = add_noise2(combined_model.flux, snr)
-        combined_model.add_noise(snr)
-
-        observations[resolution][snr] = combined_model
-
-    return observations
-
+from utilities.simulate_obs import generate_observations
 
 # @jit
 def main():

@@ -15,35 +15,7 @@ from Planet_spectral_simulations import load_PHOENIX_hd30501
 from utilities.chisqr import chi_squared
 
 from utilities.model_convolution import apply_convolution, store_convolutions
-
-
-def generate_noise_observations(model_1, resolutions, snrs):
-    """Create an simulated obervation for combinations of resolution and snr.
-
-    Paramters:
-    model_1: dictionary of Spectrum objects convolved to different resolutions.
-    resolutions: list of resolutions to simulate
-    snrs: list of snr values to simulate
-
-    Returns:
-    observations: dict[resolution][snr] containing a simulated spectrum.
-
-    """
-    observations = defaultdict(dict)
-    iterator = itertools.product(resolutions, snrs)
-    for resolution, snr in iterator:
-        # Preform tasks to simulate an observation
-        spec_1 = model_1[resolution]
-
-        # combined_model = combine_spectra(spec_1, spec_2, alpha)
-
-        #spec_1.flux = add_noise2(spec_1.flux, snr)
-        spec_1.add_noise(snr)      # Add noise added to Spectrum class
-
-        observations[resolution][snr] = combined_model
-
-    return observations
-
+from utilities.simulate_obs import generate_noise_observations
 
 # @jit
 def main():
