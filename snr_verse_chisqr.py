@@ -7,9 +7,10 @@ Jason Neal, December 2016
 import os
 import time
 import tqdm
+import scipy
 import itertools
 import numpy as np
-import scipy
+from collections import defaultdict
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 # from utilities.simulation_utilities import add_noise
 from utilities.chisqr import chi_squared
