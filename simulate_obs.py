@@ -127,6 +127,6 @@ def generate_noise_observations(model_1, resolutions, snrs):
         #spec_1.flux = add_noise2(spec_1.flux, snr)
         spec_1.add_noise(snr)      # Add noise added to Spectrum class
 
-        observations[resolution][snr] = combined_model
+        observations[resolution][snr] = spec_1
 
     return observations
