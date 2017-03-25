@@ -31,7 +31,7 @@ from Planet_spectral_simulations import load_PHOENIX_hd30501, simple_normalizati
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 from IP_multi_Convolution import IPconvolution
 
-model_base_dir = "../../../data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
+model_base_dir = "home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
 
 
 def xcorr_peak(spectrum, model, plot=False):
