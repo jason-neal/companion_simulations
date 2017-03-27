@@ -1,6 +1,7 @@
 saves/*
 chisquare_images/
 images/
+.sync/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
