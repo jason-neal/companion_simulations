@@ -2,7 +2,7 @@
 import os
 import itertools
 from joblib import Memory
-from collection import defaultdict
+from collections import defaultdict
 
 from utilities.simulation_utilities import combine_spectra
 from models.alpha_model import alpha_model
