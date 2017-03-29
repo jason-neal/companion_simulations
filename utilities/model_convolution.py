@@ -10,7 +10,7 @@ from joblib import Memory
 from spectrum_overload.Spectrum import Spectrum
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
-from IP_Convolution import IPconvolution
+from IP_multi_Convolution import IPconvolution
 
 cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
