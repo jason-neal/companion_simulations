@@ -6,9 +6,13 @@ i.e. searching for models with certian parameters
 Jason Neal, Janurary 2017
 """
 import os
+import copy
 import glob
-import numpy as np
 import itertools
+
+import numpy as np
+import matplotlib.pyplot as plt
+from astropy.modeling import models, fitting
 
 
 def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
@@ -159,3 +163,65 @@ def find_phoenix_models2(base_dir, original_model):
         if os.path.isfile(name):
             close_models.append(name)
     return close_models
+
+
+def local_normalization(wave, flux, splits=50, method="exponential", plot=False):
+    r"""Local minimization for section of Phoenix spectra. Split spectra into many chunks and get the average of top 5\% in each bin.
+
+    Fit to those points and normalize by that.
+    """
+    org_flux = copy.copy(flux)
+    org_wave = copy.copy(wave)
+
+    while len(wave) % splits != 0:
+        # Shorten array untill can be evenly split up.
+        wave = wave[:-1]
+        flux = flux[:-1]
+
+    flux_split = np.split(flux, splits)
+    wav_split = np.split(wave, splits)
+
+    wav_points = np.empty(splits)
+    flux_points = np.empty(splits)
+
+    for i, (w, f) in enumerate(zip(wav_split, flux_split)):
+        wav_points[i] = np.median(w[np.argsort(f)[-20:]])  # Take the median of the wavelength values of max values.
+        flux_points[i] = np.median(f[np.argsort(f)[-20:]])
+
+    if method == "scalar":
+        norm_flux = np.median(flux_split) * np.ones_like(org_wave)
+    elif method == "linear":
+        z = np.polyfit(wav_points, flux_points, 1)
+        p = np.poly1d(z)
+        norm_flux = p(org_wave)
+    elif method == "quadratic":
+        z = np.polyfit(wav_points, flux_points, 2)
+        p = np.poly1d(z)
+        norm_flux = p(org_wave)
+    elif method == "exponential":
+        z = np.polyfit(wav_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
+        p_exp = lambda x, b, a: np.exp(a) * np.exp(b * x)
+        norm_flux = p_exp(org_wave, z[0], z[1])
+
+    if plot:
+        plt.subplot(211)
+        plt.plot(wave, flux)
+        plt.plot(wav_points, flux_points, "x-", label="points")
+        plt.plot(org_wave, norm_flux, label='norm_flux')
+        plt.legend()
+        plt.subplot(212)
+        plt.plot(org_wave, org_flux / norm_flux)
+        plt.title("Normalization")
+        plt.show()
+
+    return org_flux / norm_flux
+
+
+def spec_local_norm(spectrum, splits=50, method="quadratic", plot=False):
+    r"""Apply local normalization on Spectrum object. Split spectra into many chunks and get the average of top 5\% in each bin.
+    """
+    norm_spectrum = copy.copy(spectrum)
+    flux_norm = local_normalization(spectrum.xaxis, spectrum.flux, splits=splits, plot=plot)
+    norm_spectrum.flux = flux_norm
+
+    return norm_spectrum
