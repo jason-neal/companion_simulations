@@ -1,7 +1,7 @@
 """Black body fit to phoenix spectra.
 
-Sometimes works, but spectral lines and depressions are a problem."""
-import lmfit
+Sometimes works, but spectral lines and depressions are a problem.
+"""
 import numpy as np
 from astropy.io import fits
 from astropy import units as u

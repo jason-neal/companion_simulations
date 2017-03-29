@@ -1,4 +1,5 @@
 """best_host_model.py
+
 Jason Neal
 2nd Janurary 2017
 
@@ -102,7 +103,7 @@ def main():
         # Normalize
         # Since just with high flux stars (not cool dwarfs) in this case the simple normalization might be enough.
         mod_spectrum.wav_select(2080, 2200)  # limits for simple normalization
-        #norm_mod_spectrum = simple_normalization(mod_spectrum)
+        # norm_mod_spectrum = simple_normalization(mod_spectrum)
         norm_mod_spectrum = spec_local_norm(mod_spectrum)
         # norm_mod_spectrum = blackbody_normalization(mod_spectrum)
 
