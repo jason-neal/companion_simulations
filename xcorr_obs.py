@@ -18,7 +18,7 @@ from utilities.crires_utilities import crires_resolution
 from utilities.phoenix_utils import spec_local_norm
 from alpha_detection_limit_multiprocess import apply_convolution
 
-cachedir = "~/.simulation_cache"
+cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)

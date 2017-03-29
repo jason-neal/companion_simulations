@@ -9,7 +9,7 @@ import IPconvolution
 from spectrum_overload.Spectrum import Spectrum
 from joblib import Memory
 
-cachedir = "~/.simulation_cache"
+cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)

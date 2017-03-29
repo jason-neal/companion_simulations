@@ -46,7 +46,7 @@ from utilities.simulate_obs import generate_observations2 as generate_observatio
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
-cachedir = "~/.simulation_cache"
+cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)

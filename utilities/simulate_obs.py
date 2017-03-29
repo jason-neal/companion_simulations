@@ -7,7 +7,7 @@ from collections import defaultdict
 from utilities.simulation_utilities import combine_spectra
 from models.alpha_model import alpha_model
 
-cachedir = "~/.simulation_cache"
+cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
