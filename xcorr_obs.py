@@ -15,7 +15,7 @@ from IP_multi_Convolution import IPconvolution
 from Chisqr_of_observation import load_spectrum
 from spectrum_overload.Spectrum import Spectrum
 from utilities.crires_utilities import crires_resolution
-from Planet_spectral_simulations import simple_normalization
+from utilities.phoenix_utils import spec_local_norm
 from alpha_detection_limit_multiprocess import apply_convolution
 
 cachedir = "~/.simulation_cache"
@@ -78,7 +78,7 @@ for chip, obs_num in itertools.product(chips, obs_nums):
         phoenix_spectrum = Spectrum(flux=phoenix_data, xaxis=wav_model, calibrated=True)
 
         phoenix_spectrum.wav_select(2080, 2220)
-        phoenix_spectrum = simple_normalization(phoenix_spectrum)
+        phoenix_spectrum = spec_local_norm(phoenix_spectrum)
         phoenix_spectrum = apply_convolution(phoenix_spectrum, R=obs_resolution, chip_limits=[2080, 2220])
         rv, cc = observed_spectra.crosscorrRV(phoenix_spectrum, rvmin=-100., rvmax=100.0, drv=0.1,
                                               mode='doppler', skipedge=50)

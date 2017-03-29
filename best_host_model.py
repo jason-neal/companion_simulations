@@ -24,8 +24,9 @@ from utilities.crires_utilities import crires_resolution
 from utilities.simulation_utilities import combine_spectra
 from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 from utilities.crires_utilities import barycorr_crires_spectrum
-from Chisqr_of_observation import plot_obs_with_model, select_observation
-from Planet_spectral_simulations import load_PHOENIX_hd30501, simple_normalization
+from Chisqr_of_observation import plot_obs_with_model, select_observation, load_spectrum
+from Planet_spectral_simulations import load_PHOENIX_hd30501
+from utilities.phoenix_utils import spec_local_norm
 
 # from Get_filenames import get_filenames
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
@@ -101,7 +102,8 @@ def main():
         # Normalize
         # Since just with high flux stars (not cool dwarfs) in this case the simple normalization might be enough.
         mod_spectrum.wav_select(2080, 2200)  # limits for simple normalization
-        norm_mod_spectrum = simple_normalization(mod_spectrum)
+        #norm_mod_spectrum = simple_normalization(mod_spectrum)
+        norm_mod_spectrum = spec_local_norm(mod_spectrum)
         # norm_mod_spectrum = blackbody_normalization(mod_spectrum)
 
         # wav select

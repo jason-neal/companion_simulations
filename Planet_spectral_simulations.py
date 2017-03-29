@@ -17,6 +17,7 @@ from spectrum_overload.Spectrum import Spectrum
 from utilities.simulation_utilities import add_noise
 from utilities.simulation_utilities import spectrum_plotter
 from utilities.simulation_utilities import combine_spectra
+from utilities.phoenix_utils import spec_local_norm
 
 
 def RV_shift():
@@ -101,10 +102,12 @@ def load_PHOENIX_hd30501(limits=None, normalize=False):
         if limits is None:
             print("Warning! Limits should be given when using normalization")
         star_spec = Spectrum(flux=i_star, xaxis=w_mod)
-        result = simple_normalization(star_spec)
+        # result = simple_normalization(star_spec)
+        result = spec_local_norm(star_spec)
         i_star = result.flux
         bd_spec = Spectrum(flux=i_bdmod, xaxis=w_mod)
-        result = simple_normalization(bd_spec)
+        # result = simple_normalization(bd_spec)
+        result = spec_local_norm(bd_spec)
         i_bdmod = result.flux
 
     return w_mod, i_star, i_bdmod, hdr_star, hdr_bd
@@ -137,9 +140,10 @@ def main():
     # star_spec.wav_select(100, 3000)
     # bd_spec.wav_select(100, 3000)
 
-    star_spec = simple_normalization(star_spec)
-    bd_spec = simple_normalization(bd_spec)
-
+    # star_spec = simple_normalization(star_spec)
+    star_spec = spec_local_norm(star_spec)
+    # bd_spec = simple_normalization(bd_spec)
+    bd_spec = spec_local_norm(bd_spec)
     # Loop over different things
     print(star_spec.xaxis)
     print(bd_spec.xaxis)
