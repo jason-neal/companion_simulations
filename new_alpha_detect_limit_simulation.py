@@ -119,7 +119,7 @@ def main():
     # R, S = np.meshgrid(alphas, RVs)
     T, U = np.meshgrid(RVs, alphas)
 
-    print(reshape1.shape)
+    print("shape of reshape1", reshape1.shape)
     # print(reshape2.shape)
     # print(R.shape)
     # print(T.shape)

@@ -94,7 +94,6 @@ def double_shifted_alpha_model(alpha, rv1, rv2, host, companion, limits, new_x=N
     Spectrum object
 
     """
-    # this copy solved my nan issue.
     companion = copy.copy(companion)
     host = copy.copy(host)
 

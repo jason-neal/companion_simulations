@@ -107,7 +107,6 @@ def wrapper_parallel_chisquare(args):
     return parallel_chisquared(*args)
 
 
-# @jit
 def main():
     """Chisquare determinination to detect minimum alpha value."""
     print("Loading Data")
@@ -148,8 +147,6 @@ def main():
                                                  chip_limits=chip_limits)
     print("Convolution of models took {} seconds". format(dt.now() - time_init))
 
-    # print(type(convolved_star_models))
-    # print(type(convolved_planet_models))
     simulated_observations = generate_observations(convolved_star_models,
                                                    convolved_planet_models,
                                                    rv_val, alpha_val,
