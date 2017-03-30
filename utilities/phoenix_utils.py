@@ -60,7 +60,8 @@ def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
     else:
         phoenix_glob = ("Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                         "").format(closest_teff, closest_logg, closest_feh)
-    files = glob.glob(data_dir + phoenix_glob)
+    phoenix_glob = phoenix_glob.replace("+0.0", "-0.0")      # Replace positive 0 metalicity with negative 0
+    files = glob.glob(os.path.join(data_dir, phoenix_glob))
     if len(files) > 1:
         logging.warning("More than one file returned")
     return files
@@ -189,7 +190,7 @@ def find_phoenix_models2(base_dir, original_model):
                             "lte{:05d}-{:1.20f}{:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
 
         if "+0.0" in name:   # Positive zero is not alowed in naming
-            name.replace("+0.0", "-0.0")
+            name = name.replace("+0.0", "-0.0")
 
         if os.path.isfile(name):
             close_models.append(name)

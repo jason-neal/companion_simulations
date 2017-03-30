@@ -11,6 +11,7 @@ the same I would think unless the lines changed dramatically).
 
 """
 from __future__ import division, print_function
+import os
 import sys
 import logging
 import numpy as np
