@@ -177,9 +177,9 @@ def find_phoenix_models2(base_dir, original_model):
     """
     # "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     model_name = os.path.split(original_model.split)[-1]
-    temp = int(model_name[4:8])
+    temp = int(model_name[3:8])
     logg = float(model_name[9:13])
-    metals = float(model_name[14:17])
+    metals = float(model_name[13:17])
 
     new_temps = np.array(-400, -300, -200, -100, 0, 100, 200, 300, 400) + temp
     new_metals = np.array(-1, -0.5, 0, 0.5, 1) + metals
