@@ -83,6 +83,8 @@ def xcorr_peak(spectrum, model, plot=False):
 def main():
     """Main function."""
     star = "HD30501"
+    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.txt".format(star)
+    host_parameters = parse_paramfile(param_file, path=None)
     obs_num = 1
     chip = 1
     obs_name = select_observation(star, obs_num, chip)
@@ -95,7 +97,8 @@ def main():
     wav_model /= 10   # turn into nm
     logging.debug("Phoenix wav_model = {}".format(wav_model))
 
-    original_model = "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    closest_model = phoenix_from_params(model_base_dir, host_parameters)
+    original_model = "Z-0.0/lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
 
     # Function to find the good models I need
     models = find_phoenix_models(model_base_dir, original_model)

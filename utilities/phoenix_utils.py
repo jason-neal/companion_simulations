@@ -14,6 +14,7 @@ import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.modeling import models, fitting
+from utilities.param_file import parse_paramfile
 
 
 def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
@@ -63,6 +64,35 @@ def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
     if len(files) > 1:
         logging.warning("More than one file returned")
     return files
+
+
+def phoenix_from_params(data_dir, parameters):
+    """Return cloeset phoenix model given a stellar parameter file.
+
+    Obtain temp, metalicity, and logg from parameter file.
+    Parameters
+    ----------
+    data_dir: str
+        Directory to phoenix models.
+    parameters: str or dict
+        Parameter filename if a string is given. Dictionary of parametes if dict is provided.
+
+    Returns
+    -------
+    phoenix_model: str
+        Filename of phoenix model closest to given parameters.
+    """
+    logging.debug("phoenix_from_params Data dir = {}".format(data_dir))
+    if isinstance(parameters, str):
+        params = parse_paramfile(parameters)
+    else:
+        params = parameters
+
+    if "alpha" not in params.keys():
+        params["alpha"] = None
+    logging.debug(params)
+    return find_closest_phoenix(data_dir, parameters["teff"], parameters["logg"], parameters["fe_h"],
+                                alpha=parameters["alpha"])
 
 
 def find_phoenix_models(base_dir, ref_model, mode="temp"):
