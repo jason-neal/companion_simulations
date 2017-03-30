@@ -23,6 +23,7 @@ from utilities.chisqr import chi_squared
 from spectrum_overload.Spectrum import Spectrum
 from utilities.model_convolution import convolve_models
 from utilities.phoenix_utils import find_phoenix_models2 as find_phoenix_models
+from utilities.phoenix_utils import phoenix_from_params
 from utilities.crires_utilities import crires_resolution
 # from utilities.simulation_utilities import combine_spectra
 # from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
@@ -31,7 +32,7 @@ from utilities.crires_utilities import crires_resolution
 from Chisqr_of_observation import select_observation, load_spectrum
 # from Planet_spectral_simulations import load_PHOENIX_hd30501
 from utilities.phoenix_utils import spec_local_norm
-
+from utilities.param_file import parse_paramfile
 # from Get_filenames import get_filenames
 # sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 # from IP_multi_Convolution import IPconvolution
@@ -39,7 +40,8 @@ from utilities.phoenix_utils import spec_local_norm
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 
-model_base_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
+model_base_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/PHOENIX-ACES-AGSS-COND-2011/"
+wav_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
 
 
 def xcorr_peak(spectrum, model, plot=False):
@@ -94,7 +96,7 @@ def main():
     observed_spectra = load_spectrum(obs_name)
     obs_resolution = crires_resolution(observed_spectra.header)
 
-    wav_model = fits.getdata(model_base_dir + "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
+    wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
     wav_model /= 10   # turn into nm
     logging.debug("Phoenix wav_model = {}".format(wav_model))
 
