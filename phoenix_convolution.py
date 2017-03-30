@@ -12,6 +12,8 @@ output_path = "/home/jneal/Phd/data/fullphoenix/convolved_R{0:d}k".format(int(re
 
 # Limit phoenix spectra to the K Band "K": (2.07, 2.35) to reduce file sizes and convolution time.
 band_limits = [2070, 2350]  # In nanometers
+
+
 def make_dirs(old_path, new_path):
     """Create a copy of folders in a new directory."""
     old_dirs = glob.glob(os.path.join(old_path, "*"))

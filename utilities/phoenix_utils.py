@@ -8,6 +8,7 @@ Jason Neal, Janurary 2017
 import os
 import copy
 import glob
+import logging
 import itertools
 
 import numpy as np
@@ -49,18 +50,18 @@ def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
 
     if alpha is not None:
         if abs(alpha) > 0.2:
-            print("Warning! Alpha is outside acceptable range -0.2->0.2")
+            logging.warning("Alpha is outside acceptable range -0.2->0.2")
         closest_alpha = alphas[np.abs(alphas - alpha).argmin()]
-        phoenix_glob = ("/Z{2:+4.1f}.Alpha={3:+5.2f}/*{0:05d}{1:4.2f}"
+        phoenix_glob = ("Z{2:+4.1f}.Alpha={3:+5.2f}/*{0:05d}-{1:4.2f}"
                         "{2:+4.1f}.Alpha={3:+5.2f}.PHOENIX*.fits"
                         "").format(closest_teff, closest_logg, closest_feh,
                                    closest_alpha)
     else:
-        phoenix_glob = ("/Z{2:+4.1f}/*{0:05d}{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
+        phoenix_glob = ("Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                         "").format(closest_teff, closest_logg, closest_feh)
     files = glob.glob(data_dir + phoenix_glob)
     if len(files) > 1:
-        print("More than one file returned")
+        logging.warning("More than one file returned")
     return files
 
 
@@ -122,11 +123,11 @@ def find_phoenix_models(base_dir, ref_model, mode="temp"):
     for t_, logg_, feh_ in itertools.product(glob_temps, glob_loggs, glob_fehs):
         phoenix_glob = ("/Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                         "").format(t_, logg_, feh_)
-        print(phoenix_glob)
+        logging.debug("Phoenix glob", phoenix_glob)
         model_to_find = base_dir + phoenix_glob
         files = glob.glob(model_to_find)
         file_list += files
-    print("file list", file_list)
+    logging.debug("file list", file_list)
     phoenix_models = file_list
     # folder_file = ["/".join(f.split("/")[-2:]) for f in phoenix_models]
 

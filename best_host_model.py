@@ -12,6 +12,7 @@ the same I would think unless the lines changed dramatically).
 """
 from __future__ import division, print_function
 import sys
+import logging
 import numpy as np
 from astropy.io import fits
 import matplotlib.pyplot as plt
@@ -20,18 +21,22 @@ from datetime import datetime as dt
 from utilities.chisqr import chi_squared
 from spectrum_overload.Spectrum import Spectrum
 from utilities.model_convolution import convolve_models
-from utilities.phoenix_utils import find_phoenix_models
+from utilities.phoenix_utils import find_phoenix_models2 as find_phoenix_models
 from utilities.crires_utilities import crires_resolution
-from utilities.simulation_utilities import combine_spectra
-from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
-from utilities.crires_utilities import barycorr_crires_spectrum
-from Chisqr_of_observation import plot_obs_with_model, select_observation, load_spectrum
-from Planet_spectral_simulations import load_PHOENIX_hd30501
+# from utilities.simulation_utilities import combine_spectra
+# from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
+# from utilities.crires_utilities import barycorr_crires_spectrum
+# from Chisqr_of_observation import plot_obs_with_model, select_observation, load_spectrum
+from Chisqr_of_observation import select_observation, load_spectrum
+# from Planet_spectral_simulations import load_PHOENIX_hd30501
 from utilities.phoenix_utils import spec_local_norm
 
 # from Get_filenames import get_filenames
-sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
-from IP_multi_Convolution import IPconvolution
+# sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
+# from IP_multi_Convolution import IPconvolution
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s')
 
 model_base_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
 
@@ -66,6 +71,7 @@ def xcorr_peak(spectrum, model, plot=False):
         plt.plot(model.xaxis, model.flux, label="Model")
         plt.legend()
         plt.title("Spectra")
+
         plt.subplot(212)
         plt.plot(rv, cc)
         plt.plot(rv_max, cc_max, "o")
@@ -87,11 +93,13 @@ def main():
 
     wav_model = fits.getdata(model_base_dir + "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
     wav_model /= 10   # turn into nm
+    logging.debug("Phoenix wav_model = {}".format(wav_model))
 
     original_model = "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
 
     # Function to find the good models I need
     models = find_phoenix_models(model_base_dir, original_model)
+    logging.debug("models returned by find_phoenix_models = {}".format(models))
     # models = ["", "", "", ""]
     model_chisqr_vals = np.empty_like(models)
 
@@ -130,7 +138,17 @@ def main():
     print("chisqr argmin index ", argmin_indx)
     print("min chisqr =", model_chisqr_vals[argmin_indx])
     print("min chisqr model = ", models[argmin_indx])
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    def time_func(func, *args, **kwargs):
+        start = dt.now()
+        print("starting at {}".format(start))
+        result = func(*args, **kwargs)
+        end = dt.now()
+        print("End at {}".format(end))
+        print("Runtime {}".format(end - start))
+        return result
+
+    sys.exit(time_func(main))
