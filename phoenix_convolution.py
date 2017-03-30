@@ -1,15 +1,17 @@
 import os
 import glob
 from astropy.io import fits
+from spectrum_overload.Spectrum import Spectrum
 
 # Convolve All Phoenix Spectra to 50000.
-resolution = 50000
+resolution = 50000   # 20000, 80000, 100000
 
 source_path = ("/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/"
                "HiResFITS/PHOENIX-ACES-AGSS-COND-2011")
 output_path = "/home/jneal/Phd/data/fullphoenix/convolved_R{0:d}k".format(int(resolution / 1000))
 
-
+# Limit phoenix spectra to the K Band "K": (2.07, 2.35) to reduce file sizes and convolution time.
+band_limits = [2070, 2350]  # In nanometers
 def make_dirs(old_path, new_path):
     """Create a copy of folders in a new directory."""
     old_dirs = glob.glob(os.path.join(old_path, "*"))
@@ -37,12 +39,16 @@ for folder in folders:
 
     for f in phoenix_files:
         print(f)
-
+        # Load in file
         spectrum = fits.getdata(f)
 
-        # Wavelenght narrow
+        # Wavelenght narrow to K band only 2.07, 2.35 micron
+        phoenix_spectrum = Spectrum(flux=spectrum, xaxis=wave)
+        phoenix_spectrum.wav_select(band_limits[0], band_limits[1])
 
         # Convolutions
+        # Convolution in spectrum overload?
+        # phoenix_spectrum.convolution(R, ...)
 
         # Save result to fits file in new directory.
 
