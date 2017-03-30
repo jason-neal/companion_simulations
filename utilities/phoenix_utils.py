@@ -14,6 +14,7 @@ import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.modeling import models, fitting
+from typing import List
 from utilities.param_file import parse_paramfile
 
 
@@ -115,9 +116,9 @@ def find_phoenix_models(base_dir, ref_model, mode="temp"):
     -------
     phoenix_models: list[str]
        List of filenames of phoenix models that match mode criteria.
-    """
-    # "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
 
+    Notes
+    -----
     # Phoenix parameters
     # Parameter   	Range	 Step size
     # Teff [K]	 2300 - 7000	100
@@ -126,6 +127,8 @@ def find_phoenix_models(base_dir, ref_model, mode="temp"):
     # [Fe/H]	 -4.0 - -2.0	1.0
     # 	         -2.0 - +1.0	0.5
     # [α/M]	     -0.2 - +1.2	0.2
+
+    """
     teffs = np.concatenate((np.arange(2300, 7000, 100),
                             np.arange(7000, 12100, 200)))
     loggs = np.arange(0, 6.1, 0.5)
@@ -165,6 +168,7 @@ def find_phoenix_models(base_dir, ref_model, mode="temp"):
     return phoenix_models
 
 
+#def find_phoenix_models2(base_dir: str, original_model: str) -> List[str]:    # mypy
 def find_phoenix_models2(base_dir, original_model):
     """Find other phoenix models with similar temp and metalicities.
 
@@ -198,7 +202,9 @@ def find_phoenix_models2(base_dir, original_model):
 
 
 def local_normalization(wave, flux, splits=50, method="exponential", plot=False):
-    r"""Local minimization for section of Phoenix spectra. Split spectra into many chunks and get the average of top 5\% in each bin.
+    r"""Local minimization for section of Phoenix spectra.
+
+    Split spectra into many chunks and get the average of top 5\% in each bin.
 
     Fit to those points and normalize by that.
     """
@@ -254,7 +260,9 @@ def local_normalization(wave, flux, splits=50, method="exponential", plot=False)
 
 
 def spec_local_norm(spectrum, splits=50, method="quadratic", plot=False):
-    r"""Apply local normalization on Spectrum object. Split spectra into many chunks and get the average of top 5\% in each bin.
+    r"""Apply local normalization on Spectrum object.
+
+    Split spectra into many chunks and get the average of top 5\% in each bin.
     """
     norm_spectrum = copy.copy(spectrum)
     flux_norm = local_normalization(spectrum.xaxis, spectrum.flux, splits=splits, plot=plot)
