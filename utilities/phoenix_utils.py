@@ -184,9 +184,9 @@ def find_phoenix_models2(base_dir, original_model):
     logg = float(model_name[9:13])
     metals = float(model_name[13:17])
 
-    new_temps = np.array(-400, -300, -200, -100, 0, 100, 200, 300, 400) + temp
-    new_metals = np.array(-1, -0.5, 0, 0.5, 1) + metals
-    new_loggs = np.array(-1, -0.5, 0, 0.5, 1) + logg
+    new_temps = np.arange(-400, 401, 100) + temp
+    new_metals = np.arange(-1, 1.1, 0.5) + metals
+    new_loggs = np.arange(-1, 1.1, 0.5) + logg
 
     # TODO: Deal with Z folders.
     # z = metalicities
