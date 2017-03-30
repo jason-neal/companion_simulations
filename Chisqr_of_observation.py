@@ -70,16 +70,32 @@ def select_observation(star, obs_num, chip):
         return os.path.join(path, crires_name)
 
 
-def load_spectrum(name):
-    """Load in fits file and return as a Spectrum object."""
+def load_spectrum(name, corrected=True):
+    """Load in fits file and return as a Spectrum object.
+
+    Parameters
+    ----------
+    name: str
+        Filename of spectrum.
+    corrected: bool
+        Use telluric corrected spectra. Default = True.
+
+    Returns
+    -------
+    spectrum: Spectrum
+        Spectra loaded into a Spectrum object.
+
+    """
     data = fits.getdata(name)
     hdr = fits.getheader(name)
     # Turn into Spectrum
     # Check for telluric corrected column
-    # spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Extracted_DRACS"],
-    #                    calibrated=True, header=hdr)
-    spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Corrected_DRACS"],
-                        calibrated=True, header=hdr)
+    if corrected:
+        spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Corrected_DRACS"],
+                            header=hdr)
+    else:
+        spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Extracted_DRACS"],
+                            header=hdr)
     return spectrum
 
 
