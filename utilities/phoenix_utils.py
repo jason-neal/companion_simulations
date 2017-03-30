@@ -188,13 +188,15 @@ def find_phoenix_models2(base_dir, original_model):
     new_metals = np.arange(-1, 1.1, 0.5) + metals
     new_loggs = np.arange(-1, 1.1, 0.5) + logg
 
-    # TODO: Deal with Z folders.
-    # z = metalicities
-    # "Z{new_metal}/lte0{new_temp}-{newlogg}-{new_metal}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     close_models = []
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
-        name = os.path.join(base_dir,
-                            "lte{:05d}-{:1.20f}{:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
+        if "Z" in original_model:
+            name = os.path.join(base_dir,
+                                "Z{0:+1.10}".format(m),
+                                "lte{0:05d}-{1:1.02f}{2:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
+        else:
+            name = os.path.join(base_dir,
+                            "lte{0:05d}-{1:1.02f}{2:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
 
         if "+0.0" in name:   # Positive zero is not alowed in naming
             name = name.replace("+0.0", "-0.0")
