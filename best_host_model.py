@@ -102,26 +102,29 @@ def main():
 
     closest_model = phoenix_from_params(model_base_dir, host_parameters)
     original_model = "Z-0.0/lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    logging.debug("closest_model {}".format(closest_model))
+    logging.debug("original_model {}".format(original_model))
 
     # Function to find the good models I need
     models = find_phoenix_models(model_base_dir, original_model)
-    logging.debug("models returned by find_phoenix_models = {}".format(models))
-    # models = ["", "", "", ""]
+    if isinstance(models, list):
+        logging.debug("Number of close models returned {}".format(len(models)))
+
     model_chisqr_vals = np.empty_like(models)
+    model_xcorr_vals = np.empty_like(models)
+    model_xcorr_rv_vals = np.empty_like(models)
 
     for ii, model_name in enumerate(models):
         mod_flux = fits.getdata(model_name)
         mod_header = fits.getheader(model_name)
         mod_spectrum = Spectrum(xaxis=wav_model, flux=mod_flux, header=mod_header, calibrated=True)
 
-        # Normalize
-        # Since just with high flux stars (not cool dwarfs) in this case the simple normalization might be enough.
+        # Normalize Phoenix Spectrum
         mod_spectrum.wav_select(2080, 2200)  # limits for simple normalization
         # norm_mod_spectrum = simple_normalization(mod_spectrum)
-        norm_mod_spectrum = spec_local_norm(mod_spectrum)
-        # norm_mod_spectrum = blackbody_normalization(mod_spectrum)
+        norm_mod_spectrum = spec_local_norm(mod_spectrum, plot=True)
 
-        # wav select
+        # Wav select
         norm_mod_spectrum.wav_select(np.min(observed_spectra.xaxis) - 5,
                                      np.max(observed_spectra.xaxis) + 5)  # +- 5nm of obs for convolution
 
