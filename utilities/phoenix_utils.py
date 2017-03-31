@@ -243,12 +243,8 @@ def local_normalization(wave, flux, splits=50, method="exponential", plot=False)
         norm_flux = p(org_wave)
     elif method == "exponential":
         z = np.polyfit(wav_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
-
-        def _exp_func(x, a, b):
-            """Exponetial function from polyfit parameters."""
-            return np.exp(a) * np.exp(b * x)
-
-        norm_flux = _exp_func(org_wave, z[0], z[1])
+        p = np.poly1d(z)
+        norm_flux = np.exp(p(org_wave))   # Un-log the y values.
 
     if plot:
         plt.subplot(211)
