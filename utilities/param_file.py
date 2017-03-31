@@ -28,15 +28,10 @@ def parse_paramfile(param_file, path=None):
                 pass
             else:
                 par, val = line.lower().split('=')
-                parameters[par.strip()] = val.strip()
-
-    # Turn most parameters to floats.
-    for key in parameters.keys():
-        if key in ['mean_val', 'k1', 'omega', 'eccentricity', 'tau', 'period',
-                   'm_star', 'msini ', 'm_true', 'teff', 'logg', 'fe_h']:
-            try:
-                parameters[key] = float(parameters[key])
-            except:
-                logging.warning("Could not turn {0}={2} into a float".format(key, parameters[key]))
+                try:
+                    # Turn parameters to floats if possible.
+                    parameters[par.strip()] = float(val.strip())
+                except ValueError:
+                    parameters[par.strip()] = val.strip()
 
     return parameters
