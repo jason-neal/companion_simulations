@@ -135,9 +135,10 @@ def main():
                         show=False, title="Before BERV Correction")
 
     # Berv Correct
-    # Calculate the star RV
-    parameters = {"HD30501": [23.710, 1703.1, 70.4, 0.741, 53851.5, 2073.6, 0.81, 90]}
-
+    # Calculate the star RV relative to synthetic spectum
+    #                        [mean_val, K1, omega,   e,     Tau,       Period, starmass (Msun), msini(Mjup), i]
+    parameters = {"HD30501": [23.710, 1703.1, 70.4, 0.741, 53851.5, 2073.6, 0.81, 90],
+                  "HD211847": [6.689, 291.4, 159.2, 0.685, 62030.1, 7929.4, 0.94, 19.2, 7]}
     try:
         host_params = parameters[star]
     except:
