@@ -7,6 +7,7 @@ from __future__ import division, print_function
 import os
 import ephem
 import pickle
+import logging
 import numpy as np
 from astropy.io import fits
 import multiprocess as mprocess
@@ -25,6 +26,7 @@ from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.model_convolution import apply_convolution, convolve_models
 
+debug = logging.debug
 
 # First plot the observation with the model
 def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
@@ -59,14 +61,22 @@ def select_observation(star, obs_num, chip):
         print("The Chip is not correct. It needs to be 1,2,3 or 4")
         raise Exception("Chip Error")
     else:
-
-        path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/{}-"
+        # New reduction and calibration
+        path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/2017/{}-"
                 "{}/Combined_Nods".format(star, obs_num))
-        print("Path =", path)
         filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
                                   "*_{}.nod.ms.*".format(chip))
+        debug("Filenames from 2017 reductions {}".format(filenames))
+        if len(filenames) is not 0:
+            crires_name = filenames[0]
+        else:
+            path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/{}-"
+                    "{}/Combined_Nods".format(star, obs_num))
+            print("Path =", path)
+            filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
+                                      "*_{}.nod.ms.*".format(chip))
 
-        crires_name = filenames[0]
+            crires_name = filenames[0]
         return os.path.join(path, crires_name)
 
 
