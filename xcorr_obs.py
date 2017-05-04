@@ -25,9 +25,8 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 
 # find_closest_phoenix(data_dir, teff, logg, feh, alpha=None)
-model_base_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
-phoenix_path = ("/home/jneal/Phd/data/fullphoenix/"
-                "phoenix.astro.physik.uni-goettingen.de" "/HiResFITS/PHOENIX-ACES-AGSS-COND-2011/")
+model_base_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+phoenix_path = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
 
 
 def generate_phoenix_files(data_dir, logg=4.5, feh=-0):
