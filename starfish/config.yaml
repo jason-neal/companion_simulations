@@ -16,11 +16,11 @@ plotdir : plots/
 grid:
   #raw_path: "../libraries/raw/PHOENIX/"
   raw_path: "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
-  hdf5_path: "libraries/PHOENIX_CRIRES_50k.hdf5"
+  hdf5_path: "/home/jneal/Phd/Codes/companion_simulations/starfish/libraries/PHOENIX_CRIRES_50k.hdf5"
   parname: ["temp", "logg", "Z"]
   key_name: "t{0:.0f}g{1:.1f}z{2:.1f}" # Specifies how the params are stored
   # in the HDF5 file
-  parrange: [[2200, 7000], [4.0, 5.0], [-1.0, 0.5]]
+  parrange: [[2200, 7000], [3.0, 6.0], [-1.5, 1.5]]
   wl_range: [20500, 22000]
   buffer: 50. # AA
 
