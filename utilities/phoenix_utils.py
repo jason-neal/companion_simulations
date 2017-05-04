@@ -206,7 +206,7 @@ def phoenix_name_from_params(data_dir, parameters):
 def generate_close_params(params):
     """teff, logg, Z"""
     temp, logg, metals = params[0], params[1], params[2]
-    new_temps = np.arange(-400, 401, 100) + temp
+    new_temps = np.arange(-500, 501, 100) + temp
     new_metals = np.arange(-1, 1.1, 0.5) + metals
     new_loggs = np.arange(-1, 1.1, 0.5) + logg
 
@@ -246,6 +246,9 @@ def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
     # [α/M]	     -0.2 - +1.2	0.2
 
     """
+    t_range = 400  # K
+    l_range = 1
+    f_range = 1
     teffs = np.concatenate((np.arange(2300, 7000, 100),
                             np.arange(7000, 12100, 200)))
     loggs = np.arange(0, 6.1, 0.5)
@@ -262,13 +265,13 @@ def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
         glob_loggs = loggs
         glob_fehs = fehs
     elif mode == "temp":
-        glob_temps = teffs[((teffs > (ref_temp - 400)) & (teffs < (ref_temp + 400)))]
+        glob_temps = teffs[((teffs > (ref_temp - t_range)) & (teffs < (ref_temp + t_range)))]
         glob_loggs = loggs
         glob_fehs = fehs
     elif mode == "small":
-        glob_temps = teffs[((teffs > (ref_temp - 400)) & (teffs < (ref_temp + 400)))]
-        glob_loggs = loggs[((loggs > (ref_logg - 1)) & (loggs < (ref_logg + 1)))]
-        glob_fehs = fehs[((fehs > (ref_feh - 1)) & (fehs < (ref_feh + 1)))]
+        glob_temps = teffs[((teffs > (ref_temp - t_range)) & (teffs < (ref_temp + t_range)))]
+        glob_loggs = loggs[((loggs > (ref_logg - l_range)) & (loggs < (ref_logg + l_range)))]
+        glob_fehs = fehs[((fehs > (ref_feh - f_range)) & (fehs < (ref_feh + f_range)))]
 
     file_list = []
     for t_, logg_, feh_ in itertools.product(glob_temps, glob_loggs, glob_fehs):
@@ -303,7 +306,7 @@ def find_phoenix_model_names2(base_dir, original_model):
     logg = float(model_name[9:13])
     metals = float(model_name[13:17])
 
-    new_temps = np.arange(-1000, 1001, 100) + temp
+    new_temps = np.arange(-500, 501, 100) + temp
     new_metals = np.arange(-1, 1.1, 0.5) + metals
     new_loggs = np.arange(-1, 1.1, 0.5) + logg
 
