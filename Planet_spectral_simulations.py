@@ -18,7 +18,7 @@ from utilities.simulation_utilities import add_noise
 from utilities.simulation_utilities import spectrum_plotter
 from utilities.simulation_utilities import combine_spectra
 from utilities.phoenix_utils import spec_local_norm
-
+from utilities.phoenix_utils import load_starfish_spectrum
 
 def RV_shift():
     """Doppler shift spectrum."""
@@ -69,7 +69,7 @@ def load_model_spec(pathwave, specpath, limits=None, normalize=False):
     w_mod /= 10   # turn into nm
     flux = fits.getdata(specpath)
     hdr = fits.getheader(specpath)
-    spec = Spectrum(xaxis=w_mod, flux=flux, hdr=hdr)
+    spec = Spectrum(xaxis=w_mod, flux=flux, header=hdr)
     if limits:
         """Apply wavelength limits with slicing."""
         spec = spec.wav_select(*limits)
@@ -127,8 +127,20 @@ def load_PHOENIX_hd211847(limits=None, normalize=False):
     return star_spec, bd_spec
 
 
+def load_starfish_hd211847(limits=None, normalize=False, hdr=False):
+    """Load in the phoenix spectra of HD211847 and HD211847b.
 
-    return w_mod, i_star, i_bdmod, hdr_star, hdr_bd
+    Returns:
+    star spectrum for hd211847
+    bd spectrum for hd211847b
+    """
+
+    bd_model = [3100, 4.50, 0.0]
+    star_model = [5700, 4.50, 0.0]
+    bd_spec = load_starfish_spectrum(bd_model, limits=limits, hdr=hdr, normalize=normalize)
+    star_spec = load_starfish_spectrum(star_model, limits=limits, hdr=hdr, normalize=normalize)
+
+    return star_spec, bd_spec
 
 
 def main():

@@ -14,10 +14,58 @@ import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.modeling import models, fitting
+from spectrum_overload.Spectrum import Spectrum
 from typing import List
 from utilities.param_file import parse_paramfile
 
+import Starfish
+from Starfish.grid_tools import HDF5Interface
 
+def load_normalized_starfish_spectrum(params, limits=None, hdr=False):
+    """Load spectrum from hdf5 grid file with normaliztion on.
+
+    Helper function in which normalization is turned on.
+
+    Parameters
+    ----------
+    params: list
+        Model parameters [teff, logg, Z]
+    limits: list or None
+        wl limits, default is None
+    hdr: bool
+       Include hdr information
+
+    Returns
+    -------
+    spec: spectrum
+        Spectrum object for the given stellar parameters.
+
+    """
+    return load_starfish_spectrum(params, normalize=True, limits=limits, hdr=hdr)
+
+
+def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False):
+    """Load spectrum from hdf5 grid file.
+
+    parameters: list
+        Model parameters [teff, logg, Z]
+    """
+    myHDF5 = HDF5Interface()
+    myHDF5.wl = myHDF5.wl / 10   # Turn into Nanometer
+
+    if hdr:
+        flux, myhdr = myHDF5.load_flux_hdr(np.array(params))
+         = Spectrum(flux=flux, xaxis=myHDF5.wl, hdr=myhdr)
+    else:
+        flux = myHDF5.load_flux(np.array(params))
+        spec = Spectrum(flux=flux, xaxis=myHDF5.wl)
+
+    if normalize:
+        spec = spec_local_norm(spec)
+
+    if limits is not None:
+        spec.wav_select(limits[0], limits[1])
+    return spec
 def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
     """Find the closest PHOENIX-ACES model to the stellar parameters given.
 
