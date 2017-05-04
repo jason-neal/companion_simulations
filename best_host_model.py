@@ -30,7 +30,6 @@ from utilities.crires_utilities import crires_resolution
 # from utilities.crires_utilities import barycorr_crires_spectrum
 # from Chisqr_of_observation import plot_obs_with_model, select_observation, load_spectrum
 from Chisqr_of_observation import select_observation, load_spectrum
-# from Planet_spectral_simulations import load_PHOENIX_hd30501
 from utilities.phoenix_utils import spec_local_norm
 from utilities.param_file import parse_paramfile
 # from Get_filenames import get_filenames
