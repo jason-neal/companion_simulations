@@ -6,8 +6,7 @@ from spectrum_overload.Spectrum import Spectrum
 # Convolve All Phoenix Spectra to 50000.
 resolution = 50000   # 20000, 80000, 100000
 
-source_path = ("/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/"
-               "HiResFITS/PHOENIX-ACES-AGSS-COND-2011")
+source_path = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
 output_path = "/home/jneal/Phd/data/fullphoenix/convolved_R{0:d}k".format(int(resolution / 1000))
 
 # Limit phoenix spectra to the K Band "K": (2.07, 2.35) to reduce file sizes and convolution time.
@@ -31,8 +30,7 @@ make_dirs(source_path, output_path)  # This is completed now.
 
 folders = glob.glob(os.path.join(source_path, "*"))
 
-phoenix_wave = ("/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/"
-                "HiResFITS/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
+phoenix_wave = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
 wave = fits.getdata(phoenix_wave) / 10  # Convert to nm
 
 for folder in folders:

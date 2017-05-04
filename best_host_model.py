@@ -40,8 +40,8 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 debug = logging.debug
 
-model_base_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/PHOENIX-ACES-AGSS-COND-2011/"
-wav_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
+model_base_dir = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
+wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
 
 
 def xcorr_peak(spectrum, model, plot=False):
