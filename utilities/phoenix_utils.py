@@ -3,7 +3,7 @@
 Some functions to deal with phoenix models
 i.e. searching for models with certian parameters
 
-Jason Neal, Janurary 2017
+Jason Neal, January 2017
 """
 import os
 import copy
@@ -72,7 +72,44 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False):
     return spec
 
 
-def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
+def closest_model_params(teff, logg, feh, alpha=None):
+    """Find the closest PHOENIX-ACES model parameters to the stellar parameters given.
+
+    Parameters
+    ----------
+    teff: float
+    logg: float
+    feh: float
+    alpha: float (optional)
+
+    Returns
+    -------
+    params: list of floats
+        Parameters for the closest matching model.
+
+    """
+    teffs = np.concatenate((np.arange(2300, 7000, 100),
+                            np.arange(7000, 12100, 200)))
+    loggs = np.arange(0, 6.1, 0.5)
+    fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.1, 0.5)))
+    alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if nesessary
+
+    closest_teff = teffs[np.abs(teffs - teff).argmin()]
+    closest_logg = loggs[np.abs(loggs - logg).argmin()]
+    closest_feh = fehs[np.abs(fehs - feh).argmin()]
+
+    if alpha is not None:
+        if abs(alpha) > 0.2:
+            logging.warning("Alpha is outside acceptable range -0.2->0.2")
+        closest_alpha = alphas[np.abs(alphas - alpha).argmin()]
+
+        return [closest_teff, closest_logg, closest_feh, closest_alpha]
+    else:
+        return [closest_teff, closest_logg, closest_feh]
+
+
+# find_closest_phoenix_name   # Should change to this
+def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None):
     """Find the closest PHOENIX-ACES model to the stellar parameters given.
 
     alpha parameter is  not implemented yet.
@@ -91,23 +128,16 @@ def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
         Path/Filename to the closest matching model.
 
     """
+
     if alpha is not None:
-        raise NotImplemented("Alpha not implemented")
-
-    teffs = np.concatenate((np.arange(2300, 7000, 100),
-                            np.arange(7000, 12100, 200)))
-    loggs = np.arange(0, 6.1, 0.5)
-    fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.1, 0.5)))
-    alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if nesessary
-
-    closest_teff = teffs[np.abs(teffs - teff).argmin()]
-    closest_logg = loggs[np.abs(loggs - logg).argmin()]
-    closest_feh = fehs[np.abs(fehs - feh).argmin()]
+        closest_teff, closest_logg, closest_feh, closest_alpha = closest_model_params(teff, logg, feh, alpha=alpha)
+    else:
+        closest_teff, closest_logg, closest_feh = closest_model_params(teff, logg, feh, alpha=None)
 
     if alpha is not None:
         if abs(alpha) > 0.2:
             logging.warning("Alpha is outside acceptable range -0.2->0.2")
-        closest_alpha = alphas[np.abs(alphas - alpha).argmin()]
+
         phoenix_glob = ("Z{2:+4.1f}.Alpha={3:+5.2f}/*{0:05d}-{1:4.2f}"
                         "{2:+4.1f}.Alpha={3:+5.2f}.PHOENIX*.fits"
                         "").format(closest_teff, closest_logg, closest_feh,
@@ -129,7 +159,7 @@ def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
     return files
 
 
-def phoenix_from_params(data_dir, parameters):
+def phoenix_name_from_params(data_dir, parameters):
     """Return cloeset phoenix model given a stellar parameter file.
 
     Obtain temp, metalicity, and logg from parameter file.
@@ -154,14 +184,14 @@ def phoenix_from_params(data_dir, parameters):
     if "alpha" not in params.keys():
         params["alpha"] = None
     logging.debug(params)
-    return find_closest_phoenix(data_dir, parameters["teff"], parameters["logg"], parameters["fe_h"],
-                                alpha=parameters["alpha"])
+    return find_closest_phoenix_name(data_dir, parameters["teff"], parameters["logg"], parameters["fe_h"],
+                                     alpha=parameters["alpha"])
 
 
 def generate_close_params(params):
     """teff, logg, Z"""
     temp, metals, logg = params[0], params[1], params[2]
-    new_temps = np.arange(-1000, 1001, 100) + temp
+    new_temps = np.arange(-400, 401, 100) + temp
     new_metals = np.arange(-1, 1.1, 0.5) + metals
     new_loggs = np.arange(-1, 1.1, 0.5) + logg
 
@@ -169,7 +199,7 @@ def generate_close_params(params):
         yield [t, l, m]
 
 
-def find_phoenix_models(base_dir, ref_model, mode="temp"):
+def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
     """Find other phoenix models with similar temp and metalicities.
 
     Parameters
@@ -240,8 +270,8 @@ def find_phoenix_models(base_dir, ref_model, mode="temp"):
     return phoenix_models
 
 
-# def find_phoenix_models2(base_dir: str, original_model: str) -> List[str]:    # mypy
-def find_phoenix_models2(base_dir, original_model):
+# def find_phoenix_model_names2(base_dir: str, original_model: str) -> List[str]:    # mypy
+def find_phoenix_model_names2(base_dir, original_model):
     """Find other phoenix models with similar temp and metalicities.
 
     Returns list of model name strings.

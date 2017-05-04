@@ -23,9 +23,9 @@ from utilities.chisqr import chi_squared
 from utilities.debug_utils import pv
 from spectrum_overload.Spectrum import Spectrum
 from utilities.model_convolution import convolve_models
-from utilities.phoenix_utils import find_phoenix_models2 as find_phoenix_models
-from utilities.phoenix_utils import phoenix_from_params
+from utilities.phoenix_utils import find_phoenix_model_names2 as find_phoenix_model_names
 from utilities.crires_utilities import crires_resolution
+from utilities.phoenix_utils import phoenix_name_from_params, load_normalized_phoenix_spectrum
 # from utilities.simulation_utilities import combine_spectra
 # from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 # from utilities.crires_utilities import barycorr_crires_spectrum
@@ -53,7 +53,8 @@ def xcorr_peak(spectrum, model, plot=False):
        Target Spectrum object.
     model: Spectrum
         Template Specturm object.
-
+    plot:bool
+        Turn on plots.
     Returns
     -------
     rv_max: float
@@ -100,13 +101,13 @@ def main():
     wav_model /= 10   # turn into nm
     debug("Phoenix wav_model = {}".format(wav_model))
 
-    closest_model = phoenix_from_params(model_base_dir, host_parameters)
+    closest_model = phoenix_name_from_params(model_base_dir, host_parameters)
     original_model = "Z-0.0/lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     debug("closest_model {}".format(closest_model))
     debug("original_model {}".format(original_model))
 
     # Function to find the good models I need
-    models = find_phoenix_models(model_base_dir, original_model)
+    models = find_phoenix_model_names(model_base_dir, original_model)
     if isinstance(models, list):
         debug("Number of close models returned {}".format(len(models)))
 
