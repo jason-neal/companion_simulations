@@ -49,13 +49,17 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False):
 
     parameters: list
         Model parameters [teff, logg, Z]
+    hdr: bool
+       Inlcude the model header. Default False.
+    normalize: bool
+        Locally normalize the spectrum. Default False.
     """
     myHDF5 = HDF5Interface()
     myHDF5.wl = myHDF5.wl / 10   # Turn into Nanometer
 
     if hdr:
         flux, myhdr = myHDF5.load_flux_hdr(np.array(params))
-         = Spectrum(flux=flux, xaxis=myHDF5.wl, hdr=myhdr)
+        spec = Spectrum(flux=flux, xaxis=myHDF5.wl, header=myhdr)
     else:
         flux = myHDF5.load_flux(np.array(params))
         spec = Spectrum(flux=flux, xaxis=myHDF5.wl)
