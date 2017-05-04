@@ -17,7 +17,6 @@ from datetime import datetime as dt
 
 from Get_filenames import get_filenames
 from models.alpha_model import alpha_model2
-from IP_multi_Convolution import IPconvolution
 from spectrum_overload.Spectrum import Spectrum
 from utilities.crires_utilities import crires_resolution
 from utilities.simulation_utilities import combine_spectra
@@ -27,6 +26,7 @@ from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.model_convolution import apply_convolution, convolve_models
 
 debug = logging.debug
+
 
 # First plot the observation with the model
 def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
@@ -120,12 +120,9 @@ def main():
     observed_spectra = load_spectrum(obs_name)
 
     # Load models
-    (w_mod, I_star, I_bdmod, hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
+    host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
 
     obs_resolution = crires_resolution(observed_spectra.header)
-
-    host_spectrum_model = Spectrum(flux=I_star, xaxis=w_mod, calibrated=True, header=hdr_star)
-    companion_spectrum_model = Spectrum(flux=I_bdmod, xaxis=w_mod, calibrated=True, header=hdr_bd)
 
     # Convolve models to resolution of instrument
     host_spectrum_model, companion_spectrum_model = convolve_models((host_spectrum_model, companion_spectrum_model),
@@ -204,6 +201,7 @@ def main():
     plt.ylabel("Flux ratio")
     plt.xlabel("RV (km/s)")
     plt.show()
+
 
     # Locate minimum and plot resulting model next to observation
     def find_min_chisquared(x, y, z):

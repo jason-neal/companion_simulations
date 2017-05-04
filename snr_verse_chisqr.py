@@ -27,11 +27,10 @@ def main():
 
     chip_limits = [2080, 2220]
 
-    (w_mod, I_star, I_bdmod,
-        hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=chip_limits,
+    org_star_spec, org_bd_spec  = load_PHOENIX_hd30501(limits=chip_limits,
                                                  normalize=True)
 
-    org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
+    # org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
     # org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
     resolutions = [50000]

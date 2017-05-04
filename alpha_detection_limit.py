@@ -39,12 +39,7 @@ def main():
 
     chip_limits = [2080, 2220]
 
-    (w_mod, I_star, I_bdmod,
-        hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=chip_limits,
-                                                 normalize=True)
-
-    org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
-    org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
+    org_star_spec, org_bd_spec = load_PHOENIX_hd30501(limits=chip_limits, normalize=True)
 
     resolutions = [None, 50000]
     snrs = [100, 101, 110, 111]   # Signal to noise levels
@@ -103,7 +98,7 @@ def main():
         # else:
         #    ip_xaxis, ip_flux = IPconvolution(org_star_spec.xaxis,
     #             org_star_spec.flux, chip_limits, resolution,
-    #            FWHM_lim=5.0, plot=False, verbose=True)
+    #            fwhm_lim=5.0, plot=False, verbose=True)
 
     #        star_spec = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
         #                                 calibrated=True,
@@ -111,7 +106,7 @@ def main():
 
     #        ip_xaxis, ip_flux = IPconvolution(goal_planet_shifted.xaxis,
     #            goal_planet_shifted.flux, chip_limits, resolution,
-    #            FWHM_lim=5.0, plot=False, verbose=False)
+    #            fwhm_lim=5.0, plot=False, verbose=False)
 
     #        goal_planet = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
     #                                     calibrated=True,

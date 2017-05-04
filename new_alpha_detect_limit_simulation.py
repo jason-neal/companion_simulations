@@ -4,6 +4,7 @@
 
 from __future__ import division, print_function
 import numpy as np
+import copy
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
 
@@ -74,14 +75,15 @@ def main():
 
     chip_limits = [2080, 2220]
 
-    (w_mod, I_star, I_bdmod,
-        hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=chip_limits,
-                                                 normalize=True)
+    org_star_spec, org_bd_spec = load_PHOENIX_hd30501(limits=chip_limits, normalize=True)
 
-    org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
+    #org_star_spec = Spectrum(xaxis=w_mod, flux=I_star)
     # org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
+
+    ##################
     # Assume binary stars
-    org_bd_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
+    org_bd_spec = copy.copy(org_star_spec)
+    ##########
 
     alphas = 10 ** np.linspace(-2, -0.2, 79)
     RVs = np.arange(10, 40, 0.1)
