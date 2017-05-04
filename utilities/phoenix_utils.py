@@ -205,7 +205,7 @@ def phoenix_name_from_params(data_dir, parameters):
 
 def generate_close_params(params):
     """teff, logg, Z"""
-    temp, metals, logg = params[0], params[1], params[2]
+    temp, logg, metals = params[0], params[1], params[2]
     new_temps = np.arange(-400, 401, 100) + temp
     new_metals = np.arange(-1, 1.1, 0.5) + metals
     new_loggs = np.arange(-1, 1.1, 0.5) + logg
