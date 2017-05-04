@@ -77,7 +77,7 @@ def main():
 
     org_star_spec, org_bd_spec = load_PHOENIX_hd30501(limits=chip_limits, normalize=True)
 
-    #org_star_spec = Spectrum(xaxis=w_mod, flux=I_star)
+    # org_star_spec = Spectrum(xaxis=w_mod, flux=I_star)
     # org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
     ##################
