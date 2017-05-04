@@ -10,12 +10,12 @@ import copy
 import glob
 import logging
 import itertools
-
 import numpy as np
+from typing import List
 import matplotlib.pyplot as plt
+from astropy.io import fits
 from astropy.modeling import models, fitting
 from spectrum_overload.Spectrum import Spectrum
-from typing import List
 from utilities.param_file import parse_paramfile
 
 import Starfish
@@ -66,6 +66,8 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False):
     if limits is not None:
         spec.wav_select(limits[0], limits[1])
     return spec
+
+
 def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
     """Find the closest PHOENIX-ACES model to the stellar parameters given.
 
@@ -109,7 +111,14 @@ def find_closest_phoenix(data_dir, teff, logg, feh, alpha=None):
     else:
         phoenix_glob = ("Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                         "").format(closest_teff, closest_logg, closest_feh)
+    logging.debug("Old Phoenix_glob {}".format(phoenix_glob))
     phoenix_glob = phoenix_glob.replace("+0.0", "-0.0")      # Replace positive 0 metalicity with negative 0
+    logging.debug("New Phoenix_glob {}".format(phoenix_glob))
+    joint_glob = os.path.join(data_dir, phoenix_glob)
+    logging.debug("Data dir = {}".format(data_dir))
+    logging.debug("Glob path/file {}".format(os.path.join(data_dir, phoenix_glob)))
+    logging.debug(" joint Glob path/file {}".format(joint_glob))
+
     files = glob.glob(os.path.join(data_dir, phoenix_glob))
     if len(files) > 1:
         logging.warning("More than one file returned")
@@ -227,7 +236,7 @@ def find_phoenix_models(base_dir, ref_model, mode="temp"):
     return phoenix_models
 
 
-#def find_phoenix_models2(base_dir: str, original_model: str) -> List[str]:    # mypy
+# def find_phoenix_models2(base_dir: str, original_model: str) -> List[str]:    # mypy
 def find_phoenix_models2(base_dir, original_model):
     """Find other phoenix models with similar temp and metalicities.
 
@@ -239,6 +248,8 @@ def find_phoenix_models2(base_dir, original_model):
         model_name = os.path.split(original_model)[-1]
     except:
         model_name = original_model
+    logging.debug("original_name = {}".format(original_model))
+    logging.debug("model_name = {}".format(model_name))
     temp = int(model_name[3:8])
     logg = float(model_name[9:13])
     metals = float(model_name[13:17])
@@ -255,7 +266,7 @@ def find_phoenix_models2(base_dir, original_model):
                                 "lte{0:05d}-{1:1.02f}{2:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
         else:
             name = os.path.join(base_dir,
-                            "lte{0:05d}-{1:1.02f}{2:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
+                                "lte{0:05d}-{1:1.02f}{2:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
 
         if "+0.0" in name:   # Positive zero is not alowed in naming
             name = name.replace("+0.0", "-0.0")

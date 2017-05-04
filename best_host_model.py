@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime as dt
 
 from utilities.chisqr import chi_squared
+from utilities.debug_utils import pv
 from spectrum_overload.Spectrum import Spectrum
 from utilities.model_convolution import convolve_models
 from utilities.phoenix_utils import find_phoenix_models2 as find_phoenix_models
@@ -34,10 +35,10 @@ from utilities.phoenix_utils import spec_local_norm
 from utilities.param_file import parse_paramfile
 # from Get_filenames import get_filenames
 # sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
-# from IP_multi_Convolution import IPconvolution
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
+debug = logging.debug
 
 model_base_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/PHOENIX-ACES-AGSS-COND-2011/"
 wav_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
@@ -66,7 +67,7 @@ def xcorr_peak(spectrum, model, plot=False):
     maxind = np.argmax(cc)
     rv_max, cc_max = rv[maxind], cc[maxind]
 
-    print("Cross-correlation function is maximized at dRV = ", rv_max, " km/s")
+    # debug("Cross-correlation function is maximized at dRV = {} km/s".format(rv_max))
     if plot:
         plt.subplot(211)
         plt.plot(spectrum.xaxis, spectrum.flux, label="Target")
@@ -79,7 +80,7 @@ def xcorr_peak(spectrum, model, plot=False):
         plt.plot(rv_max, cc_max, "o")
         plt.title("Cross correlation plot")
         plt.show()
-    return rv[maxind], cc[maxind]
+    return float(rv[maxind]), float(cc[maxind])
 
 
 def main():
@@ -97,17 +98,17 @@ def main():
 
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
     wav_model /= 10   # turn into nm
-    logging.debug("Phoenix wav_model = {}".format(wav_model))
+    debug("Phoenix wav_model = {}".format(wav_model))
 
     closest_model = phoenix_from_params(model_base_dir, host_parameters)
     original_model = "Z-0.0/lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-    logging.debug("closest_model {}".format(closest_model))
-    logging.debug("original_model {}".format(original_model))
+    debug("closest_model {}".format(closest_model))
+    debug("original_model {}".format(original_model))
 
     # Function to find the good models I need
     models = find_phoenix_models(model_base_dir, original_model)
     if isinstance(models, list):
-        logging.debug("Number of close models returned {}".format(len(models)))
+        debug("Number of close models returned {}".format(len(models)))
 
     model_chisqr_vals = np.empty_like(models)
     model_xcorr_vals = np.empty_like(models)
@@ -130,6 +131,7 @@ def main():
         # Convolve to resolution of instrument
         conv_mod_spectrum = convolve_models(norm_mod_spectrum, obs_resolution, chip_limits=None)
 
+        # debug(conv_mod_spectrum)
         # Find crosscorrelation RV
         # # Should run though all models and find best rv to apply uniformly
         rvoffset, cc_max = xcorr_peak(observed_spectra, conv_mod_spectrum, plot=True)
@@ -141,6 +143,7 @@ def main():
 
         model_chisqr_vals[ii] = model_chi_val
 
+    debug("After plot")
     print("chisqr vals", model_chisqr_vals)
     argmin_indx = np.argmin(model_chisqr_vals)
     print("chisqr argmin index ", argmin_indx)
@@ -152,11 +155,11 @@ def main():
 if __name__ == "__main__":
     def time_func(func, *args, **kwargs):
         start = dt.now()
-        print("starting at {}".format(start))
+        print("Starting at: {}".format(start))
         result = func(*args, **kwargs)
         end = dt.now()
-        print("End at {}".format(end))
-        print("Runtime {}".format(end - start))
+        print("Endded at: {}".format(end))
+        print("Runtime: {}".format(end - start))
         return result
 
     sys.exit(time_func(main))
