@@ -21,6 +21,21 @@ from utilities.param_file import parse_paramfile
 import Starfish
 from Starfish.grid_tools import HDF5Interface
 
+
+def load_normalized_phoenix_spectrum(phoenix_name, limits=None):
+    wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+    wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
+    wav_model /= 10   # turn into nanometers
+    flux = fits.getdata(phoenix_name)
+    spec = Spectrum(flux=flux, xaxis=wav_model)
+    # Limit to K band
+    spec.wav_select(2070, 2350)
+    spec = spec_local_norm(spec)
+    if limits is not None:
+        spec.wav_select(*limits)
+    return spec
+
+
 def load_normalized_starfish_spectrum(params, limits=None, hdr=False):
     """Load spectrum from hdf5 grid file with normaliztion on.
 
@@ -288,7 +303,7 @@ def find_phoenix_model_names2(base_dir, original_model):
     logg = float(model_name[9:13])
     metals = float(model_name[13:17])
 
-    new_temps = np.arange(-400, 401, 100) + temp
+    new_temps = np.arange(-1000, 1001, 100) + temp
     new_metals = np.arange(-1, 1.1, 0.5) + metals
     new_loggs = np.arange(-1, 1.1, 0.5) + logg
 
