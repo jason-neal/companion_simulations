@@ -97,6 +97,17 @@ def phoenix_from_params(data_dir, parameters):
                                 alpha=parameters["alpha"])
 
 
+def generate_close_params(params):
+    """teff, logg, Z"""
+    temp, metals, logg = params[0], params[1], params[2]
+    new_temps = np.arange(-1000, 1001, 100) + temp
+    new_metals = np.arange(-1, 1.1, 0.5) + metals
+    new_loggs = np.arange(-1, 1.1, 0.5) + logg
+
+    for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
+        yield [t, l, m]
+
+
 def find_phoenix_models(base_dir, ref_model, mode="temp"):
     """Find other phoenix models with similar temp and metalicities.
 
