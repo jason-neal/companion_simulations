@@ -68,7 +68,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False):
         spec = spec_local_norm(spec)
 
     if limits is not None:
-        spec.wav_select(limits[0], limits[1])
+        spec.wav_select(*limits)
     return spec
 
 
