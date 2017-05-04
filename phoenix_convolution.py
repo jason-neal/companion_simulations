@@ -46,7 +46,7 @@ for folder in folders:
 
         # Wavelenght narrow to K band only 2.07, 2.35 micron
         phoenix_spectrum = Spectrum(flux=spectrum, xaxis=wave)
-        phoenix_spectrum.wav_select(band_limits[0], band_limits[1])
+        phoenix_spectrum.wav_select(*band_limits)
 
         # Convolutions
         # Convolution in spectrum overload?
