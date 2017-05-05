@@ -70,9 +70,9 @@ def load_model_spec(pathwave, specpath, limits=None, normalize=False):
     flux = fits.getdata(specpath)
     hdr = fits.getheader(specpath)
     spec = Spectrum(xaxis=w_mod, flux=flux, header=hdr)
-    if limits:
+    if limits is not None:
         """Apply wavelength limits with slicing."""
-        spec = spec.wav_select(*limits)
+        spec.wav_select(*limits)
 
     if normalize:
         """Apply normalization to loaded spectrum."""
