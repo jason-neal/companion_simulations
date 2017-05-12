@@ -9,6 +9,7 @@ import ephem
 import pickle
 import logging
 import numpy as np
+
 from astropy.io import fits
 import multiprocess as mprocess
 import matplotlib.pyplot as plt
@@ -100,6 +101,10 @@ def load_spectrum(name, corrected=True):
     """
     data = fits.getdata(name)
     hdr = fits.getheader(name)
+
+    # TODO: log lambda sampling.
+    #      see starfish
+
     # Turn into Spectrum
     # Check for telluric corrected column
     if corrected:
@@ -196,9 +201,9 @@ def main():
     # Plot memmap
     # plt.subplot(2, 1, 1)
     x, y = np.meshgrid(rvs, alphas)
-    plt.figure(figsize=(7, 7))
-    plt.contourf(x, y, np.log10(obs_chisqr_parallel.reshape(len(alphas), len(rvs))), 100)
-
+    fig = plt.figure(figsize=(7, 7))
+    cf = plt.contourf(x, y, np.log10(obs_chisqr_parallel.reshape(len(alphas), len(rvs))), 100)
+    cbar = fig.colorbar(cf)
     plt.title("Sigma chisquared")
     plt.ylabel("Flux ratio")
     plt.xlabel("RV (km/s)")
@@ -229,8 +234,9 @@ def main():
     plt.show()
 
     # Dump the results into a pickle file
+    pickle_path = "/home/jneal/.chisqrpickles/"
     pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obs_num, chip)
-    with open(os.path.join(path, pickle_name), "wb") as f:
+    with open(os.path.join(pickle_path, pickle_name), "wb") as f:
         """Pickle all the necessary parameters to store."""
         pickle.dump((rvs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,
                     rv_solution, alpha_solution, min_chisqr, min_loc, solution_model), f)
