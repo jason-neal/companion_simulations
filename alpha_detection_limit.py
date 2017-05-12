@@ -19,8 +19,10 @@ import time
 import copy
 import scipy
 import pickle
+import logging
 import numpy as np
 from tqdm import tqdm
+from utilities.debug_utils import pv
 from collections import defaultdict
 
 from spectrum_overload.Spectrum import Spectrum
@@ -29,6 +31,10 @@ from utilities.simulate_obs import generate_observations
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 from utilities.chisqr import chi_squared, alternate_chi_squared
 from utilities.model_convolution import apply_convolution, store_convolutions
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s')
+debug = logging.debug
 
 
 def main():

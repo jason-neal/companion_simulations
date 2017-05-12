@@ -14,12 +14,15 @@ import numpy as np
 from typing import List
 import matplotlib.pyplot as plt
 from astropy.io import fits
+from utilities.debug_utils import pv
 from astropy.modeling import models, fitting
 from spectrum_overload.Spectrum import Spectrum
 from utilities.param_file import parse_paramfile
 
 import Starfish
 from Starfish.grid_tools import HDF5Interface
+
+debug = logging.debug
 
 
 def load_normalized_phoenix_spectrum(phoenix_name, limits=None):
@@ -387,8 +390,10 @@ def spec_local_norm(spectrum, splits=50, method="quadratic", plot=False):
 
     Split spectra into many chunks and get the average of top 5\% in each bin.
     """
+    debug(pv("spectrum"))
     norm_spectrum = copy.copy(spectrum)
-    flux_norm = local_normalization(spectrum.xaxis, spectrum.flux, splits=splits, plot=plot)
+    debug(pv("norm_spectrum"))
+    flux_norm = local_normalization(norm_spectrum.xaxis, norm_spectrum.flux, splits=splits, plot=plot)
     norm_spectrum.flux = flux_norm
 
     return norm_spectrum

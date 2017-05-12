@@ -8,9 +8,11 @@ To determine the recovery of planetary spectra.
 from __future__ import division, print_function
 import os
 import copy
+import logging
 import numpy as np
 from astropy.io import fits
 import matplotlib.pyplot as plt
+from utilities.debug_utils import pv
 from spectrum_overload.Spectrum import Spectrum
 # from todcor import todcor
 # from todcor import create_cross_correlations
@@ -19,6 +21,11 @@ from utilities.simulation_utilities import spectrum_plotter
 from utilities.simulation_utilities import combine_spectra
 from utilities.phoenix_utils import spec_local_norm
 from utilities.phoenix_utils import load_starfish_spectrum
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s')
+debug = logging.debug
+
 
 def RV_shift():
     """Doppler shift spectrum."""
@@ -70,6 +77,8 @@ def load_model_spec(pathwave, specpath, limits=None, normalize=False):
     flux = fits.getdata(specpath)
     hdr = fits.getheader(specpath)
     spec = Spectrum(xaxis=w_mod, flux=flux, header=hdr)
+
+    debug(pv("spec.xaxis"))
     if limits is not None:
         """Apply wavelength limits with slicing."""
         spec.wav_select(*limits)
@@ -78,6 +87,7 @@ def load_model_spec(pathwave, specpath, limits=None, normalize=False):
         """Apply normalization to loaded spectrum."""
         if limits is None:
             print("Warning! Limits should be given when using normalization")
+            print("specturm for normalize", spec)
         spec = spec_local_norm(spec)
     return spec
 

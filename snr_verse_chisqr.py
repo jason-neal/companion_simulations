@@ -12,6 +12,7 @@ import numpy as np
 from collections import defaultdict
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 # from utilities.simulation_utilities import add_noise
+from utilities.debug_utils import pv
 from utilities.chisqr import chi_squared
 from spectrum_overload.Spectrum import Spectrum
 
