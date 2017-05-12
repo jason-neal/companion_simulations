@@ -14,7 +14,7 @@ import multiprocess as mprocess
 import matplotlib.pyplot as plt
 from ajplanet import pl_rv_array
 from datetime import datetime as dt
-
+from utilities.debug_utils import pv
 from Get_filenames import get_filenames
 from models.alpha_model import alpha_model2
 from spectrum_overload.Spectrum import Spectrum
@@ -25,6 +25,8 @@ from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.model_convolution import apply_convolution, convolve_models
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s')
 debug = logging.debug
 
 

@@ -18,6 +18,7 @@ import os
 import sys
 import time
 import pickle
+import logging
 import scipy.stats
 import numpy as np
 from tqdm import tqdm
@@ -26,7 +27,7 @@ import matplotlib.pyplot as plt
 import multiprocess as mprocess
 from collections import defaultdict
 from datetime import datetime as dt
-
+from utilities.debug_utils import pv
 # from scipy.stats import chisquare
 from utilities.simulation_utilities import combine_spectra
 # from utilities.simulation_utilities import add_noise
@@ -50,6 +51,10 @@ cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s')
+debug = logging.debug
 
 
 def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,
