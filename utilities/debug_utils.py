@@ -1,5 +1,6 @@
 import inspect
 
+
 def pv(name):
     """Return the command name and the result"""
     frame = inspect.currentframe().f_back
