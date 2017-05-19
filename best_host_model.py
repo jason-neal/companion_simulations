@@ -15,17 +15,17 @@ import os
 import sys
 import logging
 import numpy as np
+import scipy as sp
 from astropy.io import fits
 import matplotlib.pyplot as plt
 from datetime import datetime as dt
-
-from utilities.chisqr import chi_squared
 from utilities.debug_utils import pv
+from utilities.chisqr import chi_squared
 from spectrum_overload.Spectrum import Spectrum
 from utilities.model_convolution import convolve_models
 from utilities.phoenix_utils import find_phoenix_model_names2 as find_phoenix_model_names
-from utilities.crires_utilities import crires_resolution
 from utilities.phoenix_utils import phoenix_name_from_params, load_normalized_phoenix_spectrum
+from utilities.crires_utilities import crires_resolution, barycorr_crires_spectrum
 # from utilities.simulation_utilities import combine_spectra
 # from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 # from utilities.crires_utilities import barycorr_crires_spectrum
@@ -69,6 +69,7 @@ def xcorr_peak(spectrum, model, plot=False):
     rv_max, cc_max = rv[maxind], cc[maxind]
 
     # debug("Cross-correlation function is maximized at dRV = {} km/s".format(rv_max))
+
     if plot:
         plt.subplot(211)
         plt.plot(spectrum.xaxis, spectrum.flux, label="Target")
@@ -94,7 +95,11 @@ def main():
     obs_name = select_observation(star, obs_num, chip)
 
     # Load observation
+    uncorrected_spectra = load_spectrum(obs_name)
     observed_spectra = load_spectrum(obs_name)
+    observed_spectra = barycorr_crires_spectrum(observed_spectra, -22)
+    observed_spectra.flux /= 1.02
+
     obs_resolution = crires_resolution(observed_spectra.header)
 
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
