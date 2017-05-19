@@ -172,6 +172,26 @@ def main():
     print("Max Correlation model = ", models[xcorr_argmax_indx].split("/")[-2:])
     print("Min Chisqr model = ", models[chisqr_argmin_indx].split("/")[-2:])
 
+    limits = [2110, 2160]
+    best_model = models[chisqr_argmin_indx]
+    best_model_spec = load_normalized_phoenix_spectrum(best_model, limits=limits)
+    best_model_spec = convolve_models([best_model_spec], obs_resolution, chip_limits=None)[0]
+
+    best_xcorr_model = models[xcorr_argmax_indx]
+    best_xcorr_model_spec = load_normalized_phoenix_spectrum(best_xcorr_model, limits=limits)
+    best_xcorr_model_spec = convolve_models([best_xcorr_model_spec], obs_resolution, chip_limits=None)[0]
+
+    close_model_spec = load_normalized_phoenix_spectrum(closest_model[0], limits=limits)
+    close_model_spec = convolve_models([close_model_spec], obs_resolution, chip_limits=None)[0]
+
+    plt.plot(observed_spectra.xaxis, observed_spectra.flux, label="Observations")
+    plt.plot(best_model_spec.xaxis, best_model_spec.flux, label="Best Model")
+    plt.plot(best_xcorr_model_spec.xaxis, best_xcorr_model_spec.flux, label="Best xcorr Model")
+    plt.plot(close_model_spec.xaxis, close_model_spec.flux, label="Close Model")
+    plt.legend()
+    plt.xlim(*limits)
+    plt.show()
+
     debug("After plot")
 
 
