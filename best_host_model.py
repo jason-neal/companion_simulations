@@ -121,36 +121,58 @@ def main():
         mod_spectrum = Spectrum(xaxis=wav_model, flux=mod_flux, header=mod_header, calibrated=True)
 
         # Normalize Phoenix Spectrum
-        mod_spectrum.wav_select(2080, 2200)  # limits for simple normalization
+        # mod_spectrum.wav_select(2080, 2200)  # limits for simple normalization
+        mod_spectrum.wav_select(2105, 2165)  # limits for simple normalization
         # norm_mod_spectrum = simple_normalization(mod_spectrum)
-        norm_mod_spectrum = spec_local_norm(mod_spectrum, plot=True)
+        norm_mod_spectrum = spec_local_norm(mod_spectrum, plot=False)
 
         # Wav select
         norm_mod_spectrum.wav_select(np.min(observed_spectra.xaxis) - 5,
                                      np.max(observed_spectra.xaxis) + 5)  # +- 5nm of obs for convolution
 
         # Convolve to resolution of instrument
-        conv_mod_spectrum = convolve_models(norm_mod_spectrum, obs_resolution, chip_limits=None)
-
+        conv_mod_spectrum = convolve_models([norm_mod_spectrum], obs_resolution, chip_limits=None)[0]
         # debug(conv_mod_spectrum)
         # Find crosscorrelation RV
         # # Should run though all models and find best rv to apply uniformly
-        rvoffset, cc_max = xcorr_peak(observed_spectra, conv_mod_spectrum, plot=True)
+        rvoffset, cc_max = xcorr_peak(observed_spectra, conv_mod_spectrum, plot=False)
 
         # Interpolate to obs
         conv_mod_spectrum.spline_interpolate_to(observed_spectra)
         # conv_mod_spectrum.interpolate1d_to(observed_spectra)
         model_chi_val = chi_squared(observed_spectra.flux, conv_mod_spectrum.flux)
 
+        # argmax = np.argmax(cc_max)
         model_chisqr_vals[ii] = model_chi_val
+        model_xcorr_vals[ii] = cc_max
+        model_xcorr_rv_vals[ii] = rvoffset
+
+    debug(pv("model_chisqr_vals"))
+    debug(pv("model_xcorr_vals"))
+    chisqr_argmin_indx = np.argmin(model_chisqr_vals)
+    xcorr_argmax_indx = np.argmax(model_xcorr_vals)
+
+    debug(pv("chisqr_argmin_indx"))
+    debug(pv("xcorr_argmax_indx"))
+
+    debug(pv("model_chisqr_vals"))
+    print("Minimum  Chisqr value =", model_chisqr_vals[chisqr_argmin_indx])  # , min(model_chisqr_vals)
+    print("Chisqr at max correlation value", model_chisqr_vals[chisqr_argmin_indx])
+
+    print("model_xcorr_vals = {}".format(model_xcorr_vals))
+    print("Maximum Xcorr value =", model_xcorr_vals[xcorr_argmax_indx])  # , max(model_xcorr_vals)
+    print("Xcorr at min Chiqsr", model_xcorr_vals[chisqr_argmin_indx])
+
+    debug(pv("model_xcorr_rv_vals"))
+    print("RV at max xcorr =", model_xcorr_rv_vals[xcorr_argmax_indx])
+    # print("Meadian RV val =", np.median(model_xcorr_rv_vals))
+    print(pv("model_xcorr_rv_vals[chisqr_argmin_indx]"))
+    # print(pv("sp.stats.mode(np.around(model_xcorr_rv_vals))"))
+
+    print("Max Correlation model = ", models[xcorr_argmax_indx].split("/")[-2:])
+    print("Min Chisqr model = ", models[chisqr_argmin_indx].split("/")[-2:])
 
     debug("After plot")
-    print("chisqr vals", model_chisqr_vals)
-    argmin_indx = np.argmin(model_chisqr_vals)
-    print("chisqr argmin index ", argmin_indx)
-    print("min chisqr =", model_chisqr_vals[argmin_indx])
-    print("min chisqr model = ", models[argmin_indx])
-    return 0
 
 
 if __name__ == "__main__":
