@@ -25,6 +25,10 @@ from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.model_convolution import apply_convolution, convolve_models
 
+
+from utilities.phoenix_utils import load_starfish_spectrum
+from Planet_spectral_simulations import load_starfish_hd211847
+
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 debug = logging.debug
@@ -34,9 +38,11 @@ debug = logging.debug
 def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
     """Plot the obseved spectrum against the model to check that they are "compatiable"."""
     plt.figure()
-    plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
+    #plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
+    plt.plot(obs.xaxis, obs.flux, label="Observed")
     # plt.plot(obs.xaxis, np.isnan(obs.flux) + 1, "o", ms=15, label="Nans in obs")
-    plt.plot(model1.xaxis, model1.flux + 1.1, label="model1")
+    #plt.plot(model1.xaxis, model1.flux + 1.1, label="model1")
+    plt.plot(model1.xaxis, model1.flux, label="model1")
     if model2:
         plt.plot(model2.xaxis, model2.flux, label="model2")
     plt.legend(loc=0)
@@ -116,7 +122,7 @@ def main():
     """Main."""
     star = "HD211847"
     obs_num = "2"
-    chip = 1
+    chip = 3
     obs_name, path = select_observation(star, obs_num, chip)
 
     # Load observation
@@ -126,15 +132,17 @@ def main():
         # Ignore first 40 pixels
         observed_spectra.wav_select(observed_spectra.xaxis[40], observed_spectra.xaxis[-1])
 
+    observed_spectra.flux = observed_spectra.flux / float(np.median(observed_spectra.flux[observed_spectra.flux > 1]))
     # Load models
     # host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
-    host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd211847(limits=[2100, 2200], normalize=True)
+    # host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd211847(limits=[2100, 2200], normalize=True)
+    host_spectrum_model, companion_spectrum_model = load_starfish_hd211847(limits=[2100, 2200], normalize=True)
 
     obs_resolution = crires_resolution(observed_spectra.header)
 
     # Convolve models to resolution of instrument
-    host_spectrum_model, companion_spectrum_model = convolve_models((host_spectrum_model, companion_spectrum_model),
-                                                                    obs_resolution, chip_limits=None)
+    #old_host_spectrum_model, old_companion_spectrum_model = convolve_models((old_host_spectrum_model, old_companion_spectrum_model),
+    #                                                                obs_resolution, chip_limits=None)
 
     plot_obs_with_model(observed_spectra, host_spectrum_model, companion_spectrum_model,
                         show=False, title="Before BERV Correction")
@@ -159,30 +167,29 @@ def main():
     host_rv = pl_rv_array(jd, *host_params[0:6])[0]
     print("host_rv", host_rv, "km/s")
 
-    offset = -host_rv  # -22
-    debug(pv("offset"))
-    # offset = 0  # -22
+    offset = -host_rv  # -To shift to host star reference.
+    debug("Host rv " + pv("offset"))
+
+
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
-    # This introduces nans into the observed spectrum
+    # This introduces nans into the observed spectrum  (at the ends)
     berv_corrected_observed_spectra.wav_select(*berv_corrected_observed_spectra.xaxis[
                                                np.isfinite(berv_corrected_observed_spectra.flux)][[0, -1]])
-    # Shift to star RV
 
     plot_obs_with_model(berv_corrected_observed_spectra, host_spectrum_model,
                         companion_spectrum_model, title="After BERV Correction")
 
-    # print("\nWarning!!!\n BERV is not good have added a offset to get rest working\n")
-
     # Chisquared fitting
-    alphas = 10**np.linspace(-4, -0.5, 100)
-    rvs = np.arange(-50, 50, 0.05)
+    alphas = 10**np.linspace(-4, -0.35, 100)
+    # rvs = np.arange(-50, 50, 0.05)
+    rvs = np.arange(-100, 100, 0.1)
 
     # chisqr_store = np.empty((len(alphas), len(rvs)))
     observed_limits = [np.floor(berv_corrected_observed_spectra.xaxis[0]),
                        np.ceil(berv_corrected_observed_spectra.xaxis[-1])]
     print("Observed_limits ", observed_limits)
 
-    n_jobs = 1
+    n_jobs = 4
     if n_jobs is None:
         n_jobs = mprocess.cpu_count() - 1
     start_time = dt.now()
@@ -207,6 +214,17 @@ def main():
     fig = plt.figure(figsize=(7, 7))
     cf = plt.contourf(x, y, np.log10(obs_chisqr_parallel.reshape(len(alphas), len(rvs))), 100)
     cbar = fig.colorbar(cf)
+    cbar.ax.set_ylabel('Log10 Chisqr')
+    plt.title("Sigma chisquared")
+    plt.ylabel("Flux ratio")
+    plt.xlabel("RV (km/s)")
+    plt.show()
+
+    x, y = np.meshgrid(rvs, alphas)
+    fig = plt.figure(figsize=(7, 7))
+    cf = plt.contourf(x, y, (obs_chisqr_parallel.reshape(len(alphas), len(rvs))), 100)
+    cbar = fig.colorbar(cf)
+    cbar.ax.set_ylabel('Chisqr')
     plt.title("Sigma chisquared")
     plt.ylabel("Flux ratio")
     plt.xlabel("RV (km/s)")
@@ -230,7 +248,7 @@ def main():
                                   observed_limits)
     # alpha_model2(alpha, rv, host, companion, limits, new_x=None):
 
-    plt.plot(solution_model.xaxis, solution_model.flux, label="Min chisqr solution")
+    plt.plot(solution_model.xaxis, solution_model.flux, label="Min chisqr solution, ratio={}".format(alpha_solution))
     plt.plot(berv_corrected_observed_spectra.xaxis, berv_corrected_observed_spectra.flux, label="Observation")
     plt.legend(loc=0)
     plt.show()
