@@ -24,7 +24,7 @@ class CRIRES_50k(Instrument):
 print(CRIRES_50k())
 
 # Process the grid and save to the hdf5 file.
-mygrid = PHOENIX()
+mygrid = PHOENIX(norm=False, air=False)    # Disable normalization to solar boloametic flux.
 instrument = CRIRES_50k()
 # HDF5Creator(GridInterface, filename, Instrument, ranges=None, key_name='t{0:.0f}g{1:.1f}', vsinis=None)
 # Specify hdf5_path in config.yaml file.
