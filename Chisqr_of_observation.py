@@ -125,6 +125,9 @@ def main():
 
     # Load observation
     observed_spectra = load_spectrum(obs_name)
+    if chip == 4:
+        # Ignore first 40 pixels
+        observed_spectra.wav_select(observed_spectra.xaxis[40], observed_spectra.xaxis[-1])
 
     # Load models
     host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
