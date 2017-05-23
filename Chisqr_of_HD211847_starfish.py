@@ -118,11 +118,8 @@ def load_spectrum(name, corrected=True):
     return spectrum
 
 
-def main():
+def main(star="HD211847", obs_num="2", chip=1):
     """Main."""
-    star = "HD211847"
-    obs_num = "2"
-    chip = 3
     obs_name, path = select_observation(star, obs_num, chip)
 
     # Load observation
@@ -132,7 +129,8 @@ def main():
         # Ignore first 40 pixels
         observed_spectra.wav_select(observed_spectra.xaxis[40], observed_spectra.xaxis[-1])
 
-    observed_spectra.flux = observed_spectra.flux / float(np.median(observed_spectra.flux[observed_spectra.flux > 1]))
+    # observed_spectra.flux = observed_spectra.flux / float(np.median(observed_spectra.flux[observed_spectra.flux > 1]))
+    observed_spectra.flux = observed_spectra.flux / 1.02   # This changes the flux ratio.
     # Load models
     # host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
     # host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd211847(limits=[2100, 2200], normalize=True)
@@ -141,7 +139,7 @@ def main():
     obs_resolution = crires_resolution(observed_spectra.header)
 
     # Convolve models to resolution of instrument
-    #old_host_spectrum_model, old_companion_spectrum_model = convolve_models((old_host_spectrum_model, old_companion_spectrum_model),
+    # old_host_spectrum_model, old_companion_spectrum_model = convolve_models((old_host_spectrum_model, old_companion_spectrum_model),
     #                                                                obs_resolution, chip_limits=None)
 
     plot_obs_with_model(observed_spectra, host_spectrum_model, companion_spectrum_model,
@@ -262,4 +260,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    star = "HD211847"
+    obs_num = "2"
+    chip = 1
+    main(star, obs_num, chip)
