@@ -12,21 +12,22 @@ The rv shift occurs before the addition.
 def no_alpha(rv, host, companion, limits, new_x=None, normalize=True):
     """Entangled spectrum model with entrinsic flux ratio.
 
+    Need to make sure to mulitply by the radius**2 of the respective star.
+
     Parameters
     ----------
     rv: float
         rv offset of the companion spectrum.
     host: Specturm
-        Unnomalized model Spectrum of host.
+        Unnomalized model Spectrum of host. Scaled by area.
     companion: Spectrum
-        Unnomalized model Spectrum of companion.
-
+        Unnomalized model Spectrum of companion. Scaled by area.
     limits: list of float
         Wavelength limits to apply after rv shift.
-
     new_x: array, None
         New xaxis to return results for. e.g. observation.xaxis.
-
+    normalize: bool
+        Normalize the spectrum after combining.
 
     returns:
     no_alpha_spec: Spectrum
