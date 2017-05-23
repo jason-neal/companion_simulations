@@ -21,7 +21,7 @@ from spectrum_overload.Spectrum import Spectrum
 from utilities.crires_utilities import crires_resolution
 from utilities.simulation_utilities import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501, load_PHOENIX_hd211847
-from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
+from utilities.chisqr import parallel_chisqr  # , alpha_model
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.model_convolution import apply_convolution, convolve_models
 
