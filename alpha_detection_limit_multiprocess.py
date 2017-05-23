@@ -35,10 +35,9 @@ from Planet_spectral_simulations import load_PHOENIX_hd30501
 
 # from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
-# from joblib import Parallel, delayed
 from utilities.simulation_utilities import spectrum_plotter
 from utilities.chisqr import chi_squared
-from new_alpha_detect_limit_simulation import parallel_chisqr
+from utilities.chisqr import parallel_chisqr
 from models.alpha_model import alpha_model
 
 from utilities.model_convolution import store_convolutions

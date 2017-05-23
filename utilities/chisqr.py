@@ -2,6 +2,7 @@
 
 import numpy as np
 from numba import jit
+from joblib import Parallel, delayed
 
 
 @jit
@@ -42,3 +43,23 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
         print("Spectrum_2", len(spectrum_2))
 
         raise Exception("TODO: make xaxis equal in chisquare of spectrum")
+
+
+def model_chisqr_wrapper(spectrum_1, model, params, error=None):
+    """Evaluate model and call chisquare."""
+    # print("params for model", params)
+    # params = copy.copy(params)
+    evaluated_model = model(*params)  # unpack parameters
+
+    if np.all(np.isnan(evaluated_model.flux)):
+        raise Exception("Evaluated model is all Nans")
+
+    return spectrum_chisqr(spectrum_1, evaluated_model, error=error)
+
+
+def parallel_chisqr(iter1, iter2, observation, model_func, model_params, n_jobs=1):
+    """Parallel chisqr calculation with two iterables."""
+    grid = Parallel(n_jobs=n_jobs)(delayed(model_chisqr_wrapper)(observation,
+                                   model_func, (a, b, *model_params))
+                                   for a in iter1 for b in iter2)
+    return np.asarray(grid)

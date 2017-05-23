@@ -7,11 +7,10 @@ import numpy as np
 import copy
 import logging
 import matplotlib.pyplot as plt
-from joblib import Parallel, delayed
 
 # self written modules
 from utilities.debug_utils import pv
-from utilities.chisqr import spectrum_chisqr
+from utilities.chisqr import spectrum_chisqr, parallel_chisqr
 from models.alpha_model import alpha_model
 from spectrum_overload.Spectrum import Spectrum
 from utilities.simulation_utilities import combine_spectra
@@ -21,27 +20,6 @@ from Planet_spectral_simulations import load_PHOENIX_hd30501
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 debug = logging.debug
-
-
-def model_chisqr_wrapper(spectrum_1, model, params, error=None):
-    """Evaluate model and call chisquare."""
-    # print("params for model", params)
-    # params = copy.copy(params)
-    evaluated_model = model(*params)  # unpack parameters
-
-    if np.all(np.isnan(evaluated_model.flux)):
-        raise Exception("Evaluated model is all Nans")
-
-    return spectrum_chisqr(spectrum_1, evaluated_model, error=error)
-
-
-# @memory.cache
-def parallel_chisqr(iter1, iter2, observation, model_func, model_params, n_jobs=1):
-
-    grid = Parallel(n_jobs=n_jobs)(delayed(model_chisqr_wrapper)(observation,
-                                   model_func, (a, b, *model_params))
-                                   for a in iter1 for b in iter2)
-    return np.asarray(grid)
 
 
 def main():

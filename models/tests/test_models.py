@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 from utilities.phoenix_utils import load_starfish_spectrum
 
+from models.no_alpha_model import no_alpha
+from models.alpha_model import alpha_model2
 """Try out the models and how they look.
 """
 
@@ -29,12 +31,9 @@ plt.title("Normalized spectra")
 plt.show()
 
 limits = [2100, 2170]
-from models.no_alpha_model import no_alpha
 
 no_alpha_spec = no_alpha(100, host_unnorm, comp_unnorm, limits=limits, normalize=True)
 
-
-from models.alpha_model import alpha_model2
 
 #alpha_join_50 = alpha_model2(0.5, 100, host_norm, comp_norm, limits=limits)
 #alpha_join_30 = alpha_model2(0.3, 100, host_norm, comp_norm, limits=limits)
@@ -53,7 +52,3 @@ plt.plot(alpha_join_10.xaxis, alpha_join_10.flux, label="Alpha 10%")
 plt.legend()
 plt.title("Combined")
 plt.show()
-
-
-"""The amplitude of the compaion does not seem to be correct here, I did not think that it would be able the specturm of the host. just closer. need to look into this!!. """
-raise
