@@ -1,7 +1,7 @@
 language: python
 python:
     - "3.5"
-    #- "3.6"   nmultiprocess is not yet py36 compatible
+    - "3.6"
 
 before_install:
   # http://conda.pydata.org/docs/travis.html
