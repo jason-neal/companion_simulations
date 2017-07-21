@@ -40,15 +40,15 @@ def main():
     ##########
 
     alphas = 10 ** np.linspace(-2, -0.2, 79)
-    RVs = np.arange(10, 40, 0.1)
+    rvs = np.arange(10, 40, 0.1)
 
     # RV and alpha value of Simulations
-    RV_val = 20.2
-    Alpha = 0.1  # Vary this to determine detection limit
-    input_parameters = (RV_val, Alpha)
+    rv_val = 20.2
+    alpha_val = 0.1  # Vary this to determine detection limit
+    input_parameters = (rv_val, alpha_val)
 
     # # Testing alpha_model
-    # model_spec = alpha_model(org_star_spec, org_bd_spec, Alpha, RV_val)
+    # model_spec = alpha_model(org_star_spec, org_bd_spec, alpha_val, rv_val)
 
     # plt.plot(org_star_spec.xaxis, org_bd_spec.flux, label="star")
     # plt.plot(model_spec.xaxis, model_spec.flux, label="alpha model")
@@ -57,23 +57,23 @@ def main():
     # Alpha model seems ok
     new_limits = [2100, 2200]
     # Create observation
-    simlulated_obs = alpha_model(Alpha, RV_val, org_star_spec, org_bd_spec, new_limits)
+    simlulated_obs = alpha_model(alpha_val, rv_val, org_star_spec, org_bd_spec, new_limits)
 
     # function to run parallel
 
     params = (org_star_spec, org_bd_spec)
-    chisqr_parallel = parallel_chisqr(alphas, RVs, simlulated_obs, alpha_model,
+    chisqr_parallel = parallel_chisqr(alphas, rvs, simlulated_obs, alpha_model,
                                       (org_star_spec, org_bd_spec, new_limits), n_jobs=4)
     chisqr_parallel = np.array(chisqr_parallel)
     print("Chisqr from parallel run")
     print(chisqr_parallel)
     print("Finished Chisqr parallel run")
 
-    reshape1 = chisqr_parallel.reshape(len(alphas), len(RVs))
-    # reshape2 = chisqr_parallel.reshape(len(RVs), len(alphas))
+    reshape1 = chisqr_parallel.reshape(len(alphas), len(rvs))
+    # reshape2 = chisqr_parallel.reshape(len(rvs), len(alphas))
 
-    # R, S = np.meshgrid(alphas, RVs)
-    T, U = np.meshgrid(RVs, alphas)
+    # R, S = np.meshgrid(alphas, rvs)
+    T, U = np.meshgrid(rvs, alphas)
 
     print("shape of reshape1", reshape1.shape)
     # print(reshape2.shape)
