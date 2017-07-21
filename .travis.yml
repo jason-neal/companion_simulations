@@ -28,6 +28,10 @@ install:
   # Test requirements
   - pip install pytest pytest-cov hypothesis python-coveralls codeclimate-test-reporter
 
+  - git clone git@github.com:jason-neal/spectrum_overload.git
+  - cd spectrum_overload
+  - python setup.py install
+  - cd ..
 # command to run tests
 script:
     pytest --cov=utilities --cov-report term-missing --durations 5
