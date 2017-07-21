@@ -27,10 +27,17 @@ install:
   - python setup.py install
   # Test requirements
   - pip install pytest pytest-cov hypothesis python-coveralls codeclimate-test-reporter
-
+  # Clone spectrum_overload
   - git clone https://github.com/jason-neal/spectrum_overload.git
   - cd spectrum_overload
   - python setup.py install
+  - cd ..
+  # clone Starfish
+  - conda install h5py cython pyyaml scikit-learn emcee corner
+  - git clone https://github.com/iancze/Starfish.git
+  - cd Starfish
+  - python setup.py build_ext --inplace
+  - sudo python setup.py install
   - cd ..
 # command to run tests
 script:
