@@ -9,4 +9,4 @@ numba
 multiprocess
 tqdm
 PyAstronomy
-Starfish
+# Starfish
