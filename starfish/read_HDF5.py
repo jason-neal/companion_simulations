@@ -3,6 +3,6 @@ import Starfish
 from Starfish.grid_tools import HDF5Interface
 import numpy as np
 
-myHDF5 = HDF5Interface()
-wl = myHDF5.wl
-flux = myHDF5.load_flux(np.array([6100, 4.5, 0.0]))
+my_hdf5 = HDF5Interface()
+wl = my_hdf5.wl
+flux = my_hdf5.load_flux(np.array([6100, 4.5, 0.0]))
