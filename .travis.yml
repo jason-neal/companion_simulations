@@ -37,7 +37,7 @@ install:
   - git clone https://github.com/iancze/Starfish.git
   - cd Starfish
   - python setup.py build_ext --inplace
-  - sudo python setup.py install
+  - python setup.py install
   - cd ..
 # command to run tests
 script:
