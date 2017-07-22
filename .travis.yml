@@ -35,9 +35,10 @@ install:
   # clone Starfish
   - conda install h5py cython pyyaml scikit-learn emcee corner
   - git clone https://github.com/iancze/Starfish.git
-  - cd Starfish
+  -  cd Starfish
   - python setup.py build_ext --inplace
   - python setup.py install
+  - rm tests -r -f     # stop starfish tests running
   - cd ..
 # command to run tests
 script:
