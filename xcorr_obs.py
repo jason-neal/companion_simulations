@@ -25,9 +25,8 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 
 # find_closest_phoenix(data_dir, teff, logg, feh, alpha=None)
-model_base_dir = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS/"
-phoenix_path = ("/home/jneal/Phd/data/fullphoenix/"
-                "phoenix.astro.physik.uni-goettingen.de" "/HiResFITS/PHOENIX-ACES-AGSS-COND-2011/")
+model_base_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+phoenix_path = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
 
 
 def generate_phoenix_files(data_dir, logg=4.5, feh=-0):
@@ -48,6 +47,7 @@ def generate_phoenix_files(data_dir, logg=4.5, feh=-0):
 star = "HD30501"
 chips = range(1, 5)
 obs_nums = ("1", "2a", "2b", "3")
+wl_limits = [2080, 2220]
 target_rv = defaultdict(dict)
 target_cc = defaultdict(dict)
 for chip, obs_num in itertools.product(chips, obs_nums):
@@ -77,9 +77,9 @@ for chip, obs_num in itertools.product(chips, obs_nums):
         phoenix_data = fits.getdata(model)
         phoenix_spectrum = Spectrum(flux=phoenix_data, xaxis=wav_model, calibrated=True)
 
-        phoenix_spectrum.wav_select(2080, 2220)
+        phoenix_spectrum.wav_select(*wl_limits)
         phoenix_spectrum = spec_local_norm(phoenix_spectrum)
-        phoenix_spectrum = apply_convolution(phoenix_spectrum, R=obs_resolution, chip_limits=[2080, 2220])
+        phoenix_spectrum = apply_convolution(phoenix_spectrum, R=obs_resolution, chip_limits=wl_limits)
         rv, cc = observed_spectra.crosscorrRV(phoenix_spectrum, rvmin=-100., rvmax=100.0, drv=0.1,
                                               mode='doppler', skipedge=50)
 

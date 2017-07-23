@@ -28,7 +28,7 @@ def alpha_model(alpha, rv, host, companion, limits, new_x=None):
 
     if np.any(new_x):
         combined.spline_interpolate_to(new_x)
-    combined.wav_select(limits[0], limits[1])
+    combined.wav_select(*limits)
     # observation.wav_select(2100, 2200)
 
     return combined

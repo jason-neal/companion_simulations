@@ -8,9 +8,11 @@ To determine the recovery of planetary spectra.
 from __future__ import division, print_function
 import os
 import copy
+import logging
 import numpy as np
 from astropy.io import fits
 import matplotlib.pyplot as plt
+from utilities.debug_utils import pv
 from spectrum_overload.Spectrum import Spectrum
 # from todcor import todcor
 # from todcor import create_cross_correlations
@@ -18,6 +20,11 @@ from utilities.simulation_utilities import add_noise
 from utilities.simulation_utilities import spectrum_plotter
 from utilities.simulation_utilities import combine_spectra
 from utilities.phoenix_utils import spec_local_norm
+from utilities.phoenix_utils import load_starfish_spectrum
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s')
+debug = logging.debug
 
 
 def RV_shift():
@@ -63,9 +70,50 @@ def simple_normalization(spectrum):
 #    print("maxes", maxes)
 #    print("indixes", indexes)
 
+def load_model_spec(pathwave, specpath, limits=None, normalize=False):
+    """Load model spec from given path to file and wavefile."""
+    w_mod = fits.getdata(pathwave)
+    w_mod /= 10   # turn into nm
+    flux = fits.getdata(specpath)
+    hdr = fits.getheader(specpath)
+    spec = Spectrum(xaxis=w_mod, flux=flux, header=hdr)
+
+    debug(pv("spec.xaxis"))
+    if limits is not None:
+        """Apply wavelength limits with slicing."""
+        spec.wav_select(*limits)
+
+    if normalize:
+        """Apply normalization to loaded spectrum."""
+        if limits is None:
+            print("Warning! Limits should be given when using normalization")
+            print("specturm for normalize", spec)
+        spec = spec_local_norm(spec)
+    return spec
+
 
 def load_PHOENIX_hd30501(limits=None, normalize=False):
     """Load in the phoenix spectra of HD30501 and HD30501b.
+
+    Returns:
+    star_spec  HD30501
+    companion_spec  HD30501b
+
+    """
+    pathwave = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
+    bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
+               "HD30501b-lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    star_model = "/home/jneal/Phd/data/phoenixmodels/" \
+                 "HD30501-lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+
+    star_spec = load_model_spec(pathwave, star_model, limits=limits, normalize=normalize)
+    bd_spec = load_model_spec(pathwave, bd_model, limits=limits, normalize=normalize)
+
+    return star_spec, bd_spec
+
+
+def load_PHOENIX_hd211847(limits=None, normalize=False):
+    """Load in the phoenix spectra of HD211847 and HD211847b.
 
     Returns:
     w_mod : Wavelength in nm
@@ -75,75 +123,47 @@ def load_PHOENIX_hd30501(limits=None, normalize=False):
     hdr_bd : Companion header
 
     """
-    pathwave = "/home/jneal/Phd/data/phoenixmodels/" \
-               "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
+    pathwave = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
     bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
-               "HD30501b-lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+               "HD211847b-lte03100-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     star_model = "/home/jneal/Phd/data/phoenixmodels/" \
-                 "HD30501-lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+                 "HD211847-lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
 
-    i_bdmod = fits.getdata(bd_model)
-    i_star = fits.getdata(star_model)
-    hdr_bd = fits.getheader(bd_model)
-    hdr_star = fits.getheader(star_model)
-    w_mod = fits.getdata(pathwave)
+    star_spec = load_model_spec(pathwave, star_model, limits=limits, normalize=normalize)
+    bd_spec = load_model_spec(pathwave, bd_model, limits=limits, normalize=normalize)
 
-    w_mod /= 10   # turn into nm
+    return star_spec, bd_spec
 
-    if limits:
-        """Apply wavelength limits with slicing."""
-        mask = (w_mod > limits[0]) & (w_mod < limits[1])
-        w_mod = w_mod[mask]
-        i_star = i_star[mask]
-        i_bdmod = i_bdmod[mask]
 
-    if normalize:
-        """Apply normalization to loaded spectrum."""
-        if limits is None:
-            print("Warning! Limits should be given when using normalization")
-        star_spec = Spectrum(flux=i_star, xaxis=w_mod)
-        # result = simple_normalization(star_spec)
-        result = spec_local_norm(star_spec)
-        i_star = result.flux
-        bd_spec = Spectrum(flux=i_bdmod, xaxis=w_mod)
-        # result = simple_normalization(bd_spec)
-        result = spec_local_norm(bd_spec)
-        i_bdmod = result.flux
+def load_starfish_hd211847(limits=None, normalize=False, hdr=False):
+    """Load in the phoenix spectra of HD211847 and HD211847b.
 
-    return w_mod, i_star, i_bdmod, hdr_star, hdr_bd
+    Returns:
+    star spectrum for hd211847
+    bd spectrum for hd211847b
+    """
+
+    bd_model = [3100, 4.50, 0.0]
+    star_model = [5700, 4.50, 0.0]
+    bd_spec = load_starfish_spectrum(bd_model, limits=limits, hdr=hdr, normalize=normalize)
+    star_spec = load_starfish_spectrum(star_model, limits=limits, hdr=hdr, normalize=normalize)
+
+    return star_spec, bd_spec
 
 
 def main():
     """Main."""
     # Load in the pheonix spectra
-    pathwave = "/home/jneal/Phd/data/phoenixmodels/" \
-               "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
+    pathwave = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
     bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
                "HD30501b-lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     star_model = "/home/jneal/Phd/data/phoenixmodels/" \
                  "HD30501-lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
 
-    i_bdmod = fits.getdata(bd_model)
-    i_star = fits.getdata(star_model)
-    hdr_bd = fits.getheader(bd_model)
-    hdr_star = fits.getheader(star_model)
-    w_mod = fits.getdata(pathwave)
+    limits = [2100, 2200]
+    star_spec = load_model_spec(pathwave, star_model, limits=limits, normalize=True)
+    bd_spec = load_model_spec(pathwave, bd_model, limits=limits, normalize=True)
 
-    w_mod /= 10   # turn into nm
-
-    star_spec = Spectrum(xaxis=w_mod, flux=i_star, calibrated=True)
-    bd_spec = Spectrum(xaxis=w_mod, flux=i_bdmod, calibrated=True)
-
-    # Wavelength selection from 2100-2200nm
-    star_spec.wav_select(2100, 2200)
-    bd_spec.wav_select(2100, 2200)
-    # star_spec.wav_select(100, 3000)
-    # bd_spec.wav_select(100, 3000)
-
-    # star_spec = simple_normalization(star_spec)
-    star_spec = spec_local_norm(star_spec)
-    # bd_spec = simple_normalization(bd_spec)
-    bd_spec = spec_local_norm(bd_spec)
     # Loop over different things
     print(star_spec.xaxis)
     print(bd_spec.xaxis)

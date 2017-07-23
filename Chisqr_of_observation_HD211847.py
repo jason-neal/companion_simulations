@@ -9,7 +9,6 @@ import ephem
 import pickle
 import logging
 import numpy as np
-
 from astropy.io import fits
 import multiprocess as mprocess
 import matplotlib.pyplot as plt
@@ -21,7 +20,7 @@ from models.alpha_model import alpha_model2
 from spectrum_overload.Spectrum import Spectrum
 from utilities.crires_utilities import crires_resolution
 from utilities.simulation_utilities import combine_spectra
-from Planet_spectral_simulations import load_PHOENIX_hd30501
+from Planet_spectral_simulations import load_PHOENIX_hd30501, load_PHOENIX_hd211847
 from utilities.chisqr import parallel_chisqr
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.model_convolution import apply_convolution, convolve_models
@@ -73,6 +72,7 @@ def select_observation(star, obs_num, chip):
         if len(filenames) is not 0:
             crires_name = filenames[0]
         else:
+            print("Trying non-2017 reductions.")
             path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/{}-"
                     "{}/Combined_Nods".format(star, obs_num))
             print("Path =", path)
@@ -80,7 +80,7 @@ def select_observation(star, obs_num, chip):
                                       "*_{}.nod.ms.*".format(chip))
 
             crires_name = filenames[0]
-        return os.path.join(path, crires_name)
+        return os.path.join(path, crires_name), path
 
 
 def load_spectrum(name, corrected=True):
@@ -101,10 +101,6 @@ def load_spectrum(name, corrected=True):
     """
     data = fits.getdata(name)
     hdr = fits.getheader(name)
-
-    # TODO: log lambda sampling.
-    #      see starfish
-
     # Turn into Spectrum
     # Check for telluric corrected column
     if corrected:
@@ -118,19 +114,21 @@ def load_spectrum(name, corrected=True):
 
 def main():
     """Main."""
-    star = "HD30501"
-    obs_num = "1"
+    star = "HD211847"
+    obs_num = "2"
     chip = 1
-    obs_name = select_observation(star, obs_num, chip)
+    obs_name, path = select_observation(star, obs_num, chip)
 
     # Load observation
     observed_spectra = load_spectrum(obs_name)
+
     if chip == 4:
         # Ignore first 40 pixels
         observed_spectra.wav_select(observed_spectra.xaxis[40], observed_spectra.xaxis[-1])
 
     # Load models
-    host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
+    # host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
+    host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd211847(limits=[2100, 2200], normalize=True)
 
     obs_resolution = crires_resolution(observed_spectra.header)
 
@@ -146,6 +144,7 @@ def main():
     #                        [mean_val, K1, omega,   e,     Tau,       Period, starmass (Msun), msini(Mjup), i]
     parameters = {"HD30501": [23.710, 1703.1, 70.4, 0.741, 53851.5, 2073.6, 0.81, 90],
                   "HD211847": [6.689, 291.4, 159.2, 0.685, 62030.1, 7929.4, 0.94, 19.2, 7]}
+
     try:
         host_params = parameters[star]
     except:
@@ -161,6 +160,7 @@ def main():
     print("host_rv", host_rv, "km/s")
 
     offset = -host_rv  # -22
+    debug(pv("offset"))
     # offset = 0  # -22
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum
@@ -174,7 +174,7 @@ def main():
     # print("\nWarning!!!\n BERV is not good have added a offset to get rest working\n")
 
     # Chisquared fitting
-    alphas = 10**np.linspace(-4, 0.1, 100)
+    alphas = 10**np.linspace(-4, -0.5, 100)
     rvs = np.arange(-50, 50, 0.05)
 
     # chisqr_store = np.empty((len(alphas), len(rvs)))
@@ -212,7 +212,6 @@ def main():
     plt.xlabel("RV (km/s)")
     plt.show()
 
-
     # Locate minimum and plot resulting model next to observation
     def find_min_chisquared(x, y, z):
         """Find minimum vlaue in chisqr grid."""
@@ -237,9 +236,8 @@ def main():
     plt.show()
 
     # Dump the results into a pickle file
-    pickle_path = "/home/jneal/.chisqrpickles/"
     pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obs_num, chip)
-    with open(os.path.join(pickle_path, pickle_name), "wb") as f:
+    with open(os.path.join(path, pickle_name), "wb") as f:
         """Pickle all the necessary parameters to store."""
         pickle.dump((rvs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,
                     rv_solution, alpha_solution, min_chisqr, min_loc, solution_model), f)

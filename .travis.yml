@@ -1,7 +1,7 @@
 language: python
 python:
     - "3.5"
-    #- "3.6"   nmultiprocess is not yet py36 compatible
+    - "3.6"
 
 before_install:
   # http://conda.pydata.org/docs/travis.html
@@ -27,7 +27,13 @@ install:
   - python setup.py install
   # Test requirements
   - pip install pytest pytest-cov hypothesis python-coveralls codeclimate-test-reporter
-
+  
+  # Clone spectrum_overload
+  - pip install https://github.com/jason-neal/spectrum_overload/archive/master.zip
+  # clone Starfish
+  - conda install h5py cython pyyaml scikit-learn emcee corner
+  - pip install https://github.com/iancze/Starfish/archive/master.zip
+  
 # command to run tests
 script:
     pytest --cov=utilities --cov-report term-missing --durations 5

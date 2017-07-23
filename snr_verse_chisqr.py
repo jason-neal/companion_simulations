@@ -12,6 +12,7 @@ import numpy as np
 from collections import defaultdict
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 # from utilities.simulation_utilities import add_noise
+from utilities.debug_utils import pv
 from utilities.chisqr import chi_squared
 from spectrum_overload.Spectrum import Spectrum
 
@@ -27,11 +28,10 @@ def main():
 
     chip_limits = [2080, 2220]
 
-    (w_mod, I_star, I_bdmod,
-        hdr_star, hdr_bd) = load_PHOENIX_hd30501(limits=chip_limits,
+    org_star_spec, org_bd_spec = load_PHOENIX_hd30501(limits=chip_limits,
                                                  normalize=True)
 
-    org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
+    # org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
     # org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
     resolutions = [50000]

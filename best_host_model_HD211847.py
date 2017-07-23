@@ -16,6 +16,7 @@ import sys
 import logging
 import numpy as np
 import scipy as sp
+from tqdm import tqdm
 from astropy.io import fits
 import matplotlib.pyplot as plt
 from datetime import datetime as dt
@@ -25,6 +26,7 @@ from spectrum_overload.Spectrum import Spectrum
 from utilities.model_convolution import convolve_models
 from utilities.phoenix_utils import find_phoenix_model_names2 as find_phoenix_model_names
 from utilities.phoenix_utils import phoenix_name_from_params, load_normalized_phoenix_spectrum
+
 from utilities.crires_utilities import crires_resolution, barycorr_crires_spectrum
 # from utilities.simulation_utilities import combine_spectra
 # from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
@@ -33,6 +35,8 @@ from utilities.crires_utilities import crires_resolution, barycorr_crires_spectr
 from Chisqr_of_observation import select_observation, load_spectrum
 from utilities.phoenix_utils import spec_local_norm
 from utilities.param_file import parse_paramfile
+
+from utilities.phoenix_utils import closest_model_params, generate_close_params, load_starfish_spectrum
 # from Get_filenames import get_filenames
 # sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 
@@ -53,8 +57,7 @@ def xcorr_peak(spectrum, model, plot=False):
        Target Spectrum object.
     model: Spectrum
         Template Specturm object.
-    plot:bool
-        Turn on plots.
+
     Returns
     -------
     rv_max: float
@@ -87,11 +90,14 @@ def xcorr_peak(spectrum, model, plot=False):
 
 def main():
     """Main function."""
-    star = "HD30501"
+    star = "HD211847"
     param_file = "/home/jneal/Phd/data/parameter_files/{}_params.txt".format(star)
     host_parameters = parse_paramfile(param_file, path=None)
-    obs_num = 1
-    chip = 1
+    host_params = [host_parameters["teff"], host_parameters["logg"], host_parameters["fe_h"]]
+    comp_params = [host_parameters["comp_teff"], host_parameters["logg"], host_parameters["fe_h"]]
+
+    obs_num = 2
+    chip = 4
     obs_name = select_observation(star, obs_num, chip)
 
     # Load observation
@@ -102,50 +108,82 @@ def main():
 
     obs_resolution = crires_resolution(observed_spectra.header)
 
+    # Mask out bad portion of observed spectra ## HACK
+    if chip == 4:
+        # Ignore first 40 pixels
+        observed_spectra.wav_select(observed_spectra.xaxis[40], observed_spectra.xaxis[-1])
+
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
     wav_model /= 10   # turn into nm
     debug("Phoenix wav_model = {}".format(wav_model))
 
-    closest_model = phoenix_name_from_params(model_base_dir, host_parameters)
-    original_model = "Z-0.0/lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-    debug("closest_model {}".format(closest_model))
-    debug("original_model {}".format(original_model))
+    closest_host_model_name = phoenix_name_from_params(model_base_dir, host_parameters)
+    #closest_comp_model = phoenix_name_from_params(model_base_dir, comp_parameters)
+    closest_host_model = closest_model_params(*host_params)   # unpack temp, logg, fe_h with *
+    debug(pv("comp_params"))
+    closest_comp_model = closest_model_params(*comp_params)
+
+    original_model = "Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    # debug("closest_host_model name {}".format(closest_host_model_name))
+    # debug("original_model {}".format(original_model))
+    debug(pv("closest_host_model"))
+    debug(pv("closest_comp_model"))
+
 
     # Function to find the good models I need
     models = find_phoenix_model_names(model_base_dir, original_model)
-    if isinstance(models, list):
-        debug("Number of close models returned {}".format(len(models)))
+    # Function to find the good models I need from parameters
+    model_par_gen = generate_close_params(closest_host_model)
+    model_pars = list(generate_close_params(closest_host_model))  # turn to list
 
-    model_chisqr_vals = np.empty_like(models)
-    model_xcorr_vals = np.empty_like(models)
-    model_xcorr_rv_vals = np.empty_like(models)
+    print(model_pars)
 
-    for ii, model_name in enumerate(models):
-        mod_flux = fits.getdata(model_name)
-        mod_header = fits.getheader(model_name)
-        mod_spectrum = Spectrum(xaxis=wav_model, flux=mod_flux, header=mod_header, calibrated=True)
+    # if isinstance(models, list):
+    #    debug("Number of close models returned {}".format(len(models)))
+    #    print(models)
+    if isinstance(model_pars, list):
+        debug("Number of close model_pars returned {}".format(len(model_pars)))
 
-        # Normalize Phoenix Spectrum
-        # mod_spectrum.wav_select(2080, 2200)  # limits for simple normalization
-        mod_spectrum.wav_select(2105, 2165)  # limits for simple normalization
-        # norm_mod_spectrum = simple_normalization(mod_spectrum)
-        norm_mod_spectrum = spec_local_norm(mod_spectrum, plot=False)
+    model_chisqr_vals = np.empty_like(model_pars)
+    model_xcorr_vals = np.empty_like(model_pars)
+    model_xcorr_rv_vals = np.empty_like(model_pars)
+
+    normalization_limits = [2105, 2185]   # samll as possible?
+    # for ii, model_name in enumerate(models):
+    # for ii, params in enumerate(tqdm(model_par_gen)):
+    for ii, params in enumerate(tqdm(model_pars)):
+        mod_spectrum = load_starfish_spectrum(params, limits=normalization_limits, hdr=True, normalize=True)
+        # mod_flux = fits.getdata(model_name)
+        # mod_header = fits.getheader(model_name)
+        # mod_spectrum = Spectrum(xaxis=wav_model, flux=mod_flux, header=mod_header, calibrated=True)
+
+        # # Normalize Phoenix Spectrum
+        # mod_spectrum.wav_select(*normalization_limits)  # limits for simple normalization
+        # # norm_mod_spectrum = simple_normalization(mod_spectrum)
+        # norm_mod_spectrum = spec_local_norm(mod_spectrum, plot=False)
 
         # Wav select
-        norm_mod_spectrum.wav_select(np.min(observed_spectra.xaxis) - 5,
-                                     np.max(observed_spectra.xaxis) + 5)  # +- 5nm of obs for convolution
+        mod_spectrum.wav_select(np.min(observed_spectra.xaxis) - 5,
+                                np.max(observed_spectra.xaxis) + 5)  # +- 5nm of obs for convolution
 
         # Convolve to resolution of instrument
-        conv_mod_spectrum = convolve_models([norm_mod_spectrum], obs_resolution, chip_limits=None)[0]
-        # debug(conv_mod_spectrum)
+        # Starfish is already normalized and convovled
+        # conv_mod_spectrum = convolve_models([norm_mod_spectrum], obs_resolution, chip_limits=None)[0]
+        # conv_mod_spectrum = mod_spectrum
+        # plot_spectra(norm_mod_spectrum, conv_mod_spectrum)
+        # plot_spectra(mod_spectrum, conv_mod_spectrum)
+        # plot_spectra(observed_spectra, mod_spectrum)
+        # debug(pv("conv_mod_spectrum"))
+        # debug(pv("mod_spectrum"))
         # Find crosscorrelation RV
         # # Should run though all models and find best rv to apply uniformly
-        rvoffset, cc_max = xcorr_peak(observed_spectra, conv_mod_spectrum, plot=False)
+        # rvoffset, cc_max = xcorr_peak(observed_spectra, conv_mod_spectrum, plot=False)
+        rvoffset, cc_max = xcorr_peak(observed_spectra, mod_spectrum, plot=False)
 
         # Interpolate to obs
-        conv_mod_spectrum.spline_interpolate_to(observed_spectra)
+        mod_spectrum.spline_interpolate_to(observed_spectra)
         # conv_mod_spectrum.interpolate1d_to(observed_spectra)
-        model_chi_val = chi_squared(observed_spectra.flux, conv_mod_spectrum.flux)
+        model_chi_val = chi_squared(observed_spectra.flux, mod_spectrum.flux)
 
         # argmax = np.argmax(cc_max)
         model_chisqr_vals[ii] = model_chi_val
@@ -172,22 +210,29 @@ def main():
     print("RV at max xcorr =", model_xcorr_rv_vals[xcorr_argmax_indx])
     # print("Meadian RV val =", np.median(model_xcorr_rv_vals))
     print(pv("model_xcorr_rv_vals[chisqr_argmin_indx]"))
-    # print(pv("sp.stats.mode(np.around(model_xcorr_rv_vals))"))
+    print(pv("sp.stats.mode(np.around(model_xcorr_rv_vals))"))
 
-    print("Max Correlation model = ", models[xcorr_argmax_indx].split("/")[-2:])
-    print("Min Chisqr model = ", models[chisqr_argmin_indx].split("/")[-2:])
+    # print("Max Correlation model = ", models[xcorr_argmax_indx].split("/")[-2:])
+    # print("Min Chisqr model = ", models[chisqr_argmin_indx].split("/")[-2:])
+    print("Max Correlation model = ", model_pars[xcorr_argmax_indx])
+    print("Min Chisqr model = ", model_pars[chisqr_argmin_indx])
 
     limits = [2110, 2160]
-    best_model = models[chisqr_argmin_indx]
-    best_model_spec = load_normalized_phoenix_spectrum(best_model, limits=limits)
-    best_model_spec = convolve_models([best_model_spec], obs_resolution, chip_limits=None)[0]
+    # best_model = models[chisqr_argmin_indx]
+    # best_model_spec = load_normalized_phoenix_spectrum(best_model, limits=limits)
+    # best_model_spec = convolve_models([best_model_spec], obs_resolution, chip_limits=None)[0]
+    best_model_params = model_pars[chisqr_argmin_indx]
+    best_model_spec = load_starfish_spectrum(best_model_params, limits=limits, normalize=True)
 
-    best_xcorr_model = models[xcorr_argmax_indx]
-    best_xcorr_model_spec = load_normalized_phoenix_spectrum(best_xcorr_model, limits=limits)
-    best_xcorr_model_spec = convolve_models([best_xcorr_model_spec], obs_resolution, chip_limits=None)[0]
+    best_xcorr_model_params = model_pars[xcorr_argmax_indx]
+    best_xcorr_model_spec = load_starfish_spectrum(best_xcorr_model_params, limits=limits, normalize=True)
+    # best_xcorr_model_spec = load_normalized_phoenix_spectrum(best_xcorr_model, limits=limits)
+    # best_xcorr_model_spec = convolve_models([best_xcorr_model_spec], obs_resolution, chip_limits=None)[0]
 
-    close_model_spec = load_normalized_phoenix_spectrum(closest_model[0], limits=limits)
-    close_model_spec = convolve_models([close_model_spec], obs_resolution, chip_limits=None)[0]
+    # close_model_spec = load_normalized_phoenix_spectrum(closest_model[0], limits=limits)
+    # close_model_spec = convolve_models([close_model_spec], obs_resolution, chip_limits=None)[0]
+    close_model_spec = load_starfish_spectrum(closest_model_params, limits=limits, normalize=True)
+
 
     plt.plot(observed_spectra.xaxis, observed_spectra.flux, label="Observations")
     plt.plot(best_model_spec.xaxis, best_model_spec.flux, label="Best Model")
@@ -198,6 +243,14 @@ def main():
     plt.show()
 
     debug("After plot")
+
+
+def plot_spectra(obs, model):
+    """Plot two spectra."""
+    plt.plot(obs.xaxis, obs.flux, label="obs")
+    plt.plot(model.xaxis, model.flux, label="model")
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ from joblib import Memory
 from spectrum_overload.Spectrum import Spectrum
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
-from IP_multi_Convolution import IPconvolution
+from IP_multi_Convolution import ip_convolution
 
 cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
@@ -28,10 +28,9 @@ def apply_convolution(model_spectrum, R=None, chip_limits=None):
     if R is None:
         return copy.copy(model_spectrum)
     else:
-        ip_xaxis, ip_flux = IPconvolution(model_spectrum.xaxis[:],
-                                          model_spectrum.flux[:], chip_limits,
-                                          R, FWHM_lim=5.0, plot=False,
-                                          verbose=True)
+        ip_xaxis, ip_flux = ip_convolution(model_spectrum.xaxis[:],
+                                           model_spectrum.flux[:], chip_limits,
+                                           R, fwhm_lim=5.0, plot=False, progbar=True)
 
         new_model = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
                              calibrated=model_spectrum.calibrated,

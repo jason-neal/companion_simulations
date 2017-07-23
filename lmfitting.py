@@ -47,14 +47,12 @@ def alpha_model_residual(params, x, data, eps_data, host_models, companion_model
 host_temp = 5300
 comp_temp = 2300
 # Load in some phoenix data and make a simulation
-base = "/home/jneal/Phd/data/fullphoenix/phoenix.astro.physik.uni-goettingen.de/HiResFITS"
+base = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
 phoenix_wl = fits.getdata(os.path.join(base, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")) / 10
 
-host_phoenix = os.path.join(base, ("PHOENIX-ACES-AGSS-COND-2011/Z-0.0/"
-                                   "lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits").format(host_temp))
+host_phoenix = os.path.join(base, ("Z-0.0/lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits").format(host_temp))
 
-comp_phoenix = os.path.join(base, ("PHOENIX-ACES-AGSS-COND-2011/Z-0.0/"
-                                   "lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits").format(comp_temp))
+comp_phoenix = os.path.join(base, ("Z-0.0/lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits").format(comp_temp))
 
 unnorm_host_spec = Spectrum(flux=fits.getdata(host_phoenix), xaxis=phoenix_wl)
 unnorm_comp_spec = Spectrum(flux=fits.getdata(comp_phoenix), xaxis=phoenix_wl)

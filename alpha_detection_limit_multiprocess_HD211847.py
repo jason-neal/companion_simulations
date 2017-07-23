@@ -27,11 +27,11 @@ import matplotlib.pyplot as plt
 import multiprocess as mprocess
 from collections import defaultdict
 from datetime import datetime as dt
-from utilities.debug_utils import pv
+
 # from scipy.stats import chisquare
 from utilities.simulation_utilities import combine_spectra
 # from utilities.simulation_utilities import add_noise
-from Planet_spectral_simulations import load_PHOENIX_hd30501
+from Planet_spectral_simulations import load_PHOENIX_hd211847
 
 # from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
@@ -115,12 +115,11 @@ def main():
     """Chisquare determinination to detect minimum alpha value."""
     print("Loading Data")
 
-    path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
+    path = "/home/jneal/Phd/Codes/companion_simulations/saves"  # save path
 
     chip_limits = [2080, 2220]
     chisqr_limits = [2110, 2120]  # Smaller limits after rv and convolutoin etc.
-
-    org_star_spec, org_bd_spec = load_PHOENIX_hd30501(limits=chip_limits, normalize=True)
+    org_star_spec, org_bd_spec = load_PHOENIX_hd211847(limits=chip_limits, normalize=True)
 
     # resolutions = [None, 50000]
     resolutions = [50000, 100000]
@@ -135,7 +134,7 @@ def main():
 
     # rv and alpha value of Simulations
     rv_val = 20
-    alpha_val = 0.005  # Vary this to determine detection limit
+    alpha_val = 0.2  # Vary this to determine detection limit
     input_parameters = (rv_val, alpha_val)
 
     # starting convolution
