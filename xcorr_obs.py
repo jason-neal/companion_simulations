@@ -16,7 +16,7 @@ from Chisqr_of_observation import load_spectrum
 from spectrum_overload.Spectrum import Spectrum
 from utilities.crires_utilities import crires_resolution
 from utilities.phoenix_utils import spec_local_norm
-from alpha_detection_limit_multiprocess import apply_convolution
+from utilities.model_convolution import apply_convolution
 
 cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):

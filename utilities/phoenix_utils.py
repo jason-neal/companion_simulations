@@ -202,7 +202,7 @@ def phoenix_name_from_params(data_dir, parameters):
     if "alpha" not in params.keys():
         params["alpha"] = None
     logging.debug(params)
-    return find_closest_phoenix_name(data_dir, parameters["teff"], parameters["logg"], parameters["fe_h"],
+    return find_closest_phoenix_name(data_dir, parameters["temp"], parameters["logg"], parameters["fe_h"],
                                      alpha=parameters["alpha"])
 
 
