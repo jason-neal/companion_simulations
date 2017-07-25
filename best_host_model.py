@@ -88,7 +88,7 @@ def xcorr_peak(spectrum, model, plot=False):
 def main():
     """Main function."""
     star = "HD30501"
-    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.txt".format(star)
+    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
     host_parameters = parse_paramfile(param_file, path=None)
     obs_num = 1
     chip = 1
@@ -196,6 +196,7 @@ def main():
     plt.legend()
     plt.xlim(*limits)
     plt.show()
+
 
     debug("After plot")
 

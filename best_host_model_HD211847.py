@@ -91,10 +91,10 @@ def xcorr_peak(spectrum, model, plot=False):
 def main():
     """Main function."""
     star = "HD211847"
-    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.txt".format(star)
+    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
     host_parameters = parse_paramfile(param_file, path=None)
-    host_params = [host_parameters["teff"], host_parameters["logg"], host_parameters["fe_h"]]
-    comp_params = [host_parameters["comp_teff"], host_parameters["logg"], host_parameters["fe_h"]]
+    host_params = [host_parameters["temp"], host_parameters["logg"], host_parameters["fe_h"]]
+    comp_params = [host_parameters["comp_temp"], host_parameters["logg"], host_parameters["fe_h"]]
 
     obs_num = 2
     chip = 4
