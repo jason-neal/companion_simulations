@@ -6,16 +6,16 @@ from joblib import Parallel, delayed
 
 
 @jit
-def chi_squared(observed, expected, error=None):
+def chi_squared(observed, expected, error=None, axis=0):
     """Calculate chi squared.
 
     Same result as as scipy.stats.chisquare
     """
     if np.any(error):
-        chisqr = np.sum((observed - expected)**2 / error**2)
+        chisqr = np.sum((observed - expected)**2 / error**2, axis=axis)
     else:
         # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected)
+        chisqr = np.sum((observed - expected)**2 / expected, axis=axis)
         # When divided by expected the result is identical to scipy
     return chisqr
 
