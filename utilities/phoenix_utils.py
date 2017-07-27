@@ -11,15 +11,15 @@ import glob
 import logging
 import itertools
 import numpy as np
-from typing import List
+# from typing import List
 import matplotlib.pyplot as plt
 from astropy.io import fits
 from utilities.debug_utils import pv
-from astropy.modeling import models, fitting
+# from astropy.modeling import models, fitting
 from spectrum_overload.Spectrum import Spectrum
 from utilities.param_file import parse_paramfile
 
-import Starfish
+# import Starfish
 from Starfish.grid_tools import HDF5Interface
 
 debug = logging.debug
@@ -177,7 +177,7 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None):
     return files
 
 
-def phoenix_name_from_params(data_dir, parameters):
+def phoenix_name_from_params(data_dir, params):
     """Return cloeset phoenix model given a stellar parameter file.
 
     Obtain temp, metalicity, and logg from parameter file.
@@ -185,8 +185,10 @@ def phoenix_name_from_params(data_dir, parameters):
     ----------
     data_dir: str
         Directory to phoenix models.
-    parameters: str or dict
-        Parameter filename if a string is given. Dictionary of parametes if dict is provided.
+    params: str or dict, or list
+        Parameter filename if a string is given.
+        Dictionary of parameters if dict is provided, or
+        list of parameters in the correct order.
 
     Returns
     -------
@@ -194,16 +196,25 @@ def phoenix_name_from_params(data_dir, parameters):
         Filename of phoenix model closest to given parameters.
     """
     logging.debug("phoenix_from_params Data dir = {}".format(data_dir))
-    if isinstance(parameters, str):
-        params = parse_paramfile(parameters)
+    if isinstance(params, str):
+        params = parse_paramfile(params)
     else:
-        params = parameters
+        params = params
 
-    if "alpha" not in params.keys():
-        params["alpha"] = None
-    logging.debug(params)
-    return find_closest_phoenix_name(data_dir, parameters["temp"], parameters["logg"], parameters["fe_h"],
-                                     alpha=parameters["alpha"])
+    if isinstance(params, dict):
+        if "alpha" not in params.keys():
+          params["alpha"] = None
+        logging.debug(params)
+        return find_closest_phoenix_name(data_dir, params["temp"], params["logg"], params["fe_h"],
+                                         alpha=params["alpha"])
+    elif isinstance(params, list):
+        if len(params) == 3:
+            params = params + [None]  # for alpha
+        elif len(params) == 4: # assumes alpha given
+             return find_closest_phoenix_name(data_dir, params[0], params[1], params[2],
+                                              alpha=params[4])
+        else:
+            raise ValueError("Lenght of parameter list given is not valid, {}".format(len(params)))
 
 
 def generate_close_params(params):
