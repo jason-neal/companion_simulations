@@ -108,11 +108,20 @@ def load_spectrum(name, corrected=True):
     # Turn into Spectrum
     # Check for telluric corrected column
     if corrected:
-        spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Corrected_DRACS"],
-                            header=hdr)
+        try:
+            spectrum = Spectrum(xaxis=data["wavelength"], flux=data["flux"],
+                                header=hdr)
+        except:
+            spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Corrected_DRACS"],
+                                header=hdr)
     else:
-        spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Extracted_DRACS"],
-                            header=hdr)
+        try:
+            spectrum = Spectrum(xaxis=data["wavelength"], flux=data["flux"],
+                                header=hdr)
+        except:
+            spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Extracted_DRACS"],
+                                header=hdr)
+
     return spectrum
 
 
