@@ -401,9 +401,9 @@ def spec_local_norm(spectrum, splits=50, method="quadratic", plot=False):
 
     Split spectra into many chunks and get the average of top 5\% in each bin.
     """
-    debug(pv("spectrum"))
+    # debug(pv("spectrum"))
     norm_spectrum = copy.copy(spectrum)
-    debug(pv("norm_spectrum"))
+    # debug(pv("norm_spectrum"))
     flux_norm = local_normalization(norm_spectrum.xaxis, norm_spectrum.flux, splits=splits, plot=plot)
     norm_spectrum.flux = flux_norm
 

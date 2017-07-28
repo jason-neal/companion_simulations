@@ -184,8 +184,8 @@ def main():
             for k, fh in enumerate(FEH_unique):
                 print("i,j,k", (i, j, k))
                 print("num = t", np.sum(TEFF == tf))
-                print("num = lg",np.sum(LOGG == lg))
-                print("num = fh",np.sum(FEH == fh))
+                print("num = lg", np.sum(LOGG == lg))
+                print("num = fh", np.sum(FEH == fh))
                 mask = (TEFF == tf) * (LOGG == lg) * (FEH == fh)
                 print("num = tf, lg, fh", np.sum(mask))
                 chi_ND[i, j, k] = broadcast_chisqr_vals[mask]
@@ -270,7 +270,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False):
 
         # Wavelength selection
         mod_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
+                            np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
 
         # Find cross correlation RV
         # Should run though all models and find best rv to apply uniformly
