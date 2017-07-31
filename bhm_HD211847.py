@@ -14,7 +14,7 @@ def bhm_helper_function(star, obs_num, chip):
     params = parse_paramfile(param_file, path=None)
     obs_name = "/home/jneal/.handy_spectra/{}-{}-mixavg-tellcorr_{}.fits".format(star, obs_num, chip)
 
-    output_name = "Analysis/{}-{}_{}_bhm_chisqr_results".format(star.upper(), obs_num, chip)
+    output_name = "Analysis/{}-{}_{}_bhm_chisqr_results.dat".format(star.upper(), obs_num, chip)
     return obs_name, params, output_name
 
 
