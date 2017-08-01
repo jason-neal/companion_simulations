@@ -14,13 +14,32 @@ def _parser():
     parser.add_argument('-n', '--obs_num', help='Obervation number')
     parser.add_argument('-d', '--detector', default=None, help='detector number, All if not provided.')  # if False/nune the [1,2,3,4]
     parser.add_argument('-o', '--output', default=False, help='Ouput Filename')
-    parser.add_argument('-m', '--model', choices=["tcm", "bhm"],
-                        help='Choose model to evaulate, ["tcm"(default), "bhm"]')
+    parser.add_argument('-s', '--model', choices=["tcm", "bhm"],
+                        help='Choose spectral model to evaulate, ["tcm"(default), "bhm"]')
     parser.add_argument('-m', '--mode', choices=["chi2", "plot"],
-                        help='Calcualte chi2 or plot results.')
+                        help='Calculate chi2 or plot results.')
 
     args = parser.parse_args()
     return args
+
+
+def grids_from_config(name=None):
+    """Load chi2 analysis params from json file."""
+    if name is None:
+        name = "chi2_config.json"
+        with open(name, "r") as f:
+            config_values = json.load(f)
+
+        for param in ["alphas", "gammas", "rvs"]:
+            if param not in values:
+                raise ValueError("Chi2 config file is invalid.")
+
+        alphas = np.arange(*config_values["alphas"])
+        gammas = np.arange(*config_values["gammas"])
+        rvs = np.arange(*config_values["rvs"])
+
+        return gammas, rvs, alphas
+
 
 
 def main(star, obs_num, detector, output=None, model="tcm", mode="plot"):
@@ -29,10 +48,23 @@ def main(star, obs_num, detector, output=None, model="tcm", mode="plot"):
 
     if mode == "plot":
         # Load chi2 and dot he plotting
-        pass
+        if model == "bhm":
+
+            pass
+        elif model == "tcm":
+
+            pass
     elif mode == "chi2":
         # Do the chi2 calcualtions and save to a file.
-        pass
+        if model == "bhm":
+            gammas, __, __ = grids_from_config()
+
+            bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False)
+            pass
+
+        elif model == "tcm":
+            gammas, rvs, alphas = grids_from_config()
+            pass
 
 
 if __name__ == '__main__':
