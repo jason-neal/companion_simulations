@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
         # save_pd_cvs(output_name, data=save_results)
         df = pd.DataFrame(data=save_results)
-        df.to_csv(output_name + ".tsv", sep='\b', index=False, cols={"temp", "logg", "fe_h", "model_chisqr", "broadcast_chisqr", "broadcast_gamma"})
+        df.to_csv(output_name + ".tsv", sep='\t', index=False, columns=["temp", "logg", "fe_h", "model_chisqr", "broadcast_chisqr", "broadcast_gamma"])
         print("Save the results to {}".format(output_name))
 
         # Save as atropy table, and all gamma values from broadcasting.
