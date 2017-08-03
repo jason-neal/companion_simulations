@@ -16,7 +16,7 @@ from spectrum_overload.Spectrum import Spectrum
 
 def barycorr_crires_spectrum(spectrum, extra_offset=None):
     """Wrapper to apply barycorr for crires spectra if given a Spectrum object."""
-    nflux, wlprime = barycorr_crires(spectrum.xaxis, spectrum.flux,
+    nflux, __ = barycorr_crires(spectrum.xaxis, spectrum.flux,
                                      spectrum.header, extra_offset=extra_offset)
     new_spectrum = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
     return new_spectrum
