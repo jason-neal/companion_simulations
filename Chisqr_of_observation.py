@@ -221,7 +221,6 @@ def main():
     plt.xlabel("RV (km/s)")
     plt.show()
 
-
     # Locate minimum and plot resulting model next to observation
     def find_min_chisquared(x, y, z):
         """Find minimum vlaue in chisqr grid."""

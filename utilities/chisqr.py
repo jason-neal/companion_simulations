@@ -32,12 +32,12 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
         print("spectrum 2 is all nans")
 
     if np.all(spectrum_1.xaxis == spectrum_2.xaxis):
-        c2 = chi_squared(spectrum_1.flux, spectrum_2.flux, error=error)
+        chi2 = chi_squared(spectrum_1.flux, spectrum_2.flux, error=error)
 
-        if np.isnan(c2):
+        if np.isnan(chi2):
             print(" Nan chisqr")
             # print(spectrum_1.xaxis, spectrum_1.flux, spectrum_2.xaxis, spectrum_2.flux)
-        return c2
+        return chi2
     else:
         print("Spectrum_1", len(spectrum_1))
         print("Spectrum_2", len(spectrum_2))
@@ -60,6 +60,6 @@ def model_chisqr_wrapper(spectrum_1, model, params, error=None):
 def parallel_chisqr(iter1, iter2, observation, model_func, model_params, n_jobs=1):
     """Parallel chisqr calculation with two iterables."""
     grid = Parallel(n_jobs=n_jobs)(delayed(model_chisqr_wrapper)(observation,
-                                   model_func, (a, b, *model_params))
+                                                                 model_func, (a, b, *model_params))
                                    for a in iter1 for b in iter2)
     return np.asarray(grid)

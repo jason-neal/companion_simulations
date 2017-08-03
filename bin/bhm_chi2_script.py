@@ -1,5 +1,9 @@
 import sys
+import json
 import argparse
+
+import numpy as np
+from bhm_HD211847 import bhm_analysis
 
 
 def _parser():
@@ -39,7 +43,6 @@ def grids_from_config(name=None):
         rvs = np.arange(*config_values["rvs"])
 
         return gammas, rvs, alphas
-
 
 
 def main(star, obs_num, detector, output=None, model="tcm", mode="plot"):

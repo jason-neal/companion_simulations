@@ -6,7 +6,9 @@
 
 from __future__ import division, print_function
 import ephem
+
 from PyAstronomy import pyasl
+
 from spectrum_overload.Spectrum import Spectrum
 
 # TODO: Add a line in the header to check if this script has already been
@@ -16,8 +18,8 @@ from spectrum_overload.Spectrum import Spectrum
 
 def barycorr_crires_spectrum(spectrum, extra_offset=None):
     """Wrapper to apply barycorr for crires spectra if given a Spectrum object."""
-    nflux, __ = barycorr_crires(spectrum.xaxis, spectrum.flux,
-                                     spectrum.header, extra_offset=extra_offset)
+    nflux, _ = barycorr_crires(spectrum.xaxis, spectrum.flux,
+                               spectrum.header, extra_offset=extra_offset)
     new_spectrum = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
     return new_spectrum
 

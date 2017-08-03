@@ -49,9 +49,9 @@ def no_alpha(rv, host, companion, limits, new_x=None, normalize=True):
         no_alpha_spec.wav_select(*limits)
 
     if normalize:
-            """Apply normalization to joint spectrum."""
-            if limits is None:
-                print("Warning! Limits should be given when using normalization")
-                print("specturm for normalize", spec)
-            no_alpha_spec = spec_local_norm(no_alpha_spec)
+        """Apply normalization to joint spectrum."""
+        if limits is None:
+            print("Warning! Limits should be given when using normalization")
+            print("specturm for normalize", no_alpha_spec)
+        no_alpha_spec = spec_local_norm(no_alpha_spec)
     return no_alpha_spec

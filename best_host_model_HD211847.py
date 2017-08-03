@@ -1,4 +1,4 @@
-"""best_host_model.py
+"""best_host_mode_HD211847l.py.
 
 Jason Neal
 2nd Janurary 2017
@@ -22,10 +22,9 @@ import matplotlib.pyplot as plt
 from datetime import datetime as dt
 from utilities.debug_utils import pv
 from utilities.chisqr import chi_squared
-from spectrum_overload.Spectrum import Spectrum
 import copy
-from utilities.crires_utilities import crires_resolution, barycorr_crires_spectrum
-from Chisqr_of_observation import select_observation, load_spectrum
+from utilities.crires_utilities import barycorr_crires_spectrum
+from Chisqr_of_observation import load_spectrum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import closest_model_params, generate_close_params, load_starfish_spectrum
 from models.broadcasted_models import one_comp_model
@@ -48,7 +47,7 @@ def main():
     param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
     params = parse_paramfile(param_file, path=None)
     host_params = [params["temp"], params["logg"], params["fe_h"]]
-    comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
+    # comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
 
     obs_num = 2
     chip = 4
@@ -57,7 +56,7 @@ def main():
     print("The observation used is ", obs_name, "\n")
 
     closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
-    closest_comp_model = closest_model_params(*comp_params)
+    # closest_comp_model = closest_model_params(*comp_params)
 
     original_model = "Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     # debug(pv("closest_host_model"))
@@ -69,10 +68,6 @@ def main():
     # Function to find the good models I need from parameters
     # model_par_gen = generate_close_params(closest_host_model)
     model_pars = list(generate_close_params(closest_host_model))  # Turn to list
-
-    # print(model_pars)
-
-
 
     print("Model parameters", model_pars)
 
@@ -124,7 +119,6 @@ def main():
     plt.title("FEH vs Broadcast gamma grid")
     plt.show()
 
-
     TEFFS_unique = np.array(set(TEFF))
     LOGG_unique = np.array(set(LOGG))
     FEH_unique = np.array(set(FEH))
@@ -153,16 +147,11 @@ def main():
                 print("broadcast val", broadcast_chisqr_vals[mask],
                       "\norg val", model_chisqr_vals[mask])
 
-
     # debug(pv("model_chisqr_vals"))
     # debug(pv("model_xcorr_vals"))
     chisqr_argmin_indx = np.argmin(model_chisqr_vals)
     xcorr_argmax_indx = np.argmax(model_xcorr_vals)
 
-    # debug(pv("chisqr_argmin_indx"))
-    # debug(pv("xcorr_argmax_indx"))
-
-    # debug(pv("model_chisqr_vals"))
     print("Minimum  Chisqr value =", model_chisqr_vals[chisqr_argmin_indx])  # , min(model_chisqr_vals)
     print("Chisqr at max correlation value", model_chisqr_vals[chisqr_argmin_indx])
 
@@ -190,7 +179,6 @@ def main():
     best_xcorr_model_spec = load_starfish_spectrum(best_xcorr_model_params, limits=limits, normalize=True)
 
     close_model_spec = load_starfish_spectrum(closest_model_params, limits=limits, normalize=True)
-
 
     plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observations")
     plt.plot(best_model_spec.xaxis, best_model_spec.flux, label="Best Model")
@@ -248,10 +236,11 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
 
         assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
-        #### NORMALIZATION NEEDED HERE
+        # ### NORMALIZATION NEEDED HERE
         if norm:
             return NotImplemented
-            obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis], obs_spec.flux[:, np.newaxis], broadcast_values)
+            obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis],
+                                                       obs_spec.flux[:, np.newaxis], broadcast_values)
         else:
             obs_flux = obs_spec.flux[:, np.newaxis]
         #####
@@ -276,7 +265,8 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
         broadcast_gamma[ii] = gammas[np.argmin(broadcast_chisquare)]
         full_broadcast_chisquare[ii, :] = broadcast_chisquare
 
-    return model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals, broadcast_chisqr_vals, broadcast_gamma, full_broadcast_chisquare
+    return (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
+            broadcast_chisqr_vals, broadcast_gamma, full_broadcast_chisquare)
 
 
 def plot_spectra(obs, model):
@@ -288,8 +278,7 @@ def plot_spectra(obs, model):
 
 
 def broadcast_normalize_observation(wav, obs_flux, broadcast_flux, splits=10):
-    """ Renormalize obs_spec to the linear continum fit along."""
-
+    """Renormalize obs_spec to the linear continum fit along."""
     # Get median values of 10 highest points in the 0.5nm sections of flux
 
     obs_norm = broadcast_continuum_fit(wav, obs_flux, splits=splits, method="linear", plot=True)
@@ -338,7 +327,8 @@ def broadcast_continuum_fit(wave, flux, splits=50, method="linear", plot=True):
     print("f[argsort]", f[np.argsort(f[0], axis=0)])
     print(np.median(f[np.argsort(f[0], axis=0)]))
     for i, (w, f) in enumerate(zip(wav_split, flux_split)):
-        wav_points[i] = np.median(w[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)  # Take the median of the wavelength values of max values.
+        # Take the median of the wavelength values of max values.
+        wav_points[i] = np.median(w[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)
         flux_points[i, ] = np.median(f[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)
 
     print("flux_points", flux_points)

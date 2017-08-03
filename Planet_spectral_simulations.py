@@ -6,7 +6,6 @@ To determine the recovery of planetary spectra.
 """
 
 from __future__ import division, print_function
-import os
 import copy
 import logging
 import numpy as np
@@ -16,7 +15,7 @@ from utilities.debug_utils import pv
 from spectrum_overload.Spectrum import Spectrum
 # from todcor import todcor
 # from todcor import create_cross_correlations
-from utilities.simulation_utilities import add_noise
+# from utilities.simulation_utilities import add_noise
 from utilities.simulation_utilities import spectrum_plotter
 from utilities.simulation_utilities import combine_spectra
 from utilities.phoenix_utils import spec_local_norm
@@ -69,6 +68,7 @@ def simple_normalization(spectrum):
 #        maxes.append(m)
 #    print("maxes", maxes)
 #    print("indixes", indexes)
+
 
 def load_model_spec(pathwave, specpath, limits=None, normalize=False):
     """Load model spec from given path to file and wavefile."""
@@ -142,7 +142,6 @@ def load_starfish_hd211847(limits=None, normalize=False, hdr=False):
     star spectrum for hd211847
     bd spectrum for hd211847b
     """
-
     bd_model = [3100, 4.50, 0.0]
     star_model = [5700, 4.50, 0.0]
     bd_spec = load_starfish_spectrum(bd_model, limits=limits, hdr=hdr, normalize=normalize)

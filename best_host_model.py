@@ -1,4 +1,4 @@
-"""best_host_model.py
+"""best_host_model.py.
 
 Jason Neal
 2nd Janurary 2017
@@ -15,7 +15,6 @@ import os
 import sys
 import logging
 import numpy as np
-import scipy as sp
 from astropy.io import fits
 import matplotlib.pyplot as plt
 from datetime import datetime as dt
@@ -50,7 +49,7 @@ def main():
     obs_name = select_observation(star, obs_num, chip)
 
     # Load observation
-    uncorrected_spectra = load_spectrum(obs_name)
+    # uncorrected_spectra = load_spectrum(obs_name)
     observed_spectra = load_spectrum(obs_name)
     observed_spectra = barycorr_crires_spectrum(observed_spectra, -22)
     observed_spectra.flux /= 1.02
@@ -151,9 +150,7 @@ def main():
     plt.legend()
     plt.xlim(*limits)
     plt.show()
-
-
-    debug("After plot")
+    print("After plot")
 
 
 if __name__ == "__main__":

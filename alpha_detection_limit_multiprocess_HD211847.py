@@ -27,14 +27,9 @@ import matplotlib.pyplot as plt
 import multiprocess as mprocess
 from collections import defaultdict
 from datetime import datetime as dt
-
-# from scipy.stats import chisquare
 from utilities.simulation_utilities import combine_spectra
-# from utilities.simulation_utilities import add_noise
 from Planet_spectral_simulations import load_PHOENIX_hd211847
 
-# from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
 from utilities.simulation_utilities import spectrum_plotter
 from utilities.chisqr import chi_squared
 from utilities.chisqr import parallel_chisqr

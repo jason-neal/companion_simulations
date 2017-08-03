@@ -54,19 +54,19 @@ def store_convolutions(spectrum, resolutions, chip_limits=None):
 
 @memory.cache
 def convolve_models(models, R, chip_limits=None):
-        """Convolve all model spectra to resolution R.
+    """Convolve all model spectra to resolution R.
 
-        This prevents multiple convolution at the same resolution.
+    This prevents multiple convolution at the same resolution.
 
-        inputs:
-        models: list, tuple of spectum objects
+    inputs:
+    models: list, tuple of spectum objects
 
-        returns:
-        new_models: tuple of the convovled spectral models
-        """
-        new_models = []
-        for model in models:
-            convovled_model = apply_convolution(model, R,
-                                                chip_limits=chip_limits)
-            new_models.append(convovled_model)
-        return tuple(new_models)
+    returns:
+    new_models: tuple of the convovled spectral models
+    """
+    new_models = []
+    for model in models:
+        convovled_model = apply_convolution(model, R,
+                                            chip_limits=chip_limits)
+        new_models.append(convovled_model)
+    return tuple(new_models)

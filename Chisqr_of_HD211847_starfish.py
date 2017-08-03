@@ -38,10 +38,10 @@ debug = logging.debug
 def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
     """Plot the obseved spectrum against the model to check that they are "compatiable"."""
     plt.figure()
-    #plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
+    # plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
     plt.plot(obs.xaxis, obs.flux, label="Observed")
     # plt.plot(obs.xaxis, np.isnan(obs.flux) + 1, "o", ms=15, label="Nans in obs")
-    #plt.plot(model1.xaxis, model1.flux + 1.1, label="model1")
+    # plt.plot(model1.xaxis, model1.flux + 1.1, label="model1")
     plt.plot(model1.xaxis, model1.flux, label="model1")
     if model2:
         plt.plot(model2.xaxis, model2.flux, label="model2")
@@ -167,7 +167,6 @@ def main(star="HD211847", obs_num="2", chip=1):
 
     offset = -host_rv  # -To shift to host star reference.
     debug("Host rv " + pv("offset"))
-
 
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum  (at the ends)
