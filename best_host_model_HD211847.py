@@ -29,6 +29,7 @@ from Chisqr_of_observation import select_observation, load_spectrum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import closest_model_params, generate_close_params, load_starfish_spectrum
 from models.broadcasted_models import one_comp_model
+from utilities.xcorr import xcorr_peak
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -39,46 +40,6 @@ wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
 
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
 wav_model /= 10   # turn into nm
-
-
-def xcorr_peak(spectrum, model, plot=False):
-    """Find RV offset between a spectrum and a model using pyastronomy.
-
-    Parameters
-    ----------
-    spectrum: Spectrum
-       Target Spectrum object.
-    model: Spectrum
-        Template Specturm object.
-
-    Returns
-    -------
-    rv_max: float
-        Radial velocity vlaue corresponding to maximum correlation.
-    cc_max: float
-        Cross-correlation value corresponding to maximum correlation.
-    """
-    rv, cc = spectrum.crosscorrRV(model, rvmin=-60., rvmax=60.0, drv=0.1,
-                                  mode='doppler', skipedge=50)  # Spectrum method
-
-    maxind = np.argmax(cc)
-    rv_max, cc_max = rv[maxind], cc[maxind]
-
-    # debug("Cross-correlation function is maximized at dRV = {} km/s".format(rv_max))
-
-    if plot:
-        plt.subplot(211)
-        plt.plot(spectrum.xaxis, spectrum.flux, label="Target")
-        plt.plot(model.xaxis, model.flux, label="Model")
-        plt.legend()
-        plt.title("Spectra")
-
-        plt.subplot(212)
-        plt.plot(rv, cc)
-        plt.plot(rv_max, cc_max, "o")
-        plt.title("Cross correlation plot")
-        plt.show()
-    return float(rv[maxind]), float(cc[maxind])
 
 
 def main():

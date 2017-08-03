@@ -26,14 +26,10 @@ from utilities.model_convolution import convolve_models
 from utilities.phoenix_utils import find_phoenix_model_names2 as find_phoenix_model_names
 from utilities.phoenix_utils import phoenix_name_from_params, load_normalized_phoenix_spectrum
 from utilities.crires_utilities import crires_resolution, barycorr_crires_spectrum
-# from utilities.simulation_utilities import combine_spectra
-# from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
-# from utilities.crires_utilities import barycorr_crires_spectrum
-# from Chisqr_of_observation import plot_obs_with_model, select_observation, load_spectrum
 from Chisqr_of_observation import select_observation, load_spectrum
 from utilities.phoenix_utils import spec_local_norm
 from utilities.param_file import parse_paramfile
-# from Get_filenames import get_filenames
+from utitlies.xcorr import xcorr_peak
 # sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 
 logging.basicConfig(level=logging.DEBUG,
@@ -42,47 +38,6 @@ debug = logging.debug
 
 model_base_dir = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
 wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
-
-
-def xcorr_peak(spectrum, model, plot=False):
-    """Find RV offset between a spectrum and a model using pyastronomy.
-
-    Parameters
-    ----------
-    spectrum: Spectrum
-       Target Spectrum object.
-    model: Spectrum
-        Template Specturm object.
-    plot:bool
-        Turn on plots.
-    Returns
-    -------
-    rv_max: float
-        Radial velocity vlaue corresponding to maximum correlation.
-    cc_max: float
-        Cross-correlation value corresponding to maximum correlation.
-    """
-    rv, cc = spectrum.crosscorrRV(model, rvmin=-60., rvmax=60.0, drv=0.1,
-                                  mode='doppler', skipedge=50)  # Specturm method
-
-    maxind = np.argmax(cc)
-    rv_max, cc_max = rv[maxind], cc[maxind]
-
-    # debug("Cross-correlation function is maximized at dRV = {} km/s".format(rv_max))
-
-    if plot:
-        plt.subplot(211)
-        plt.plot(spectrum.xaxis, spectrum.flux, label="Target")
-        plt.plot(model.xaxis, model.flux, label="Model")
-        plt.legend()
-        plt.title("Spectra")
-
-        plt.subplot(212)
-        plt.plot(rv, cc)
-        plt.plot(rv_max, cc_max, "o")
-        plt.title("Cross correlation plot")
-        plt.show()
-    return float(rv[maxind]), float(cc[maxind])
 
 
 def main():
