@@ -1,4 +1,4 @@
-"""best_host_model.py
+"""two_compoonent_model.py.
 
 Jason Neal
 2nd Janurary 2017
@@ -16,6 +16,7 @@ import sys
 import logging
 import numpy as np
 import scipy as sp
+import itertools
 from tqdm import tqdm
 from astropy.io import fits
 import matplotlib.pyplot as plt
@@ -28,7 +29,7 @@ from utilities.crires_utilities import crires_resolution, barycorr_crires_spectr
 from Chisqr_of_observation import select_observation, load_spectrum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import closest_model_params, generate_close_params, load_starfish_spectrum
-from models.broadcasted_models import one_comp_model
+from models.broadcasted_models import two_comp_model
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -111,8 +112,6 @@ def main():
 
     # print(model_pars)
 
-
-
     print("Model parameters", model_pars)
 
     # Load observation
@@ -163,7 +162,6 @@ def main():
     plt.title("FEH vs Broadcast gamma grid")
     plt.show()
 
-
     TEFFS_unique = np.array(set(TEFF))
     LOGG_unique = np.array(set(LOGG))
     FEH_unique = np.array(set(FEH))
@@ -191,7 +189,6 @@ def main():
                 chi_ND[i, j, k] = broadcast_chisqr_vals[mask]
                 print("broadcast val", broadcast_chisqr_vals[mask],
                       "\norg val", model_chisqr_vals[mask])
-
 
     # debug(pv("model_chisqr_vals"))
     # debug(pv("model_xcorr_vals"))
@@ -230,7 +227,6 @@ def main():
 
     close_model_spec = load_starfish_spectrum(closest_model_params, limits=limits, normalize=True)
 
-
     plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observations")
     plt.plot(best_model_spec.xaxis, best_model_spec.flux, label="Best Model")
     plt.plot(best_xcorr_model_spec.xaxis, best_xcorr_model_spec.flux, label="Best xcorr Model")
@@ -266,12 +262,12 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     print("companion params", model2_pars)
 
     # Solution Grids to return
-    model_chisqr_vals = np.empty(len(model_pars))
-    model_xcorr_vals = np.empty(len(model_pars))
-    model_xcorr_rv_vals = np.empty(len(model_pars))
-    broadcast_chisqr_vals = np.empty(len(model_pars))
-    broadcast_gamma = np.empty(len(model_pars))
-    full_broadcast_chisquare = np.empty((len(model_pars), len(alphas), len(rvs), len(gammas)))
+    model_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
+    model_xcorr_vals = np.empty((len(model1_pars), len(model2_pars)))
+    model_xcorr_rv_vals = np.empty((len(model1_pars), len(model2_pars)))
+    broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
+    broadcast_gamma = np.empty((len(model1_pars), len(model2_pars)))
+    full_broadcast_chisquare = np.empty((len(model1_pars), len(model2_pars), len(alphas), len(rvs), len(gammas)))
 
     normalization_limits = [2105, 2185]   # small as possible?
     combined_params = itertools.product(model1_pars, model2_pars)
@@ -301,10 +297,12 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
 
         assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
-        #### NORMALIZATION NEEDED HERE
+        # ### NORMALIZATION NEEDED HERE
         if norm:
             return NotImplemented
-            obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis], obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis], broadcast_values)
+            obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis],
+                                                       obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis],
+                                                       broadcast_values)
         else:
             obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
         #####
@@ -329,7 +327,8 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
         broadcast_gamma[ii] = gammas[np.argmin(broadcast_chisquare)]
         full_broadcast_chisquare[ii, :] = broadcast_chisquare
 
-    return model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals, broadcast_chisqr_vals, broadcast_gamma, full_broadcast_chisquare
+    return (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
+            broadcast_chisqr_vals, broadcast_gamma, full_broadcast_chisquare)
 
 
 def plot_spectra(obs, model):
@@ -341,8 +340,7 @@ def plot_spectra(obs, model):
 
 
 def broadcast_normalize_observation(wav, obs_flux, broadcast_flux, splits=10):
-    """ Renormalize obs_spec to the linear continum fit along."""
-
+    """Renormalize obs_spec to the linear continum fit along."""
     # Get median values of 10 highest points in the 0.5nm sections of flux
 
     obs_norm = broadcast_continuum_fit(wav, obs_flux, splits=splits, method="linear", plot=True)
