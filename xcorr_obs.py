@@ -1,17 +1,13 @@
 # from utitlies.phoenix_utils import find_closest_phoenix
 import os
 import glob
-import copy
 import itertools
 import numpy as np
 from tqdm import tqdm
 from joblib import Memory
 from astropy.io import fits
-# from PyAstronomy import pyasl
 import matplotlib.pyplot as plt
 from collections import defaultdict
-
-from IP_multi_Convolution import IPconvolution
 from Chisqr_of_observation import load_spectrum
 from spectrum_overload.Spectrum import Spectrum
 from utilities.crires_utilities import crires_resolution
@@ -94,7 +90,7 @@ for chip, obs_num in itertools.product(chips, obs_nums):
         cc_store.append(cc[maxind])
 
         # ADD CHISQUARED Value
-        ch2_store.append(spectrum_chisqr(observed_spectra, phoenix_spectrum))
+        chi2_store.append(spectrum_chisqr(observed_spectra, phoenix_spectrum))
 
     plt.subplot(311)
     plt.plot(temp_store, rv_store, label="{} {}".format(chip, obs_num))
@@ -113,7 +109,6 @@ for chip, obs_num in itertools.product(chips, obs_nums):
     plt.ylabel("Chi2")
     plt.legend()
     plt.suptitle("{}".format(obs_name))
-
 
     # Store results
     target_rv[obs_num][chip] = [rv_store]
