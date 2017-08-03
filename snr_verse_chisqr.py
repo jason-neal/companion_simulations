@@ -7,14 +7,15 @@ Jason Neal, December 2016
 """
 import os
 import time
-import tqdm
-import scipy
-import numpy as np
 from collections import defaultdict
+
+import numpy as np
+import scipy
+import tqdm
+
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 # from utilities.simulation_utilities import add_noise
 from utilities.chisqr import chi_squared
-
 from utilities.model_convolution import apply_convolution, store_convolutions
 from utilities.simulate_obs import generate_noise_observations
 

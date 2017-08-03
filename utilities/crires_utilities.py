@@ -5,10 +5,9 @@
 # Barycentric correction of CRIRES spectrum given the header information
 
 from __future__ import division, print_function
+
 import ephem
-
 from PyAstronomy import pyasl
-
 from spectrum_overload.Spectrum import Spectrum
 
 # TODO: Add a line in the header to check if this script has already been

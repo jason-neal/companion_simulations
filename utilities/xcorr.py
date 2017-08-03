@@ -1,7 +1,7 @@
 """Cross-correlation of spectrum."""
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def xcorr_peak(spectrum, model, plot=False):

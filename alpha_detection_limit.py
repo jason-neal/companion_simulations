@@ -14,22 +14,22 @@
 # Create the test spectra.
 from __future__ import division, print_function
 
-import os
-import time
 import copy
-import scipy
-import pickle
 import logging
-import numpy as np
-from tqdm import tqdm
+import os
+import pickle
+import time
 # from utilities.debug_utils import pv
 from collections import defaultdict
 
-from Planet_spectral_simulations import combine_spectra
-from utilities.simulate_obs import generate_observations
-from Planet_spectral_simulations import load_PHOENIX_hd30501
+import numpy as np
+import scipy
+from tqdm import tqdm
+
+from Planet_spectral_simulations import combine_spectra, load_PHOENIX_hd30501
 from utilities.chisqr import chi_squared
 from utilities.model_convolution import apply_convolution, store_convolutions
+from utilities.simulate_obs import generate_observations
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')

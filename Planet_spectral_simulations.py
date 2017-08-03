@@ -6,20 +6,21 @@ To determine the recovery of planetary spectra.
 """
 
 from __future__ import division, print_function
+
 import copy
 import logging
-import numpy as np
-from astropy.io import fits
+
 import matplotlib.pyplot as plt
-from utilities.debug_utils import pv
+import numpy as np
+
+from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
+from utilities.debug_utils import pv
+from utilities.phoenix_utils import load_starfish_spectrum, spec_local_norm
 # from todcor import todcor
 # from todcor import create_cross_correlations
 # from utilities.simulation_utilities import add_noise
-from utilities.simulation_utilities import spectrum_plotter
-from utilities.simulation_utilities import combine_spectra
-from utilities.phoenix_utils import spec_local_norm
-from utilities.phoenix_utils import load_starfish_spectrum
+from utilities.simulation_utilities import combine_spectra, spectrum_plotter
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')

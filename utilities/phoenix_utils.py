@@ -5,22 +5,23 @@ i.e. searching for models with certian parameters
 
 Jason Neal, January 2017
 """
-import os
 import copy
 import glob
-import logging
 import itertools
-import numpy as np
+import logging
+import os
+
 # from typing import List
 import matplotlib.pyplot as plt
+import numpy as np
+
 from astropy.io import fits
 # from utilities.debug_utils import pv
 # from astropy.modeling import models, fitting
 from spectrum_overload.Spectrum import Spectrum
-from utilities.param_file import parse_paramfile
-
 # import Starfish
 from Starfish.grid_tools import HDF5Interface
+from utilities.param_file import parse_paramfile
 
 debug = logging.debug
 

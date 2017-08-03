@@ -3,19 +3,20 @@
 # methodolgy from grid_chisquare.
 
 from __future__ import division, print_function
-import numpy as np
+
 import copy
 import logging
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
+import numpy as np
+
+from models.alpha_model import alpha_model
+from Planet_spectral_simulations import load_PHOENIX_hd30501
+from spectrum_overload.Spectrum import Spectrum
+from utilities.chisqr import parallel_chisqr, spectrum_chisqr
 # self written modules
 from utilities.debug_utils import pv
-from utilities.chisqr import spectrum_chisqr, parallel_chisqr
-from models.alpha_model import alpha_model
-from spectrum_overload.Spectrum import Spectrum
-from utilities.simulation_utilities import combine_spectra
-from utilities.simulation_utilities import spectrum_plotter
-from Planet_spectral_simulations import load_PHOENIX_hd30501
+from utilities.simulation_utilities import combine_spectra, spectrum_plotter
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')

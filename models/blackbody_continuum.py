@@ -2,12 +2,13 @@
 
 Sometimes works, but spectral lines and depressions are a problem.
 """
-import numpy as np
-from astropy.io import fits
-from astropy import units as u
 import matplotlib.pyplot as plt
-from lmfit import minimize, Parameters
+import numpy as np
+
+from astropy import units as u
 from astropy.analytic_functions import blackbody_lambda
+from astropy.io import fits
+from lmfit import Parameters, minimize
 from spectrum_overload.Spectrum import Spectrum
 
 

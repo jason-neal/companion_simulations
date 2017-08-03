@@ -11,25 +11,31 @@ the same I would think unless the lines changed dramatically).
 
 """
 from __future__ import division, print_function
+
+import copy
+import itertools
+import logging
 import os
 import sys
-import logging
+from datetime import datetime as dt
+
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
-import itertools
 from tqdm import tqdm
+
 from astropy.io import fits
-import matplotlib.pyplot as plt
-from datetime import datetime as dt
-from utilities.debug_utils import pv
-from utilities.chisqr import chi_squared
-from spectrum_overload.Spectrum import Spectrum
-import copy
-from utilities.crires_utilities import crires_resolution, barycorr_crires_spectrum
-from Chisqr_of_observation import select_observation, load_spectrum
-from utilities.param_file import parse_paramfile
-from utilities.phoenix_utils import closest_model_params, generate_close_params, load_starfish_spectrum
+from Chisqr_of_observation import load_spectrum, select_observation
 from models.broadcasted_models import two_comp_model
+from spectrum_overload.Spectrum import Spectrum
+from utilities.chisqr import chi_squared
+from utilities.crires_utilities import (barycorr_crires_spectrum,
+                                        crires_resolution)
+from utilities.debug_utils import pv
+from utilities.param_file import parse_paramfile
+from utilities.phoenix_utils import (closest_model_params,
+                                     generate_close_params,
+                                     load_starfish_spectrum)
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')

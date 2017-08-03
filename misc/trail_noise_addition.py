@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # Test Noise Addition:
 import copy
-import numpy as np
+
 import matplotlib.pyplot as plt
-from utilities.simulate_utilities import add_noise
+import numpy as np
+
 from spectrum_overload.Spectrum import Spectrum
+from utilities.simulate_utilities import add_noise
 
 
 def main():

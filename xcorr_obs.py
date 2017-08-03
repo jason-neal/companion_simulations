@@ -1,19 +1,21 @@
 # from utitlies.phoenix_utils import find_closest_phoenix
-import os
 import glob
 import itertools
+import os
+from collections import defaultdict
+
+import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
-from joblib import Memory
+
 from astropy.io import fits
-import matplotlib.pyplot as plt
-from collections import defaultdict
 from Chisqr_of_observation import load_spectrum
+from joblib import Memory
 from spectrum_overload.Spectrum import Spectrum
-from utilities.crires_utilities import crires_resolution
-from utilities.phoenix_utils import spec_local_norm
-from utilities.model_convolution import apply_convolution
 from utilities.chisqr import spectrum_chisqr
+from utilities.crires_utilities import crires_resolution
+from utilities.model_convolution import apply_convolution
+from utilities.phoenix_utils import spec_local_norm
 
 cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):

@@ -1,6 +1,8 @@
 """Alpha combination models."""
 import copy
+
 import numpy as np
+
 from utilities.simulation_utilities import combine_spectra
 
 

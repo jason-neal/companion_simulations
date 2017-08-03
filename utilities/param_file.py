@@ -1,7 +1,7 @@
 """param_file.py."""
-import os
 import logging
-from typing import Dict, Union, List
+import os
+from typing import Dict, List, Union
 
 
 def parse_paramfile(param_file: str, path: str=None) -> Dict[str, Union[str, float, List[float]]]:

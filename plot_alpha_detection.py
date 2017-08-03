@@ -2,9 +2,11 @@
 # Plot the chisquare for alpha detection
 import os
 import pickle
-import numpy as np
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import numpy as np
+
+import pandas as pd
 
 
 def main():
