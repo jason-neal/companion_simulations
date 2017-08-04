@@ -29,6 +29,7 @@ import copy
 import numpy as np
 from astropy.io import fits
 import matplotlib.pyplot as plt
+
 get_ipython().magic('matplotlib inline')
 
 
@@ -49,11 +50,7 @@ plt.xlabel("Wavelength (nm)")
 plt.show()
 
 
-# In[ ]:
-
-
-The two PHOENIX ACES spectra here are the first best guess of the two spectral components.
-
+# The two PHOENIX ACES spectra here are the first best guess of the two spectral components.
 
 # In[ ]:
 
@@ -87,8 +84,6 @@ plt.legend()
 plt.xlabel("Wavelength (nm)")
 plt.show()
 
-
-# 
 
 # In[ ]:
 
@@ -270,13 +265,15 @@ plt.show()
 # - Am I treating the cooler M-dwarf spectra correctly in this approach? 
 # 
 
+# ### Attempting the Passegger method
+
 # In[ ]:
 
 
-#Try the method:
+
 from scipy.interpolate import interp1d
-mix1_norm = local_normalization(wav_model, mix1, splits=50, method="linear", plot=True)
-mix2_norm = local_normalization(wav_model, mix2, splits=50, method="linear", plot=True)
+mix1_norm = local_normalization(wav_model, mix1, splits=50, method="linear", plot=False)
+mix2_norm = local_normalization(wav_model, mix2, splits=50, method="linear", plot=False)
 obs_norm = local_normalization(obs["wavelength"], obs["flux"], splits=20, method="linear", plot=True)
 
 normalization1 = mix1 / mix1_norm
@@ -289,24 +286,64 @@ obs_renorm2 = obs_norm * interp1d(wav_model, normalization2)(obs["wavelength"])
 # In[ ]:
 
 
-plt.plot(obs["wavelength"], obs_renorm1)
+# Just a scalar
+mix1_norm = local_normalization(wav_model, mix1, splits=50, method="scalar", plot=False)
+mix2_norm = local_normalization(wav_model, mix2, splits=50, method="scalar", plot=False)
+obs_norm = local_normalization(obs["wavelength"], obs["flux"], splits=20, method="scalar", plot=True)
+scalar1 = mix1 / mix1_norm
+scalar2 = mix2 / mix2_norm
+print(scalar2)
+obs_renorm_scalar1 = obs_norm * interp1d(wav_model, scalar1)(obs["wavelength"])
+obs_renorm_scalar2 = obs_norm * interp1d(wav_model, scalar2)(obs["wavelength"])
+
+
+# In[ ]:
+
+
+plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.3)
+plt.plot(obs["wavelength"], obs_renorm1, label="linear norm")
+plt.plot(obs["wavelength"], obs_renorm_scalar1, label="scalar norm")
 plt.plot(wav_model[mask], mix1[mask], label="mix 1%")
+plt.legend()
+plt.title("1% model")
+plt.hlines(1, 2111, 2124, linestyle="--", alpha=0.2)
+plt.show()
+
+plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.3)
+plt.plot(obs["wavelength"], obs_renorm1, label="linear norm")
+plt.plot(obs["wavelength"], obs_renorm_scalar1, label="scalar norm")
+plt.plot(wav_model[mask], mix1[mask], label="mix 1%")
+plt.legend()
+plt.title("1% model, zoom")
+plt.xlim([2120, 2122])
+plt.hlines(1, 2111, 2124, linestyle="--", alpha=0.2)
 plt.show()
 
 
 # In[ ]:
 
 
-plt.plot(obs["wavelength"], obs_renorm2)
+plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.3)
+plt.plot(obs["wavelength"], obs_renorm2, label="linear norm")
+plt.plot(obs["wavelength"], obs_renorm_scalar2, label="scalar norm")
 plt.plot(wav_model[mask], mix2[mask], label="mix 5%")
+plt.legend()
+plt.title("5% model")
+plt.hlines(1, 2111, 2124, linestyle="--", alpha=0.2)
+plt.show()
+
+plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.3)
+plt.plot(obs["wavelength"], obs_renorm2, label="linear norm")
+plt.plot(obs["wavelength"], obs_renorm_scalar2, label="scalar norm")
+plt.plot(wav_model[mask], mix2[mask], label="mix 5%")
+plt.legend()
+plt.title("5% model zoomed")
+plt.xlim([2120, 2122])
+plt.hlines(1, 2111, 2124, linestyle="--", alpha=0.2)
 plt.show()
 
 
-# In[ ]:
-
-
-
-
+# In this example for the 5% companion spectra there is a bit of difference between the linear and scalar normalizations. With a larger difference at the longer wavelength. (more orange visible above the red.)  Faint blue is the spectrum before the renormalization.
 
 # In[ ]:
 
