@@ -5,6 +5,7 @@
 # Barycentric correction of CRIRES spectrum given the header information
 
 from __future__ import division, print_function
+
 import ephem
 from PyAstronomy import pyasl
 from spectrum_overload.Spectrum import Spectrum
@@ -16,8 +17,8 @@ from spectrum_overload.Spectrum import Spectrum
 
 def barycorr_crires_spectrum(spectrum, extra_offset=None):
     """Wrapper to apply barycorr for crires spectra if given a Spectrum object."""
-    nflux, wlprime = barycorr_crires(spectrum.xaxis, spectrum.flux,
-                                     spectrum.header, extra_offset=extra_offset)
+    nflux, _ = barycorr_crires(spectrum.xaxis, spectrum.flux,
+                               spectrum.header, extra_offset=extra_offset)
     new_spectrum = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
     return new_spectrum
 

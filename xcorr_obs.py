@@ -1,22 +1,21 @@
 # from utitlies.phoenix_utils import find_closest_phoenix
-import os
 import glob
-import copy
 import itertools
-import numpy as np
-from tqdm import tqdm
-from joblib import Memory
-from astropy.io import fits
-# from PyAstronomy import pyasl
-import matplotlib.pyplot as plt
+import os
 from collections import defaultdict
 
-from IP_multi_Convolution import IPconvolution
+import matplotlib.pyplot as plt
+import numpy as np
+from tqdm import tqdm
+
+from astropy.io import fits
 from Chisqr_of_observation import load_spectrum
+from joblib import Memory
 from spectrum_overload.Spectrum import Spectrum
+from utilities.chisqr import spectrum_chisqr
 from utilities.crires_utilities import crires_resolution
-from utilities.phoenix_utils import spec_local_norm
 from utilities.model_convolution import apply_convolution
+from utilities.phoenix_utils import spec_local_norm
 
 cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
@@ -50,6 +49,8 @@ obs_nums = ("1", "2a", "2b", "3")
 wl_limits = [2080, 2220]
 target_rv = defaultdict(dict)
 target_cc = defaultdict(dict)
+target_chi2 = defaultdict(dict)
+
 for chip, obs_num in itertools.product(chips, obs_nums):
     phoenix_names = generate_phoenix_files(phoenix_path)
 
@@ -71,6 +72,7 @@ for chip, obs_num in itertools.product(chips, obs_nums):
     temp_store = []
     rv_store = []
     cc_store = []
+    chi2_store = []
 
     for model in tqdm(phoenix_names):
         temp_store.append(int(model.split("/")[-1][3:8]))
@@ -90,22 +92,29 @@ for chip, obs_num in itertools.product(chips, obs_nums):
         cc_store.append(cc[maxind])
 
         # ADD CHISQUARED Value
+        chi2_store.append(spectrum_chisqr(observed_spectra, phoenix_spectrum))
 
-
-    plt.subplot(211)
+    plt.subplot(311)
     plt.plot(temp_store, rv_store, label="{} {}".format(chip, obs_num))
     plt.title("RV value.")
     plt.xlabel("Temperature")
-    plt.subplot(212)
+    plt.subplot(312)
     plt.plot(temp_store, cc_store, label="{} {}".format(chip, obs_num))
     plt.title("Cross-correlation value.")
     plt.xlabel("Temperature")
     plt.ylabel("Cross-Correlation value")
     plt.legend()
+    plt.subplot(313)
+    plt.plot(temp_store, chi2_store, label="{} {}".format(chip, obs_num))
+    plt.title("Chi2 value.")
+    plt.xlabel("Temperature")
+    plt.ylabel("Chi2")
+    plt.legend()
+    plt.suptitle("{}".format(obs_name))
 
     # Store results
     target_rv[obs_num][chip] = [rv_store]
     target_cc[obs_num][chip] = [cc_store]
-
+    target_cc[obs_num][chip] = [chi2_store]
 
 plt.show()

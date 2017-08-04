@@ -5,22 +5,23 @@ i.e. searching for models with certian parameters
 
 Jason Neal, January 2017
 """
-import os
 import copy
 import glob
-import logging
 import itertools
-import numpy as np
+import logging
+import os
+
 # from typing import List
 import matplotlib.pyplot as plt
+import numpy as np
+
 from astropy.io import fits
-from utilities.debug_utils import pv
+# from utilities.debug_utils import pv
 # from astropy.modeling import models, fitting
 from spectrum_overload.Spectrum import Spectrum
-from utilities.param_file import parse_paramfile
-
 # import Starfish
 from Starfish.grid_tools import HDF5Interface
+from utilities.param_file import parse_paramfile
 
 debug = logging.debug
 
@@ -146,7 +147,6 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None):
         Path/Filename to the closest matching model.
 
     """
-
     if alpha is not None:
         closest_teff, closest_logg, closest_feh, closest_alpha = closest_model_params(teff, logg, feh, alpha=alpha)
     else:
@@ -203,22 +203,22 @@ def phoenix_name_from_params(data_dir, params):
 
     if isinstance(params, dict):
         if "alpha" not in params.keys():
-          params["alpha"] = None
+            params["alpha"] = None
         logging.debug(params)
         return find_closest_phoenix_name(data_dir, params["temp"], params["logg"], params["fe_h"],
                                          alpha=params["alpha"])
     elif isinstance(params, list):
         if len(params) == 3:
             params = params + [None]  # for alpha
-        elif len(params) == 4: # assumes alpha given
-             return find_closest_phoenix_name(data_dir, params[0], params[1], params[2],
-                                              alpha=params[4])
+        elif len(params) == 4:  # assumes alpha given
+                return find_closest_phoenix_name(data_dir, params[0], params[1], params[2],
+                                                 alpha=params[4])
         else:
             raise ValueError("Lenght of parameter list given is not valid, {}".format(len(params)))
 
 
 def generate_close_params(params):
-    """teff, logg, Z"""
+    """teff, logg, Z."""
     temp, logg, metals = params[0], params[1], params[2]
     new_temps = np.arange(-500, 501, 100) + temp
     new_metals = np.arange(-1, 1.1, 0.5) + metals

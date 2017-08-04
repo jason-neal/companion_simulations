@@ -2,15 +2,17 @@
 
 To remove duplication in all the different scripts.
 """
+import copy
 import os
 import sys
-import copy
+
 import numpy as np
+
+from IP_multi_Convolution import ip_convolution
 from joblib import Memory
 from spectrum_overload.Spectrum import Spectrum
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
-from IP_multi_Convolution import ip_convolution
 
 cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
@@ -54,19 +56,19 @@ def store_convolutions(spectrum, resolutions, chip_limits=None):
 
 @memory.cache
 def convolve_models(models, R, chip_limits=None):
-        """Convolve all model spectra to resolution R.
+    """Convolve all model spectra to resolution R.
 
-        This prevents multiple convolution at the same resolution.
+    This prevents multiple convolution at the same resolution.
 
-        inputs:
-        models: list, tuple of spectum objects
+    inputs:
+    models: list, tuple of spectum objects
 
-        returns:
-        new_models: tuple of the convovled spectral models
-        """
-        new_models = []
-        for model in models:
-            convovled_model = apply_convolution(model, R,
-                                                chip_limits=chip_limits)
-            new_models.append(convovled_model)
-        return tuple(new_models)
+    returns:
+    new_models: tuple of the convovled spectral models
+    """
+    new_models = []
+    for model in models:
+        convovled_model = apply_convolution(model, R,
+                                            chip_limits=chip_limits)
+        new_models.append(convovled_model)
+    return tuple(new_models)

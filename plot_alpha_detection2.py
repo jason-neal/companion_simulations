@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # Plot the chisquare for alpha detection
 import os
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def main():
@@ -18,7 +19,7 @@ def main():
     chisqr_snr = dict()
     for snr in snrs:
         chisqr_snr[snr] = np.load(os.path.join(path,
-                                  "scipy_chisquare_data_snr_{}_res50000.npy".format(snr)
+                                               "scipy_chisquare_data_snr_{}_res50000.npy".format(snr)
                                                ))
 
     # plt.contourf(X, Y, np.log(chis

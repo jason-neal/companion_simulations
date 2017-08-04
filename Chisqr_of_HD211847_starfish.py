@@ -4,30 +4,32 @@
 Jason Neal November 2016.
 """
 from __future__ import division, print_function
-import os
-import ephem
-import pickle
+
 import logging
-import numpy as np
-from astropy.io import fits
-import multiprocess as mprocess
-import matplotlib.pyplot as plt
-from ajplanet import pl_rv_array
+import os
+import pickle
 from datetime import datetime as dt
-from utilities.debug_utils import pv
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+import ephem
+import multiprocess as mprocess
+from ajplanet import pl_rv_array
+from astropy.io import fits
 from Get_filenames import get_filenames
 from models.alpha_model import alpha_model2
+from Planet_spectral_simulations import (load_PHOENIX_hd30501,
+                                         load_PHOENIX_hd211847,
+                                         load_starfish_hd211847)
 from spectrum_overload.Spectrum import Spectrum
-from utilities.crires_utilities import crires_resolution
-from utilities.simulation_utilities import combine_spectra
-from Planet_spectral_simulations import load_PHOENIX_hd30501, load_PHOENIX_hd211847
 from utilities.chisqr import parallel_chisqr  # , alpha_model
-from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.crires_utilities import (barycorr_crires_spectrum,
+                                        crires_resolution)
+from utilities.debug_utils import pv
 from utilities.model_convolution import apply_convolution, convolve_models
-
-
 from utilities.phoenix_utils import load_starfish_spectrum
-from Planet_spectral_simulations import load_starfish_hd211847
+from utilities.simulation_utilities import combine_spectra
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -38,10 +40,10 @@ debug = logging.debug
 def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
     """Plot the obseved spectrum against the model to check that they are "compatiable"."""
     plt.figure()
-    #plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
+    # plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
     plt.plot(obs.xaxis, obs.flux, label="Observed")
     # plt.plot(obs.xaxis, np.isnan(obs.flux) + 1, "o", ms=15, label="Nans in obs")
-    #plt.plot(model1.xaxis, model1.flux + 1.1, label="model1")
+    # plt.plot(model1.xaxis, model1.flux + 1.1, label="model1")
     plt.plot(model1.xaxis, model1.flux, label="model1")
     if model2:
         plt.plot(model2.xaxis, model2.flux, label="model2")
@@ -167,7 +169,6 @@ def main(star="HD211847", obs_num="2", chip=1):
 
     offset = -host_rv  # -To shift to host star reference.
     debug("Host rv " + pv("offset"))
-
 
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum  (at the ends)

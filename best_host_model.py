@@ -1,4 +1,4 @@
-"""best_host_model.py
+"""best_host_model.py.
 
 Jason Neal
 2nd Janurary 2017
@@ -11,29 +11,30 @@ the same I would think unless the lines changed dramatically).
 
 """
 from __future__ import division, print_function
+
+import logging
 import os
 import sys
-import logging
-import numpy as np
-import scipy as sp
-from astropy.io import fits
-import matplotlib.pyplot as plt
 from datetime import datetime as dt
-from utilities.debug_utils import pv
-from utilities.chisqr import chi_squared
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from astropy.io import fits
+from Chisqr_of_observation import load_spectrum, select_observation
 from spectrum_overload.Spectrum import Spectrum
+from utilities.chisqr import chi_squared
+from utilities.crires_utilities import (barycorr_crires_spectrum,
+                                        crires_resolution)
+from utilities.debug_utils import pv
 from utilities.model_convolution import convolve_models
-from utilities.phoenix_utils import find_phoenix_model_names2 as find_phoenix_model_names
-from utilities.phoenix_utils import phoenix_name_from_params, load_normalized_phoenix_spectrum
-from utilities.crires_utilities import crires_resolution, barycorr_crires_spectrum
-# from utilities.simulation_utilities import combine_spectra
-# from new_alpha_detect_limit_simulation import parallel_chisqr  # , alpha_model
-# from utilities.crires_utilities import barycorr_crires_spectrum
-# from Chisqr_of_observation import plot_obs_with_model, select_observation, load_spectrum
-from Chisqr_of_observation import select_observation, load_spectrum
-from utilities.phoenix_utils import spec_local_norm
 from utilities.param_file import parse_paramfile
-# from Get_filenames import get_filenames
+from utilities.phoenix_utils import \
+    find_phoenix_model_names2 as find_phoenix_model_names
+from utilities.phoenix_utils import (load_normalized_phoenix_spectrum,
+                                     phoenix_name_from_params, spec_local_norm)
+from utitlies.xcorr import xcorr_peak
+
 # sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 
 logging.basicConfig(level=logging.DEBUG,
@@ -42,47 +43,6 @@ debug = logging.debug
 
 model_base_dir = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
 wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
-
-
-def xcorr_peak(spectrum, model, plot=False):
-    """Find RV offset between a spectrum and a model using pyastronomy.
-
-    Parameters
-    ----------
-    spectrum: Spectrum
-       Target Spectrum object.
-    model: Spectrum
-        Template Specturm object.
-    plot:bool
-        Turn on plots.
-    Returns
-    -------
-    rv_max: float
-        Radial velocity vlaue corresponding to maximum correlation.
-    cc_max: float
-        Cross-correlation value corresponding to maximum correlation.
-    """
-    rv, cc = spectrum.crosscorrRV(model, rvmin=-60., rvmax=60.0, drv=0.1,
-                                  mode='doppler', skipedge=50)  # Specturm method
-
-    maxind = np.argmax(cc)
-    rv_max, cc_max = rv[maxind], cc[maxind]
-
-    # debug("Cross-correlation function is maximized at dRV = {} km/s".format(rv_max))
-
-    if plot:
-        plt.subplot(211)
-        plt.plot(spectrum.xaxis, spectrum.flux, label="Target")
-        plt.plot(model.xaxis, model.flux, label="Model")
-        plt.legend()
-        plt.title("Spectra")
-
-        plt.subplot(212)
-        plt.plot(rv, cc)
-        plt.plot(rv_max, cc_max, "o")
-        plt.title("Cross correlation plot")
-        plt.show()
-    return float(rv[maxind]), float(cc[maxind])
 
 
 def main():
@@ -95,7 +55,7 @@ def main():
     obs_name = select_observation(star, obs_num, chip)
 
     # Load observation
-    uncorrected_spectra = load_spectrum(obs_name)
+    # uncorrected_spectra = load_spectrum(obs_name)
     observed_spectra = load_spectrum(obs_name)
     observed_spectra = barycorr_crires_spectrum(observed_spectra, -22)
     observed_spectra.flux /= 1.02
@@ -196,9 +156,7 @@ def main():
     plt.legend()
     plt.xlim(*limits)
     plt.show()
-
-
-    debug("After plot")
+    print("After plot")
 
 
 if __name__ == "__main__":

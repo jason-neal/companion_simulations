@@ -1,4 +1,4 @@
-"""best_host_model.py
+"""two_compoonent_model.py.
 
 Jason Neal
 2nd Janurary 2017
@@ -11,25 +11,31 @@ the same I would think unless the lines changed dramatically).
 
 """
 from __future__ import division, print_function
+
+import copy
+from datetime import datetime as dt
+import itertools
+import logging
 import os
 import sys
-import logging
-import itertools
+
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from tqdm import tqdm
+
 from astropy.io import fits
-import matplotlib.pyplot as plt
-from datetime import datetime as dt
-from utilities.debug_utils import pv
-from utilities.chisqr import chi_squared
-from spectrum_overload.Spectrum import Spectrum
-import copy
-from utilities.crires_utilities import crires_resolution, barycorr_crires_spectrum
-from Chisqr_of_observation import select_observation, load_spectrum
-from utilities.param_file import parse_paramfile
-from utilities.phoenix_utils import closest_model_params, generate_close_params, load_starfish_spectrum
+from Chisqr_of_observation import load_spectrum, select_observation
 from models.broadcasted_models import two_comp_model
+from spectrum_overload.Spectrum import Spectrum
+from utilities.chisqr import chi_squared
+from utilities.crires_utilities import (barycorr_crires_spectrum,
+                                        crires_resolution)
+from utilities.debug_utils import pv
+from utilities.param_file import parse_paramfile
+from utilities.phoenix_utils import (closest_model_params,
+                                     generate_close_params,
+                                     load_starfish_spectrum)
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -200,8 +206,6 @@ def main():
     # plt.show()
 
 
-
-
 def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
     if alphas is None:
@@ -295,8 +299,7 @@ def plot_spectra(obs, model):
 
 
 def broadcast_normalize_observation(wav, obs_flux, broadcast_flux, splits=10):
-    """ Renormalize obs_spec to the linear continum fit along."""
-
+    """Renormalize obs_spec to the linear continum fit along."""
     # Get median values of 10 highest points in the 0.5nm sections of flux
 
     obs_norm = broadcast_continuum_fit(wav, obs_flux, splits=splits, method="linear", plot=True)

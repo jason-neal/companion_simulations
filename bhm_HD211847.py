@@ -1,14 +1,16 @@
-import numpy as np
-import pandas as pd
 import itertools
 import json
-from astropy.table import Table, Column
+
+import numpy as np
+
+import pandas as pd
+from astropy.table import Table  # , Column
 from best_host_model_HD211847 import bhm_analysis
-from utilities.param_file import parse_paramfile
-from utilities.phoenix_utils import closest_model_params, generate_close_params
 from Chisqr_of_observation import load_spectrum
 # from utilites.io import save_pd_csv
 from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.param_file import parse_paramfile
+from utilities.phoenix_utils import closest_model_params, generate_close_params
 
 
 def bhm_helper_function(star, obs_num, chip):
@@ -66,7 +68,7 @@ def get_maskinfo(star, obs_num, chip):
 
 
 def deconstruct_array(array, values):
-    """Index of other arrays to apply these values to"""
+    """Index of other arrays to apply these values to."""
     print("array shape", array.shape)
     print("array[:5]", array[:5])
     print("values.shape", values.shape)

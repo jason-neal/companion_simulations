@@ -1,21 +1,21 @@
 #!/usr/bin/python
 """snr_verse_chisquare.py.
+
 Analyse how the addition of noise effects the chisquare on a spectrum with no companion.
 Jason Neal, December 2016
 
 """
 import os
 import time
-import tqdm
-import scipy
-import numpy as np
 from collections import defaultdict
+
+import numpy as np
+import scipy
+import tqdm
+
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 # from utilities.simulation_utilities import add_noise
-from utilities.debug_utils import pv
 from utilities.chisqr import chi_squared
-from spectrum_overload.Spectrum import Spectrum
-
 from utilities.model_convolution import apply_convolution, store_convolutions
 from utilities.simulate_obs import generate_noise_observations
 
@@ -29,7 +29,7 @@ def main():
     chip_limits = [2080, 2220]
 
     org_star_spec, org_bd_spec = load_PHOENIX_hd30501(limits=chip_limits,
-                                                 normalize=True)
+                                                      normalize=True)
 
     # org_star_spec = Spectrum(xaxis=w_mod, flux=I_star, calibrated=True)
     # org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)

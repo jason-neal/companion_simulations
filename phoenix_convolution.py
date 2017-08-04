@@ -1,5 +1,6 @@
-import os
 import glob
+import os
+
 from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 

@@ -2,12 +2,13 @@
 
 Sometimes works, but spectral lines and depressions are a problem.
 """
-import numpy as np
-from astropy.io import fits
-from astropy import units as u
 import matplotlib.pyplot as plt
-from lmfit import minimize, Parameters
+import numpy as np
+
+from astropy import units as u
 from astropy.analytic_functions import blackbody_lambda
+from astropy.io import fits
+from lmfit import Parameters, minimize
 from spectrum_overload.Spectrum import Spectrum
 
 
@@ -112,9 +113,13 @@ bin_wl = (np.histogram(data_wl, bins, weights=data_wl)[0] /
 plt.plot(unnorm_host_spec.xaxis, unnorm_host_spec.flux, label="Host {}K".format(host_temp))
 plt.plot(unnorm_comp_spec.xaxis, unnorm_comp_spec.flux, label="Comp {}K".format(comp_temp))
 
-plt.plot(unnorm_host_spec.xaxis, blackbody_lambda(unnorm_host_spec.xaxis * u_nm, host_out.params["temp"] * u_k) * host_out.params["scale"], label="Host bb fit {}K".format(int(host_out.params["temp"].value)))
+plt.plot(unnorm_host_spec.xaxis,
+         blackbody_lambda(unnorm_host_spec.xaxis * u_nm, host_out.params["temp"] * u_k) * host_out.params["scale"],
+         label="Host bb fit {}K".format(int(host_out.params["temp"].value)))
 
-plt.plot(unnorm_host_spec.xaxis, blackbody_lambda(unnorm_host_spec.xaxis * u_nm, comp_out.params["temp"] * u_k) * comp_out.params["scale"], label="Comp bb fit {}K".format(int(comp_out.params["temp"].value)))
+plt.plot(unnorm_host_spec.xaxis,
+         blackbody_lambda(unnorm_host_spec.xaxis * u_nm, comp_out.params["temp"] * u_k) * comp_out.params["scale"],
+         label="Comp bb fit {}K".format(int(comp_out.params["temp"].value)))
 # plt.plot(bin_wl, bin_means, "+--", label="bin mean")
 plt.legend()
 plt.show()

@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # Test Noise Addition:
 import copy
-import numpy as np
+
 import matplotlib.pyplot as plt
-from utilities.add_noise import add_noise2
+import numpy as np
+
 from spectrum_overload.Spectrum import Spectrum
+from utilities.simulate_utilities import add_noise
 
 
 def main():
@@ -14,7 +16,7 @@ def main():
         # Test that the standard deviation of the noise is close to the snr level
 
         print("Applying a snr of {}".format(snr))
-        noisey_flux = add_noise2(org_flux, snr)
+        noisey_flux = add_noise(org_flux, snr)
 
         spec = Spectrum(flux=copy.copy(org_flux))   # Copy becasue org_flux is mutable.
         spec.add_noise(snr)

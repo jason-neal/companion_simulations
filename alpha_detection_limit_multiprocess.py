@@ -14,34 +14,28 @@
 # Create the test spectra.
 from __future__ import division, print_function
 
+import logging
 import os
+import pickle
 import sys
 import time
-import pickle
-import logging
-import scipy.stats
-import numpy as np
-from tqdm import tqdm
-from joblib import Memory
-import matplotlib.pyplot as plt
-import multiprocess as mprocess
 from collections import defaultdict
 from datetime import datetime as dt
-from utilities.debug_utils import pv
-# from scipy.stats import chisquare
-from utilities.simulation_utilities import combine_spectra
-# from utilities.simulation_utilities import add_noise
-from Planet_spectral_simulations import load_PHOENIX_hd30501
 
-# from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
-from utilities.simulation_utilities import spectrum_plotter
-from utilities.chisqr import chi_squared
-from utilities.chisqr import parallel_chisqr
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats
+from tqdm import tqdm
+
+import multiprocess as mprocess
+from joblib import Memory
 from models.alpha_model import alpha_model
-
+from Planet_spectral_simulations import load_PHOENIX_hd30501
+from utilities.chisqr import chi_squared, parallel_chisqr
 from utilities.model_convolution import store_convolutions
-from utilities.simulate_obs import generate_observations2 as generate_observations
+from utilities.simulate_obs import \
+    generate_observations2 as generate_observations
+from utilities.simulation_utilities import combine_spectra, spectrum_plotter
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")

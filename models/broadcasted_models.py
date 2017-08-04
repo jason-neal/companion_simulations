@@ -1,9 +1,10 @@
+"""Companion simulat models useing Boradcasting."""
 import numpy as np
 from scipy.interpolate import interp1d
 
 
 def one_comp_model(wav, model1, gammas):
-    """ Make 1 component simulations, broadcasting over gamma values.
+    """Make 1 component simulations, broadcasting over gamma values.
     """
     # Enable single scalar inputs (turn to 1d np.array)
     if not hasattr(gammas, "__len__"):
@@ -47,5 +48,5 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
         wav_j = (1 - gamma / 299792.458) * wav
         am2rvm1g[:, :, :, j] = interp1d(wav_j, am2rvm1, axis=0, bounds_error=False)(wav)
 
-    assert am2rvm1g.shape == (len(model1), len(alphas), len(rvs), len(gammas)), "Dimensions of broadcast output not correct"
+    assert am2rvm1g.shape == (len(model1), len(alphas), len(rvs), len(gammas)), "Dimensions of broadcast not correct"
     return interp1d(wav, am2rvm1g, axis=0)  # pass it the wavelength values to return

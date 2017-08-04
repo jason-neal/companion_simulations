@@ -4,27 +4,29 @@
 Jason Neal November 2016.
 """
 from __future__ import division, print_function
-import os
-import ephem
-import pickle
+
 import logging
+import os
+import pickle
+from datetime import datetime as dt
+
+import matplotlib.pyplot as plt
 import numpy as np
 
-from astropy.io import fits
+import ephem
 import multiprocess as mprocess
-import matplotlib.pyplot as plt
 from ajplanet import pl_rv_array
-from datetime import datetime as dt
-from utilities.debug_utils import pv
+from astropy.io import fits
 from Get_filenames import get_filenames
 from models.alpha_model import alpha_model2
-from spectrum_overload.Spectrum import Spectrum
-from utilities.crires_utilities import crires_resolution
-from utilities.simulation_utilities import combine_spectra
 from Planet_spectral_simulations import load_PHOENIX_hd30501
+from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import parallel_chisqr
-from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.crires_utilities import (barycorr_crires_spectrum,
+                                        crires_resolution)
+from utilities.debug_utils import pv
 from utilities.model_convolution import apply_convolution, convolve_models
+from utilities.simulation_utilities import combine_spectra
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -220,7 +222,6 @@ def main():
     plt.ylabel("Flux ratio")
     plt.xlabel("RV (km/s)")
     plt.show()
-
 
     # Locate minimum and plot resulting model next to observation
     def find_min_chisquared(x, y, z):
