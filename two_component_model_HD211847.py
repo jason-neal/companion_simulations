@@ -21,6 +21,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import scipy as sp
 from tqdm import tqdm
 
@@ -241,6 +242,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     normalization_limits = [2105, 2185]   # small as possible?
     # combined_params = itertools.product(model1_pars, model2_pars)
     for ii, params1 in enumerate(tqdm(model1_pars)):
+        save_filename = "Analysis/{0}/tc_{0}_{1}_part{5}_host_pars_{2}_{3}_{4}.csv".format(obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), params1[0], params1[1], params1[2], ii)
         for jj, params2 in enumerate(model2_pars):
             # print("Joint params", params)
             # params1, params2 = params
@@ -287,8 +289,30 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
             broadcast_chisqr_vals[ii, jj] = broadcast_chisquare[np.argmin(broadcast_chisquare)]
             broadcast_gamma[ii, jj] = gammas[np.argmin(broadcast_chisquare)]
             full_broadcast_chisquare[ii, jj, :] = broadcast_chisquare
+            save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare)
 
     return broadcast_chisqr_vals, broadcast_alpha, broadcast_rv, broadcast_gamma, full_broadcast_chisquare
+# @timeit
+def save_full_chisqr(name, params1, params2, alphas, rvs, gammas, broadcast_chisquare):
+    A, R, G = np.meshgrid(alphas, rvs, gammas, indexing='ij')
+    assert A.shape == R.shape
+    assert R.shape == G.shape
+    assert G.shape == broadcast_chisquare.shape
+    ravel_size = len(A.ravel())
+    p1_0 = np.ones(ravel_size) * params1[0]
+    p1_1 = np.ones(ravel_size) * params1[1]
+    p1_2 = np.ones(ravel_size) * params1[2]
+    p2_0 = np.ones(ravel_size) * params1[0]
+    p2_1 = np.ones(ravel_size) * params1[1]
+    p2_2 = np.ones(ravel_size) * params1[2]
+    assert p2_2.shape == A.ravel().shape
+    data = {"teff_1": p1_0, "logg_1": p1_1, "feh_1": p1_2, "teff_2": p2_0, "logg_2": p2_1, "feh_2": p2_2,
+            "alpha": A.ravel(), "rv": R.ravel(), "gamma": G.ravel(), "chi2": broadcast_chisquare.ravel()}
+    columns = ["teff_1", "logg_1", "feh_1", "teff_2", "logg_2", "feh_2",
+               "alpha", "rv", "gamma", "chi2"]
+    df = pd.DataFrame(data=data)
+    df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
+    return None
 
 
 def plot_spectra(obs, model):
