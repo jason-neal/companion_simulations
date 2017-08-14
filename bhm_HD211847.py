@@ -159,6 +159,6 @@ if __name__ == "__main__":
                          "broadcast_gamma": chi2_grids[4],
                          "chi2_gamma": broadcast_chi2_gamma[5], "gammas": gammas}
 
-        save_astropytable(output_name, data=save_results2)
+        # save_astropytable(output_name, data=save_results2)
         print("Save the results to {}".format(output_name))
     print("Finished chisquare generation")

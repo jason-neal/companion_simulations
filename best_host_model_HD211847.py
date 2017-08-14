@@ -20,6 +20,7 @@ from datetime import datetime as dt
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import scipy as sp
 from tqdm import tqdm
 
@@ -217,7 +218,9 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
     full_broadcast_chisquare = np.empty((len(model_pars), len(gammas)))
 
     normalization_limits = [2105, 2185]   # small as possible?
+
     for ii, params in enumerate(tqdm(model_pars)):
+        save_name = "Analysis/{0}/bhm_{0}_{1}_part{2}.csv".format(obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), ii)
         if verbose:
             print("Starting iteration with parameter:s\n{}".format(params))
         mod_spec = load_starfish_spectrum(params, limits=normalization_limits, hdr=True, normalize=True)
@@ -265,14 +268,32 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
         model_xcorr_vals[ii] = cc_max
         model_xcorr_rv_vals[ii] = rvoffset
 
+        print("broadcast_chisquare.shape", broadcast_chisquare.shape)
         # New parameters to explore
         broadcast_chisqr_vals[ii] = broadcast_chisquare[np.argmin(broadcast_chisquare)]
         broadcast_gamma[ii] = gammas[np.argmin(broadcast_chisquare)]
         full_broadcast_chisquare[ii, :] = broadcast_chisquare
 
+        save_bhm_chisqr(save_name, params, gammas, broadcast_chisquare)
+
     return (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
             broadcast_chisqr_vals, broadcast_gamma, full_broadcast_chisquare)
 
+
+def save_bhm_chisqr(name, params1, gammas, broadcast_chisquare):
+    # G = np.meshgrid(gammas, indexing='ij')
+    assert gammas.shape == broadcast_chisquare.shape
+    ravel_size = len(gammas)
+    p1_0 = np.ones(ravel_size) * params1[0]
+    p1_1 = np.ones(ravel_size) * params1[1]
+    p1_2 = np.ones(ravel_size) * params1[2]
+
+    assert p1_2.shape == gammas.shape
+    data = {"teff_1": p1_0, "logg_1": p1_1, "feh_1": p1_2, "gamma": gammas, "chi2": broadcast_chisquare.ravel()}
+    columns = ["teff_1", "logg_1", "feh_1", "gamma", "chi2"]
+    df = pd.DataFrame(data=data)
+    df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
+    return None
 
 def plot_spectra(obs, model):
     """Plot two spectra."""
