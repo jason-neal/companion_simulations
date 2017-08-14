@@ -31,7 +31,7 @@ from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)
-from utilities.debug_utils import pv
+from utilities.debug_utils import pv, timeit
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
@@ -206,6 +206,7 @@ def main():
     # plt.show()
 
 
+@timeit
 def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
     if alphas is None:
