@@ -95,10 +95,12 @@ def main():
     alphas = np.arange(0.01, 0.2, 0.02)
     ####
     chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True)
-    ####
-    bcast_chisqr_vals, bcast_alpha, bcast_rv, bcast_gamma, tcm_bcast_chisquare = chi2_grids
 
-    print("tcm_broadcast_chisquare", tcm_cast_chisquare.shape)
+    ####
+    # bcast_chisqr_vals, bcast_alpha, bcast_rv, bcast_gamma, tcm_bcast_chisquare = chi2_grids
+    bcast_chisqr_vals = chi2_grids
+
+    print("tcm broadcast_chisquare shape", bcast_chisqr_vals.shape)
     # TEFF = [par[0] for par in model_pars]
     # LOGG = [par[1] for par in model_pars]
     # FEH = [par[2] for par in model_pars]
@@ -244,12 +246,9 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     for ii, params1 in enumerate(tqdm(model1_pars)):
         save_filename = "Analysis/{0}/tc_{0}_{1}_part{5}_host_pars_{2}_{3}_{4}.csv".format(obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), params1[0], params1[1], params1[2], ii)
         for jj, params2 in enumerate(model2_pars):
-            # print("Joint params", params)
-            # params1, params2 = params
-            print(ii, jj)
-            print(params1, params2)
+
             if verbose:
-                print("Starting iteration with parameter:s\n{}, {}".format(params1, params2))
+                print("Starting iteration with parameters:\n{0}={1},{2}={3}".format(ii, params1, jj, params2))
             mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=True)
             mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=True)
 
@@ -284,14 +283,17 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
 
             assert np.all(sp_chisquare == broadcast_chisquare)
 
-
+            print(broadcast_chisquare.shape)
+            print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
             # New parameters to explore
-            broadcast_chisqr_vals[ii, jj] = broadcast_chisquare[np.argmin(broadcast_chisquare)]
-            broadcast_gamma[ii, jj] = gammas[np.argmin(broadcast_chisquare)]
-            full_broadcast_chisquare[ii, jj, :] = broadcast_chisquare
+            broadcast_chisqr_vals[ii, jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
+            # broadcast_gamma[ii, jj] = gammas[np.argmin(broadcast_chisquare)]
+            # full_broadcast_chisquare[ii, jj, :] = broadcast_chisquare
+
             save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare)
 
-    return broadcast_chisqr_vals, broadcast_alpha, broadcast_rv, broadcast_gamma, full_broadcast_chisquare
+    return broadcast_chisqr_vals   # Just output the best value for each model pair
+
 # @timeit
 def save_full_chisqr(name, params1, params2, alphas, rvs, gammas, broadcast_chisquare):
     A, R, G = np.meshgrid(alphas, rvs, gammas, indexing='ij')
