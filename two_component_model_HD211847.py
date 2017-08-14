@@ -13,19 +13,20 @@ the same I would think unless the lines changed dramatically).
 from __future__ import division, print_function
 
 import copy
-from datetime import datetime as dt
 import itertools
 import logging
 import os
 import sys
+from datetime import datetime as dt
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy as sp
+from astropy.io import fits
+from joblib import Parallel, delayed
 from tqdm import tqdm
 
-from astropy.io import fits
 from Chisqr_of_observation import load_spectrum, select_observation
 from models.broadcasted_models import two_comp_model
 from spectrum_overload.Spectrum import Spectrum
@@ -51,6 +52,7 @@ wav_model /= 10   # turn into nm
 
 def main():
     """Main function."""
+    parallel = True
     star = "HD211847"
     param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
     params = parse_paramfile(param_file, path=None)
@@ -94,7 +96,10 @@ def main():
     rvs = np.arange(-20, 20, 2)
     alphas = np.arange(0.01, 0.2, 0.02)
     ####
-    chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True)
+    if parallel:
+        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True)
+    else:
+        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True)
 
     ####
     # bcast_chisqr_vals, bcast_alpha, bcast_rv, bcast_gamma, tcm_bcast_chisquare = chi2_grids
@@ -234,12 +239,12 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     print("companion params", model2_pars)
 
     # Solution Grids to return
-    model_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
+    # model_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
     # model_xcorr_vals = np.empty(len(model1_pars), len(model2_pars))
     # model_xcorr_rv_vals = np.empty(len(model1_pars), len(model2_pars))
     broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
-    broadcast_gamma = np.empty((len(model1_pars), len(model2_pars)))
-    full_broadcast_chisquare = np.empty((len(model1_pars), len(model2_pars), len(alphas), len(rvs), len(gammas)))
+    # broadcast_gamma = np.empty((len(model1_pars), len(model2_pars)))
+    # full_broadcast_chisquare = np.empty((len(model1_pars), len(model2_pars), len(alphas), len(rvs), len(gammas)))
 
     normalization_limits = [2105, 2185]   # small as possible?
     # combined_params = itertools.product(model1_pars, model2_pars)
@@ -293,6 +298,101 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
             save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare)
 
     return broadcast_chisqr_vals   # Just output the best value for each model pair
+
+
+def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False):
+    """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
+    if alphas is None:
+        alphas = np.array([0])
+    elif isinstance(alphas, (float, int)):
+        alphas = np.asarray(alphas, dtype=np.float32)
+    if rvs is None:
+        rvs = np.array([0])
+    elif isinstance(rvs, (float, int)):
+        rvs = np.asarray(rvs, dtype=np.float32)
+    if gammas is None:
+        gammas = np.array([0])
+    elif isinstance(gammas, (float, int)):
+        gammas = np.asarray(gammas, dtype=np.float32)
+
+    if isinstance(model1_pars, list):
+        debug("Number of close model_pars returned {}".format(len(model1_pars)))
+    if isinstance(model2_pars, list):
+        debug("Number of close model_pars returned {}".format(len(model2_pars)))
+
+    print("host params", model1_pars)
+    print("companion params", model2_pars)
+
+    # Solution Grids to return
+    # model_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
+    # model_xcorr_vals = np.empty(len(model1_pars), len(model2_pars))
+    # model_xcorr_rv_vals = np.empty(len(model1_pars), len(model2_pars))
+    # broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
+    # broadcast_gamma = np.empty((len(model1_pars), len(model2_pars)))
+    # full_broadcast_chisquare = np.empty((len(model1_pars), len(model2_pars), len(alphas), len(rvs), len(gammas)))
+
+
+    print("parallised running\n\n\n ###################")
+    broadcast_chisqr_vals = Parallel(n_jobs=3)(delayed(tcm_wrapper)(ii, param, model2_pars, alphas, rvs, gammas, obs_spec, norm=False) for ii, param in enumerate(model1_pars))
+    # for ii, params1 in enumerate(tqdm(model1_pars)):
+
+    return broadcast_chisqr_vals   # Just output the best value for each model pair
+
+
+def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=True, verbose=True):
+    save_filename = "Analysis/{0}/tc_{0}_{1}_part{5}_host_pars_{2}_{3}_{4}.csv".format(obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), params1[0], params1[1], params1[2], num)
+
+    broadcast_chisqr_vals = np.empty(len(model2_pars))
+    for jj, params2 in enumerate(model2_pars):
+
+        if verbose:
+            print("Starting iteration with parameters:\n{0}={1},{2}={3}".format(num, params1, jj, params2))
+
+        normalization_limits = [2105, 2185]   # small as possible?
+        mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=True)
+        mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=True)
+
+        # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
+
+        # Wavelength selection
+        mod1_spec.wav_select(np.min(obs_spec.xaxis) - 5,
+                             np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
+        mod2_spec.wav_select(np.min(obs_spec.xaxis) - 5,
+                             np.max(obs_spec.xaxis) + 5)
+        obs_spec = obs_spec.remove_nans()
+
+        # One component model with broadcasting over gammas
+        # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
+        assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
+
+        broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux, alphas=alphas, rvs=rvs, gammas=gammas)
+        broadcast_values = broadcast_result(obs_spec.xaxis)
+
+        assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
+
+        #### NORMALIZATION NEEDED HERE
+        if norm:
+            return NotImplemented
+            obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis], obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis], broadcast_values)
+        else:
+            obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
+        #####
+
+        broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
+        sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
+
+        assert np.all(sp_chisquare == broadcast_chisquare)
+
+        print(broadcast_chisquare.shape)
+        print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
+
+        # New parameters to explore
+        broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
+
+        save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare)
+
+    return broadcast_chisqr_vals
+
 
 # @timeit
 def save_full_chisqr(name, params1, params2, alphas, rvs, gammas, broadcast_chisquare):

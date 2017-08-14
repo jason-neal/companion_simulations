@@ -22,9 +22,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy as sp
+from astropy.io import fits
 from tqdm import tqdm
 
-from astropy.io import fits
 from Chisqr_of_observation import load_spectrum
 from models.broadcasted_models import one_comp_model
 from utilities.chisqr import chi_squared
@@ -295,6 +295,7 @@ def save_bhm_chisqr(name, params1, gammas, broadcast_chisquare):
     df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
     return None
 
+
 def plot_spectra(obs, model):
     """Plot two spectra."""
     plt.plot(obs.xaxis, obs.flux, label="obs")
@@ -303,6 +304,7 @@ def plot_spectra(obs, model):
     plt.show()
 
 
+# Doesn't work yet
 def broadcast_normalize_observation(wav, obs_flux, broadcast_flux, splits=10):
     """Renormalize obs_spec to the linear continum fit along."""
     # Get median values of 10 highest points in the 0.5nm sections of flux
@@ -313,6 +315,7 @@ def broadcast_normalize_observation(wav, obs_flux, broadcast_flux, splits=10):
     return obs_flux * (broad_norm / obs_norm)
 
 
+# Doesn't work yet
 def broadcast_continuum_fit(wave, flux, splits=50, method="linear", plot=True):
     r"""Continuum fit the N-D - flux array.
 
