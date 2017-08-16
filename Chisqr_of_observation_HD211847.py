@@ -10,110 +10,28 @@ import os
 import pickle
 from datetime import datetime as dt
 
+import ephem
 import matplotlib.pyplot as plt
+import multiprocess as mprocess
 import numpy as np
 
-import ephem
-import multiprocess as mprocess
 from ajplanet import pl_rv_array
-from astropy.io import fits
-from Get_filenames import get_filenames
+from Chisqr_of_observation import (load_spectrum, plot_obs_with_model,
+                                   select_observation)
 from models.alpha_model import alpha_model2
-from Planet_spectral_simulations import (load_PHOENIX_hd30501,
-                                         load_PHOENIX_hd211847)
-from spectrum_overload.Spectrum import Spectrum
+from Planet_spectral_simulations import \
+    load_PHOENIX_hd211847  # load_PHOENIX_hd30501,
 from utilities.chisqr import parallel_chisqr
 from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)
 from utilities.debug_utils import pv
-from utilities.model_convolution import apply_convolution, convolve_models
-from utilities.simulation_utilities import combine_spectra
+from utilities.model_convolution import convolve_models  # , apply_convolution,
+
+# from utilities.simulation_utilities import combine_spectra
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 debug = logging.debug
-
-
-# First plot the observation with the model
-def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
-    """Plot the obseved spectrum against the model to check that they are "compatiable"."""
-    plt.figure()
-    plt.plot(obs.xaxis, obs.flux + 1, label="Observed")
-    # plt.plot(obs.xaxis, np.isnan(obs.flux) + 1, "o", ms=15, label="Nans in obs")
-    plt.plot(model1.xaxis, model1.flux + 1.1, label="model1")
-    if model2:
-        plt.plot(model2.xaxis, model2.flux, label="model2")
-    plt.legend(loc=0)
-    plt.xlim(-1 + obs.xaxis[0], 1 + obs.xaxis[-1])
-    if title is not None:
-        plt.title(title)
-    if show:
-        plt.show()
-
-
-# I should already have these sorts of functions
-def select_observation(star, obs_num, chip):
-    """Select the observation to load in.
-
-    inputs:
-    star: name of host star target
-    obs_num: observation number
-    chip: crires detetor chip number
-
-    returns:
-    crires_name: name of file
-    """
-    if str(chip) not in "1234":
-        print("The Chip is not correct. It needs to be 1,2,3 or 4")
-        raise Exception("Chip Error")
-    else:
-        # New reduction and calibration
-        path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/2017/{}-"
-                "{}/Combined_Nods".format(star, obs_num))
-        filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
-                                  "*_{}.nod.ms.*".format(chip))
-        debug("Filenames from 2017 reductions {}".format(filenames))
-        if len(filenames) is not 0:
-            crires_name = filenames[0]
-        else:
-            print("Trying non-2017 reductions.")
-            path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/{}-"
-                    "{}/Combined_Nods".format(star, obs_num))
-            print("Path =", path)
-            filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
-                                      "*_{}.nod.ms.*".format(chip))
-
-            crires_name = filenames[0]
-        return os.path.join(path, crires_name), path
-
-
-def load_spectrum(name, corrected=True):
-    """Load in fits file and return as a Spectrum object.
-
-    Parameters
-    ----------
-    name: str
-        Filename of spectrum.
-    corrected: bool
-        Use telluric corrected spectra. Default = True.
-
-    Returns
-    -------
-    spectrum: Spectrum
-        Spectra loaded into a Spectrum object.
-
-    """
-    data = fits.getdata(name)
-    hdr = fits.getheader(name)
-    # Turn into Spectrum
-    # Check for telluric corrected column
-    if corrected:
-        spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Corrected_DRACS"],
-                            header=hdr)
-    else:
-        spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Extracted_DRACS"],
-                            header=hdr)
-    return spectrum
 
 
 def main():
@@ -151,8 +69,9 @@ def main():
 
     try:
         host_params = parameters[star]
-    except:
-        raise ValueError("Parameters for {} are not in parameters list. Improve this.".format(star))
+    except ValueError:
+        print("Parameters for {} are not in parameters list. Improve this.".format(star))
+        raise
     host_params[1] = host_params[1] / 1000   # Convert K! to km/s
     host_params[2] = np.deg2rad(host_params[2])  # Omega needs to be in radians for ajplanet
 
@@ -210,7 +129,7 @@ def main():
     x, y = np.meshgrid(rvs, alphas)
     fig = plt.figure(figsize=(7, 7))
     cf = plt.contourf(x, y, np.log10(obs_chisqr_parallel.reshape(len(alphas), len(rvs))), 100)
-    cbar = fig.colorbar(cf)
+    fig.colorbar(cf)
     plt.title("Sigma chisquared")
     plt.ylabel("Flux ratio")
     plt.xlabel("RV (km/s)")

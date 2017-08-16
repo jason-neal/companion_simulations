@@ -10,13 +10,13 @@ import os
 import pickle
 from datetime import datetime as dt
 
-import matplotlib.pyplot as plt
-import numpy as np
-
 import ephem
+import matplotlib.pyplot as plt
 import multiprocess as mprocess
-from ajplanet import pl_rv_array
+import numpy as np
 from astropy.io import fits
+
+from ajplanet import pl_rv_array
 from Get_filenames import get_filenames
 from models.alpha_model import alpha_model2
 from Planet_spectral_simulations import load_PHOENIX_hd30501
@@ -24,9 +24,10 @@ from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import parallel_chisqr
 from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)
-from utilities.debug_utils import pv
-from utilities.model_convolution import apply_convolution, convolve_models
-from utilities.simulation_utilities import combine_spectra
+# from utilities.debug_utils import pv
+from utilities.model_convolution import convolve_models  # , apply_convolution
+
+# from utilities.simulation_utilities import combine_spectra
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -93,7 +94,7 @@ def load_spectrum(name, corrected=True):
     name: str
         Filename of spectrum.
     corrected: bool
-        Use telluric corrected spectra. Default = True.
+        Use telluric corrected spectra. (deprectiated).
 
     Returns
     -------
@@ -108,22 +109,21 @@ def load_spectrum(name, corrected=True):
     #      see starfish
 
     # Turn into Spectrum
-    # Check for telluric corrected column
-    if corrected:
+    xaxis = data["wavelength"]
+    try:
+        flux = data["flux"]
+    except KeyError:
         try:
-            spectrum = Spectrum(xaxis=data["wavelength"], flux=data["flux"],
-                                header=hdr)
-        except:
-            spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Corrected_DRACS"],
-                                header=hdr)
-    else:
-        try:
-            spectrum = Spectrum(xaxis=data["wavelength"], flux=data["flux"],
-                                header=hdr)
-        except:
-            spectrum = Spectrum(xaxis=data["wavelength"], flux=data["Extracted_DRACS"],
-                                header=hdr)
+            flux = data["Corrected_DRACS"]
+        except KeyError:
+            try:
+                flux = data["Extracted_DRACS"]
+            except KeyError:
+                print("The fits columns are {}".format(data.columns))
+                raise
 
+    spectrum = Spectrum(xaxis=xaxis, flux=flux,
+                        header=hdr)
     return spectrum
 
 
@@ -159,8 +159,9 @@ def main():
                   "HD211847": [6.689, 291.4, 159.2, 0.685, 62030.1, 7929.4, 0.94, 19.2, 7]}
     try:
         host_params = parameters[star]
-    except:
-        raise ValueError("Parameters for {} are not in parameters list. Improve this.".format(star))
+    except ValueError:
+        print("Parameters for {} are not in parameters list. Improve this.".format(star))
+        raise
     host_params[1] = host_params[1] / 1000   # Convert K! to km/s
     host_params[2] = np.deg2rad(host_params[2])  # Omega needs to be in radians for ajplanet
 
@@ -217,7 +218,7 @@ def main():
     x, y = np.meshgrid(rvs, alphas)
     fig = plt.figure(figsize=(7, 7))
     cf = plt.contourf(x, y, np.log10(obs_chisqr_parallel.reshape(len(alphas), len(rvs))), 100)
-    cbar = fig.colorbar(cf)
+    fig.colorbar(cf)
     plt.title("Sigma chisquared")
     plt.ylabel("Flux ratio")
     plt.xlabel("RV (km/s)")
