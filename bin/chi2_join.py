@@ -19,10 +19,12 @@ def _parser():
     parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
     parser.add_argument('-s', '--sort', help='Sort by column.', default='chi2')
     # parser.add_argument('--direction', help='Sort direction.', default='ascending', choices=['ascending','decending'])
+    parser.add_argument("-r", '--remove', action="store_true",
+                        help='Remove original files after joining (default=False).')
     return parser.parse_args()
 
 
-def pandas_join(pattern, output, sort='chi2', verbose=True):
+def pandas_join(pattern, output, sort='chi2', verbose=True, remove=False):
     """Join data files with names that match a given pattern.
 
     Inputs
@@ -57,7 +59,12 @@ def pandas_join(pattern, output, sort='chi2', verbose=True):
 
     result = joint_df.to_csv(output, columns=joint_df.columns, index=False)
     if result is None:
-        return 0
+        if remove:
+            print("Removing original files.")
+            raise NotImplementedError
+        # (subprocess.call("rm ") for f in glob.iglob(pattern))
+
+    return 0
 
 
 if __name__ == '__main__':
