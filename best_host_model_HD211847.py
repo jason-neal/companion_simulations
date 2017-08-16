@@ -64,7 +64,7 @@ def main():
     closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
     # closest_comp_model = closest_model_params(*comp_params)
 
-    original_model = "Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    # original_model = "Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     # debug(pv("closest_host_model"))
     # debug(pv("closest_comp_model"))
     # debug(pv("original_model"))
@@ -220,7 +220,9 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
     normalization_limits = [2105, 2185]   # small as possible?
 
     for ii, params in enumerate(tqdm(model_pars)):
-        save_name = "Analysis/{0}/bhm_{0}_{1}_part{2}.csv".format(obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), ii)
+        save_name = ("Analysis/{0}/bhm_{0}_{1}_part{2}"
+                     ".csv").format(obs_spec.header["OBJECT"],
+                                    int(obs_spec.header["MJD-OBS"]), ii)
         if verbose:
             print("Starting iteration with parameter:s\n{}".format(params))
         mod_spec = load_starfish_spectrum(params, limits=normalization_limits, hdr=True, normalize=True)
@@ -281,7 +283,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
 
 
 def save_bhm_chisqr(name, params1, gammas, broadcast_chisquare):
-    # G = np.meshgrid(gammas, indexing='ij')
+    """Save the bhm chisqr values to a cvs."""
     assert gammas.shape == broadcast_chisquare.shape
     ravel_size = len(gammas)
     p1_0 = np.ones(ravel_size) * params1[0]

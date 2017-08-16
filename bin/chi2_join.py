@@ -18,7 +18,8 @@ def _parser():
     parser.add_argument('output', help='Output name')
     parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
     parser.add_argument('-s', '--sort', help='Sort by column.', default='chi2')
-    # parser.add_argument('--direction', help='Sort direction.', default='ascending', choices=['ascending','decending'])
+    # parser.add_argument('--direction', help='Sort direction.',
+    #                     default='ascending', choices=['ascending','decending'])
     parser.add_argument("-r", '--remove', action="store_true",
                         help='Remove original files after joining (default=False).')
     return parser.parse_args()

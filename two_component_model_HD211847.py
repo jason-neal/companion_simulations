@@ -13,7 +13,7 @@ the same I would think unless the lines changed dramatically).
 from __future__ import division, print_function
 
 import copy
-import itertools
+# import itertools
 import logging
 import os
 import sys
@@ -27,13 +27,12 @@ from astropy.io import fits
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-from Chisqr_of_observation import load_spectrum, select_observation
+from Chisqr_of_observation import load_spectrum  # , select_observation
 from models.broadcasted_models import two_comp_model
-from spectrum_overload.Spectrum import Spectrum
+# from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import chi_squared
-from utilities.crires_utilities import (barycorr_crires_spectrum,
-                                        crires_resolution)
-from utilities.debug_utils import pv, timeit
+from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.debug_utils import timeit  # , pv
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
@@ -68,7 +67,7 @@ def main():
     closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
     closest_comp_model = closest_model_params(*comp_params)
 
-    original_model = "Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    # original_model = "Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     # debug(pv("closest_host_model"))
     # debug(pv("closest_comp_model"))
     # debug(pv("original_model"))
@@ -249,7 +248,10 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     normalization_limits = [2105, 2185]   # small as possible?
     # combined_params = itertools.product(model1_pars, model2_pars)
     for ii, params1 in enumerate(tqdm(model1_pars)):
-        save_filename = "Analysis/{0}/tc_{0}_{1}_part{5}_host_pars_{2}_{3}_{4}.csv".format(obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), params1[0], params1[1], params1[2], ii)
+        save_filename = ("Analysis/{0}/tc_{0}_{1}_part{5}_host_pars_{2}_{3}_{4}"
+                         ".csv").format(obs_spec.header["OBJECT"],
+                                        int(obs_spec.header["MJD-OBS"]),
+                                        params1[0], params1[1], params1[2], ii)
         for jj, params2 in enumerate(model2_pars):
 
             if verbose:
@@ -261,24 +263,28 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
 
             # Wavelength selection
             mod1_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
+                                 np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
             mod2_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                np.max(obs_spec.xaxis) + 5)
+                                 np.max(obs_spec.xaxis) + 5)
             obs_spec = obs_spec.remove_nans()
 
             # One component model with broadcasting over gammas
             # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
             assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
 
-            broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux, alphas=alphas, rvs=rvs, gammas=gammas)
+            broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+                                              alphas=alphas, rvs=rvs, gammas=gammas)
             broadcast_values = broadcast_result(obs_spec.xaxis)
 
             assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
-            #### NORMALIZATION NEEDED HERE
+            # ### NORMALIZATION NEEDED HERE
             if norm:
                 return NotImplemented
-                obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis], obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis], broadcast_values)
+                obs_flux = broadcast_normalize_observation(
+                    obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis],
+                    obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis],
+                    broadcast_values)
             else:
                 obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
             #####
@@ -300,7 +306,8 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     return broadcast_chisqr_vals   # Just output the best value for each model pair
 
 
-def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False):
+def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
+                          rvs=None, gammas=None, verbose=False, norm=False):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
     if alphas is None:
         alphas = np.array([0])
@@ -331,16 +338,22 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=N
     # broadcast_gamma = np.empty((len(model1_pars), len(model2_pars)))
     # full_broadcast_chisquare = np.empty((len(model1_pars), len(model2_pars), len(alphas), len(rvs), len(gammas)))
 
-
     print("parallised running\n\n\n ###################")
-    broadcast_chisqr_vals = Parallel(n_jobs=3)(delayed(tcm_wrapper)(ii, param, model2_pars, alphas, rvs, gammas, obs_spec, norm=False) for ii, param in enumerate(model1_pars))
+    broadcast_chisqr_vals = Parallel(n_jobs=3)(
+        delayed(tcm_wrapper)(ii, param, model2_pars, alphas,
+                             rvs, gammas, obs_spec, norm=False)
+        for ii, param in enumerate(model1_pars))
     # for ii, params1 in enumerate(tqdm(model1_pars)):
 
     return broadcast_chisqr_vals   # Just output the best value for each model pair
 
 
 def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=True, verbose=True):
-    save_filename = "Analysis/{0}/tc_{0}_{1}_part{5}_host_pars_{2}_{3}_{4}.csv".format(obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), params1[0], params1[1], params1[2], num)
+    """Wrapper for iteration loop of tcm. To use with parallization."""
+    save_filename = ("Analysis/{0}/tc_{0}_{1}_part{5}_host_pars_{2}_{3}_{4}"
+                     ".csv").format(obs_spec.header["OBJECT"],
+                                    int(obs_spec.header["MJD-OBS"]),
+                                    params1[0], params1[1], params1[2], num)
 
     broadcast_chisqr_vals = np.empty(len(model2_pars))
     for jj, params2 in enumerate(model2_pars):
@@ -365,15 +378,19 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=T
         # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
         assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
 
-        broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux, alphas=alphas, rvs=rvs, gammas=gammas)
+        broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+                                          alphas=alphas, rvs=rvs, gammas=gammas)
         broadcast_values = broadcast_result(obs_spec.xaxis)
 
         assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
-        #### NORMALIZATION NEEDED HERE
+        # ### NORMALIZATION NEEDED HERE
         if norm:
             return NotImplemented
-            obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis], obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis], broadcast_values)
+            obs_flux = broadcast_normalize_observation(
+                obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis],
+                obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis],
+                broadcast_values)
         else:
             obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
         #####
@@ -396,6 +413,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=T
 
 # @timeit
 def save_full_chisqr(name, params1, params2, alphas, rvs, gammas, broadcast_chisquare):
+    """Save the iterations chisqr values to a cvs."""
     A, R, G = np.meshgrid(alphas, rvs, gammas, indexing='ij')
     assert A.shape == R.shape
     assert R.shape == G.shape
@@ -475,7 +493,8 @@ def broadcast_continuum_fit(wave, flux, splits=50, method="linear", plot=True):
     print("f[argsort]", f[np.argsort(f[0], axis=0)])
     print(np.median(f[np.argsort(f[0], axis=0)]))
     for i, (w, f) in enumerate(zip(wav_split, flux_split)):
-        wav_points[i] = np.median(w[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)  # Take the median of the wavelength values of max values.
+        wav_points[i] = np.median(w[np.argsort(f, axis=0)[-5:]],
+                                  axis=0, keepdims=True)  # Take the median of the wavelength values of max values.
         flux_points[i, ] = np.median(f[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)
 
     print("flux_points", flux_points)

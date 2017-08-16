@@ -1,10 +1,10 @@
+"""Run bhm analyssi for HD211847."""
 import itertools
 import json
 
 import numpy as np
-
 import pandas as pd
-from astropy.table import Table  # , Column
+
 from best_host_model_HD211847 import bhm_analysis
 from Chisqr_of_observation import load_spectrum
 # from utilites.io import save_pd_csv
@@ -47,14 +47,6 @@ def save_pd_cvs(name, data):
     return 0
 
 
-def save_astropytable(name, data):
-    # for gg, gamma in enumerate(gammas):
-    #    gamma_list = gamma * np.ones(len(data["teff"]))
-    # data["gamma"] = gamma_list
-    tb = Table(data)
-    print(tb)
-
-
 def get_maskinfo(star, obs_num, chip):
     with open("/home/jneal/.handy_spectra/detector_masks.json", "r") as f:
         mask_data = json.load(f)
@@ -62,7 +54,7 @@ def get_maskinfo(star, obs_num, chip):
         this_mask = mask_data[star][obs_num][str(chip)]
         print(this_mask)
         return this_mask
-    except:
+    except KeyError:
         print("No Masking data present for {0}-{1}_{2}".format(star, obs_num, chip))
         return []
 
@@ -149,8 +141,9 @@ if __name__ == "__main__":
                         "broadcast_gamma": chi2_grids[4]}
 
         # save_pd_cvs(output_name, data=save_results)
+        cols = ["temp", "logg", "fe_h", "model_chisqr", "broadcast_chisqr", "broadcast_gamma"]
         df = pd.DataFrame(data=save_results)
-        df.to_csv(output_name + ".tsv", sep='\t', index=False, columns=["temp", "logg", "fe_h", "model_chisqr", "broadcast_chisqr", "broadcast_gamma"])
+        df.to_csv(output_name + ".tsv", sep='\t', index=False, columns=cols)
         print("Save the results to {}".format(output_name))
 
         # Save as atropy table, and all gamma values from broadcasting.
@@ -159,6 +152,5 @@ if __name__ == "__main__":
                          "broadcast_gamma": chi2_grids[4],
                          "chi2_gamma": broadcast_chi2_gamma[5], "gammas": gammas}
 
-        # save_astropytable(output_name, data=save_results2)
         print("Save the results to {}".format(output_name))
     print("Finished chisquare generation")
