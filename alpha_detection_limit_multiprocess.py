@@ -23,12 +23,12 @@ from collections import defaultdict
 from datetime import datetime as dt
 
 import matplotlib.pyplot as plt
+import multiprocess as mprocess
 import numpy as np
 import scipy.stats
+from joblib import Memory
 from tqdm import tqdm
 
-import multiprocess as mprocess
-from joblib import Memory
 from models.alpha_model import alpha_model
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 from utilities.chisqr import chi_squared, parallel_chisqr

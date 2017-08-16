@@ -6,11 +6,11 @@ from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import numpy as np
+from astropy.io import fits
+from joblib import Memory
 from tqdm import tqdm
 
-from astropy.io import fits
 from Chisqr_of_observation import load_spectrum
-from joblib import Memory
 from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import spectrum_chisqr
 from utilities.crires_utilities import crires_resolution

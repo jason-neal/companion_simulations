@@ -312,7 +312,7 @@ def find_phoenix_model_names2(base_dir, original_model):
     # "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     try:
         model_name = os.path.split(original_model)[-1]
-    except:
+    except Exception:
         model_name = original_model
     logging.debug("original_name = {}".format(original_model))
     logging.debug("model_name = {}".format(model_name))

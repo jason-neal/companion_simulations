@@ -4,8 +4,7 @@ from scipy.interpolate import interp1d
 
 
 def one_comp_model(wav, model1, gammas):
-    """Make 1 component simulations, broadcasting over gamma values.
-    """
+    """Make 1 component simulations, broadcasting over gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
     if not hasattr(gammas, "__len__"):
         gammas = np.asarray(gammas)[np.newaxis]
@@ -22,8 +21,7 @@ def one_comp_model(wav, model1, gammas):
 
 
 def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
-    # Make 2 component simulations, broadcasting over alpha, rv, gamma values.
-
+    """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
     if not hasattr(alphas, "__len__"):
         alphas = np.asarray(alphas)[np.newaxis]

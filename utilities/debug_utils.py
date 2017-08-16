@@ -3,7 +3,7 @@ import time
 
 
 def pv(name):
-    """Return the command name and the result"""
+    """Return the command name and the result."""
     if "__" in name:
         raise ValueError("Double underscores not allowed for saftey reasons.")
     frame = inspect.currentframe().f_back
@@ -18,7 +18,7 @@ def timeit(method):
         result = method(*args, **kw)
         te = time.time()
 
-        print('{0} ({1}, {2}) {3:2.2f} sec'.format(method.__name__, args, kw, te-ts))
+        print('{0} ({1}, {2}) {3:2.2f} sec'.format(method.__name__, args, kw, te - ts))
         return result
 
     return timed
