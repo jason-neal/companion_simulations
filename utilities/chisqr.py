@@ -1,9 +1,8 @@
 """Chisquared calculation."""
 
 import numpy as np
-from numba import jit
-
 from joblib import Parallel, delayed
+from numba import jit
 
 
 @jit

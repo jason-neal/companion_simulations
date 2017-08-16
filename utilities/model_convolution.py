@@ -7,9 +7,9 @@ import os
 import sys
 
 import numpy as np
+from joblib import Memory
 
 from IP_multi_Convolution import ip_convolution
-from joblib import Memory
 from spectrum_overload.Spectrum import Spectrum
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
