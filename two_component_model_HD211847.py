@@ -33,6 +33,7 @@ from models.broadcasted_models import two_comp_model
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import timeit  # , pv
+from utilities.norm import chi2_model_norms, renormalize_observation
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
@@ -281,7 +282,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
             # ### NORMALIZATION NEEDED HERE
             if norm:
                 return NotImplemented
-                obs_flux = broadcast_normalize_observation(
+                obs_flux = renormalize_observation(
                     obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis],
                     obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis],
                     broadcast_values)
@@ -387,7 +388,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=T
         # ### NORMALIZATION NEEDED HERE
         if norm:
             return NotImplemented
-            obs_flux = broadcast_normalize_observation(
+            obs_flux = renormalize_observation(
                 obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis],
                 obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis],
                 broadcast_values)
@@ -441,93 +442,6 @@ def plot_spectra(obs, model):
     plt.plot(model.xaxis, model.flux, label="model")
     plt.legend()
     plt.show()
-
-
-def broadcast_normalize_observation(wav, obs_flux, broadcast_flux, splits=10):
-    """Renormalize obs_spec to the linear continum fit along."""
-    # Get median values of 10 highest points in the 0.5nm sections of flux
-
-    obs_norm = broadcast_continuum_fit(wav, obs_flux, splits=splits, method="linear", plot=True)
-    broad_norm = broadcast_continuum_fit(wav, broadcast_flux, splits=splits, method="linear", plot=True)
-
-    return obs_flux * (broad_norm / obs_norm)
-
-
-def broadcast_continuum_fit(wave, flux, splits=50, method="linear", plot=True):
-    r"""Continuum fit the N-D - flux array.
-
-    Split spectra into many chunks and get the average of top 5\% in each bin.
-
-    Fit to those points and normalize by that.
-    """
-    org_flux = copy.copy(flux)
-    org_wave = copy.copy(wave)
-
-    while len(wave) % splits != 0:
-        # Shorten array untill can be evenly split up.
-        wave = wave[:-1]
-        flux = flux[:-1]
-        print(wave.shape)
-        print(flux.shape)
-    if flux.ndim > wave.ndim:
-        wave = wave * np.ones_like(flux)  # Broadcast it out
-
-    wav_split = np.vsplit(wave, splits)
-    flux_split = np.vsplit(flux, splits)  # split along axis=0
-    print(type(wav_split), type(flux_split))
-    print("wav shape", wave.shape)
-    print("wav split shape", len(wav_split))
-    print("flux shape", flux.shape)
-    print("flux split shape", len(flux_split))
-    print("wav split[0] shape", wav_split[0].shape)
-    print("flux split[0] shape", flux_split[0].shape)
-
-    # TODO!
-    flux_split_medians = []
-    wave_split_medians = []
-    wav_points = np.empty_like(splits)
-    print(wav_points.shape)
-    flux_points = np.empty(splits)
-    f = flux_split
-    print("argsort", np.argsort(f[0], axis=0))
-    print("f[argsort]", f[np.argsort(f[0], axis=0)])
-    print(np.median(f[np.argsort(f[0], axis=0)]))
-    for i, (w, f) in enumerate(zip(wav_split, flux_split)):
-        wav_points[i] = np.median(w[np.argsort(f, axis=0)[-5:]],
-                                  axis=0, keepdims=True)  # Take the median of the wavelength values of max values.
-        flux_points[i, ] = np.median(f[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)
-
-    print("flux_points", flux_points)
-    print("flux_points.shape", flux_points.shape)
-    print("flux_points[0].shape", flux_points[0].shape)
-
-    if method == "scalar":
-        norm_flux = np.median(flux_split) * np.ones_like(org_wave)
-    elif method == "linear":
-        z = np.polyfit(wav_points, flux_points, 1)
-        p = np.poly1d(z)
-        norm_flux = p(org_wave)
-    elif method == "quadratic":
-        z = np.polyfit(wav_points, flux_points, 2)
-        p = np.poly1d(z)
-        norm_flux = p(org_wave)
-    elif method == "exponential":
-        z = np.polyfit(wav_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
-        p = np.poly1d(z)
-        norm_flux = np.exp(p(org_wave))   # Un-log the y values.
-
-    if plot:
-        plt.subplot(211)
-        plt.plot(wave, flux)
-        plt.plot(wav_points, flux_points, "x-", label="points")
-        plt.plot(org_wave, norm_flux, label='norm_flux')
-        plt.legend()
-        plt.subplot(212)
-        plt.plot(org_wave, org_flux / norm_flux)
-        plt.title("Normalization")
-        plt.show()
-
-    return org_flux / norm_flux
 
 
 if __name__ == "__main__":
