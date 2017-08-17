@@ -1,5 +1,4 @@
-"""broadcast_test.py"""
-
+"""broadcast_test.py."""
 import numpy as np
 import pytest
 
@@ -10,16 +9,23 @@ from spectrum_overload.Spectrum import Spectrum
 
 @pytest.fixture
 def host():
-    pass
+    """Host spectrum fixture."""
+    return Spectrum()
+    
 
 
 @pytest.fixture
 def comp():
-    pass
+    """Companion spectrum fixture."""
+    return Spectrum()
+
 
 
 def test_models_are_same_with_no_companion(host, comp):
+    """To compare models give equvalient ouptut.
 
+    If alpha= 0 and rvs = 0.
+    s"""
     ocm = one_comp_model(host.xaxis, host.flux, [1, 2, 3])
     tcm = two_comp_model(host.xaxis, host.flux, comp.flux, [0], [0], [1, 2, 3])
 
@@ -27,8 +33,11 @@ def test_models_are_same_with_no_companion(host, comp):
 
 
 def test_broadcasting_with_transpose():
+    """Test transpose method for calculations."""
     # Doesn't check actual codes
-    a = np.random.rand(1, 2)
-    b = np.random.rand(1, 2, 4, 5, 2)
+    small = np.random.rand(1, 2)
+    large = np.random.rand(1, 2, 4, 5, 2)
 
-    assert ((a.T * b.T).T == a[:, :, None, None, None] * b).all()
+    assert ((small.T * large.T).T == small[:, :, None, None, None] * large).all()
+    assert ((large.T * small.T).T == large * small[:, :, None, None, None]).all()
+    assert ((large.T * small.T).T == small[:, :, None, None, None] * large).all()
