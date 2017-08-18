@@ -12,12 +12,11 @@ the same I would think unless the lines changed dramatically).
 """
 from __future__ import division, print_function
 
-import copy
 # import itertools
+import argparse
 import logging
 import os
 import sys
-from datetime import datetime as dt
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -32,8 +31,8 @@ from models.broadcasted_models import two_comp_model
 # from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.debug_utils import timeit  # , pv
-from utilities.norm import chi2_model_norms, renormalize_observation
+from utilities.debug_utils import timeit2  # , pv
+from utilities.norm import chi2_model_norms  # , renormalize_observation
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
@@ -50,173 +49,97 @@ wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011
 wav_model /= 10   # turn into nm
 
 
-def main():
-    """Main function."""
-    parallel = True
-    star = "HD211847"
+gammas = np.arange(-20, 20, 1)
+rvs = np.arange(-20, 20, 2)
+alphas = np.arange(0.01, 0.2, 0.02)
+
+
+def _parser():
+    """Take care of all the argparse stuff.
+
+    :returns: the args
+    """
+    parser = argparse.ArgumentParser(description='tcm')
+    parser.add_argument('--chip', help='Chip Number.')
+    parser.add_argument('-p', '--parallel', help='use parallelization.')
+
+    return parser.parse_args()
+
+
+def tcm_helper_function(star, obs_num, chip):
     param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
     params = parse_paramfile(param_file, path=None)
+    obs_name = "/home/jneal/.handy_spectra/{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip)
+
+    output_prefix = "Analysis/{0}/{0}-{1}_{2}_bhm_chisqr_results.dat".format(star.upper(), obs_num, chip)
+    return obs_name, params, output_prefix
+
+
+def main(chip=None, parallel=True):
+    """Main function."""
+    parallel = True
+
+    star = "HD211847"
+    obs_num = 2
+
+    if chip is None:
+        chip = 4
+
+    obs_name, params, output_prefix = tcm_helper_function(star, obs_num, chip)
+
+    print("The observation used is ", obs_name, "\n")
+
     host_params = [params["temp"], params["logg"], params["fe_h"]]
     comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
-
-    obs_num = 2
-    chip = 4
-
-    obs_name = "/home/jneal/.handy_spectra/{}-{}-mixavg-tellcorr_{}.fits".format(star, obs_num, chip)
-    print("The observation used is ", obs_name, "\n")
 
     closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
     closest_comp_model = closest_model_params(*comp_params)
 
-    # original_model = "Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-    # debug(pv("closest_host_model"))
-    # debug(pv("closest_comp_model"))
-    # debug(pv("original_model"))
-
     # Function to find the good models I need
     # models = find_phoenix_model_names(model_base_dir, original_model)
     # Function to find the good models I need from parameters
-    # model_par_gen = generate_close_params(closest_host_model)
-    model1_pars = list(generate_close_params(closest_host_model))  # Turn to list
+    model1_pars = list(generate_close_params(closest_host_model))
     model2_pars = list(generate_close_params(closest_comp_model))
 
-    print("Model parameters", model1_pars)
-    print("Model parameters", model2_pars)
+    # print("Model parameters", model1_pars)
+    # print("Model parameters", model2_pars)
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
-    obs_spec = barycorr_crires_spectrum(obs_spec, -22)
-    obs_spec.flux /= 1.02
+    obs_spec = barycorr_crires_spectrum(obs_spec)
+    # TODO
     # Mask out bad portion of observed spectra ## HACK
     if chip == 4:
         # Ignore first 40 pixels
         obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
 
-    gammas = np.arange(-20, 20, 1)
-    rvs = np.arange(-20, 20, 2)
-    alphas = np.arange(0.01, 0.2, 0.02)
+
+
+    print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
+    print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
+
     ####
     if parallel:
-        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True)
+        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True, prefix=output_prefix)
     else:
-        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True)
+        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True, prefix=output_prefix)
 
     ####
-    # bcast_chisqr_vals, bcast_alpha, bcast_rv, bcast_gamma, tcm_bcast_chisquare = chi2_grids
-    bcast_chisqr_vals = chi2_grids
+    print("This has no purpose")
+    print("result min tcm chisquare shape", chi2_grids.shape)
 
-    print("tcm broadcast_chisquare shape", bcast_chisqr_vals.shape)
-    # TEFF = [par[0] for par in model_pars]
-    # LOGG = [par[1] for par in model_pars]
-    # FEH = [par[2] for par in model_pars]
-    #
-    # plt.plot(TEFF, broadcast_chisqr_vals, "+", label="broadcast")
-    # plt.plot(TEFF, model_chisqr_vals, ".", label="org")
-    # plt.title("TEFF vs Broadcast chisqr_vals")
-    # plt.legend()
-    # plt.show()
-    # plt.plot(TEFF, broadcast_gamma, "o")
-    # plt.title("TEFF vs Broadcast gamma grid")
-    # plt.show()
-    #
-    # plt.plot(LOGG, broadcast_chisqr_vals, "+", label="broadcast")
-    # plt.plot(LOGG, model_chisqr_vals, ".", label="org")
-    # plt.title("LOGG verse Broadcast chisqr_vals")
-    # plt.legend()
-    # plt.show()
-    # plt.plot(LOGG, broadcast_gamma, "o")
-    # plt.title("LOGG verse Broadcast gamma grid")
-    # plt.show()
-    #
-    # plt.plot(FEH, broadcast_chisqr_vals, "+", label="broadcast")
-    # plt.plot(FEH, model_chisqr_vals, ".", label="org")
-    # plt.title("FEH vs Broadcast chisqr_vals")
-    # plt.legend()
-    # plt.show()
-    # plt.plot(FEH, broadcast_gamma, "o")
-    # plt.title("FEH vs Broadcast gamma grid")
-    # plt.show()
-    #
-    #
-    # TEFFS_unique = np.array(set(TEFF))
-    # LOGG_unique = np.array(set(LOGG))
-    # FEH_unique = np.array(set(FEH))
-    # X, Y, Z = np.meshgrid(TEFFS_unique, LOGG_unique, FEH_unique)  # set sparse=True for memory efficency
-    # print("Teff grid", X)
-    # print("Logg grid", Y)
-    # print("FEH grid", Z)
-    # assert len(TEFF) == sum(len(x) for x in (TEFFS_unique, LOGG_unique, FEH_unique))
-    #
-    # chi_ND = np.empty_like(X.shape)
-    # print("chi_ND.shape", chi_ND.shape)
-    # print("len(TEFFS_unique)", len(TEFFS_unique))
-    # print("len(LOGG_unique)", len(LOGG_unique))
-    # print("len(FEH_unique)", len(FEH_unique))
-    #
-    # for i, tf in enumerate(TEFFS_unique):
-    #     for j, lg in enumerate(LOGG_unique):
-    #         for k, fh in enumerate(FEH_unique):
-    #             print("i,j,k", (i, j, k))
-    #             print("num = t", np.sum(TEFF == tf))
-    #             print("num = lg", np.sum(LOGG == lg))
-    #             print("num = fh", np.sum(FEH == fh))
-    #             mask = (TEFF == tf) * (LOGG == lg) * (FEH == fh)
-    #             print("num = tf, lg, fh", np.sum(mask))
-    #             chi_ND[i, j, k] = broadcast_chisqr_vals[mask]
-    #             print("broadcast val", broadcast_chisqr_vals[mask],
-    #                   "\norg val", model_chisqr_vals[mask])
-    #
-    #
-    # # debug(pv("model_chisqr_vals"))
-    # # debug(pv("model_xcorr_vals"))
-    # chisqr_argmin_indx = np.argmin(model_chisqr_vals)
-    # xcorr_argmax_indx = np.argmax(model_xcorr_vals)
-    #
-    # # debug(pv("chisqr_argmin_indx"))
-    # # debug(pv("xcorr_argmax_indx"))
-    #
-    # # debug(pv("model_chisqr_vals"))
-    # print("Minimum  Chisqr value =", model_chisqr_vals[chisqr_argmin_indx])  # , min(model_chisqr_vals)
-    # print("Chisqr at max correlation value", model_chisqr_vals[chisqr_argmin_indx])
-    #
-    # print("model_xcorr_vals = {}".format(model_xcorr_vals))
-    # print("Maximum Xcorr value =", model_xcorr_vals[xcorr_argmax_indx])  # , max(model_xcorr_vals)
-    # print("Xcorr at min Chiqsr", model_xcorr_vals[chisqr_argmin_indx])
-    #
-    # # debug(pv("model_xcorr_rv_vals"))
-    # print("RV at max xcorr =", model_xcorr_rv_vals[xcorr_argmax_indx])
-    # # print("Meadian RV val =", np.median(model_xcorr_rv_vals))
-    # print(pv("model_xcorr_rv_vals[chisqr_argmin_indx]"))
-    # print(pv("sp.stats.mode(np.around(model_xcorr_rv_vals))"))
-    #
-    # # print("Max Correlation model = ", models[xcorr_argmax_indx].split("/")[-2:])
-    # # print("Min Chisqr model = ", models[chisqr_argmin_indx].split("/")[-2:])
-    # print("Max Correlation model = ", model_pars[xcorr_argmax_indx])
-    # print("Min Chisqr model = ", model_pars[chisqr_argmin_indx])
-    #
-    # limits = [2110, 2160]
-    #
-    # best_model_params = model_pars[chisqr_argmin_indx]
-    # best_model_spec = load_starfish_spectrum(best_model_params, limits=limits, normalize=True)
-    #
-    # best_xcorr_model_params = model_pars[xcorr_argmax_indx]
-    # best_xcorr_model_spec = load_starfish_spectrum(best_xcorr_model_params, limits=limits, normalize=True)
-    #
-    # close_model_spec = load_starfish_spectrum(closest_model_params, limits=limits, normalize=True)
-    #
-    #
-    # plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observations")
-    # plt.plot(best_model_spec.xaxis, best_model_spec.flux, label="Best Model")
-    # plt.plot(best_xcorr_model_spec.xaxis, best_xcorr_model_spec.flux, label="Best xcorr Model")
-    # plt.plot(close_model_spec.xaxis, close_model_spec.flux, label="Close Model")
-    # plt.legend()
-    # plt.xlim(*limits)
-    # plt.show()
+    # Print TODO
+    print("TODO: Add joining of sql table here")
+
+    # subprocess.call(make_chi2_bd.py)
 
 
-@timeit
-def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False):
+@timeit2
+def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False, save_only=True, chip=None, prefix=None):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
+    if chip is None:
+        chip = ""
+
     if alphas is None:
         alphas = np.array([0])
     elif isinstance(alphas, (float, int)):
@@ -249,66 +172,78 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     normalization_limits = [2105, 2185]   # small as possible?
     # combined_params = itertools.product(model1_pars, model2_pars)
     for ii, params1 in enumerate(tqdm(model1_pars)):
-        save_filename = ("Analysis/{0}/tc_{0}_{1}_part{5}_host_pars_{2}_{3}_{4}"
-                         ".csv").format(obs_spec.header["OBJECT"],
-                                        int(obs_spec.header["MJD-OBS"]),
-                                        params1[0], params1[1], params1[2], ii)
-        for jj, params2 in enumerate(model2_pars):
+        if prefix is None:
+            sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]_par"
+                  ".csv").format(obs_spec.header["OBJECT"],
+                                 int(obs_spec.header["MJD-OBS"]), chip,
+                                 params1[0], params1[1], params1[2], num)
 
-            if verbose:
-                print("Starting iteration with parameters:\n{0}={1},{2}={3}".format(ii, params1, jj, params2))
-            mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=True)
-            mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=True)
+        else:
+            sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}]_par.csv".format(prefix,
+                params1[0], params1[1], params1[2], num)
+        save_filename = sf
 
-            # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
+        if os.path.exists(save_filename) and save_only:
+            print("''{}' exists, so not repeating calcualtion.".format(save_filename))
+            continue
+        else:
+            for jj, params2 in enumerate(model2_pars):
+                if verbose:
+                    print("Starting iteration with parameters:\n{0}={1},{2}={3}".format(ii, params1, jj, params2))
+                mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=True)
+                mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=True)
 
-            # Wavelength selection
-            mod1_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                 np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
-            mod2_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                 np.max(obs_spec.xaxis) + 5)
-            obs_spec = obs_spec.remove_nans()
+                # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
 
-            # One component model with broadcasting over gammas
-            # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
-            assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
+                # Wavelength selection
+                mod1_spec.wav_select(np.min(obs_spec.xaxis) - 5,
+                                     np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
+                mod2_spec.wav_select(np.min(obs_spec.xaxis) - 5,
+                                     np.max(obs_spec.xaxis) + 5)
+                obs_spec = obs_spec.remove_nans()
 
-            broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
-                                              alphas=alphas, rvs=rvs, gammas=gammas)
-            broadcast_values = broadcast_result(obs_spec.xaxis)
+                # One component model with broadcasting over gammas
+                # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
+                assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
 
-            assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
+                broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+                                                  alphas=alphas, rvs=rvs, gammas=gammas)
+                broadcast_values = broadcast_result(obs_spec.xaxis)
 
-            # ### NORMALIZATION NEEDED HERE
-            if norm:
-                return NotImplemented
-                obs_flux = renormalize_observation(
-                    obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis],
-                    obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis],
-                    broadcast_values)
-            else:
-                obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
-            #####
+                assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
-            broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
-            sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
+                # ### NORMALIZATION NEEDED HERE
+                if norm:
+                    obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, broadcast_values)
 
-            assert np.all(sp_chisquare == broadcast_chisquare)
+                else:
+                    obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
+                #####
 
-            print(broadcast_chisquare.shape)
-            print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
-            # New parameters to explore
-            broadcast_chisqr_vals[ii, jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
-            # broadcast_gamma[ii, jj] = gammas[np.argmin(broadcast_chisquare)]
-            # full_broadcast_chisquare[ii, jj, :] = broadcast_chisquare
+                if not save_only:
+                    broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
+                    sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
 
-            save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare)
+                    assert np.all(sp_chisquare == broadcast_chisquare)
 
-    return broadcast_chisqr_vals   # Just output the best value for each model pair
+                    print(broadcast_chisquare.shape)
+                    print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
+                    # New parameters to explore
+                    broadcast_chisqr_vals[ii, jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
+                    # broadcast_gamma[ii, jj] = gammas[np.argmin(broadcast_chisquare)]
+                    # full_broadcast_chisquare[ii, jj, :] = broadcast_chisquare
+
+                save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=verbose)
+
+    if save_only:
+        return None
+    else:
+        return broadcast_chisqr_vals   # Just output the best value for each model pair
 
 
+@timeit2
 def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
-                          rvs=None, gammas=None, verbose=False, norm=False):
+                          rvs=None, gammas=None, verbose=False, norm=False, save_only=True, chip=None, prefix=None):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
     if alphas is None:
         alphas = np.array([0])
@@ -328,33 +263,30 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
     if isinstance(model2_pars, list):
         debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
-    print("host params", model1_pars)
-    print("companion params", model2_pars)
-
-    # Solution Grids to return
-    # model_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
-    # model_xcorr_vals = np.empty(len(model1_pars), len(model2_pars))
-    # model_xcorr_rv_vals = np.empty(len(model1_pars), len(model2_pars))
-    # broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
-    # broadcast_gamma = np.empty((len(model1_pars), len(model2_pars)))
-    # full_broadcast_chisquare = np.empty((len(model1_pars), len(model2_pars), len(alphas), len(rvs), len(gammas)))
+    # print("host params", model1_pars)
+    # print("companion params", model2_pars)
 
     print("parallised running\n\n\n ###################")
     broadcast_chisqr_vals = Parallel(n_jobs=3)(
         delayed(tcm_wrapper)(ii, param, model2_pars, alphas,
-                             rvs, gammas, obs_spec, norm=False)
+                             rvs, gammas, obs_spec, norm=True, save_only=save_only, chip=chip, prefix=prefix)
         for ii, param in enumerate(model1_pars))
     # for ii, params1 in enumerate(tqdm(model1_pars)):
 
     return broadcast_chisqr_vals   # Just output the best value for each model pair
 
 
-def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=True, verbose=True):
+def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=True, verbose=True, save_only=True, chip=None, prefix=None):
     """Wrapper for iteration loop of tcm. To use with parallization."""
-    save_filename = ("Analysis/{0}/tc_{0}_{1}_part{5}_host_pars_{2}_{3}_{4}"
-                     ".csv").format(obs_spec.header["OBJECT"],
-                                    int(obs_spec.header["MJD-OBS"]),
-                                    params1[0], params1[1], params1[2], num)
+    if prefix is None:
+        sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]_par"
+              ".csv").format(obs_spec.header["OBJECT"],
+                             int(obs_spec.header["MJD-OBS"]), chip,
+                             params1[0], params1[1], params1[2], num)
+    else:
+        sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}]_par.csv".format(prefix,
+              params1[0], params1[1], params1[2], num)
+    save_filename = sf
 
     broadcast_chisqr_vals = np.empty(len(model2_pars))
     for jj, params2 in enumerate(model2_pars):
@@ -387,11 +319,8 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=T
 
         # ### NORMALIZATION NEEDED HERE
         if norm:
-            return NotImplemented
-            obs_flux = renormalize_observation(
-                obs_spec.xaxis[:, np.newaxis, np.newaxis, np.newaxis],
-                obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis],
-                broadcast_values)
+            obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, broadcast_values)
+
         else:
             obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
         #####
@@ -407,32 +336,53 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=T
         # New parameters to explore
         broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
 
-        save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare)
+        save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=verbose)
 
     return broadcast_chisqr_vals
 
 
 # @timeit
-def save_full_chisqr(name, params1, params2, alphas, rvs, gammas, broadcast_chisquare):
+def save_full_chisqr(name, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=False):
     """Save the iterations chisqr values to a cvs."""
     A, R, G = np.meshgrid(alphas, rvs, gammas, indexing='ij')
     assert A.shape == R.shape
     assert R.shape == G.shape
     assert G.shape == broadcast_chisquare.shape
     ravel_size = len(A.ravel())
-    p1_0 = np.ones(ravel_size) * params1[0]
-    p1_1 = np.ones(ravel_size) * params1[1]
-    p1_2 = np.ones(ravel_size) * params1[2]
-    p2_0 = np.ones(ravel_size) * params1[0]
-    p2_1 = np.ones(ravel_size) * params1[1]
-    p2_2 = np.ones(ravel_size) * params1[2]
+
+    p2_0 = np.ones(ravel_size) * params2[0]
+    p2_1 = np.ones(ravel_size) * params2[1]
+    p2_2 = np.ones(ravel_size) * params2[2]
     assert p2_2.shape == A.ravel().shape
-    data = {"teff_1": p1_0, "logg_1": p1_1, "feh_1": p1_2, "teff_2": p2_0, "logg_2": p2_1, "feh_2": p2_2,
-            "alpha": A.ravel(), "rv": R.ravel(), "gamma": G.ravel(), "chi2": broadcast_chisquare.ravel()}
-    columns = ["teff_1", "logg_1", "feh_1", "teff_2", "logg_2", "feh_2",
-               "alpha", "rv", "gamma", "chi2"]
-    df = pd.DataFrame(data=data)
-    df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
+
+    exists = os.path.exists(name)
+
+    data = {"teff_2": p2_0, "logg_2": p2_1, "feh_2": p2_2, "alpha": A.ravel(),
+            "rv": R.ravel(), "gamma": G.ravel(),
+            "chi2": broadcast_chisquare.ravel()}
+
+    columns = ["teff_2", "logg_2", "feh_2", "alpha", "rv", "gamma", "chi2"]
+
+    if "[{}_{}_{}]".format(params1[0], params1[1], params1[2]) not in name:
+        # Need to add the model values.
+        # This is a waste of memory here.
+        p1_0 = np.ones(ravel_size) * params1[0]
+        p1_1 = np.ones(ravel_size) * params1[1]
+        p1_2 = np.ones(ravel_size) * params1[2]
+        data.update({"teff_1": p1_0, "logg_1": p1_1, "feh_1": p1_2})
+        columns = ["teff_1", "logg_1", "feh_1"] + columns
+
+    df = pd.DataFrame(data=data, columns=columns)
+    df = df.round(decimals={"logg_2": 1, "feh_2": 1, "alpha": 3,
+                            "rv": 3, "gamma": 3, "chi2": 4})
+    if exists:
+        df[columns].to_csv(name, sep=',', mode="a", index=False, header=False)  # Append to values cvs
+    else:
+        # Add header at the top only
+        df[columns].to_csv(name, sep=',', mode="a", index=False, header=True)  # Append to values cvs
+
+    if verbose:
+        print("Saved chi2 values to {}".format(name))
     return None
 
 
@@ -445,13 +395,7 @@ def plot_spectra(obs, model):
 
 
 if __name__ == "__main__":
-    def time_func(func, *args, **kwargs):
-        start = dt.now()
-        print("Starting at: {}".format(start))
-        result = func(*args, **kwargs)
-        end = dt.now()
-        print("Endded at: {}".format(end))
-        print("Runtime: {}".format(end - start))
-        return result
+    args = vars(_parser())
+    opts = {k: args[k] for k in args}
 
-    sys.exit(time_func(main))
+    sys.exit(main(**opts))
