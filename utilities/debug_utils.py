@@ -22,3 +22,16 @@ def timeit(method):
         return result
 
     return timed
+
+
+def timeit2(method):
+
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+
+        print('{0} (..., {1}) took {2:2.2f} seconds sec'.format(method.__name__, kw, te - ts))
+        return result
+
+    return timed
