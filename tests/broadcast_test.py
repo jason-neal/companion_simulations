@@ -4,20 +4,23 @@ import pytest
 
 # Test that the two componet model with alpha = [0] and rvs=[0] are equal!
 from models.broadcasted_models import one_comp_model, two_comp_model
-from spectrum_overload.Spectrum import Spectrum
-
+from utilities.phoenix_utils import load_starfish_spectrum
 
 @pytest.fixture
 def host():
     """Host spectrum fixture."""
-    return Spectrum()
-    
+    mod_spec = load_starfish_spectrum([5600, 5, -0.5], limits=[2100, 2150], hdr=True, normalize=True)
+
+    return mod_spec
+
 
 
 @pytest.fixture
 def comp():
     """Companion spectrum fixture."""
-    return Spectrum()
+    mod_spec = load_starfish_spectrum([2600, 4.5, 0.0], limits=[2100, 2150], hdr=True, normalize=True)
+
+    return mod_spec
 
 
 
