@@ -48,7 +48,7 @@ wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
 wav_model /= 10   # turn into nm
 
-test = True
+test = False
 if test:
     gammas = np.arange(-5, 5, 0.5)
     rvs = np.arange(-2, 2, 0.3)

@@ -13,6 +13,7 @@ the same I would think unless the lines changed dramatically).
 from __future__ import division, print_function
 
 # import itertools
+import argparse
 import logging
 import os
 import sys
@@ -113,7 +114,7 @@ def main(chip=None, parallel=True):
         obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
 
 
-
+    param_iter = len(alphas) * len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
     print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
     print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
