@@ -291,11 +291,11 @@ def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
     for t_, logg_, feh_ in itertools.product(glob_temps, glob_loggs, glob_fehs):
         phoenix_glob = ("/Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                         "").format(t_, logg_, feh_)
-        logging.debug("Phoenix glob", phoenix_glob)
+        logging.debug("Phoenix glob = {0}".format(phoenix_glob))
         model_to_find = base_dir + phoenix_glob
         files = glob.glob(model_to_find)
         file_list += files
-    logging.debug("file list", file_list)
+    logging.debug("file list = {0}".format(file_list))
     phoenix_models = file_list
     # folder_file = ["/".join(f.split("/")[-2:]) for f in phoenix_models]
 

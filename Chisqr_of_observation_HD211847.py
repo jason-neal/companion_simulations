@@ -161,7 +161,7 @@ def main():
     # Dump the results into a pickle file
     pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obs_num, chip)
     with open(os.path.join(path, pickle_name), "wb") as f:
-        """Pickle all the necessary parameters to store."""
+        # Pickle all the necessary parameters to store.
         pickle.dump((rvs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,
                     rv_solution, alpha_solution, min_chisqr, min_loc, solution_model), f)
 

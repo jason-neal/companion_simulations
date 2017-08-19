@@ -168,7 +168,7 @@ def main():
     print(star_spec.xaxis)
     print(bd_spec.xaxis)
     combined = combine_spectra(star_spec, bd_spec, alpha=0.01)
-    combined2 = combine_spectra(star_spec, bd_spec, alpha=0.1)
+    # combined2 = combine_spectra(star_spec, bd_spec, alpha=0.1)
 
     spectrum_plotter(bd_spec, label="HD30501b")
     plt.title("Pheonix Spectra HD30501A and HD30501b")
