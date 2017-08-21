@@ -5,6 +5,7 @@ import pytest
 # Test that the two componet model with alpha = [0] and rvs=[0] are equal!
 from models.broadcasted_models import one_comp_model, two_comp_model
 from utilities.phoenix_utils import load_starfish_spectrum
+from models.broadcasted_models import check_broadcastable
 
 @pytest.fixture
 def host():
@@ -44,3 +45,10 @@ def test_broadcasting_with_transpose():
     assert ((small.T * large.T).T == small[:, :, None, None, None] * large).all()
     assert ((large.T * small.T).T == large * small[:, :, None, None, None]).all()
     assert ((large.T * small.T).T == small[:, :, None, None, None] * large).all()
+def test_check_broadcastable():
+    # turn scalar or list into 2d array with 1s on the right
+    assert check_broadcastable(2).shape == (1, 1)
+    assert check_broadcastable([2]).shape == (1, 1)
+    assert check_broadcastable([[[2]]]).shape == (1, 1, 1)
+    assert check_broadcastable([1, 2]).shape == (2, 1)
+    assert check_broadcastable([[1], [2]]).shape == (2, 1)

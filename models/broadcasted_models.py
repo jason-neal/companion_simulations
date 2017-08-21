@@ -9,8 +9,7 @@ from utilities.debug_utils import timeit2
 def one_comp_model(wav, model1, gammas):
     """Make 1 component simulations, broadcasting over gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
-    if not hasattr(gammas, "__len__"):
-        gammas = np.asarray(gammas)[np.newaxis]
+    gammas = check_broadcastable(gammas).squeeze(axis=1)
 
     m1 = model1
     m1g = np.empty(model1.shape + (len(gammas),))   # am2rvm1g = am2rvm1 with gamma doppler-shift
@@ -23,17 +22,23 @@ def one_comp_model(wav, model1, gammas):
     return interp1d(wav, m1g, axis=0)    # pass it the wavelength values to return
 
 
+def check_broadcastable(var):
+    # My version of broadcasable with 1s on the right
+    var = np.atleast_2d(var)
+    v_shape = var.shape
+    # to make it (N, 1)
+    if v_shape[0] == 1 and v_shape[0] < v_shape[1]:
+        var = np.swapaxes(var, 0, 1)
+    return var
+
+
 @timeit2
 def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
     """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
-    if not hasattr(alphas, "__len__"):
-        alphas = np.asarray(alphas)[np.newaxis]
-    if not hasattr(rvs, "__len__"):
-        rvs = np.asarray(rvs)[np.newaxis]
-    if not hasattr(gammas, "__len__"):
-        gammas = np.asarray(gammas)[np.newaxis]
-        # print(len(gammas))
+    alphas = check_broadcastable(alphas).squeeze(axis=1)
+    rvs = check_broadcastable(rvs).squeeze(axis=1)
+    gammas = check_broadcastable(gammas).squeeze(axis=1)
 
     am2 = model2[:, np.newaxis] * alphas  # alpha * Model2 (am2)
     am2rv = np.empty(am2.shape + (len(rvs),))  # am2rv = am2 with rv doppler-shift
