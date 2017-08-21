@@ -100,12 +100,9 @@ def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
         wave_points[i] = np.median(w[high_args])  # Take the median of the wavelength values of max values.
         flux_points[i] = np.median(f[high_args])
 
-    poly_num = {"linear": 1, "quadratic": 2, "cubic": 3}
+    poly_num = {"scalar": 0, "linear": 1, "quadratic": 2, "cubic": 3}
 
-    if method == "scalar":
-        # Changed to mean to reflext polyval fit with degree 0 = mean
-        norm_flux = np.mean(flux_points) * np.ones_like(org_wave)
-    elif method == "exponential":
+    if method == "exponential":
         z = np.polyfit(wave_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
         p = np.poly1d(z)
         norm_flux = np.exp(p(org_wave))   # Un-log the y values.
