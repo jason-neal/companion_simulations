@@ -47,7 +47,7 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
     am2rvm1 = model1[:, np.newaxis, np.newaxis] + am2rv  # am2rvm1 = am2rv + model_1
     am2rvm1g = np.empty(am2rvm1.shape + (len(gammas),))  # am2rvm1g = am2rvm1 with gamma doppler-shift
     for j, gamma in enumerate(gammas):
-        wav_j = (1 - gamma / 299792.458) * wav
+        wav_j = (1 + gamma / 299792.458) * wav
         am2rvm1g[:, :, :, j] = interp1d(wav_j, am2rvm1, axis=0, bounds_error=False)(wav)
 
     assert am2rvm1g.shape == (len(model1), len(alphas), len(rvs), len(gammas)), "Dimensions of broadcast not correct"
