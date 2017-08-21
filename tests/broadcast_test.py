@@ -68,7 +68,21 @@ def test_no_tcm_companion(host, alpha, equal):
     assert np.allclose(tcm_eval, tcm2_eval) is equal
 
 
-    assert np.allclose(ocm, tcm)
+@pytest.mark.xfail()
+def test_tcm_with_transpose(host, comp):
+    """To compare models give equvalient ouptut.
+
+    If alpha= 0 and rvs = 0.
+    s"""
+    tcm = two_comp_model(host.xaxis, host.flux, comp.flux, 0, [0], [1, 2, 3])
+    tcm_T = two_comp_model_with_transpose(host.xaxis, host.flux, comp.flux, 0, [0], [1, 2, 3])
+
+    tcm_eval = tcm(host.xaxis)
+    tcm_T_eval = tcm_T(host.xaxis)
+
+    print(tcm_eval.shape, tcm_T_eval.shape)
+    assert tcm_eval.shape == tcm_T_eval.shape
+    assert np.allclose(tcm_eval, tcm_T_eval)
 
 
 def test_broadcasting_with_transpose():
