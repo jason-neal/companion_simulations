@@ -1,37 +1,72 @@
 """broadcast_test.py."""
+from __future__ import division, print_function
+
 import numpy as np
 import pytest
+import scipy as sp
 
 # Test that the two componet model with alpha = [0] and rvs=[0] are equal!
-from models.broadcasted_models import one_comp_model, two_comp_model
-from utilities.phoenix_utils import load_starfish_spectrum
-from models.broadcasted_models import check_broadcastable
+from models.broadcasted_models import (check_broadcastable, one_comp_model,
+                                       two_comp_model,
+                                       two_comp_model_with_transpose)
+from utilities.phoenix_utils import load_normalized_starfish_spectrum
+
 
 @pytest.fixture
 def host():
     """Host spectrum fixture."""
-    mod_spec = load_starfish_spectrum([5600, 5, -0.5], limits=[2100, 2150], hdr=True, normalize=True)
-
+    mod_spec = load_normalized_starfish_spectrum([5200, 4.50, 0.0], limits=[2100, 2105])
     return mod_spec
-
 
 
 @pytest.fixture
 def comp():
     """Companion spectrum fixture."""
-    mod_spec = load_starfish_spectrum([2600, 4.5, 0.0], limits=[2100, 2150], hdr=True, normalize=True)
-
+    mod_spec = load_normalized_starfish_spectrum([2600, 4.50, 0.0], limits=[2100, 2105])
     return mod_spec
 
 
-
-def test_models_are_same_with_no_companion(host, comp):
+def test_models_are_same_with_no_companion(host):
     """To compare models give equvalient ouptut.
 
     If alpha= 0 and rvs = 0.
     s"""
+
+    print(np.max(host.flux))
     ocm = one_comp_model(host.xaxis, host.flux, [1, 2, 3])
-    tcm = two_comp_model(host.xaxis, host.flux, comp.flux, [0], [0], [1, 2, 3])
+    ocm_eval = ocm(host.xaxis)
+    tcm = two_comp_model(host.xaxis, host.flux, np.ones_like(host.flux), 0, [0], [1, 2, 3])
+    tcm_eval = tcm(host.xaxis).squeeze()
+
+    assert ocm_eval.shape == tcm_eval.shape
+    ocm_eval[np.isnan(ocm_eval)] = 0
+    tcm_eval[np.isnan(tcm_eval)] = 0
+
+    assert np.allclose(ocm_eval, tcm_eval)
+
+
+@pytest.mark.parametrize("alpha,equal", [
+    (0.1, False),
+    (0, True)
+    ])
+def test_no_tcm_companion(host, alpha, equal):
+    """To compare models give equvalient ouptut.
+
+    If alpha= 0 and rvs = 0.
+    s"""
+
+    tcm = two_comp_model(host.xaxis, host.flux, np.ones_like(host.flux), alpha, 0, [1, 2, 3])
+    tcm2 = two_comp_model(host.xaxis, host.flux, np.zeros_like(host.flux), alpha, 0, [1, 2, 3])
+    tcm_eval = tcm(host.xaxis).squeeze()
+    tcm2_eval = tcm2(host.xaxis).squeeze()
+
+    assert tcm_eval.shape == tcm2_eval.shape
+    tcm_eval[np.isnan(tcm_eval)] = 0
+    tcm2_eval[np.isnan(tcm2_eval)] = 0
+    print(tcm_eval)
+    print(tcm2_eval)
+    assert np.allclose(tcm_eval, tcm2_eval) is equal
+
 
     assert np.allclose(ocm, tcm)
 
@@ -45,6 +80,30 @@ def test_broadcasting_with_transpose():
     assert ((small.T * large.T).T == small[:, :, None, None, None] * large).all()
     assert ((large.T * small.T).T == large * small[:, :, None, None, None]).all()
     assert ((large.T * small.T).T == small[:, :, None, None, None] * large).all()
+
+
+def test_shape_of_tcm(host, comp):
+    gammas = np.arange(2)
+    rvs = np.arange(3)
+    alphas = np.arange(4) / 16
+
+    tcm = two_comp_model(host.xaxis, host.flux, comp.flux, alphas, rvs, gammas)
+    assert isinstance(tcm, sp.interpolate.interp1d)
+
+    tcm_eval = tcm(host.xaxis)  # Evaluate at host.xaxis
+    assert tcm_eval.shape == (len(host.xaxis), len(alphas), len(rvs), len(gammas))
+
+
+def test_shape_of_ocm(host):
+    gammas = np.arange(2)
+
+    ocm = one_comp_model(host.xaxis, host.flux, gammas)
+    assert isinstance(ocm, sp.interpolate.interp1d)
+
+    ocm_eval = ocm(host.xaxis)  # Evaluate at host.xaxis
+    assert ocm_eval.shape == (len(host.xaxis), len(gammas))
+
+
 def test_check_broadcastable():
     # turn scalar or list into 2d array with 1s on the right
     assert check_broadcastable(2).shape == (1, 1)
