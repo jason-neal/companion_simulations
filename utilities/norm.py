@@ -75,7 +75,7 @@ def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
     flux_split = np.split(flux, splits)
     wav_split = np.split(wave, splits)
 
-    wav_points = np.empty(splits)
+    wave_points = np.empty(splits)
     flux_points = np.empty(splits)
 
     for i, (w, f) in enumerate(zip(wav_split, flux_split)):
@@ -87,20 +87,21 @@ def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
     poly_num = {"linear": 1, "quadratic": 2, "cubic": 3}
 
     if method == "scalar":
-        norm_flux = np.median(flux_split) * np.ones_like(org_wave)
+        # Changed to mean to reflext polyval fit with degree 0 = mean
+        norm_flux = np.mean(flux_points) * np.ones_like(org_wave)
     elif method == "exponential":
-        z = np.polyfit(wav_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
+        z = np.polyfit(wave_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
         p = np.poly1d(z)
         norm_flux = np.exp(p(org_wave))   # Un-log the y values.
     else:
-        z = np.polyfit(wav_points, flux_points, poly_num[method])
+        z = np.polyfit(wave_points, flux_points, poly_num[method])
         p = np.poly1d(z)
         norm_flux = p(org_wave)
 
     if plot:
         plt.subplot(211)
         plt.plot(wave, flux)
-        plt.plot(wav_points, flux_points, "x-", label="points")
+        plt.plot(wave_points, flux_points, "x-", label="points")
         plt.plot(org_wave, norm_flux, label='norm_flux')
         plt.legend()
         plt.subplot(212)
