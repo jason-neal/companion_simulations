@@ -23,6 +23,9 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
     norm_obs: N-D arrary
         Observation normalized to all model continuums.
     """
+    if np.any(np.isnan(models)):
+        raise ValueError("NaNS are not allowed in models during normalization, "
+                         "check evaulated wavlength.")
 
     obs_continuum = continuum(wave, obs, splits=splits, method=method, top=top)
 
