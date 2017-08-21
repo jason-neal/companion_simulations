@@ -1,16 +1,14 @@
-import copy
 import time
 
 import numpy as np
 import pytest
 
-from models.broadcasted_models import one_comp_model, two_comp_model
-from utilities.norm import (chi2_model_norms, chi2_model_norms2, continuum,
-                            continuum2, get_continuum_points,
-                            local_normalization, local_normalization2,
-                            spec_local_norm, spec_local_norm2)
-from utilities.phoenix_utils import (load_normalized_phoenix_spectrum,
-                                     load_normalized_starfish_spectrum)
+from models.broadcasted_models import two_comp_model
+from utilities.norm import (chi2_model_norms, chi2_model_norms_slow,
+                            continuum, continuum_slow, get_continuum_points,
+                            local_normalization, local_normalization_slow,
+                            spec_local_norm, spec_local_norm_slow)
+from utilities.phoenix_utils import load_normalized_starfish_spectrum
 
 
 @pytest.fixture
@@ -43,13 +41,13 @@ def test_continuums_are_equvalient(host, norm_method):
     x, y = host.xaxis, host.flux
 
     start = time.time()
-    cont = continuum(x, y, method=norm_method)
+    cont_s = continuum_slow(x, y, method=norm_method)
     mid = time.time()
-    cont2 = continuum2(x, y, method=norm_method)
+    cont = continuum(x, y, method=norm_method)
     end = time.time()
-    assert np.allclose(cont, cont2)
-
     t1, t2 = mid - start, end - mid
+
+    assert np.allclose(cont_s, cont)
     assert t2 < t1
     assert t2 < t1 * 0.15  # Reduction by 85%
 
@@ -57,8 +55,8 @@ def test_continuums_are_equvalient(host, norm_method):
 def test_local_normalization_equivelent(host, norm_method):
     x, y = host.xaxis, host.flux
 
-    assert np.allclose(local_normalization(x, y, splits=50, method=norm_method, plot=False, top=5),
-                       local_normalization2(x, y, splits=50, method=norm_method, plot=False, top=5))
+    assert np.allclose(local_normalization_slow(x, y, splits=50, method=norm_method, plot=False, top=5),
+                       local_normalization(x, y, splits=50, method=norm_method, plot=False, top=5))
 
 
 @pytest.mark.parametrize("method1,method2", [
@@ -67,45 +65,42 @@ def test_local_normalization_equivelent(host, norm_method):
     ("quadratic", "exponential")])
 def test_local_normalization_methods_work(host, method1, method2):
     x, y = host.xaxis, host.flux
+    norm_1 = local_normalization(x, y, splits=50, method=method1, top=5)
+    norm_2 = local_normalization(x, y, splits=50, method=method2, top=5)
 
-    assert not np.allclose(local_normalization(x, y, splits=50, method=method1, plot=False, top=5),
-                           local_normalization(x, y, splits=50, method=method2, plot=False, top=5))
+    assert not np.allclose(norm_1, norm_2)
 
 
 def test_spec_local_norm_equivalent(host, norm_method):
     norm = spec_local_norm(host, method=norm_method, top=5)
-    norm2 = spec_local_norm2(host, method=norm_method, top=5)
+    norm_s = spec_local_norm_slow(host, method=norm_method, top=5)
 
-    assert np.allclose(norm.xaxis, norm2.xaxis)
-    assert np.allclose(norm.flux, norm2.flux)
-
+    assert np.allclose(norm.xaxis, norm_s.xaxis)
+    assert np.allclose(norm.flux, norm_s.flux)
 
 
 def test_spec_local_norm_applies_local_normalization(host, norm_method):
-    norm = spec_local_norm(host, method=norm_method, top=5)
-    local_norm = local_normalization(host.xaxis, host.flux, method=norm_method, top=5)
+    norm = spec_local_norm_slow(host, method=norm_method, top=5)
+    local_norm = local_normalization_slow(host.xaxis, host.flux, method=norm_method, top=5)
 
     assert np.allclose(norm.flux, local_norm)
 
 
 def test_manual_normalization():
-    # 2 is the new version
     x = np.arange(1, 100)
     y = np.arange(1, 100)
 
     local_norm = local_normalization(x, y, splits=5, plot=False, top=5, method="linear")
-    local_norm2 = local_normalization2(x, y, splits=5, plot=False, top=5, method="linear")
-    print(local_norm)
+    local_norm_s = local_normalization_slow(x, y, splits=5, plot=False, top=5, method="linear")
 
     cont = continuum(x, y, splits=3, plot=False, top=2, method="linear")
-    cont2 = continuum2(x, y, splits=3, plot=False, top=2, method="linear")
-    print("cont", cont)
-    print("cont2", cont2)
-    assert np.allclose(cont, y)
+    cont_s = continuum_slow(x, y, splits=3, plot=False, top=2, method="linear")
+
+    assert np.allclose(cont_s, y)
     assert np.allclose(local_norm, np.ones_like(y))
 
-    assert np.allclose(cont2, cont)
-    assert np.allclose(local_norm, local_norm2)
+    assert np.allclose(cont_s, cont)
+    assert np.allclose(local_norm, local_norm_s)
 
 
 def test_chi2_model_norms(host, tcm_model, norm_method):
@@ -113,16 +108,15 @@ def test_chi2_model_norms(host, tcm_model, norm_method):
     wave = host.xaxis
     obs = host.xaxis
     models = tcm_model(wave)
-    # print(len(wave))
-    # print("isnan?", np.any(np.isnan(wave)), np.any(np.isnan(host.flux)), np.any(np.isnan(models)))
+
     start = time.time()
-    chi2norm = chi2_model_norms(wave, obs, models, method=norm_method, splits=15, top=10)
+    chi2norm_s = chi2_model_norms_slow(wave, obs, models, method=norm_method, splits=15, top=10)
     mid = time.time()
-    chi2norm2 = chi2_model_norms2(wave, obs, models, method=norm_method, splits=15, top=10)
+    chi2norm = chi2_model_norms(wave, obs, models, method=norm_method, splits=15, top=10)
     end = time.time()
 
-    assert chi2norm.shape == chi2norm2.shape
-    assert np.allclose(chi2norm, chi2norm2)
+    assert chi2norm_s.shape == chi2norm.shape
+    assert np.allclose(chi2norm_s, chi2norm)
 
     t1, t2 = mid - start, end - mid
     assert t2 < t1

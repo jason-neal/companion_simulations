@@ -30,9 +30,7 @@ def test_models_are_same_with_no_companion(host):
     """To compare models give equvalient ouptut.
 
     If alpha= 0 and rvs = 0.
-    s"""
-
-    print(np.max(host.flux))
+    """
     ocm = one_comp_model(host.xaxis, host.flux, [1, 2, 3])
     ocm_eval = ocm(host.xaxis)
     tcm = two_comp_model(host.xaxis, host.flux, np.ones_like(host.flux), 0, [0], [1, 2, 3])
@@ -61,10 +59,9 @@ def test_no_tcm_companion(host, alpha, equal):
     tcm2_eval = tcm2(host.xaxis).squeeze()
 
     assert tcm_eval.shape == tcm2_eval.shape
+
     tcm_eval[np.isnan(tcm_eval)] = 0
     tcm2_eval[np.isnan(tcm2_eval)] = 0
-    print(tcm_eval)
-    print(tcm2_eval)
     assert np.allclose(tcm_eval, tcm2_eval) is equal
 
 
@@ -80,7 +77,6 @@ def test_tcm_with_transpose(host, comp):
     tcm_eval = tcm(host.xaxis)
     tcm_T_eval = tcm_T(host.xaxis)
 
-    print(tcm_eval.shape, tcm_T_eval.shape)
     assert tcm_eval.shape == tcm_T_eval.shape
     assert np.allclose(tcm_eval, tcm_T_eval)
 
