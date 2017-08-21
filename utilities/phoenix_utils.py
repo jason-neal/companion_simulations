@@ -22,7 +22,7 @@ from spectrum_overload.Spectrum import Spectrum
 # import Starfish
 from Starfish.grid_tools import HDF5Interface
 from utilities.param_file import parse_paramfile
-
+from utilities.norm import local_normalization, spec_local_norm
 debug = logging.debug
 
 
@@ -34,7 +34,7 @@ def load_normalized_phoenix_spectrum(phoenix_name, limits=None):
     spec = Spectrum(flux=flux, xaxis=wav_model)
     # Limit to K band
     spec.wav_select(2070, 2350)
-    spec = spec_local_norm(spec)
+    spec = spec_local_norm(spec, method="exponential")
     if limits is not None:
         spec.wav_select(*limits)
     return spec
@@ -84,7 +84,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False):
         spec = Spectrum(flux=flux, xaxis=my_hdf5.wl)
 
     if normalize:
-        spec = spec_local_norm(spec)
+        spec = spec_local_norm(spec, method="exponential")
 
     if limits is not None:
         spec.wav_select(*limits)
@@ -401,9 +401,7 @@ def spec_local_norm(spectrum, splits=50, method="quadratic", plot=False):
 
     Split spectra into many chunks and get the average of top 5\% in each bin.
     """
-    # debug(pv("spectrum"))
     norm_spectrum = copy.copy(spectrum)
-    # debug(pv("norm_spectrum"))
     flux_norm = local_normalization(norm_spectrum.xaxis, norm_spectrum.flux, splits=splits, plot=plot)
     norm_spectrum.flux = flux_norm
 
