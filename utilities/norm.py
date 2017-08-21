@@ -1,13 +1,15 @@
 """Normalization codes."""
 import copy
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.interpolate import interp1d
+
 from utilities.debug_utils import timeit2
 
 
 @timeit2
-def chi2_model_norms(wave, obs, models, method='scalar', splits=100):
+def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
     """Normalize the obs to the continuum of the models.
 
     Inputs
@@ -22,8 +24,8 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100):
         Observation normalized to all model continuums.
     """
 
+    obs_continuum = continuum(wave, obs, splits=splits, method=method, top=top)
 
-    obs_continuum = continuum(wave, obs, splits=splits, method=method)
 
     def model_continuum(flux):
         """Continuum with predefined varaibles parameters."""
@@ -44,7 +46,7 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100):
 
 
 
-def local_normalization(wave, flux, splits=50, method="exponential", plot=False):
+def local_normalization(wave, flux, splits=50, method="exponential", plot=False, top=20):
     r"""Local minimization for section of Phoenix spectra.
 
     Split spectra into many chunks and get the average of top 5\% in each bin.
@@ -53,13 +55,15 @@ def local_normalization(wave, flux, splits=50, method="exponential", plot=False)
     """
     flux = copy.copy(flux)
 
-    norm_flux = continuum_value(wave, flux, splits=splits, method=method, plot=plot)
+    norm_flux = continuum(wave, flux, splits=splits, method=method, plot=plot, top=top)
 
     return flux / norm_flux
 
 
-def continuum(wave, flux, splits=50, method='scalar', plot=False):
-    """Fit continuum of flux."""
+def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
+    """Fit continuum of flux.
+
+    top: is number of top points to take median of to get continuum."""
     org_wave = copy.copy(wave)
     org_flux = copy.copy(flux)
 
@@ -75,8 +79,10 @@ def continuum(wave, flux, splits=50, method='scalar', plot=False):
     flux_points = np.empty(splits)
 
     for i, (w, f) in enumerate(zip(wav_split, flux_split)):
-        wav_points[i] = np.median(w[np.argsort(f)[-20:]])  # Take the median of the wavelength values of max values.
-        flux_points[i] = np.median(f[np.argsort(f)[-20:]])
+        # Do the sorting only once to half the time taken here.
+        high_args = np.argsort(f)[-top:]
+        wave_points[i] = np.median(w[high_args])  # Take the median of the wavelength values of max values.
+        flux_points[i] = np.median(f[high_args])
 
     poly_num = {"linear": 1, "quadratic": 2, "cubic": 3}
 
