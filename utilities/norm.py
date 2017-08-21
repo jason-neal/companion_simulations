@@ -29,12 +29,12 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
 
     obs_continuum = continuum(wave, obs, splits=splits, method=method, top=top)
 
+    def axis_continuum(flux):
+        """Continuum to apply along axis with predefined varaibles parameters."""
+        return continuum(wave, flux, splits=splits, method=method, top=top)
 
-    def model_continuum(flux):
-        """Continuum with predefined varaibles parameters."""
-        return continuum(wave, flux, splits=splits, method=method, plot=False)
+    norm_models = np.apply_along_axis(axis_continuum, 0, models)
 
-    norm_models = np.apply_along_axis(model_continuum, 0, models)
 
     #print(norm_models.shape)
     #print(models.shape)
@@ -47,6 +47,19 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
     #print(norm_fraction.shape)
     return (obs.T * norm_fraction.T).T
 
+
+def spec_local_norm(spectrum, splits=50, method="quadratic", plot=False, top=20):
+    r"""Apply local normalization on Spectrum object.
+
+    Split spectra into many chunks and get the average of top 5\% in each bin.
+    """
+    norm_spectrum = copy.copy(spectrum)
+    flux_norm = local_normalization(norm_spectrum.xaxis, norm_spectrum.flux,
+                                    splits=splits, plot=plot, method=method,
+                                    top=top)
+    norm_spectrum.flux = flux_norm
+
+    return norm_spectrum
 
 
 def local_normalization(wave, flux, splits=50, method="exponential", plot=False, top=20):
