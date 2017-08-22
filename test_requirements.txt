@@ -1,0 +1,6 @@
+codeclimate-test-reporter
+codacy-coverage
+hypothesis
+pytest
+pytest-cov
+python-coveralls
