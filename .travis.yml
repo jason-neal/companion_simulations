@@ -37,10 +37,10 @@ install:
   - travis_retry git clone  https://github.com/iancze/Starfish.git
   - travis_retry pip install -r Starfish/requirements.txt
   - cd Starfish
+  - rm tests -rf   # to not test Starfish
   - python setup.py build_ext --inplace
   - python setup.py install
   - cd ..
-  - rm Starfish -rf     # to not test Starfish
 # - pip install https://github.com/iancze/Starfish/archive/master.zip
 
 # command to run tests
