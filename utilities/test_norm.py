@@ -49,7 +49,7 @@ def test_continuums_are_equvalient(host, norm_method):
 
     assert np.allclose(cont_s, cont)
     assert t2 < t1
-    assert t2 < t1 * 0.15  # Reduction by 85%
+    assert t2 < t1 * 0.20  # Reduction by 80%
 
 
 def test_local_normalization_equivelent(host, norm_method):
@@ -120,7 +120,7 @@ def test_chi2_model_norms(host, tcm_model, norm_method):
 
     t1, t2 = mid - start, end - mid
     assert t2 < t1
-    assert t2 < t1 * 0.25   # Reduces time by 75 %
+    assert t2 < t1 * 0.50   # Reduces time by 50 %
 
 
 @pytest.mark.parametrize("splits", [13, 27, 50])
