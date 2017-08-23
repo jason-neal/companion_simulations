@@ -174,14 +174,14 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     # combined_params = itertools.product(model1_pars, model2_pars)
     for ii, params1 in enumerate(tqdm(model1_pars)):
         if prefix is None:
-            sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]_par"
+            sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]"
                   ".csv").format(obs_spec.header["OBJECT"],
                                  int(obs_spec.header["MJD-OBS"]), chip,
-                                 params1[0], params1[1], params1[2], num)
+                                 params1[0], params1[1], params1[2], ii)
 
         else:
-            sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}]_par.csv".format(prefix,
-                params1[0], params1[1], params1[2], num)
+            sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(
+                prefix, params1[0], params1[1], params1[2], ii)
         save_filename = sf
 
         if os.path.exists(save_filename) and save_only:
