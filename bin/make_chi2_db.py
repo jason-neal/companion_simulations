@@ -4,7 +4,7 @@ import glob as glob
 import sys
 
 import pandas as pd
-from sqlalchemy import create_engine
+import sqlalchemy as sa
 
 def _parser():
     """Take care of all the argparse stuff.
@@ -41,6 +41,7 @@ def sql_join(pattern, suffix="", verbose=True, remove=False):
     None
     Saves file to sql database
 
+    http://pythondata.com/working-large-csv-files-python/
     """
     number_of_files = sum(1 for _ in glob.iglob(pattern))
     if verbose:
@@ -48,34 +49,48 @@ def sql_join(pattern, suffix="", verbose=True, remove=False):
 
     # Get frist part of name
     prefix = next(glob.iglob(pattern)).split("_part")[0]
-    print(prefix)
-    csv_database = create_engine('sqlite:///{}.db'.format(prefix, suffix))
-    print(type(csv_database))
-    print((csv_database))
+    print(prefix, suffix)
+    database_name = 'sqlite:///{0}{1}.db'.format(prefix, suffix)
+    engine = sa.create_engine(database_name)
+    print("csv_database =", engine, type(engine))
+
+    chunksize = 100000
+    i = 0
+    j = 1
     for f in glob.iglob(pattern):
-        df = pd.read_csv(f)
 
         if "[" in f:
             n = f.split("[")[-1]
             n = n.split("]")[0]
             teff, logg, feh = n.split("_")
             print("host params", teff, logg, feh)
-            df["teff_1"] = teff
-            df["logg_1"] = logg
-            df["feh_1"] = feh
-        df = df.rename(columns={c: c.replace(' ', '') for c in df.columns})
-        df.to_sql('table', csv_database, if_exists='append')
+            host_flag = True
+        else:
+            host_flag = False
+
+        for df in pd.read_csv(f, chunksize=chunksize, iterator=True):
+            # print("chunk number = {}".format(i))
+            if host_flag:
+                df["teff_1"] = teff
+                df["logg_1"] = logg
+                df["feh_1"] = feh
+                df = df.rename(columns={c: c.replace(' ', '').lower() for c in df.columns})
+                df.index += j
+                i += 1
+                df.to_sql('chi2_table', engine, if_exists='append')
+                j = df.index[-1] + 1
+                if verbose:
+                    print("indicies = ", i, j)
 
     if verbose:
-            print("Saved results to {}.".format(csv_database))
+            print("Saved results to {}.".format(database_name))
 
     if remove:
         print("Removing original files.")
         raise NotImplementedError
         # (subprocess.call("rm ") for f in glob.iglob(pattern))
-
+        
     return 0
-
 
 if __name__ == '__main__':
     args = vars(_parser())
