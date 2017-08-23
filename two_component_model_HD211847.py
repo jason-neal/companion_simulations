@@ -141,18 +141,9 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     if chip is None:
         chip = ""
 
-    if alphas is None:
-        alphas = np.array([0])
-    elif isinstance(alphas, (float, int)):
-        alphas = np.asarray(alphas, dtype=np.float32)
-    if rvs is None:
-        rvs = np.array([0])
-    elif isinstance(rvs, (float, int)):
-        rvs = np.asarray(rvs, dtype=np.float32)
-    if gammas is None:
-        gammas = np.array([0])
-    elif isinstance(gammas, (float, int)):
-        gammas = np.asarray(gammas, dtype=np.float32)
+    alphas = check_inputs(alphas)
+    rvs = check_inputs(rvs)
+    gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
         debug("Number of close model_pars returned {}".format(len(model1_pars)))
@@ -242,22 +233,21 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
         return broadcast_chisqr_vals   # Just output the best value for each model pair
 
 
+def check_inputs(var):
+    if var is None:
+        var = np.array([0])
+    elif isinstance(rvs, (float, int)):
+        var = np.asarray(var, dtype=np.float32)
+    return var
+
+
 @timeit2
 def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
                           rvs=None, gammas=None, verbose=False, norm=False, save_only=True, chip=None, prefix=None):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
-    if alphas is None:
-        alphas = np.array([0])
-    elif isinstance(alphas, (float, int)):
-        alphas = np.asarray(alphas, dtype=np.float32)
-    if rvs is None:
-        rvs = np.array([0])
-    elif isinstance(rvs, (float, int)):
-        rvs = np.asarray(rvs, dtype=np.float32)
-    if gammas is None:
-        gammas = np.array([0])
-    elif isinstance(gammas, (float, int)):
-        gammas = np.asarray(gammas, dtype=np.float32)
+    alphas = check_inputs(alphas)
+    rvs = check_inputs(rvs)
+    gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
         debug("Number of close model_pars returned {}".format(len(model1_pars)))
