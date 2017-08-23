@@ -31,6 +31,11 @@ def main(database):
         tb_name = table_names[0]
     else:
         raise ValueError("Database has two many tables {}".format(table_names))
+
+    get_column_limits(engine, tb_name)
+    smallest_chi2_values(engine, tb_name)
+
+
     df = pd.read_sql_query('SELECT alpha, chi2 FROM {0}'.format(tb_name), engine)
 
     fig, ax = plt.subplots()
