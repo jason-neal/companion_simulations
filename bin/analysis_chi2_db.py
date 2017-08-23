@@ -89,6 +89,29 @@ def alpha_rv_contour(engine, tb_name=None):
     plt.show()
 
 
+def smallest_chi2_values(engine, tb_name):
+    """Find smallest chi2 in table."""
+    df = pd.read_sql(sa.text('SELECT * FROM {0} ORDER BY chi2 ASC LIMIT 10'.format(tb_name)), engine)
+    # df = pd.read_sql_query('SELECT alpha  FROM table', engine)
+
+    print("Samllest Chi2 values in database")
+    print(df.head())
+
+    plt.show()
+
+
+def get_column_limits(engine, tb_name):
+    print("Column Value Ranges")
+    for col in ["teff_1", "teff_2", "logg_1", "logg_2", "alpha", "gamma", "rv", "chi2"]:
+        query = """
+               SELECT {1} FROM {0} ORDER BY {1} ASC LIMIT 1
+               UNION ALL
+               SELECT {1} FROM {0} ORDER BY {1} DESC LIMIT 1
+               """.format(tb_name, col)
+        df = pd.read_sql(sa.text(query), engine)
+        print(col, min(df[col]), max(df[col]))
+
+
 if __name__ == '__main__':
     args = vars(_parser())
     opts = {k: args[k] for k in args}
