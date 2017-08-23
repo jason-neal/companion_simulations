@@ -60,8 +60,9 @@ def _parser():
     :returns: the args
     """
     parser = argparse.ArgumentParser(description='tcm')
-    parser.add_argument('--chip', help='Chip Number.')
-    parser.add_argument('-p', '--parallel', help='use parallelization.')
+    parser.add_argument('--chip', help='Chip Number.', default=None)
+    parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
+    parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
 
     return parser.parse_args()
 
@@ -75,7 +76,7 @@ def tcm_helper_function(star, obs_num, chip):
     return obs_name, params, output_prefix
 
 
-def main(chip=None, parallel=True):
+def main(chip=None, parallel=True, small=True):
     """Main function."""
     parallel = True
 
@@ -98,8 +99,8 @@ def main(chip=None, parallel=True):
     # Function to find the good models I need
     # models = find_phoenix_model_names(model_base_dir, original_model)
     # Function to find the good models I need from parameters
-    model1_pars = list(generate_close_params(closest_host_model))
-    model2_pars = list(generate_close_params(closest_comp_model))
+    model1_pars = list(generate_close_params(closest_host_model, small=small))
+    model2_pars = list(generate_close_params(closest_comp_model, small=small))
 
     # print("Model parameters", model1_pars)
     # print("Model parameters", model2_pars)
