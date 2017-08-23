@@ -22,7 +22,7 @@
 # 
 # 
 
-# In[ ]:
+# In[1]:
 
 
 import copy
@@ -31,13 +31,14 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 
 get_ipython().magic('matplotlib inline')
+#%matplotlib auto 
 
 
 # The obeservatios were originally automatically continuum normalized in the iraf extraction pipeline. 
 # 
 # I believe the continuum is not quite at 1 here anymore due to the divsion by the telluric spectra.
 
-# In[ ]:
+# In[2]:
 
 
 # Observation
@@ -52,14 +53,15 @@ plt.show()
 
 # The two PHOENIX ACES spectra here are the first best guess of the two spectral components.
 
-# In[ ]:
+# In[3]:
 
 
 # Models
 wav_model = fits.getdata("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
 wav_model /= 10   # nm
 host = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-companion = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/Z-0.0/lte02600-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+old_companion = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/Z-0.0/lte02600-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+companion = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/Z-0.0/lte02300-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
 
 host_f = fits.getdata(host)
 comp_f = fits.getdata(companion)
@@ -102,54 +104,64 @@ plt.show()
 # - Divide original by the fit
 # 
 
-# In[ ]:
+# In[4]:
 
 
-import copy
-def local_normalization(wave, flux, splits=50, method="exponential", plot=False):
-    r"""Local minimization for section of Phoenix spectra.
+def get_continuum_points(wave, flux, splits=50, top=20):
+    """Get continuum points along a spectrum.
 
-    Split spectra into many chunks and get the average of top 5\% in each bin.
-
-    Fit to those points and normalize by that.
+    This splits a spectrum into "splits" number of bins and calculates
+    the medain wavelength and flux of the upper "top" number of flux
+    values.
     """
-    org_flux = copy.copy(flux)
-    org_wave = copy.copy(wave)
+    # Shorten array until can be evenly split up.
+    remainder = len(flux) % splits
+    if remainder:
+        # Nozero reainder needs this slicing
+        wave = wave[:-remainder]
+        flux = flux[:-remainder]
 
-    while len(wave) % splits != 0:
-        # Shorten array untill can be evenly split up.
-        wave = wave[:-1]
-        flux = flux[:-1]
+    wave_shaped = wave.reshape((splits, -1))
+    flux_shaped = flux.reshape((splits, -1))
 
-    flux_split = np.split(flux, splits)
-    wav_split = np.split(wave, splits)
+    s = np.argsort(flux_shaped, axis=-1)[:, -top:]
 
-    wav_points = np.empty(splits)
-    flux_points = np.empty(splits)
+    s_flux = np.array([ar1[s1] for ar1, s1 in zip(flux_shaped, s)])
+    s_wave = np.array([ar1[s1] for ar1, s1 in zip(wave_shaped, s)])
 
-    for i, (w, f) in enumerate(zip(wav_split, flux_split)):
-        wav_points[i] = np.median(w[np.argsort(f)[-20:]])  # Take the median of the wavelength values of max values.
-        flux_points[i] = np.median(f[np.argsort(f)[-20:]])
+    wave_points = np.median(s_wave, axis=-1)
+    flux_points = np.median(s_flux, axis=-1)
+    assert len(flux_points) == splits
 
-    if method == "scalar":
-        norm_flux = np.median(flux_split) * np.ones_like(org_wave)
-    elif method == "linear":
-        z = np.polyfit(wav_points, flux_points, 1)
-        p = np.poly1d(z)
-        norm_flux = p(org_wave)
-    elif method == "quadratic":
-        z = np.polyfit(wav_points, flux_points, 2)
-        p = np.poly1d(z)
-        norm_flux = p(org_wave)
-    elif method == "exponential":
-        z = np.polyfit(wav_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
+    return wave_points, flux_points
+
+
+def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
+    """Fit continuum of flux.
+
+    top: is number of top points to take median of continuum.
+    """
+    org_wave = wave[:]
+    org_flux = flux[:]
+
+    # Get continuum value in chunked sections of spectrum.
+    wave_points, flux_points = get_continuum_points(wave, flux, splits=splits, top=top)
+
+    poly_num = {"scalar": 0, "linear": 1, "quadratic": 2, "cubic": 3}
+
+    if method == "exponential":
+        z = np.polyfit(wave_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
         p = np.poly1d(z)
         norm_flux = np.exp(p(org_wave))   # Un-log the y values.
+    else:
+        z = np.polyfit(wave_points, flux_points, poly_num[method])
+        p = np.poly1d(z)
+        norm_flux = p(org_wave)
 
     if plot:
         plt.subplot(211)
         plt.plot(wave, flux)
-        plt.plot(wav_points, flux_points, "x-", label="points")
+        plt.plot(wave_points, flux_points, "x-", label="points")
         plt.plot(org_wave, norm_flux, label='norm_flux')
         plt.legend()
         plt.subplot(212)
@@ -158,33 +170,44 @@ def local_normalization(wave, flux, splits=50, method="exponential", plot=False)
         plt.xlabel("Wavelength (nm)")
         plt.show()
 
-    return org_flux / norm_flux
+    return norm_flux
 
 
-
-# In[ ]:
-
-
-host_cont = local_normalization(wav_model, host_f, splits=50, method="exponential", plot=True)
+# In[5]:
 
 
-# In[ ]:
+#host_cont = local_normalization(wav_model, host_f, splits=50, method="exponential", plot=True)
+host_continuum = continuum(wav_model, host_f, splits=50, method="exponential", plot=True)
+
+host_cont = host_f / host_continuum
 
 
-comp_cont = local_normalization(wav_model, comp_f, splits=50, method="exponential", plot=True)
+# In[6]:
+
+
+#comp_cont = local_normalization(wav_model, comp_f, splits=50, method="exponential", plot=True)
+
+comp_continuum = continuum(wav_model, comp_f, splits=50, method="exponential", plot=True)
+
+comp_cont = comp_f / comp_continuum
 
 
 # Above the top is the unnormalize spectra, with the median points in orangeand the green line the continuum fit. The bottom plot is the contiuum normalized result
 
-# In[ ]:
+# In[7]:
 
 
 plt.plot(wav_model, comp_cont, label="Companion")
 plt.plot(wav_model, host_cont-0.3, label="Host")
-plt.title("Continuum Normalized ")
+plt.title("Continuum Normalized (with -0.3 offset)")
 plt.xlabel("Wavelength (nm)")
 plt.legend()
 plt.show()
+
+
+
+# In[8]:
+
 
 plt.plot(wav_model[20:200], comp_cont[20:200], label="Companion")
 plt.plot(wav_model[20:200], host_cont[20:200], label="Host")
@@ -200,7 +223,7 @@ plt.show()
 # I then mix the models using a combination of the two spectra.
 # In this case with NO RV shifts.
 
-# In[ ]:
+# In[9]:
 
 
 def mix(h, c, alpha):
@@ -223,7 +246,7 @@ plt.show()
 # 
 # When I compare these mixed spectra to my observations
 
-# In[ ]:
+# In[10]:
 
 
 mask = (wav_model > np.min(obs["wavelength"])) & (wav_model < np.max(obs["wavelength"]))
@@ -236,6 +259,11 @@ plt.legend()
 plt.show()
 
 
+
+# In[11]:
+
+
+# Zoomed in
 plt.plot(wav_model[mask], mix2[mask], label="mix 5%")
 plt.plot(wav_model[mask], mix1[mask], label="mix 1%")
 plt.plot(obs["wavelength"], obs["flux"], label="obs")
@@ -267,40 +295,58 @@ plt.show()
 
 # ### Attempting the Passegger method
 
-# In[ ]:
+# In[12]:
 
 
 
 from scipy.interpolate import interp1d
-mix1_norm = local_normalization(wav_model, mix1, splits=50, method="linear", plot=False)
-mix2_norm = local_normalization(wav_model, mix2, splits=50, method="linear", plot=False)
-obs_norm = local_normalization(obs["wavelength"], obs["flux"], splits=20, method="linear", plot=True)
+# mix1_norm = continuum(wav_model, mix1, splits=50, method="linear", plot=False)
+# mix2_norm = local_normalization(wav_model, mix2, splits=50, method="linear", plot=False)
+obs_continuum = continuum(obs["wavelength"], obs["flux"], splits=20, method="linear", plot=True)
 
-normalization1 = mix1 / mix1_norm
-normalization2 = mix2 / mix2_norm
-obs_renorm1 = obs_norm * interp1d(wav_model, normalization1)(obs["wavelength"])
-obs_renorm2 = obs_norm * interp1d(wav_model, normalization2)(obs["wavelength"])
+linear1 = continuum(wav_model, mix1, splits=50, method="linear", plot=True)
+linear2 = continuum(wav_model, mix2, splits=50, method="linear", plot=False)
+
+obs_renorm1 = obs["flux"]  * (interp1d(wav_model, linear1)(obs["wavelength"]) / obs_continuum)
+obs_renorm2 = obs["flux"]  * (interp1d(wav_model, linear2)(obs["wavelength"]) / obs_continuum)
 
 
 
-# In[ ]:
+# In[13]:
 
 
 # Just a scalar
-mix1_norm = local_normalization(wav_model, mix1, splits=50, method="scalar", plot=False)
-mix2_norm = local_normalization(wav_model, mix2, splits=50, method="scalar", plot=False)
-obs_norm = local_normalization(obs["wavelength"], obs["flux"], splits=20, method="scalar", plot=True)
-scalar1 = mix1 / mix1_norm
-scalar2 = mix2 / mix2_norm
+# mix1_norm = local_normalization(wav_model, mix1, splits=50, method="scalar", plot=False)
+# mix2_norm = local_normalization(wav_model, mix2, splits=50, method="scalar", plot=False)
+obs_scalar = continuum(obs["wavelength"], obs["flux"], splits=20, method="scalar", plot=False)
+scalar1 = continuum(wav_model, mix1, splits=50, method="scalar", plot=True)
+scalar2 = continuum(wav_model, mix2, splits=50, method="scalar", plot=False)
 print(scalar2)
-obs_renorm_scalar1 = obs_norm * interp1d(wav_model, scalar1)(obs["wavelength"])
-obs_renorm_scalar2 = obs_norm * interp1d(wav_model, scalar2)(obs["wavelength"])
+obs_renorm_scalar1 = obs["flux"] * (interp1d(wav_model, scalar1)(obs["wavelength"]) / obs_scalar)
+obs_renorm_scalar2 = obs["flux"] * (interp1d(wav_model, scalar2)(obs["wavelength"]) / obs_scalar)
 
 
-# In[ ]:
+# In[14]:
 
 
-plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.3)
+plt.plot(obs["wavelength"], obs_scalar, label="scalar observed")
+plt.plot(obs["wavelength"], obs_continuum, label="linear observed")
+
+plt.plot(obs["wavelength"], interp1d(wav_model, scalar1)(obs["wavelength"]), label="scalar 1%")
+plt.plot(obs["wavelength"], interp1d(wav_model, linear1)(obs["wavelength"]), label="linear 1%")
+
+plt.plot(obs["wavelength"], interp1d(wav_model, scalar2)(obs["wavelength"]), label="scalar 5%")
+plt.plot(obs["wavelength"], interp1d(wav_model, linear2)(obs["wavelength"]), label="linear 5%")
+
+plt.title("Linear and Scalar continuum renormalizations.")
+plt.legend()
+plt.show()
+
+
+# In[18]:
+
+
+plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.6)
 plt.plot(obs["wavelength"], obs_renorm1, label="linear norm")
 plt.plot(obs["wavelength"], obs_renorm_scalar1, label="scalar norm")
 plt.plot(wav_model[mask], mix1[mask], label="mix 1%")
@@ -309,7 +355,7 @@ plt.title("1% model")
 plt.hlines(1, 2111, 2124, linestyle="--", alpha=0.2)
 plt.show()
 
-plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.3)
+plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.6)
 plt.plot(obs["wavelength"], obs_renorm1, label="linear norm")
 plt.plot(obs["wavelength"], obs_renorm_scalar1, label="scalar norm")
 plt.plot(wav_model[mask], mix1[mask], label="mix 1%")
@@ -320,10 +366,10 @@ plt.hlines(1, 2111, 2124, linestyle="--", alpha=0.2)
 plt.show()
 
 
-# In[ ]:
+# In[16]:
 
 
-plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.3)
+plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.6)
 plt.plot(obs["wavelength"], obs_renorm2, label="linear norm")
 plt.plot(obs["wavelength"], obs_renorm_scalar2, label="scalar norm")
 plt.plot(wav_model[mask], mix2[mask], label="mix 5%")
@@ -332,7 +378,12 @@ plt.title("5% model")
 plt.hlines(1, 2111, 2124, linestyle="--", alpha=0.2)
 plt.show()
 
-plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.3)
+
+# In[17]:
+
+
+
+plt.plot(obs["wavelength"], obs["flux"],  label="obs", alpha =0.6)
 plt.plot(obs["wavelength"], obs_renorm2, label="linear norm")
 plt.plot(obs["wavelength"], obs_renorm_scalar2, label="scalar norm")
 plt.plot(wav_model[mask], mix2[mask], label="mix 5%")
@@ -344,6 +395,103 @@ plt.show()
 
 
 # In this example for the 5% companion spectra there is a bit of difference between the linear and scalar normalizations. With a larger difference at the longer wavelength. (more orange visible above the red.)  Faint blue is the spectrum before the renormalization.
+
+# In[ ]:
+
+
+
+
+
+# # Range of phoenix spectra
+# 
+# 
+
+# In[19]:
+
+
+wav_model = fits.getdata("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
+wav_model /= 10   # nm
+temps = [2300, 3000, 4000, 5000]
+
+mask1 = (1000 < wav_model) & (wav_model < 3300)
+masked_wav1 = wav_model[mask1] 
+for temp in temps[::-1]:
+    file = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/Z-0.0/lte0{0}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(temp)
+    host_f = fits.getdata(file)
+    
+    plt.plot(masked_wav1, host_f[mask1], label="Teff={}".format(temp))
+    
+plt.title("Phoenix spectra")
+plt.xlabel("Wavelength (nm)")
+plt.legend()
+
+plt.show()
+
+
+
+# In[20]:
+
+
+
+mask = (2000 < wav_model) & (wav_model < 2300)
+masked_wav = wav_model[mask] 
+
+for temp in temps[::-1]:
+    file = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/Z-0.0/lte0{0}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(temp)
+    host_f = fits.getdata(file)
+
+    host_f = host_f[mask] 
+
+    plt.plot(masked_wav, host_f, label="Teff={}".format(temp))
+    
+plt.title("Phoenix spectra")
+plt.xlabel("Wavelength (nm)")
+plt.legend()
+
+plt.show()
+
+
+# In[21]:
+
+
+# Observations
+for chip in range(1,5):
+    obs = fits.getdata("/home/jneal/.handy_spectra/HD211847-1-mixavg-tellcorr_{}.fits".format(chip))
+
+    plt.plot(obs["wavelength"], obs["flux"], label="chip {}".format(chip))
+plt.hlines(1, 2111, 2165, linestyle="--")
+plt.title("CRIRES spectrum HD211847")
+plt.xlabel("Wavelength (nm)")
+plt.legend()
+plt.show()
+
+
+# In[22]:
+
+
+# Observations
+for chip in range(1,5):
+    obs = fits.getdata("/home/jneal/.handy_spectra/HD30501-1-mixavg-tellcorr_{}.fits".format(chip))
+
+    plt.plot(obs["wavelength"], obs["flux"], label="chip {}".format(chip))
+plt.hlines(1, 2111, 2165, linestyle="--")
+plt.title("CRIRES spectrum HD30501")
+plt.xlabel("Wavelength (nm)")
+plt.legend()
+plt.show()
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
 
 # In[ ]:
 
