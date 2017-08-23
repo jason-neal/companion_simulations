@@ -72,13 +72,12 @@ def tcm_helper_function(star, obs_num, chip):
     params = parse_paramfile(param_file, path=None)
     obs_name = "/home/jneal/.handy_spectra/{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip)
 
-    output_prefix = "Analysis/{0}/{0}-{1}_{2}_bhm_chisqr_results.dat".format(star.upper(), obs_num, chip)
+    output_prefix = "Analysis/{0}/{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obs_num, chip)
     return obs_name, params, output_prefix
 
 
 def main(chip=None, parallel=True, small=True):
     """Main function."""
-    parallel = True
 
     star = "HD211847"
     obs_num = 2
@@ -121,13 +120,13 @@ def main(chip=None, parallel=True, small=True):
 
     ####
     if parallel:
-        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True, prefix=output_prefix)
+        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True, prefix=output_prefix, save_only=True)
     else:
         chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True, prefix=output_prefix)
 
     ####
     print("This has no purpose")
-    print("result min tcm chisquare shape", chi2_grids.shape)
+    # print("result min tcm chisquare shape", chi2_grids.shape)
 
     # Print TODO
     print("TODO: Add joining of sql table here")
@@ -212,12 +211,11 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
                     obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
                 #####
 
+                broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
+                sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
+                assert np.all(sp_chisquare == broadcast_chisquare)
+
                 if not save_only:
-                    broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
-                    sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
-
-                    assert np.all(sp_chisquare == broadcast_chisquare)
-
                     print(broadcast_chisquare.shape)
                     print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
                     # New parameters to explore
@@ -254,15 +252,33 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
     if isinstance(model2_pars, list):
         debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
-    # print("host params", model1_pars)
-    # print("companion params", model2_pars)
 
-    print("parallised running\n\n\n ###################")
-    broadcast_chisqr_vals = Parallel(n_jobs=3)(
-        delayed(tcm_wrapper)(ii, param, model2_pars, alphas,
-                             rvs, gammas, obs_spec, norm=True, save_only=save_only, chip=chip, prefix=prefix)
+    # def filled_tcm_wrapper(num, param):
+    #     """Fill in all extra parameters for parrallel wrapper."""
+    #    return tcm_wrapper(num, params, model2_pars, alphas, rvs, gammas,
+    #                       obs_spec, norm=norm, save_only=save_only,
+    #                       chip=chip, prefix=prefix, verbose=verbose)
+
+
+    print("Parallised running\n\n\n ###################")
+    raise NotImplementedError("Need to fix this up")
+    #broadcast_chisqr_vals = Parallel(n_jobs=-2)(
+    #    delayed(filled_tcm_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
+    # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
+    #     delayed(tcm_wrapper)(ii, param, model2_pars, alphas, rvs, gammas,
+    #                          obs_spec, norm=norm, save_only=save_only,
+    #                          chip=chip, prefix=prefix, verbose=verbose)
+    #     for ii, param in enumerate(model1_pars))
+
+    args = [model2_pars, alphas, rvs, gammas, obs_spec]
+    kwargs = {"norm": norm, "save_only": save_only, "chip": chip, "prefix": prefix, "verbose": verbose}
+
+    broadcast_chisqr_vals = Parallel(n_jobs=-2)(
+        delayed(tcm_wrapper)(ii, param, *args, **kwargs)
         for ii, param in enumerate(model1_pars))
-    # for ii, params1 in enumerate(tqdm(model1_pars)):
+    # broadcast_chisqr_vals = np.empty_like(model1_pars)
+    # for ii, param in enumerate(model1_pars):
+    #    broadcast_chisqr_vals[ii] = tcm_wrapper(ii, param, *args, **kwargs)
 
     return broadcast_chisqr_vals   # Just output the best value for each model pair
 
@@ -311,7 +327,6 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=T
         # ### NORMALIZATION NEEDED HERE
         if norm:
             obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, broadcast_values)
-
         else:
             obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
         #####
@@ -329,7 +344,10 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=T
 
         save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=verbose)
 
-    return broadcast_chisqr_vals
+    if save_only:
+        return None
+    else:
+        return broadcast_chisqr_vals
 
 
 # @timeit
