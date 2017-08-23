@@ -399,4 +399,11 @@ if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}
 
-    sys.exit(main(**opts))
+    # Iterate over chips
+    if opts["chip"] is None:
+        for chip in range(1, 5):
+            opts["chip"] = chip
+            res = main(**opts)
+        sys.exit(res)
+    else:
+        sys.exit(main(**opts))
