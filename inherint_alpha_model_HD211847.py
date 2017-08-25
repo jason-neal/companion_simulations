@@ -30,6 +30,7 @@ from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
                                      load_starfish_spectrum)
+from utilities.simulation_utilities import max_delta
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')

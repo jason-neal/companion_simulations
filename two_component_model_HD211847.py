@@ -37,6 +37,7 @@ from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
                                      load_starfish_spectrum)
+from utilities.simulation_utilities import max_delta
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -307,16 +308,16 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=T
 
         # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
 
-        # Wavelength selection
-        mod1_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                             np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
-        mod2_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                             np.max(obs_spec.xaxis) + 5)
-        obs_spec = obs_spec.remove_nans()
+            # Wavelength selection
+            delta = max_delta(obs_spec, rvs, gammas)
+            obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
 
         # One component model with broadcasting over gammas
         # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
         assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
+            mod1_spec.wav_select(obs_min - delta, obs_max + delta)
+            mod2_spec.wav_select(obs_min - delta, obs_max + delta)
+            obs_spec = obs_spec.remove_nans()
 
         broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
                                           alphas=alphas, rvs=rvs, gammas=gammas)
