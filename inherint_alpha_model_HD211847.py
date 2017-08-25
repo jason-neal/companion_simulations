@@ -207,43 +207,30 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
     return broadcast_chisqr_vals   # Just output the best value for each model pair
 
 
-def calc_alpha(model1, model2, chip=None):
-    """Inherint flux ratio between the two.
+def continuum_alpha(model1, model2, chip=None):
+    """Inherint flux ratio between the continuum of the two models.
 
-    Need to ransform from spectrum per area to surface area of each star.
-
-    For Phoenix Models - header parameters
-    PHXLUM 	- [W]               Stellar luminosity
-    BUNIT 	- 'erg/s/cm^2/cm' 	Unit of flux
-    PHXREFF - [cm]              Effective stellar radius
+    Assumes already scaled by area.
+    Takes mean alpha of chip or full
     """
-    def scale_by_area(spec):
-        # BUNIT 	'erg/s/cm^2/cm' 	Unit of flux
-        # PHXREFF 	67354000000.0	[cm] Effective stellar radius
-        area = np.pi * spec.header["PHXREFF"] ** 2
-        spec.flux = spec.flux * area
-        # BUNIT 	'erg/s/cm' 	New Unit of flux
-        return spec
-    model1 = scale_by_area(model1)
-    model2 = scale_by_area(model2)
+    # Fit models with continuum
+    cont1 = continuum(model1.xaxis, model1.flux, method="exponential")
+    cont2 = continuum(model2.xaxis, model2.flux, method="exponential")
 
-
+    # Masking for individual chips
     if chip is None:
-        ratio = model2 / model1
-    else:
-        raise NotImplementedError
-    lum_ratio = model2.header["PHXLUM"] / model1.header["PHXLUM"]
+        chip = -1   # Full Crires range
 
-    plt.subplot(211)
-    plt.plot(model1.xaxis, model1.flux, label="model1")
-    plt.plot(model2.xaxis, model2.flux, label="model2")
+    all_limits = {-1: [2111, 2169], 1: [2111, 2124], 2: [2125, 2139], 3: [2140, 2152], 4: [2153, 2169]}
+    chip_limits = all_limits[chip]
 
-    plt.subplot(212)
-    plt.plot(ratio.flux, label="model2/model1")
-    plt.hlines(lum_ratio, ratio.xaxis[0], ratio.xaxis[1], label="luminosity ratio")
+    mask1 = (model1.xaxis > chip_limits[0]) * (model1.xaxis < chip_limits[1])
+    mask2 = (model2.xaxis > chip_limits[0]) * (model2.xaxis < chip_limits[1])
 
-    plt.show()
-    return model1, model2, lum_ratio
+    continuum_ratio = cont2[mask2] / cont1[mask1]
+    alpha_ratio = np.mean(continuum_ratio)
+
+    return alpha_ratio
 
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
