@@ -16,15 +16,16 @@ def _parser():
     """
     parser = argparse.ArgumentParser(description='Chisquare analysis.')
     parser.add_argument('database', help='Database name.')
+    parser.add_argument("-e", "--echo", help="Echo the SQL queries", action="store_true")
     # parser.add_argument('-s', '--suffix', help='Suffix to add to database name.')
     # parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
 
     return parser.parse_args()
 
 
-def main(database):
+def main(database, echo=False):
 
-    engine = create_engine('sqlite:///{}'.format(database), echo=True)
+    engine = create_engine('sqlite:///{}'.format(database), echo=echo)
     table_names = engine.table_names()
     print("Table names in database =", engine.table_names())
     if len(table_names) == 1:
@@ -36,6 +37,12 @@ def main(database):
     smallest_chi2_values(engine, tb_name)
 
 
+    # Test a plot
+    # df = pd.read_sql(sa.text('SELECT * FROM data where Col_1=:col1'), engine, params={'col1': 'X'})
+    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff1, logg_1=:logg1, feh_1=:feh1'), engine, params={'teff1': 5200, 'logg1': 4.5, 'feh1': 0.0})
+    #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff_1'), engine, params={'teff_1': 5200})
+    #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=5200 and logg_1=4.5 and feh_1=0.0'), engine)
+    #df = pd.read_sql_query('SELECT alpha  FROM table', engine)
     df = pd.read_sql_query('SELECT alpha, chi2 FROM {0}'.format(tb_name), engine)
 
     fig, ax = plt.subplots()
@@ -100,7 +107,7 @@ def smallest_chi2_values(engine, tb_name):
     # df = pd.read_sql_query('SELECT alpha  FROM table', engine)
 
     print("Samllest Chi2 values in database")
-    print(df.head())
+    print(df.head(n=15))
 
     plt.show()
 
@@ -109,9 +116,9 @@ def get_column_limits(engine, tb_name):
     print("Column Value Ranges")
     for col in ["teff_1", "teff_2", "logg_1", "logg_2", "alpha", "gamma", "rv", "chi2"]:
         query = """
-               SELECT {1} FROM {0} ORDER BY {1} ASC LIMIT 1
+               SELECT * FROM (SELECT {1} FROM {0} ORDER BY {1} ASC LIMIT 1)
                UNION ALL
-               SELECT {1} FROM {0} ORDER BY {1} DESC LIMIT 1
+               SELECT * FROM (SELECT {1} FROM {0} ORDER BY {1} DESC LIMIT 1)
                """.format(tb_name, col)
         df = pd.read_sql(sa.text(query), engine)
         print(col, min(df[col]), max(df[col]))
