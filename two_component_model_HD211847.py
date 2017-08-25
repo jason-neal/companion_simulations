@@ -190,6 +190,10 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
     #                          chip=chip, prefix=prefix, verbose=verbose)
     #     for ii, param in enumerate(model1_pars))
 
+    if prefix is None:
+        prefix = ""
+    prefix += "_parallel"
+
     args = [model2_pars, alphas, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip, "prefix": prefix, "verbose": verbose}
 
@@ -205,69 +209,73 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
 
 def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=True, verbose=True, save_only=True, chip=None, prefix=None):
     """Wrapper for iteration loop of tcm. To use with parallization."""
+    normalization_limits = [2105, 2185]   # small as possible?
+
     if prefix is None:
-        sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]_par"
+        sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]"
               ".csv").format(obs_spec.header["OBJECT"],
                              int(obs_spec.header["MJD-OBS"]), chip,
                              params1[0], params1[1], params1[2], num)
     else:
-        sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}]_par.csv".format(prefix,
-              params1[0], params1[1], params1[2], num)
+        sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(
+            prefix, params1[0], params1[1], params1[2], num)
     save_filename = sf
 
-    broadcast_chisqr_vals = np.empty(len(model2_pars))
-    for jj, params2 in enumerate(model2_pars):
+    if os.path.exists(save_filename) and save_only:
+        print("''{}' exists, so not repeating calcualtion.".format(save_filename))
+        return None
+    else:
+        if not save_only:
+            broadcast_chisqr_vals = np.empty(len(model2_pars))
+        for jj, params2 in enumerate(model2_pars):
+            if verbose:
+                print("Starting iteration with parameters:\n {0}={1},{2}={3}".format(num, params1, jj, params2))
 
-        if verbose:
-            print("Starting iteration with parameters:\n{0}={1},{2}={3}".format(num, params1, jj, params2))
-
-        normalization_limits = [2105, 2185]   # small as possible?
-        mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=True)
-        mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=True)
-
-        # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
+            mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=True)
+            mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=True)
 
             # Wavelength selection
             delta = max_delta(obs_spec, rvs, gammas)
             obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
 
-        # One component model with broadcasting over gammas
-        # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
-        assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
             mod1_spec.wav_select(obs_min - delta, obs_max + delta)
             mod2_spec.wav_select(obs_min - delta, obs_max + delta)
             obs_spec = obs_spec.remove_nans()
 
-        broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
-                                          alphas=alphas, rvs=rvs, gammas=gammas)
-        broadcast_values = broadcast_result(obs_spec.xaxis)
+            # One component model with broadcasting over gammas
+            # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
+            assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
 
-        assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
+            broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+                                              alphas=alphas, rvs=rvs, gammas=gammas)
+            broadcast_values = broadcast_result(obs_spec.xaxis)
 
-        # ### NORMALIZATION NEEDED HERE
-        if norm:
-            obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, broadcast_values)
+            assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
+
+            # ### NORMALIZATION NEEDED HERE
+            if norm:
+                obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, broadcast_values)
+            else:
+                obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
+
+            # sp_chisquare is much faster but dont think I can add masking.
+            # broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
+            sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
+            # assert np.all(sp_chisquare == broadcast_chisquare)
+            broadcast_chisquare = sp_chisquare
+
+            if not save_only:
+                print(broadcast_chisquare.shape)
+                print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
+
+                broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
+
+            save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=verbose)
+
+        if save_only:
+            return None
         else:
-            obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
-        #####
-
-        broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
-        sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
-
-        assert np.all(sp_chisquare == broadcast_chisquare)
-
-        print(broadcast_chisquare.shape)
-        print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
-
-        # New parameters to explore
-        broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
-
-        save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=verbose)
-
-    if save_only:
-        return None
-    else:
-        return broadcast_chisqr_vals
+            return broadcast_chisqr_vals
 
 
 # @timeit
