@@ -347,47 +347,42 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec, norm=T
 
 
 # @timeit
-def save_full_chisqr(name, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=False):
+def save_full_chisqr(filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=False):
     """Save the iterations chisqr values to a cvs."""
     A, R, G = np.meshgrid(alphas, rvs, gammas, indexing='ij')
     assert A.shape == R.shape
     assert R.shape == G.shape
     assert G.shape == broadcast_chisquare.shape
-    ravel_size = len(A.ravel())
 
-    p2_0 = np.ones(ravel_size) * params2[0]
-    p2_1 = np.ones(ravel_size) * params2[1]
-    p2_2 = np.ones(ravel_size) * params2[2]
-    assert p2_2.shape == A.ravel().shape
-
-    exists = os.path.exists(name)
-
-    data = {"teff_2": p2_0, "logg_2": p2_1, "feh_2": p2_2, "alpha": A.ravel(),
-            "rv": R.ravel(), "gamma": G.ravel(),
+    data = {"alpha": A.ravel(), "rv": R.ravel(), "gamma": G.ravel(),
             "chi2": broadcast_chisquare.ravel()}
 
-    columns = ["teff_2", "logg_2", "feh_2", "alpha", "rv", "gamma", "chi2"]
-
-    if "[{}_{}_{}]".format(params1[0], params1[1], params1[2]) not in name:
-        # Need to add the model values.
-        # This is a waste of memory here.
-        p1_0 = np.ones(ravel_size) * params1[0]
-        p1_1 = np.ones(ravel_size) * params1[1]
-        p1_2 = np.ones(ravel_size) * params1[2]
-        data.update({"teff_1": p1_0, "logg_1": p1_1, "feh_1": p1_2})
-        columns = ["teff_1", "logg_1", "feh_1"] + columns
+    columns = ["alpha", "rv", "gamma", "chi2"]
 
     df = pd.DataFrame(data=data, columns=columns)
-    df = df.round(decimals={"logg_2": 1, "feh_2": 1, "alpha": 3,
+
+    for par, value in zip(["teff_2", "logg_2", "feh_2"], params2):
+        df[par] = value
+
+    columns = ["teff_2", "logg_2", "feh_2"] + columns
+
+    if "[{}_{}_{}]".format(params1[0], params1[1], params1[2]) not in filename:
+        for par, value in zip(["teff_1", "logg_1", "feh_1"], params1):
+            df[par] = value
+        columns = ["teff_1", "logg_1", "feh_1"] + columns
+
+    df = df.round(decimals={"logg_2": 1, "feh_2": 1, "alpha": 4,
                             "rv": 3, "gamma": 3, "chi2": 4})
+
+    exists = os.path.exists(filename)
     if exists:
-        df[columns].to_csv(name, sep=',', mode="a", index=False, header=False)  # Append to values cvs
+        df[columns].to_csv(filename, sep=',', mode="a", index=False, header=False)
     else:
         # Add header at the top only
-        df[columns].to_csv(name, sep=',', mode="a", index=False, header=True)  # Append to values cvs
+        df[columns].to_csv(filename, sep=',', mode="a", index=False, header=True)
 
     if verbose:
-        print("Saved chi2 values to {}".format(name))
+        print("Saved chi2 values to {}".format(filename))
     return None
 
 

@@ -381,21 +381,21 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
 
 # @timeit
-def save_full_iam_chisqr(name, params1, params2, alpha, rvs, gammas,
+def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
                          broadcast_chisquare, verbose=False):
     """Save the iterations chisqr values to a cvs."""
     R, G = np.meshgrid(rvs, gammas, indexing='ij')
     # assert A.shape == R.shape
     assert R.shape == G.shape
     assert G.shape == broadcast_chisquare.shape
-    ravel_size = len(A.ravel())
 
     data = {"rv": R.ravel(), "gamma": G.ravel(),
             "chi2": broadcast_chisquare.ravel()}
 
+    columns = ["rv", "gamma", "chi2"]
+
     df = pd.DataFrame(data=data, columns=columns)
     # Update all rows with same value.
-    for name, value in zip(["teff_2", "logg_2", "feh_2"], params2):
         df[name] = value
 
     columns = ["teff_2", "logg_2", "feh_2", "rv", "gamma", "chi2"]
