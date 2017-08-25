@@ -84,3 +84,28 @@ def two_comp_model_with_transpose(wav, model1, model2, alphas, rvs, gammas):
 
     assert am2rvm1g.shape == (len(model1), len(alphas), len(rvs), len(gammas)), "Dimensions of broadcast not correct"
     return interp1d(wav, am2rvm1g, axis=0)  # pass it the wavelength values to return
+
+
+@timeit2
+def inherint_alpha_model(wav, model1, model2, rvs, gammas):
+    """Make 2 component simulations, broadcasting over, rv, gamma values."""
+    # Enable single scalar inputs (turn to 1d np.array)
+    # alphas = check_broadcastable(alphas)
+    rvs = check_broadcastable(rvs)
+    gammas = check_broadcastable(gammas)
+
+    # am2 = (model2.T * alphas.T).T  # alpha * Model2 (am2)
+    m2rv = np.empty(model2.shape + (len(rvs),))  # m2rv = model2 with rv doppler-shift
+
+    for i, rv in enumerate(rvs):
+        wav_i = (1 - rv / 299792.458) * wav
+        m2rv[:, i] = interp1d(wav_i, model2, axis=0, bounds_error=False)(wav)
+
+    m2rvm1 = (model1.T + m2rv.T).T  # m2rvm1 = am2rv + model_1
+    m2rvm1g = np.empty(m2rvm1.shape + (len(gammas),))  # m2rvm1g = m2rvm1 with gamma doppler-shift
+    for j, gamma in enumerate(gammas):
+        wav_j = (1 + gamma / 299792.458) * wav
+        m2rvm1g[:, :, j] = interp1d(wav_j, m2rvm1, axis=0, bounds_error=False)(wav)
+
+    assert m2rvm1g.shape == (len(model1), len(rvs), len(gammas)), "Dimensions of broadcast not correct"
+    return interp1d(wav, m2rvm1g, axis=0)  # pass it the wavelength values to return
