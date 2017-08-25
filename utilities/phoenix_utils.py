@@ -63,7 +63,7 @@ def load_normalized_starfish_spectrum(params, limits=None, hdr=False):
     return load_starfish_spectrum(params, normalize=True, limits=limits, hdr=hdr)
 
 
-def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False):
+def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area_scale=True, flux_rescale=False):
     """Load spectrum from hdf5 grid file.
 
     parameters: list
@@ -83,12 +83,32 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False):
         flux = my_hdf5.load_flux(np.array(params))
         spec = Spectrum(flux=flux, xaxis=my_hdf5.wl)
 
+    if flux_rescale:
+        spec = spec * 1e-7  # convert flux unit from /cm to /nm
+
+    if area_scale:
+        spec = spec * phoenix_area(spec.header)
+
     if normalize:
         spec = spec_local_norm(spec, method="exponential")
 
     if limits is not None:
         spec.wav_select(*limits)
     return spec
+
+
+def phoenix_area(header):
+    """In units of Gigameters.
+    Returns
+    -------
+    surface_area: float
+        Stellar effective surface area. in Gm**2
+    """
+    # BUNIT 	'erg/s/cm^2/cm' 	Unit of flux
+    # PHXREFF 	67354000000.0	[cm] Effective stellar radius
+    radius = header["PHXREFF"] * 1e-11   # cm to Gm
+    surface_area = np.pi * radius ** 2
+    return surface_area
 
 
 def closest_model_params(teff, logg, feh, alpha=None):
