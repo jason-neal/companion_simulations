@@ -70,7 +70,7 @@ def iam_helper_function(star, obs_num, chip):
     return obs_name, params, output_prefix
 
 
-def main(chip=None, parallel=True, small=True):
+def main(chip=None, parallel=True, small=True, verbose=False):
     """Main function."""
 
     star = "HD211847"
@@ -111,12 +111,12 @@ def main(chip=None, parallel=True, small=True):
     ####
     if parallel:
         chi2_grids = parallel_iam_analysis(obs_spec, model1_pars, model2_pars,
-                                           rvs, gammas, verbose=True,
+                                           rvs, gammas, verbose=verbose,
                                            norm=True, prefix=output_prefix,
                                            save_only=True)
     else:
         chi2_grids = iam_analysis(obs_spec, model1_pars, model2_pars, rvs,
-                                  gammas, verbose=True, norm=True,
+                                  gammas, verbose=verbose, norm=True,
                                   prefix=output_prefix)
 
     ####
@@ -134,7 +134,7 @@ def check_inputs(var):
     return var
 
 
-@timeit2
+# @timeit2
 def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
                  verbose=False, norm=False, save_only=True, chip=None,
                  prefix=None):
@@ -164,7 +164,7 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
         return broadcast_chisqr_vals   # Just output the best value for each model pair
 
 
-@timeit2
+#@timeit2
 def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
                           gammas=None, verbose=False, norm=False,
                           save_only=True, chip=None, prefix=None):
@@ -301,7 +301,8 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
             # ### RE-NORMALIZATION to observations?
             if norm:
-                print("Re-normalizing!")
+                if verbose:
+                    print("Re-normalizing!")
                 obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux,
                                             broadcast_values, method="scalar")
             else:
@@ -319,7 +320,6 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 # print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
 
-            print("About to save to - ", save_filename)
             save_full_iam_chisqr(save_filename, params1, params2,
                                  inherint_alpha, rvs, gammas,
                                  broadcast_chisquare, verbose=verbose)

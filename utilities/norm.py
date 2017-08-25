@@ -101,7 +101,7 @@ def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
     return continuum_fit
 
 
-@timeit2
+# @timeit2
 def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
     """Normalize the obs to the continuum of the models.
 

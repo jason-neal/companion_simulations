@@ -77,7 +77,7 @@ def tcm_helper_function(star, obs_num, chip):
     return obs_name, params, output_prefix
 
 
-def main(chip=None, parallel=True, small=True):
+def main(chip=None, parallel=True, small=True, verbose=False):
     """Main function."""
 
     star = "HD211847"
@@ -117,9 +117,9 @@ def main(chip=None, parallel=True, small=True):
 
     ####
     if parallel:
-        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True, prefix=output_prefix, save_only=True)
+        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=verbose, norm=True, prefix=output_prefix, save_only=True)
     else:
-        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True, prefix=output_prefix)
+        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=verbose, norm=True, prefix=output_prefix)
 
     # Print TODO
     print("TODO: Add joining of sql table here")
@@ -135,7 +135,7 @@ def check_inputs(var):
     return var
 
 
-@timeit2
+# @timeit2
 def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False, save_only=True, chip=None, prefix=None):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
     alphas = check_inputs(alphas)
@@ -161,7 +161,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
         return broadcast_chisqr_vals   # Just output the best value for each model pair
 
 
-@timeit2
+# @timeit2
 def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
                           rvs=None, gammas=None, verbose=False, norm=False, save_only=True, chip=None, prefix=None):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""

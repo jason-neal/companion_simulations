@@ -32,7 +32,7 @@ def check_broadcastable(var):
     return var
 
 
-@timeit2
+# @timeit2
 def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
     """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
@@ -59,7 +59,7 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
     return interp1d(wav, am2rvm1g, axis=0)  # pass it the wavelength values to return
 
 
-@timeit2
+# @timeit2
 def two_comp_model_with_transpose(wav, model1, model2, alphas, rvs, gammas):
     """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
@@ -86,7 +86,7 @@ def two_comp_model_with_transpose(wav, model1, model2, alphas, rvs, gammas):
     return interp1d(wav, am2rvm1g, axis=0)  # pass it the wavelength values to return
 
 
-@timeit2
+# @timeit2
 def inherint_alpha_model(wav, model1, model2, rvs, gammas):
     """Make 2 component simulations, broadcasting over, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
