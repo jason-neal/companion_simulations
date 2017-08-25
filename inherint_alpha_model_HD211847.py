@@ -193,6 +193,9 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
     #                          chip=chip, prefix=prefix, verbose=verbose)
     #     for ii, param in enumerate(model1_pars))
 
+    if prefix is None:
+        prefix = ""
+    prefix += "_parallel"
     args = [model2_pars, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
               "prefix": prefix, "verbose": verbose}
@@ -343,32 +346,32 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
 
     df = pd.DataFrame(data=data, columns=columns)
     # Update all rows with same value.
-        df[name] = value
+    for par, value in zip(["teff_2", "logg_2", "feh_2"], params2):
+        df[par] = value
 
-    columns = ["teff_2", "logg_2", "feh_2", "rv", "gamma", "chi2"]
+    columns = ["teff_2", "logg_2", "feh_2"] + columns
 
-    if "[{}_{}_{}]".format(params1[0], params1[1], params1[2]) not in name:
+    if "[{}_{}_{}]".format(params1[0], params1[1], params1[2]) not in filename:
         # Need to add the model values.
-        for name, value in zip(["teff_1", "logg_1", "feh_1"], params1):
-            df[name] = value
+        for par, value in zip(["teff_1", "logg_1", "feh_1"], params1):
+            df[par] = value
         columns = ["teff_1", "logg_1", "feh_1"] + columns
 
     df["alpha"] = alpha
     columns = columns[:-3] + ["alpha"] + columns[-3:]
 
-    df = df.round(decimals={"logg_2": 1, "feh_2": 1, "alpha": 3,
+    df = df.round(decimals={"logg_2": 1, "feh_2": 1, "alpha": 4,
                             "rv": 3, "gamma": 3, "chi2": 4})
 
-# Append to values cvs
-    exists = os.path.exists(name)
+    exists = os.path.exists(filename)
     if exists:
-        df[columns].to_csv(name, sep=',', mode="a", index=False, header=False)
+        df[columns].to_csv(filename, sep=',', mode="a", index=False, header=False)
     else:
         # Add header at the top only
-        df[columns].to_csv(name, sep=',', mode="a", index=False, header=True)
+        df[columns].to_csv(filename, sep=',', mode="a", index=False, header=True)
 
     if verbose:
-        print("Saved chi2 values to {}".format(name))
+        print("Saved chi2 values to {}".format(filename))
     return None
 
 
