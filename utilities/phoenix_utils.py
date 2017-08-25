@@ -221,7 +221,7 @@ def generate_close_params(params, small=True):
     """teff, logg, Z."""
     temp, logg, metals = params[0], params[1], params[2]
     if small:
-        new_temps = np.arange(-300, 301, 100) + temp
+        new_temps = np.arange(-600, 601, 100) + temp
         new_metals = np.arange(1) + metals
         new_loggs = np.arange(1) + logg
     else:
