@@ -1,12 +1,10 @@
 """Script to load part files into a sql database."""
 import argparse
-import glob as glob
 import sys
 
-import pandas as pd
-from sqlalchemy import create_engine
-import sqlalchemy as sa
 import matplotlib.pyplot as plt
+import pandas as pd
+import sqlalchemy as sa
 
 
 def _parser():
@@ -19,13 +17,12 @@ def _parser():
     parser.add_argument("-e", "--echo", help="Echo the SQL queries", action="store_true")
     # parser.add_argument('-s', '--suffix', help='Suffix to add to database name.')
     # parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
-
     return parser.parse_args()
 
 
 def main(database, echo=False):
 
-    engine = create_engine('sqlite:///{}'.format(database), echo=echo)
+    engine = sa.create_engine('sqlite:///{}'.format(database), echo=echo)
     table_names = engine.table_names()
     print("Table names in database =", engine.table_names())
     if len(table_names) == 1:
@@ -36,13 +33,6 @@ def main(database, echo=False):
     get_column_limits(engine, tb_name)
     smallest_chi2_values(engine, tb_name)
 
-
-    # Test a plot
-    # df = pd.read_sql(sa.text('SELECT * FROM data where Col_1=:col1'), engine, params={'col1': 'X'})
-    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff1, logg_1=:logg1, feh_1=:feh1'), engine, params={'teff1': 5200, 'logg1': 4.5, 'feh1': 0.0})
-    #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff_1'), engine, params={'teff_1': 5200})
-    #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=5200 and logg_1=4.5 and feh_1=0.0'), engine)
-    #df = pd.read_sql_query('SELECT alpha  FROM table', engine)
     df = pd.read_sql_query('SELECT alpha, chi2 FROM {0}'.format(tb_name), engine)
 
     fig, ax = plt.subplots()
@@ -58,7 +48,7 @@ def main(database, echo=False):
     plt.show()
 
     alpha_rv_plot(engine, tb_name)
-    alpha_rv_contour(engine, tb_name)
+    # alpha_rv_contour(engine, tb_name)
 
 
 def alpha_rv_plot(engine, tb_name=None):
