@@ -22,10 +22,10 @@ from tqdm import tqdm
 
 from Chisqr_of_observation import load_spectrum
 from models.broadcasted_models import inherint_alpha_model
-from utilities.chisqr import chi_squared
+# from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import timeit2  # , pv
-from utilities.norm import chi2_model_norms  # , renormalize_observation
+from utilities.norm import chi2_model_norms, continuum  # , renormalize_observation
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
@@ -43,8 +43,8 @@ wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011
 wav_model /= 10   # turn into nm
 
 
-gammas = np.arange(-20, 20, 1)
-rvs = np.arange(-20, 20, 2)
+gammas = np.arange(-40, 40, 1)
+rvs = np.arange(-40, 40, 1)
 # alphas = np.arange(0.01, 0.2, 0.02)
 
 
@@ -106,7 +106,7 @@ def main(chip=None, parallel=True, small=True):
 
     param_iter = len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
     print("STARTING iam_analysis\nWith {} parameter iterations".format(param_iter))
-    print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
+    # print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
     ####
     if parallel:
@@ -132,9 +132,6 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
                  prefix=None):
     """Run two component model over all model combinations.
      """
-    if chip is None:
-        chip = ""
-
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
 
@@ -143,13 +140,9 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
     if isinstance(model2_pars, list):
         debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
-    print("host params", model1_pars)
-    print("companion params", model2_pars)
-
     # Solution Grids to return
     broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
 
-    normalization_limits = [2105, 2185]   # small as possible?
 
     for ii, params1 in enumerate(tqdm(model1_pars)):
         if prefix is None:

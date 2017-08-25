@@ -29,7 +29,7 @@ from tqdm import tqdm
 from Chisqr_of_observation import load_spectrum  # , select_observation
 from models.broadcasted_models import two_comp_model
 # from spectrum_overload.Spectrum import Spectrum
-from utilities.chisqr import chi_squared
+# from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import timeit2  # , pv
 from utilities.norm import chi2_model_norms  # , renormalize_observation
@@ -50,9 +50,9 @@ wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011
 wav_model /= 10   # turn into nm
 
 
-gammas = np.arange(-20, 20, 1)
-rvs = np.arange(-20, 20, 2)
-alphas = np.arange(0.01, 0.2, 0.02)
+gammas = np.arange(-20, 20, 2)
+rvs = np.arange(-10, 10, 1)
+alphas = np.arange(0.01, 0.2, 0.005)
 
 
 def _parser():
@@ -102,9 +102,6 @@ def main(chip=None, parallel=True, small=True):
     model1_pars = list(generate_close_params(closest_host_model, small=small))
     model2_pars = list(generate_close_params(closest_comp_model, small=small))
 
-    # print("Model parameters", model1_pars)
-    # print("Model parameters", model2_pars)
-
     # Load observation
     obs_spec = load_spectrum(obs_name)
     obs_spec = barycorr_crires_spectrum(obs_spec)
@@ -113,7 +110,6 @@ def main(chip=None, parallel=True, small=True):
     if chip == 4:
         # Ignore first 40 pixels
         obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
-
 
     param_iter = len(alphas) * len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
     print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
@@ -125,22 +121,23 @@ def main(chip=None, parallel=True, small=True):
     else:
         chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True, prefix=output_prefix)
 
-    ####
-    print("This has no purpose")
-    # print("result min tcm chisquare shape", chi2_grids.shape)
-
     # Print TODO
     print("TODO: Add joining of sql table here")
 
     # subprocess.call(make_chi2_bd.py)
 
 
+def check_inputs(var):
+    if var is None:
+        var = np.array([0])
+    elif isinstance(rvs, (float, int)):
+        var = np.asarray(var, dtype=np.float32)
+    return var
+
+
 @timeit2
 def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False, save_only=True, chip=None, prefix=None):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
-    if chip is None:
-        chip = ""
-
     alphas = check_inputs(alphas)
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
@@ -253,17 +250,15 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
     if isinstance(model2_pars, list):
         debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
-
     # def filled_tcm_wrapper(num, param):
     #     """Fill in all extra parameters for parrallel wrapper."""
     #    return tcm_wrapper(num, params, model2_pars, alphas, rvs, gammas,
     #                       obs_spec, norm=norm, save_only=save_only,
     #                       chip=chip, prefix=prefix, verbose=verbose)
 
-
     print("Parallised running\n\n\n ###################")
     raise NotImplementedError("Need to fix this up")
-    #broadcast_chisqr_vals = Parallel(n_jobs=-2)(
+    # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
     #    delayed(filled_tcm_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
     # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
     #     delayed(tcm_wrapper)(ii, param, model2_pars, alphas, rvs, gammas,
