@@ -161,14 +161,6 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
         return broadcast_chisqr_vals   # Just output the best value for each model pair
 
 
-def check_inputs(var):
-    if var is None:
-        var = np.array([0])
-    elif isinstance(rvs, (float, int)):
-        var = np.asarray(var, dtype=np.float32)
-    return var
-
-
 @timeit2
 def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
                           rvs=None, gammas=None, verbose=False, norm=False, save_only=True, chip=None, prefix=None):

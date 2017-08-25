@@ -126,6 +126,14 @@ def main(chip=None, parallel=True, small=True):
     # subprocess.call(make_chi2_bd.py)
 
 
+def check_inputs(var):
+    if var is None:
+        var = np.array([0])
+    elif isinstance(rvs, (float, int)):
+        var = np.asarray(var, dtype=np.float32)
+    return var
+
+
 @timeit2
 def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
                  verbose=False, norm=False, save_only=True, chip=None,
@@ -154,14 +162,6 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
         return None
     else:
         return broadcast_chisqr_vals   # Just output the best value for each model pair
-
-
-def check_inputs(var):
-    if var is None:
-        var = np.array([0])
-    elif isinstance(rvs, (float, int)):
-        var = np.asarray(var, dtype=np.float32)
-    return var
 
 
 @timeit2
