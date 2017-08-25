@@ -143,70 +143,12 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
     # Solution Grids to return
     broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
 
+    args = [model2_pars, rvs, gammas, obs_spec]
+    kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
+              "prefix": prefix, "verbose": verbose}
 
     for ii, params1 in enumerate(tqdm(model1_pars)):
-        if prefix is None:
-            sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]"
-                  ".csv").format(obs_spec.header["OBJECT"],
-                                 int(obs_spec.header["MJD-OBS"]), chip,
-                                 params1[0], params1[1], params1[2], ii)
-
-        else:
-            sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(
-                prefix, params1[0], params1[1], params1[2], ii)
-        save_filename = sf
-
-        if os.path.exists(save_filename) and save_only:
-            print("''{}' exists, so not repeating calcualtion.".format(save_filename))
-            continue
-        else:
-            for jj, params2 in enumerate(model2_pars):
-                if verbose:
-                    print("Starting iteration with parameters:\n{0}={1},{2}={3}".format(ii, params1, jj, params2))
-                mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=False)
-                mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=False)
-
-                # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
-
-                # Wavelength selection
-                mod1_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                     np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
-                mod2_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                     np.max(obs_spec.xaxis) + 5)
-                obs_spec = obs_spec.remove_nans()
-                assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
-
-                # Scale by area and take ratio to get alpha.
-                mod1_spec, mod2_spec, inherint_alpha = calc_alpha(mod1_spec, mod2_spec, chip)
-
-                assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
-
-                broadcast_result = inherint_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
-                                                        rvs=rvs, gammas=gammas)
-                broadcast_values = broadcast_result(obs_spec.xaxis)
-
-
-                # ### NORMALIZATION NEEDED HERE
-                if norm:
-                    obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, broadcast_values)
-
-                else:
-                    obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
-                #####
-
-                broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
-                sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
-                assert np.all(sp_chisquare == broadcast_chisquare)
-
-                if not save_only:
-                    print(broadcast_chisquare.shape)
-                    print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
-                    # New parameters to explore
-                    broadcast_chisqr_vals[ii, jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
-                    # broadcast_gamma[ii, jj] = gammas[np.argmin(broadcast_chisquare)]
-                    # full_broadcast_chisquare[ii, jj, :] = broadcast_chisquare
-
-                save_full_iam_chisqr(save_filename, params1, params2, inherint_alpha, rvs, gammas, broadcast_chisquare, verbose=verbose)
+        broadcast_chisqr_vals[ii] = iam_wrapper(ii, params1, *args, **kwargs)
 
     if save_only:
         return None
@@ -243,7 +185,7 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
 
     print("Parallised running\n\n\n ###################")
     raise NotImplementedError("Need to fix this up")
-    #broadcast_chisqr_vals = Parallel(n_jobs=-2)(
+    # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
     #    delayed(filled_iam_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
     # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
     #     delayed(iam_wrapper)(ii, param, model2_pars, rvs, gammas,

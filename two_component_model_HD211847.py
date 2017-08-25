@@ -147,81 +147,13 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     if isinstance(model2_pars, list):
         debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
-    print("host params", model1_pars)
-    print("companion params", model2_pars)
+    args = [model2_pars, alphas, rvs, gammas, obs_spec]
+    kwargs = {"norm": norm, "save_only": save_only, "chip": chip, "prefix": prefix, "verbose": verbose}
 
-    # Solution Grids to return
-    # model_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
-    # model_xcorr_vals = np.empty(len(model1_pars), len(model2_pars))
-    # model_xcorr_rv_vals = np.empty(len(model1_pars), len(model2_pars))
     broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
-    # broadcast_gamma = np.empty((len(model1_pars), len(model2_pars)))
-    # full_broadcast_chisquare = np.empty((len(model1_pars), len(model2_pars), len(alphas), len(rvs), len(gammas)))
 
-    normalization_limits = [2105, 2185]   # small as possible?
-    # combined_params = itertools.product(model1_pars, model2_pars)
     for ii, params1 in enumerate(tqdm(model1_pars)):
-        if prefix is None:
-            sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]"
-                  ".csv").format(obs_spec.header["OBJECT"],
-                                 int(obs_spec.header["MJD-OBS"]), chip,
-                                 params1[0], params1[1], params1[2], ii)
-
-        else:
-            sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(
-                prefix, params1[0], params1[1], params1[2], ii)
-        save_filename = sf
-
-        if os.path.exists(save_filename) and save_only:
-            print("''{}' exists, so not repeating calcualtion.".format(save_filename))
-            continue
-        else:
-            for jj, params2 in enumerate(model2_pars):
-                if verbose:
-                    print("Starting iteration with parameters:\n{0}={1},{2}={3}".format(ii, params1, jj, params2))
-                mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=True)
-                mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=True)
-
-                # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
-
-                # Wavelength selection
-                mod1_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                     np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
-                mod2_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                     np.max(obs_spec.xaxis) + 5)
-                obs_spec = obs_spec.remove_nans()
-
-                # One component model with broadcasting over gammas
-                # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
-                assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
-
-                broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
-                                                  alphas=alphas, rvs=rvs, gammas=gammas)
-                broadcast_values = broadcast_result(obs_spec.xaxis)
-
-                assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
-
-                # ### NORMALIZATION NEEDED HERE
-                if norm:
-                    obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, broadcast_values)
-
-                else:
-                    obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
-                #####
-
-                broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
-                sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
-                assert np.all(sp_chisquare == broadcast_chisquare)
-
-                if not save_only:
-                    print(broadcast_chisquare.shape)
-                    print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
-                    # New parameters to explore
-                    broadcast_chisqr_vals[ii, jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
-                    # broadcast_gamma[ii, jj] = gammas[np.argmin(broadcast_chisquare)]
-                    # full_broadcast_chisquare[ii, jj, :] = broadcast_chisquare
-
-                save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=verbose)
+        broadcast_chisqr_vals[ii] = tcm_wrapper(ii, params1, *args, **kwargs)
 
     if save_only:
         return None
