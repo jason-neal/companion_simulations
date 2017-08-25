@@ -80,17 +80,17 @@ def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
     if method == "exponential":
         z = np.polyfit(wave_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
         p = np.poly1d(z)
-        norm_flux = np.exp(p(org_wave))   # Un-log the y values.
+        continuum_fit = np.exp(p(org_wave))   # Un-log the y values.
     else:
         z = np.polyfit(wave_points, flux_points, poly_num[method])
         p = np.poly1d(z)
-        norm_flux = p(org_wave)
+        continuum_fit = p(org_wave)
 
     if plot:
         plt.subplot(211)
         plt.plot(wave, flux)
         plt.plot(wave_points, flux_points, "x-", label="points")
-        plt.plot(org_wave, norm_flux, label='norm_flux')
+        plt.plot(org_wave, continuum_fit, label='norm_flux')
         plt.legend()
         plt.subplot(212)
         plt.plot(org_wave, org_flux / norm_flux)
