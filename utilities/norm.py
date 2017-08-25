@@ -98,7 +98,7 @@ def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
         plt.xlabel("Wavelength (nm)")
         plt.show()
 
-    return norm_flux
+    return continuum_fit
 
 
 @timeit2
@@ -124,7 +124,7 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
     """
     if np.any(np.isnan(models)):
         raise ValueError("NaNS are not allowed in models during normalization, "
-                         "check evaulated wavlength.")
+                         "check evaulated wavelength.")
 
     obs_continuum = continuum(wave, obs, splits=splits, method=method, top=top)
 
@@ -159,7 +159,7 @@ def chi2_model_norms_slow(wave, obs, models, method='scalar', splits=100, top=20
     """
     if np.any(np.isnan(models)):
         raise ValueError("NaNS are not allowed in models during normalization, "
-                         "check evaulated wavlength.")
+                         "check evaulated wavelength.")
 
     obs_continuum = continuum_slow(wave, obs, splits=splits, method=method, top=top)
 
