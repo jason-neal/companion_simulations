@@ -2,10 +2,9 @@
 
 For the inherent alpha model
 
-We assume that the host temperature is well known so we will resitrict the results to the host temperature. (within error bars)
+We assume that the host temperature is well known so we will resitrict the
+results to the host temperature. (within error bars)
 For HD30501 and HD211847 this means  +- 50K so a fixed temperature.
-
-
 
 """
 import argparse
@@ -17,6 +16,8 @@ import pandas as pd
 import sqlalchemy as sa
 
 from utilities.param_file import parse_paramfile
+from utilities.phoenix_utils import closest_model_params
+from utilities.debug_utils import timeit2
 
 
 def _parser():
@@ -36,23 +37,24 @@ def decompose_database_name(database):
     """Database names of form */Star_obsnum_chip...db ."""
     os.path.split(database)
     path, name = os.path.split(database)
-    return path, name.split("_")[:3]
+    name_split = name.split("_")
+    star, obsnum = name_split[0].split("-")
+    chip = name_split[1]
+    return path, star, obsnum, chip
 
 
 def get_host_params(star):
     """Find host star parameters from param file."""
-    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.txt".format(star)
+    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
     params = parse_paramfile(param_file)
     return params["temp"], params["logg"], params["fe_h"]
-
-def savefig(name):
-    plt.savefig(os.path.join(path, "plots", name), bbox="tight")
 
 
 def main(database, echo=False):
     path, star, obs_num, chip = decompose_database_name(database)
 
-    teff, logg, fe_h = closest_model_params(*get_host_params(star), path)
+    teff, logg, fe_h = closest_model_params(*get_host_params(star))
+    params = {"path": path, "star": star, "obs_num": obs_num, "chip": chip, "teff": teff, "logg": logg, "fe_h": fe_h}
 
     engine = sa.create_engine('sqlite:///{}'.format(database), echo=echo)
     table_names = engine.table_names()
@@ -62,11 +64,10 @@ def main(database, echo=False):
     else:
         raise ValueError("Database has two many tables {}".format(table_names))
 
+    fix_host_parameters(engine, tb_name, params)
 
-    fix_host_parameters(engine, teff, logg, fe_h)
-
-    get_column_limits(engine, tb_name)
-    smallest_chi2_values(engine, tb_name)
+    get_column_limits(engine, tb_name, params)
+    smallest_chi2_values(engine, tb_name, params)
 
     df = pd.read_sql_query('SELECT alpha, chi2 FROM {0} LIMIT 10000'.format(tb_name), engine)
 
@@ -79,8 +80,10 @@ def main(database, echo=False):
 
     ax.grid(True)
     fig.tight_layout()
-
-    plt.show()
+    name = "{0}-{1}_{2}_test_test_figure1.pdf".format(
+        params["star"], params["obs_num"], params["chip"])
+    plt.savefig(os.path.join(params["path"], "plots", name))
+    #$plt.show()
 
     alpha_rv_plot(engine, tb_name)
     # alpha_rv_contour(engine, tb_name)
@@ -102,8 +105,11 @@ def alpha_rv_plot(engine, tb_name=None):
 
     ax.grid(True)
     fig.tight_layout()
+    name = "{0}-{1}_{2}_test_alpha_rv.pdf".format(
+        params["star"], params["obs_num"], params["chip"])
+    plt.savefig(os.path.join(params["path"], "plots", name))
 
-    plt.show()
+    # plt.show()
 
 
 def alpha_rv_contour(engine, tb_name=None):
@@ -122,22 +128,26 @@ def alpha_rv_contour(engine, tb_name=None):
 
     ax.grid(True)
     fig.tight_layout()
+    name = "{0}-{1}_{2}_test_alpha_rv_contour.pdf".format(
+        params["star"], params["obs_num"], params["chip"])
+    plt.savefig(os.path.join(params["path"], "plots", name))
+    # plt.show()
 
-    plt.show()
 
-
-def smallest_chi2_values(engine, tb_name):
+def smallest_chi2_values(engine, tb_name, params):
     """Find smallest chi2 in table."""
     df = pd.read_sql(sa.text('SELECT * FROM {0} ORDER BY chi2 ASC LIMIT 10'.format(tb_name)), engine)
     # df = pd.read_sql_query('SELECT alpha  FROM table', engine)
 
     print("Samllest Chi2 values in the database.")
     print(df.head(n=15))
+    name = "{0}-{1}_{2}_test_smallest_chi2.pdf".format(
+        params["star"], params["obs_num"], params["chip"])
+    plt.savefig(os.path.join(params["path"], "plots", name))
+    # plt.show()
 
-    plt.show()
 
-
-def get_column_limits(engine, tb_name):
+def get_column_limits(engine, tb_name, params):
     print("Column Value Ranges")
     for col in ["teff_1", "teff_2", "logg_1", "logg_2", "alpha", "gamma", "rv", "chi2"]:
         query = """
@@ -149,15 +159,19 @@ def get_column_limits(engine, tb_name):
         print(col, min(df[col]), max(df[col]))
 
 
-def fix_host_parameters(engine, teff, logg, fe_h):
-    print("Fixed host analysis")
-    for col in ["teff_2", "logg_2", "alpha", "gamma", "rv"]
-    query = """
-           SELECT {} FROM {} WHERE teff_1 == {} logg_1 == {} feh_1 == {})""" .format(col, "chi2", teff, logg, fe_h)
-    df = pd.read_sql(sa.text(query), engine)
-    df.plot.scatter()
-    savefig("fixed_host_params_")
-    plt.show()
+@timeit2
+def fix_host_parameters(engine, tb_name, params):
+    print("Fixed host analysis.")
+    for col in ["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]:
+        query = """SELECT {}, {} FROM {} WHERE (teff_1 = {}  AND logg_1 = {} AND feh_1 = {})""" .format(
+            col, "chi2", tb_name, params["teff"], params["logg"], params["fe_h"])
+        df = pd.read_sql(sa.text(query), engine)
+        print(df.columns)
+        df.plot.scatter(col, "chi2")
+        name = "{0}-{1}_{2}_fixed_host_params_{3}.pdf".format(
+            params["star"], params["obs_num"], params["chip"], col)
+        plt.savefig(os.path.join(params["path"], "plots", name))
+        plt.close()
 
 
 if __name__ == '__main__':
