@@ -237,7 +237,7 @@ def phoenix_name_from_params(data_dir, params):
             raise ValueError("Lenght of parameter list given is not valid, {}".format(len(params)))
 
 
-def generate_close_params(params, small=True):
+def generate_close_params(params, small=True, limits="phoenix"):
     """teff, logg, Z."""
     temp, logg, metals = params[0], params[1], params[2]
     if small:
@@ -248,6 +248,11 @@ def generate_close_params(params, small=True):
         new_temps = np.arange(-500, 501, 100) + temp
         new_metals = np.arange(-1, 1.1, 0.5) + metals
         new_loggs = np.arange(-1, 1.1, 0.5) + logg
+
+    if limits == "phoenix":
+        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
+        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
+        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
 
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
         yield [t, l, m]
