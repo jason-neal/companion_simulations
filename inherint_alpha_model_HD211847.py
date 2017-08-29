@@ -54,9 +54,12 @@ def _parser():
     :returns: the args
     """
     parser = argparse.ArgumentParser(description='Inherint alpha modelling.')
-    parser.add_argument('--chip', help='Chip Number.', default=None)
+    parser.add_argument("star", help='Star name.', type=str)
+    parser.add_argument("obs_num", help='Star observation number.', type=str)
+    parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
     parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
     parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
+    parser.add_argument('-m', '--more_id', help='Extra name identifier.', type=str)
 
     return parser.parse_args()
 
@@ -70,16 +73,18 @@ def iam_helper_function(star, obs_num, chip):
     return obs_name, params, output_prefix
 
 
-def main(chip=None, parallel=True, small=True, verbose=False):
+def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, more_id=None):
     """Main function."""
 
-    star = "HD211847"
-    obs_num = 2
+    # star = "HD211847"
+    # obs_num = 2
 
     if chip is None:
         chip = 4
 
     obs_name, params, output_prefix = iam_helper_function(star, obs_num, chip)
+    if more_id is not None:
+        output_prefix = output_prefix + str(more_id)
 
     print("The observation used is ", obs_name, "\n")
 
