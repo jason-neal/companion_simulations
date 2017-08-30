@@ -64,11 +64,18 @@ def main(database, echo=False):
     else:
         raise ValueError("Database has two many tables {}".format(table_names))
 
-    fix_host_parameters(engine, tb_name, params)
+    fix_host_parameters_reduced_gamma(engine, params, tb_name)
+    # fix_host_parameters(engine, params, tb_name)
 
-    get_column_limits(engine, tb_name, params)
-    smallest_chi2_values(engine, tb_name, params)
+    # get_column_limits(engine, params, tb_name)
+    # smallest_chi2_values(engine, params, tb_name)
 
+    # test_figure(engine, params, tb_name)
+
+    return 0
+
+
+def test_figure(engine, params, tb_name):
     df = pd.read_sql_query('SELECT alpha, chi2 FROM {0} LIMIT 10000'.format(tb_name), engine)
 
     fig, ax = plt.subplots()
@@ -85,11 +92,11 @@ def main(database, echo=False):
     plt.savefig(os.path.join(params["path"], "plots", name))
     #$plt.show()
 
-    alpha_rv_plot(engine, tb_name)
+    alpha_rv_plot(engine, params, tb_name)
     # alpha_rv_contour(engine, tb_name)
 
 
-def alpha_rv_plot(engine, tb_name=None):
+def alpha_rv_plot(engine, params, tb_name):
     # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff1, logg_1=:logg1, feh_1=:feh1'), engine, params={'teff1': 5200, 'logg1': 4.5, 'feh1': 0.0})
     #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff_1'), engine, params={'teff_1': 5200})
     #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=5200 and logg_1=4.5 and feh_1=0.0'), engine)
@@ -112,7 +119,7 @@ def alpha_rv_plot(engine, tb_name=None):
     # plt.show()
 
 
-def alpha_rv_contour(engine, tb_name=None):
+def alpha_rv_contour(engine, params, tb_name):
     # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff1, logg_1=:logg1, feh_1=:feh1'), engine, params={'teff1': 5200, 'logg1': 4.5, 'feh1': 0.0})
     #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff_1'), engine, params={'teff_1': 5200})
     #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=5200 and logg_1=4.5 and feh_1=0.0'), engine)
@@ -134,7 +141,7 @@ def alpha_rv_contour(engine, tb_name=None):
     # plt.show()
 
 
-def smallest_chi2_values(engine, tb_name, params):
+def smallest_chi2_values(engine, params, tb_name):
     """Find smallest chi2 in table."""
     df = pd.read_sql(sa.text('SELECT * FROM {0} ORDER BY chi2 ASC LIMIT 10'.format(tb_name)), engine)
     # df = pd.read_sql_query('SELECT alpha  FROM table', engine)
@@ -147,7 +154,7 @@ def smallest_chi2_values(engine, tb_name, params):
     # plt.show()
 
 
-def get_column_limits(engine, tb_name, params):
+def get_column_limits(engine, params, tb_name):
     print("Column Value Ranges")
     for col in ["teff_1", "teff_2", "logg_1", "logg_2", "alpha", "gamma", "rv", "chi2"]:
         query = """
@@ -160,7 +167,7 @@ def get_column_limits(engine, tb_name, params):
 
 
 @timeit2
-def fix_host_parameters(engine, tb_name, params):
+def fix_host_parameters(engine, params, tb_name):
     print("Fixed host analysis.")
     for col in ["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]:
         query = """SELECT {}, {} FROM {} WHERE (teff_1 = {}  AND logg_1 = {} AND feh_1 = {})""" .format(
@@ -172,6 +179,45 @@ def fix_host_parameters(engine, tb_name, params):
             params["star"], params["obs_num"], params["chip"], col)
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.close()
+
+
+@timeit2
+def fix_host_parameters_reduced_gamma(engine, params, tb_name):
+    print("Fixed host analysis.")
+    d_gamma = 4
+    # Select lowest chisqr gamma values.
+    query = """SELECT {0}, {1} FROM {2} ORDER BY {1} ASC LIMIT 1""" .format(
+        "gamma", "chi2", tb_name)
+    df = pd.read_sql(sa.text(query), engine)
+    min_chi2_gamma = df.loc[0, "gamma"]
+    print("min_chi2_gamma = ", min_chi2_gamma)
+    upper_lim = min_chi2_gamma + d_gamma
+    lower_lim = min_chi2_gamma - d_gamma
+    print("gamma_limits", lower_lim, upper_lim)
+
+    plt.figure()
+
+    for ii, col in enumerate(["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]):
+        query = """SELECT {0}, {1}, gamma FROM {2} WHERE (teff_1 = {3}  AND logg_1 = {4} AND
+            feh_1 = {5} AND gamma > {6} AND gamma < {7})""".format(
+            col, "chi2", tb_name, params["teff"], params["logg"], params["fe_h"],
+            lower_lim, upper_lim)
+
+        df = pd.read_sql(sa.text(query), engine, mangle_dupe_cols=False)
+        print(df.columns)
+        print(df.dtypes)
+        print("lengths", len(df[col]), len(df["chi2"]))
+        plt.subplot(3, 2, ii + 1)
+        if col == "gamma":
+            print("gamma cols", df.gamma)
+            df.plot.scatter(col, "chi2", c="gamma", colorbar=True)
+        else:
+            df.plot.scatter(col, "chi2", c="gamma", colorbar=True)
+    name = "{0}-{1}_{2}_fixed_host_params.pdf".format(
+        params["star"], params["obs_num"], params["chip"], col)
+    plt.suptitle("Chi**2 Results: {0}-{1}_{2}".format(params["star"], params["obs_num"], params["chip"]))
+    plt.savefig(os.path.join(params["path"], "plots", name))
+    plt.close()
 
 
 if __name__ == '__main__':
