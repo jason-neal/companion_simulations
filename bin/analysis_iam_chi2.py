@@ -12,6 +12,7 @@ import os
 import sys
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 
@@ -52,12 +53,20 @@ def get_host_params(star):
 
 def main(database, echo=False):
     path, star, obs_num, chip = decompose_database_name(database)
+    os.makedirs(os.path.join(path, "plots"), exist_ok=True)  # make dir for plots
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
     params = {"path": path, "star": star, "obs_num": obs_num, "chip": chip, "teff": teff, "logg": logg, "fe_h": fe_h}
 
-    engine = sa.create_engine('sqlite:///{}'.format(database), echo=echo)
-    table_names = engine.table_names()
+    sqlite_db = 'sqlite:///{}'.format(database)
+    try:
+        engine = sa.create_engine(sqlite_db, echo=echo)
+        table_names = engine.table_names()
+    except:
+        print("\nAccessing sqlite_db = {}\n".format(sqlite_db))
+        print("cwd =", os.getcwd())
+        raise
+
     print("Table names in database =", engine.table_names())
     if len(table_names) == 1:
         tb_name = table_names[0]
@@ -65,9 +74,9 @@ def main(database, echo=False):
         raise ValueError("Database has two many tables {}".format(table_names))
 
     fix_host_parameters_reduced_gamma(engine, params, tb_name)
-    # fix_host_parameters(engine, params, tb_name)
+    fix_host_parameters(engine, params, tb_name)
 
-    # get_column_limits(engine, params, tb_name)
+    get_column_limits(engine, params, tb_name)
     # smallest_chi2_values(engine, params, tb_name)
 
     # test_figure(engine, params, tb_name)
@@ -115,7 +124,7 @@ def alpha_rv_plot(engine, params, tb_name):
     name = "{0}-{1}_{2}_test_alpha_rv.pdf".format(
         params["star"], params["obs_num"], params["chip"])
     plt.savefig(os.path.join(params["path"], "plots", name))
-
+    plt.close()
     # plt.show()
 
 
@@ -138,6 +147,7 @@ def alpha_rv_contour(engine, params, tb_name):
     name = "{0}-{1}_{2}_test_alpha_rv_contour.pdf".format(
         params["star"], params["obs_num"], params["chip"])
     plt.savefig(os.path.join(params["path"], "plots", name))
+    plt.close()
     # plt.show()
 
 
@@ -151,6 +161,7 @@ def smallest_chi2_values(engine, params, tb_name):
     name = "{0}-{1}_{2}_test_smallest_chi2.pdf".format(
         params["star"], params["obs_num"], params["chip"])
     plt.savefig(os.path.join(params["path"], "plots", name))
+    plt.close()
     # plt.show()
 
 
@@ -169,22 +180,37 @@ def get_column_limits(engine, params, tb_name):
 @timeit2
 def fix_host_parameters(engine, params, tb_name):
     print("Fixed host analysis.")
-    for col in ["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]:
+    nrows, ncols = 3, 2
+    fig, axes = plt.subplots(nrows, ncols)
+    # fig.subplots_adjust(hspace=.5, vspace=0.5)
+    fig.tight_layout()
+    # print("axes", axes)
+    indices = np.arange(nrows * ncols).reshape(nrows, ncols)
+    # print("indicies", indices)
+
+    columns = ["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]
+    assert len(columns) == (nrows * ncols)
+
+    for ii, col in enumerate(columns):
         query = """SELECT {}, {} FROM {} WHERE (teff_1 = {}  AND logg_1 = {} AND feh_1 = {})""" .format(
             col, "chi2", tb_name, params["teff"], params["logg"], params["fe_h"])
         df = pd.read_sql(sa.text(query), engine)
-        print(df.columns)
-        df.plot.scatter(col, "chi2")
-        name = "{0}-{1}_{2}_fixed_host_params_{3}.pdf".format(
-            params["star"], params["obs_num"], params["chip"], col)
-        plt.savefig(os.path.join(params["path"], "plots", name))
-        plt.close()
+        # print(df.columns)
+
+        axis_pos = [int(x) for x in np.where(indices == ii)]
+        df.plot(x=col, y="chi2", kind="scatter", ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma", colorbar=True)
+
+    name = "{0}-{1}_{2}_fixed_host_params_full_gamma.png".format(
+        params["star"], params["obs_num"], params["chip"], col)
+    plt.suptitle("Chi**2 Results (Fixed host): {0}-{1}_{2}".format(params["star"], params["obs_num"], params["chip"]))
+    fig.savefig(os.path.join(params["path"], "plots", name))
+    plt.close()
 
 
 @timeit2
 def fix_host_parameters_reduced_gamma(engine, params, tb_name):
     print("Fixed host analysis.")
-    d_gamma = 4
+    d_gamma = 5
     # Select lowest chisqr gamma values.
     query = """SELECT {0}, {1} FROM {2} ORDER BY {1} ASC LIMIT 1""" .format(
         "gamma", "chi2", tb_name)
@@ -195,28 +221,44 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
     lower_lim = min_chi2_gamma - d_gamma
     print("gamma_limits", lower_lim, upper_lim)
 
-    plt.figure()
+    nrows, ncols = 3, 2
+    fig, axes = plt.subplots(nrows, ncols)
+    # fig.subplots_adjust(hspace=.5, vspace=0.5)
+    fig.tight_layout()
+    # print("axes", axes)
+    indices = np.arange(nrows * ncols).reshape(nrows, ncols)
+    # print("indicies", indices)
 
-    for ii, col in enumerate(["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]):
+    columns = ["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]
+    assert len(columns) == (nrows * ncols)
+
+    for ii, col in enumerate(columns):
         query = """SELECT {0}, {1}, gamma FROM {2} WHERE (teff_1 = {3}  AND logg_1 = {4} AND
             feh_1 = {5} AND gamma > {6} AND gamma < {7})""".format(
             col, "chi2", tb_name, params["teff"], params["logg"], params["fe_h"],
             lower_lim, upper_lim)
 
-        df = pd.read_sql(sa.text(query), engine, mangle_dupe_cols=False)
-        print(df.columns)
-        print(df.dtypes)
-        print("lengths", len(df[col]), len(df["chi2"]))
-        plt.subplot(3, 2, ii + 1)
-        if col == "gamma":
-            print("gamma cols", df.gamma)
-            df.plot.scatter(col, "chi2", c="gamma", colorbar=True)
+        df = pd.read_sql(sa.text(query), engine)
+        # print(df.columns)
+        # print(df.dtypes)
+
+        # plt.subplot(3, 2, ii + 1)
+        # if col == "gamma":   # Duplicate columns
+        #    df["gamma2"] = df.gamma.iloc[:, 0]
+        #    df.plot(ax=axes.ravel()[ii]).scatter("gamma2", "chi2")  #, c="gamma2", colorbar=True)
+        # else:
+        #    df.plot(ax=axes.ravel()[ii]).scatter(col, "chi2")  #, c="gamma", colorbar=True)
+        axis_pos = [int(x) for x in np.where(indices == ii)]
+        if col == "gamma":   # Duplicate columns
+            df["gamma2"] = df.gamma.iloc[:, 0]
+            df.plot(x="gamma2", y="chi2", kind="scatter", ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma2", colorbar=True)
         else:
-            df.plot.scatter(col, "chi2", c="gamma", colorbar=True)
-    name = "{0}-{1}_{2}_fixed_host_params.pdf".format(
+            df.plot(x=col, y="chi2", kind="scatter", ax=axes[axis_pos[0], axis_pos[1]])  #, c="gamma", colorbar=True)
+
+    name = "{0}-{1}_{2}_fixed_host_params.png".format(
         params["star"], params["obs_num"], params["chip"], col)
     plt.suptitle("Chi**2 Results: {0}-{1}_{2}".format(params["star"], params["obs_num"], params["chip"]))
-    plt.savefig(os.path.join(params["path"], "plots", name))
+    fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
 
 
