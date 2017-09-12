@@ -97,7 +97,7 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, mor
     # Function to find the good models I need
     # models = find_phoenix_model_names(model_base_dir, original_model)
     # Function to find the good models I need from parameters
-    model1_pars = list(generate_close_params(closest_host_model, small=small))
+    model1_pars = list(generate_close_params(closest_host_model, small="host"))
     model2_pars = list(generate_close_params(closest_comp_model, small=small))
 
     # Load observation
