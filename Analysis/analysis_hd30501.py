@@ -3,10 +3,15 @@
 
 
 """
+import os
+import sys
 import argparse
 import subprocess
+star = "HD30501"
 observations = ["1", "2a", "2b", "3"]
 chips = range(1, 5)
+
+# TODO common function to determine observatiosn and chips for different stars
 
 
 def _parser():
@@ -20,20 +25,35 @@ def _parser():
 
 
 def main(full_chi_calculation=False):
-    for obs in observations:
+    cwd = os.getcwd()
+    if cwd.endswith("Analysis"):
+        prefix_dir = ""
+    elif cwd.endswith("companion_simulations"):
+        prefix_dir = "Analysis"
+    else:
+        raise RuntimeError("The cwd is not correct. Check where you are running cwd={}".format(cwd))
+
+    for obs_num in observations:
         for chip in chips:
-            name = "HD30501/HD30501-{0}_{1}_iam_chisqr_results.db".format(obs, chip)
+            db_name = "{0}/{0}-{1}_{2}_iam_chisqr_results.db".format(star, obs_num, chip)
+            db_name = os.path.join(prefix_dir, db_name)
 
             # Run single componet models
 
             # run db creator
             if full_chi_calculation:
-                subprocess.call("python ../iam_chi2_calculator.py {0} {1} -c {2} -s".format(name, obs_num, chip), shell=True)
+                subprocess.call("python ../iam_chi2_calculator.py {0} {1} -c {2} -s".format(star, obs_num, chip), shell=True)
+
+                # make database
+
 
             # Run analysis code to make plots
-            subprocess.call("python ../bin/analysis_iam_chi2.py {0}".format(name), shell=True)
+            if os.getcwd().endswith("Analysis"):
+                subprocess.call("python ../bin/analysis_iam_chi2.py {0}".format(db_name), shell=True)
+            else:
+                subprocess.call("python bin/analysis_iam_chi2.py {0}".format(db_name), shell=True)
 
 if __name__ == "__main__":
-    opts = vars(_parser())
+    args = vars(_parser())
     opts = {k: args[k] for k in args}
     sys.exit(main(**opts))

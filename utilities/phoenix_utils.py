@@ -240,10 +240,18 @@ def phoenix_name_from_params(data_dir, params):
 def generate_close_params(params, small=True, limits="phoenix"):
     """teff, logg, Z."""
     temp, logg, metals = params[0], params[1], params[2]
-    if small:
-        new_temps = np.arange(-600, 601, 100) + temp
-        new_metals = np.arange(1) + metals
-        new_loggs = np.arange(1) + logg
+    if small == "host":
+        # only include errorbounds.
+        new_temps = np.array([-100, 0, 100]) + temp
+        new_metals = np.array([-0.5, 0.0, 0.5]) + metals
+        new_loggs = np.array([-0.5, 0.0, 0.5]) + logg
+    elif small:
+        new_temps = np.arange(-600, 1001, 100) + temp
+        new_metals = np.array([-0.5, 0.0, 0.5]) + metals
+        new_loggs = np.array([-0.5, 0.0, 0.5]) + logg
+        #new_temps = np.arange(-600, 601, 100) + temp
+        #new_metals = np.arange(1) + metals
+        #new_loggs = np.arange(1) + logg
     else:
         new_temps = np.arange(-500, 501, 100) + temp
         new_metals = np.arange(-1, 1.1, 0.5) + metals

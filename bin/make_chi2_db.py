@@ -1,10 +1,13 @@
 """Script to join all the chisquared part files into a sql database."""
 import argparse
 import glob as glob
+import os
+import subprocess
 import sys
 
 import pandas as pd
 import sqlalchemy as sa
+
 
 def _parser():
     """Take care of all the argparse stuff.
@@ -14,17 +17,19 @@ def _parser():
     parser = argparse.ArgumentParser(description='Wavelength Calibrate CRIRES \
                                     Spectra')
     parser.add_argument('pattern', help='Pattern')
-    parser.add_argument('-s', '--suffix', help='Suffix to add to database name.')
+    parser.add_argument('-s', '--suffix', help='Suffix to add to database name.', default=None)
     parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
     # parser.add_argument('-s', '--sort', help='Sort by column.', default='chi2')
     # parser.add_argument('--direction', help='Sort direction.',
     #                     default='ascending', choices=['ascending','decending'])
+    parser.add_argument("-m", '--move', action="store_true",
+                        help='Move original files after joining (default=False).')
     parser.add_argument("-r", '--remove', action="store_true",
-                        help='Remove original files after joining (default=False).')
+                        help='Delete original files after joining (default=False).')
     return parser.parse_args()
 
 
-def sql_join(pattern, suffix="", verbose=True, remove=False):
+def sql_join(pattern, suffix=None, verbose=True, move=False, remove=False):
     """Join data files with names that match a given pattern.
 
     Inputs
@@ -47,6 +52,8 @@ def sql_join(pattern, suffix="", verbose=True, remove=False):
     if verbose:
         print("Concatinating {} files.".format(number_of_files))
 
+    if suffix is None:
+        suffix = ""
     # Get frist part of name
     prefix = next(glob.iglob(pattern)).split("_part")[0]
     print(prefix, suffix)
@@ -82,6 +89,12 @@ def sql_join(pattern, suffix="", verbose=True, remove=False):
                 if verbose:
                     print("indicies = ", i, j)
 
+        if move:
+            f_split = os.path.split(f)
+            new_f = os.path.join(f_split[0], "processed_cvs", f_split[1])
+            os.makedirs(os.path.dirname(new_f), exist_ok=True)
+            subprocess.call("mv {} {}".format(f, new_f), shell=True)
+
     if verbose:
             print("Saved results to {}.".format(database_name))
 
@@ -89,8 +102,9 @@ def sql_join(pattern, suffix="", verbose=True, remove=False):
         print("Removing original files.")
         raise NotImplementedError
         # (subprocess.call("rm ") for f in glob.iglob(pattern))
-        
+
     return 0
+
 
 if __name__ == '__main__':
     args = vars(_parser())
