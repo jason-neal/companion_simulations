@@ -13,11 +13,11 @@ def _parser():
     :returns: the args
     """
     # parser = GooeyParser(description='Wavelength Calibrate CRIRES Spectra')
-    parser = argparse.ArgumentParser(description='Wavelength Calibrate CRIRES \
-                                    Spectra')
+    parser = argparse.ArgumentParser(description='Perform bhm computations.')
     parser.add_argument('star', help='Star name file')
     parser.add_argument('-n', '--obs_num', help='Obervation number')
-    parser.add_argument('-d', '--detector', default=None, help='detector number, All if not provided.')  # if False/nune the [1,2,3,4]
+    parser.add_argument('-d', '--detector', default=None,
+                        help='detector number, All if not provided.')
     parser.add_argument('-o', '--output', default=False, help='Ouput Filename')
     parser.add_argument('-s', '--model', choices=["tcm", "bhm"],
                         help='Choose spectral model to evaulate, ["tcm"(default), "bhm"]')
@@ -48,7 +48,8 @@ def grids_from_config(name=None):
 
 def main(star, obs_num, detector, output=None, model="tcm", mode="plot"):
     if output is None:
-        output = "Analysis-{0}-{1}_{2}-{}_chisqr_results.dat".format(star, obs_num, detector, model)
+        output = "Analysis-{0}-{1}_{2}-{}_chisqr_results.dat".format(
+            star, obs_num, detector, model)
 
     if mode == "plot":
         # Load chi2 and dot he plotting
