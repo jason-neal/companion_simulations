@@ -48,7 +48,7 @@ install:
   - export PATH=$HOME/Starfish/:$HOME/Starfish/Starfish/:$HOME/Starfish/scripts/:$PATH
 # - pip install https://github.com/iancze/Starfish/archive/master.zip
 
-- travis_retry python setup.py install
+  - travis_retry python setup.py install
 
 script:
     pytest --cov=. --cov-report term-missing --durations 5
