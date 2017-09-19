@@ -30,7 +30,6 @@ install:
  # Test requirements
   - travis_retry pip install -r test_requirements.txt
   - travis_retry pip install -r requirements.txt
-  - travis_retry python setup.py install
 
   # Clone spectrum_overload
   - travis_retry pip install https://github.com/jason-neal/spectrum_overload/archive/master.zip
@@ -49,6 +48,7 @@ install:
   - export PATH=$HOME/Starfish/:$HOME/Starfish/Starfish/:$HOME/Starfish/scripts/:$PATH
 # - pip install https://github.com/iancze/Starfish/archive/master.zip
 
+- travis_retry python setup.py install
 
 script:
     pytest --cov=. --cov-report term-missing --durations 5
