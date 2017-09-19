@@ -263,7 +263,7 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
     plt.close()
 
 
-def parabola_plots(engine, params, tb_name, database):
+def parabola_plots(engine, params, tb_name):
     parabola_list = ["gamma", "rv"]
     for par in parabola_list:
 
