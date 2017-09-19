@@ -4,6 +4,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import pandas as pd
+
 import sqlalchemy as sa
 
 
@@ -52,11 +53,8 @@ def main(database, echo=False):
 
 
 def alpha_rv_plot(engine, tb_name=None):
-    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff1, logg_1=:logg1, feh_1=:feh1'), engine, params={'teff1': 5200, 'logg1': 4.5, 'feh1': 0.0})
-    #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff_1'), engine, params={'teff_1': 5200})
-    #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=5200 and logg_1=4.5 and feh_1=0.0'), engine)
-    df = pd.read_sql(sa.text('SELECT alpha, rv, chi2, teff_2 FROM {0}'.format(tb_name)), engine)
-    #df = pd.read_sql_query('SELECT alpha  FROM table', engine)
+    df = pd.read_sql(
+        sa.text('SELECT alpha, rv, chi2, teff_2 FROM {0}'.format(tb_name)), engine)
 
     fig, ax = plt.subplots()
     ax.scatter(df["rv"], df["chi2"], c=df["alpha"], s=df["teff_2"] / 50, alpha=0.5)
@@ -72,11 +70,9 @@ def alpha_rv_plot(engine, tb_name=None):
 
 
 def alpha_rv_contour(engine, tb_name=None):
-    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff1, logg_1=:logg1, feh_1=:feh1'), engine, params={'teff1': 5200, 'logg1': 4.5, 'feh1': 0.0})
-    #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff_1'), engine, params={'teff_1': 5200})
-    #df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=5200 and logg_1=4.5 and feh_1=0.0'), engine)
-    df = pd.read_sql(sa.text('SELECT alpha, rv, chi2, teff_2 FROM {0}'.format(tb_name)), engine)
-    #df = pd.read_sql_query('SELECT alpha  FROM table', engine)
+    df = pd.read_sql(
+        sa.text('SELECT alpha, rv, chi2, teff_2 FROM {0}'.format(
+            tb_name)), engine)
 
     fig, ax = plt.subplots()
     ax.contourf(df["rv"], df["chi2"], c=df["alpha"], alpha=0.5)

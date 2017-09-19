@@ -14,11 +14,12 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sqlalchemy as sa
+import scipy
 
+import sqlalchemy as sa
+from utilities.debug_utils import timeit2
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import closest_model_params
-from utilities.debug_utils import timeit2
 
 
 def _parser():
@@ -62,10 +63,10 @@ def main(database, echo=False):
     try:
         engine = sa.create_engine(sqlite_db, echo=echo)
         table_names = engine.table_names()
-    except:
+    except Exception as e:
         print("\nAccessing sqlite_db = {}\n".format(sqlite_db))
         print("cwd =", os.getcwd())
-        raise
+        raise e
 
     print("Table names in database =", engine.table_names())
     if len(table_names) == 1:
@@ -80,7 +81,7 @@ def main(database, echo=False):
     # smallest_chi2_values(engine, params, tb_name)
 
     # test_figure(engine, params, tb_name)
-
+    parabola_plots(engine, params, tb_name)
     return 0
 
 
@@ -106,11 +107,7 @@ def test_figure(engine, params, tb_name):
 
 
 def alpha_rv_plot(engine, params, tb_name):
-    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff1, logg_1=:logg1, feh_1=:feh1'), engine, params={'teff1': 5200, 'logg1': 4.5, 'feh1': 0.0})
-    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff_1'), engine, params={'teff_1': 5200})
-    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=5200 and logg_1=4.5 and feh_1=0.0'), engine)
     df = pd.read_sql(sa.text('SELECT alpha, rv, chi2, teff_2 FROM {0}'.format(tb_name)), engine)
-    # df = pd.read_sql_query('SELECT alpha  FROM table', engine)
 
     fig, ax = plt.subplots()
     ax.scatter(df["rv"], df["chi2"], c=df["alpha"], s=df["teff_2"] / 50, alpha=0.5)
@@ -129,11 +126,9 @@ def alpha_rv_plot(engine, params, tb_name):
 
 
 def alpha_rv_contour(engine, params, tb_name):
-    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff1, logg_1=:logg1, feh_1=:feh1'), engine, params={'teff1': 5200, 'logg1': 4.5, 'feh1': 0.0})
-    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=:teff_1'), engine, params={'teff_1': 5200})
-    # df = pd.read_sql(sa.text('SELECT alpha, rvs, chi2, teff_2 FROM table WHERE teff_1=5200 and logg_1=4.5 and feh_1=0.0'), engine)
-    df = pd.read_sql(sa.text('SELECT alpha, rv, chi2, teff_2 FROM {0}'.format(tb_name)), engine)
-    # df = pd.read_sql_query('SELECT alpha  FROM table', engine)
+    df = pd.read_sql(
+        sa.text('SELECT alpha, rv, chi2, teff_2 FROM {0}'.format(
+            tb_name)), engine)
 
     fig, ax = plt.subplots()
     ax.contourf(df["rv"], df["chi2"], c=df["alpha"], alpha=0.5)
@@ -251,15 +246,52 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
         axis_pos = [int(x) for x in np.where(indices == ii)]
         if col == "gamma":   # Duplicate columns
             df["gamma2"] = df.gamma.iloc[:, 0]
-            df.plot(x="gamma2", y="chi2", kind="scatter", ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma2", colorbar=True)
+            df.plot(x="gamma2", y="chi2", kind="scatter",
+                    ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma2", colorbar=True)
         else:
-            df.plot(x=col, y="chi2", kind="scatter", ax=axes[axis_pos[0], axis_pos[1]])  #, c="gamma", colorbar=True)
+            df.plot(x=col, y="chi2", kind="scatter",
+                    ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma", colorbar=True)
 
     name = "{0}-{1}_{2}_fixed_host_params.png".format(
         params["star"], params["obs_num"], params["chip"], col)
     plt.suptitle("Chi**2 Results: {0}-{1}_{2}".format(params["star"], params["obs_num"], params["chip"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
+
+
+def parabola_plots(engine, params, tb_name):
+    parabola_list = ["gamma", "rv"]
+    for par in parabola_list:
+
+        df = pd.read_sql(sa.text('SELECT {0} FROM {1}'.format(par, tb_name)), engine)
+        unique_par = list(set(df[par].values))
+        unique_par.sort()
+
+        min_chi2 = []
+        for unique in unique_par:
+            df_chi2 = pd.read_sql(
+                sa.text('SELECT chi2 FROM {0} WHERE {1}={2} ORDER BY chi2 ASC LIMIT 1'.format(
+                    tb_name, par, unique)),
+                engine)
+
+            min_chi2.append(df_chi2.chi2.values)
+
+        plt.plot(unique_par, min_chi2)
+
+        popt, pcov = scipy.otimize.curve_fit(parabola, unique_par, min_chi2)
+        print("params", popt)
+        x = np.linspace(unique_par[0], unique_par[-1], 40)
+        plt.plt(x, parabola(x, *popt), label="parabola")
+        plt.xlabel("{}".format(par))
+        plt.ylabel("Chi2")
+        filename = "Parabola_fit_{0}-{1}_{2}_param_{3}.png".format(
+            params["star"], params["obs_num"], params["chip"], par)
+
+        plt.savefig(os.path.join(params["path"], "plots", filename))
+
+
+def parabola(x, a, b, c):
+    return a * x**2 + b * x + c
 
 
 if __name__ == '__main__':

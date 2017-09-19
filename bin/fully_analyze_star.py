@@ -1,11 +1,9 @@
 #!/usr/bin/python
-"""Fully Run analysis for a given star.
-
-"""
-import os
-import sys
+"""Fully Run analysis for a given star."""
 import argparse
+import os
 import subprocess
+import sys
 
 chips = range(1, 5)
 star_observations = {"HD30501": ["1", "2a", "2b", "3"],
@@ -20,7 +18,8 @@ def _parser():
     """
     parser = argparse.ArgumentParser(description='Companion Simulation Analysis.')
     parser.add_argument("star", help="Name of star.")
-    parser.add_argument('--full_chi_calculation', help='Do all chi2 steps (slow).', action="store_true")
+    parser.add_argument('--full_chi_calculation', action="store_true",
+                        help='Do all chi2 steps (slow).')
     parser.add_argument('--suffix', help='Suffix to add to filenames.', default="")
     return parser.parse_args()
 
@@ -44,28 +43,41 @@ def main(star, full_chi_calculation=False, suffix=""):
             db_name = os.path.join(prefix_dir, db_name)
 
             # Run single componet models
-
-
             if full_chi_calculation:
                 if os.getcwd().endswith("Analysis"):
-                    subprocess.call("python ../{3} {0} {1} -c {2} -s".format(star, obs_num, chip, script_name), shell=True)
-                    # subprocess.call("python ../iam_chi2_calculator.py {0} {1} -c {2} -s".format(star, obs_num, chip), shell=True)
-
-                    subprocess.call("python make_chi2_db.py '{0}/{0}-{1}_{2}_iam_chisqr_results_part*{3}.csv' -m ", shell=True)
+                    subprocess.call(
+                        "python ../{3} {0} {1} -c {2} -s".format(star, obs_num, chip, script_name),
+                        shell=True)
+                    # subprocess.call("python ../iam_chi2_calculator.py {0} {1} -c {2} -s".format(
+                    # star, obs_num, chip), shell=True)
+                    fname = '{0}/{0}-{1}_{2}_iam_chisqr_results_part*{3}.csv'.format(
+                        star, obs_num, chip, suffix)
+                    subprocess.call(
+                        "python make_chi2_db.py  -m ", shell=True)
                 else:
-                    subprocess.call("python {3} {0} {1} -c {2} -s".format(star, obs_num, chip, script_name), shell=True)
-                    # subprocess.call("python iam_chi2_calculator.py {0} {1} -c {2} -s".format(star, obs_num, chip), shell=True)
-                    subprocess.call("python make_chi2_db.py 'Analysis/{0}/{0}-{1}_{2}_iam_chisqr_results_part*{3}.csv' -m ".format(star, obs_num), shell=True)
-
+                    subprocess.call(
+                        "python {3} {0} {1} -c {2} -s".format(star, obs_num, chip, script_name),
+                        shell=True)
+                    # subprocess.call("python iam_chi2_calculator.py {0} {1} -c {2} -s".format(
+                    # star, obs_num, chip), shell=True)
+                    fname = 'Analysis/{0}/{0}-{1}_{2}_iam_chisqr_results_part*{3}.csv'.format(
+                        star, obs_num, chip, suffix)
+                    subprocess.call(
+                        "python make_chi2_db.py {0} -m ".format(fname), shell=True)
 
             # Run analysis code to make plots
             if os.getcwd().endswith("Analysis"):
-                subprocess.call("python ../bin/analysis_iam_chi2.py {0}".format(db_name), shell=True)
-                subprocess.call("python ../bin/create_min_chi2_table.py -s {0} --suffix {1}".format(star, suffix), shell=True)
+                subprocess.call(
+                    "python ../bin/analysis_iam_chi2.py {0}".format(db_name), shell=True)
+                subprocess.call(
+                    "python ../bin/create_min_chi2_table.py -s {0} --suffix {1}".format(
+                        star, suffix), shell=True)
 
             else:
                 subprocess.call("python bin/analysis_iam_chi2.py {0}".format(db_name), shell=True)
-                subprocess.call("python bin/create_min_chi2_table.py -s {0} --suffix {1}".format(star, suffix), shell=True)
+                subprocess.call(
+                    "python bin/create_min_chi2_table.py -s {0} --suffix {1}".format(
+                        star, suffix), shell=True)
 
 
 if __name__ == "__main__":

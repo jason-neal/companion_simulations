@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 import pandas as pd
+
 import sqlalchemy as sa
 
 
@@ -14,14 +15,11 @@ def _parser():
 
     :returns: the args
     """
-    parser = argparse.ArgumentParser(description='Wavelength Calibrate CRIRES \
-                                    Spectra')
+    parser = argparse.ArgumentParser(
+        description='Join all the chisquared part files into database.')
     parser.add_argument('pattern', help='Pattern')
     parser.add_argument('-s', '--suffix', help='Suffix to add to database name.', default=None)
     parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
-    # parser.add_argument('-s', '--sort', help='Sort by column.', default='chi2')
-    # parser.add_argument('--direction', help='Sort direction.',
-    #                     default='ascending', choices=['ascending','decending'])
     parser.add_argument("-m", '--move', action="store_true",
                         help='Move original files after joining (default=False).')
     parser.add_argument("-r", '--remove', action="store_true",
@@ -101,7 +99,6 @@ def sql_join(pattern, suffix=None, verbose=True, move=False, remove=False):
     if remove:
         print("Removing original files.")
         raise NotImplementedError
-        # (subprocess.call("rm ") for f in glob.iglob(pattern))
 
     return 0
 

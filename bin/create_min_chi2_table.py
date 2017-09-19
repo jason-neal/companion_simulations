@@ -1,17 +1,18 @@
-"""create_min_chi2_table.py
+"""create_min_chi2_table.py.
 
 Create Table of minimum Chi_2 values and save to a table.
 """
-import os
 import argparse
+import os
+
 import matplotlib.pyplot as plt
 import pandas as pd
-import sqlalchemy as sa
 from pandas.plotting import scatter_matrix
-from utilities.scatter_corner import scatter_corner
 
+import sqlalchemy as sa
 from bin.analysis_iam_chi2 import decompose_database_name, get_host_params
 from utilities.phoenix_utils import closest_model_params
+from utilities.scatter_corner import scatter_corner
 
 
 def _parser():

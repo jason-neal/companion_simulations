@@ -5,6 +5,8 @@ import sys
 
 import pandas as pd
 
+raise Exception("This is only code, use the database one.")
+
 
 def _parser():
     """Take care of all the argparse stuff.
