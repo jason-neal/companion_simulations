@@ -182,16 +182,16 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
     if isinstance(model2_pars, list):
         debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
-    # def filled_iam_wrapper(num, param):
-    #     """Fill in all extra parameters for parrallel wrapper."""
-    #    return iam_wrapper(num, params, model2_pars, rvs, gammas,
-    #                       obs_spec, norm=norm, save_only=save_only,
-    #                       chip=chip, prefix=prefix, verbose=verbose)
+    def filled_iam_wrapper(num, param):
+        """Fill in all extra parameters for parrallel wrapper."""
+        return iam_wrapper(num, param, model2_pars, rvs, gammas,
+                           obs_spec, norm=norm, save_only=save_only,
+                           chip=chip, prefix=prefix, verbose=verbose)
 
     print("Parallised running\n\n\n ###################")
-    raise NotImplementedError("Need to fix this up")
-    # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
-    #    delayed(filled_iam_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
+    #raise NotImplementedError("Need to fix this up")
+    broadcast_chisqr_vals = Parallel(n_jobs=-2)(
+        delayed(filled_iam_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
     # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
     #     delayed(iam_wrapper)(ii, param, model2_pars, rvs, gammas,
     #                          obs_spec, norm=norm, save_only=save_only,
