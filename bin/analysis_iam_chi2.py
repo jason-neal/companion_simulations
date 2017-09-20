@@ -47,7 +47,7 @@ def decompose_database_name(database):
 
 def get_host_params(star):
     """Find host star parameters from param file."""
-    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
+    param_file = "/home/jneal/Phd/data/parameter_files/{0}_params.dat".format(star)
     params = parse_paramfile(param_file)
     return params["temp"], params["logg"], params["fe_h"]
 
@@ -196,7 +196,7 @@ def fix_host_parameters(engine, params, tb_name):
         df.plot(x=col, y="chi2", kind="scatter", ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma", colorbar=True)
 
     name = "{0}-{1}_{2}_fixed_host_params_full_gamma.png".format(
-        params["star"], params["obs_num"], params["chip"], col)
+        params["star"], params["obs_num"], params["chip"])
     plt.suptitle("Chi**2 Results (Fixed host): {0}-{1}_{2}".format(params["star"], params["obs_num"], params["chip"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
