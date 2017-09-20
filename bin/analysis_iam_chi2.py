@@ -10,6 +10,8 @@ For HD30501 and HD211847 this means  +- 50K so a fixed temperature.
 import argparse
 import os
 import sys
+import matplotlib
+matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
 import numpy as np
