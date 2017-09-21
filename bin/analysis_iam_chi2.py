@@ -294,35 +294,34 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
     plt.close()
 
 
-def parabola_plots(engine, params, tb_name):
-    parabola_list = ["gamma", "rv"]
+def parabola_plots(table, params):
+    parabola_list = ["teff_2", "gamma", "rv"]
     for par in parabola_list:
-
-        df = pd.read_sql(sa.text('SELECT {0} FROM {1}'.format(par, tb_name)), engine)
+        df = pd.read_sql(sa.select([table.c[par]]), table.metadata.bind)
         unique_par = list(set(df[par].values))
         unique_par.sort()
+        print(unique_par)
 
         min_chi2 = []
-        for unique in unique_par:
+        for unique_val in unique_par:
             df_chi2 = pd.read_sql(
-                sa.text('SELECT chi2 FROM {0} WHERE {1}={2} ORDER BY chi2 ASC LIMIT 1'.format(
-                    tb_name, par, unique)),
-                engine)
-
-            min_chi2.append(df_chi2.chi2.values)
-
+                sa.select([table.c[par], table.c.chi2]).where(table.c[par] == float(unique_val)).order_by(table.c.chi2.asc()).limit(3), table.metadata.bind)
+            min_chi2.append(df_chi2.chi2.values[0])
+        print(min_chi2)
         plt.plot(unique_par, min_chi2)
 
         popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
         print("params", popt)
         x = np.linspace(unique_par[0], unique_par[-1], 40)
-        plt.plt(x, parabola(x, *popt), label="parabola")
+        plt.plot(x, parabola(x, *popt), label="parabola")
         plt.xlabel("{}".format(par))
         plt.ylabel("Chi2")
         filename = "Parabola_fit_{0}-{1}_{2}_param_{3}.png".format(
             params["star"], params["obs_num"], params["chip"], par)
 
         plt.savefig(os.path.join(params["path"], "plots", filename))
+        plt.close()
+        print("saved parabolas for ", par)
 
 
 def parabola(x, a, b, c):
