@@ -16,8 +16,8 @@ import multiprocess as mprocess
 import numpy as np
 
 from ajplanet import pl_rv_array
-from Chisqr_of_observation import (load_spectrum, plot_obs_with_model,
-                                   select_observation)
+from Chisqr_of_observation import (plot_obs_with_model)
+from utilities.spectrum_utils import load_spectrum, select_observation
 from models.alpha_model import alpha_model2
 from Planet_spectral_simulations import \
     load_PHOENIX_hd211847  # load_PHOENIX_hd30501,

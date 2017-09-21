@@ -20,11 +20,10 @@ from astropy.io import fits
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-from Chisqr_of_observation import load_spectrum
+from utilities.spectrum_utils import load_spectrum
 from models.broadcasted_models import inherint_alpha_model
 # from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.debug_utils import timeit2  # , pv
 from utilities.norm import chi2_model_norms, continuum  # , renormalize_observation
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import (closest_model_params,

@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
 
-from Chisqr_of_observation import load_spectrum, select_observation
+from utilities.spectrum_utils import load_spectrum, select_observation
 from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import (barycorr_crires_spectrum,
