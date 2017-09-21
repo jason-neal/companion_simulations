@@ -63,7 +63,7 @@ def load_normalized_starfish_spectrum(params, limits=None, hdr=False):
     return load_starfish_spectrum(params, normalize=True, limits=limits, hdr=hdr)
 
 
-def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area_scale=True, flux_rescale=False):
+def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area_scale=False, flux_rescale=False):
     """Load spectrum from hdf5 grid file.
 
     parameters: list
@@ -87,8 +87,10 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area
         spec = spec * 1e-7  # convert flux unit from /cm to /nm
 
     if area_scale:
-        spec = spec * phoenix_area(spec.header)
-
+        if hdr:
+            spec = spec * phoenix_area(spec.header)
+        else:
+            raise ValueError("No header provided for stellar area scaling")
     if normalize:
         spec = spec_local_norm(spec, method="exponential")
 
