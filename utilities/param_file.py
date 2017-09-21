@@ -23,7 +23,7 @@ def parse_paramfile(param_file: str, path: str=None) -> Dict[str, Union[str, flo
         param_file = os.path.join(path, param_file)
     parameters = dict()
     if not os.path.exists(param_file):
-        logging.warning("Parameter file given does not exist. {0}".format(param_file))
+        raise Exception("Invalid Arguments, expected a file that exists not. {0}".format(param_file))
 
     with open(param_file, 'r') as f:
         for line in f:
