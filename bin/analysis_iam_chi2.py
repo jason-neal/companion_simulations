@@ -56,7 +56,29 @@ def get_host_params(star):
     return params["temp"], params["logg"], params["fe_h"]
 
 
-def main(database, echo=False):
+def load_sql_table(database, name="chi2_table", echo=False):
+    sqlite_db = 'sqlite:///{}'.format(database)
+    try:
+        engine = sa.create_engine(sqlite_db, echo=echo)
+        table_names = engine.table_names()
+    except Exception as e:
+        print("\nAccessing sqlite_db = {}\n".format(sqlite_db))
+        print("cwd =", os.getcwd())
+        raise e
+    print("Table names in database =", engine.table_names())
+    if len(table_names) == 1:
+        tb_name = table_names[0]
+    else:
+        raise ValueError("Database has two many tables {}".format(table_names))
+    if tb_name != name:
+        raise NameError("Name given does not match table in database.")
+
+    meta = sa.MetaData(bind=engine)
+    db_table = sa.Table(name, meta, autoload=True)
+    return db_table
+
+
+def main(database, echo=False, mode="parabola"):
     path, star, obs_num, chip = decompose_database_name(database)
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)  # make dir for plots
 
@@ -77,6 +99,8 @@ def main(database, echo=False):
         tb_name = table_names[0]
     else:
         raise ValueError("Database has two many tables {}".format(table_names))
+
+    db_table = load_sql_table(database)
 
     print("Mode =", mode)
 
