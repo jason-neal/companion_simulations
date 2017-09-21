@@ -9,20 +9,20 @@ import scipy as sp
 from models.broadcasted_models import (check_broadcastable, one_comp_model,
                                        two_comp_model,
                                        two_comp_model_with_transpose, inherint_alpha_model)
-from utilities.phoenix_utils import load_normalized_starfish_spectrum
+from utilities.phoenix_utils import load_starfish_spectrum
 
 
 @pytest.fixture
 def host():
     """Host spectrum fixture."""
-    mod_spec = load_normalized_starfish_spectrum([5200, 4.50, 0.0], limits=[2100, 2105])
+    mod_spec = load_starfish_spectrum([5200, 4.50, 0.0], limits=[2100, 2105], normalize=True)
     return mod_spec
 
 
 @pytest.fixture
 def comp():
-    """Companion spectrum fixture."""
-    mod_spec = load_normalized_starfish_spectrum([2600, 4.50, 0.0], limits=[2100, 2105])
+    """Noramlized Companion spectrum fixture."""
+    mod_spec = load_starfish_spectrum([2600, 4.50, 0.0], limits=[2100, 2105], normalize=True)
     return mod_spec
 
 

@@ -31,7 +31,7 @@ from utilities.model_convolution import convolve_models
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import \
     find_phoenix_model_names2 as find_phoenix_model_names
-from utilities.phoenix_utils import (load_normalized_phoenix_spectrum,
+from utilities.phoenix_utils import (load_phoenix_spectrum,
                                      phoenix_name_from_params, spec_local_norm)
 from utitlies.xcorr import xcorr_peak
 
@@ -139,14 +139,14 @@ def main():
 
     limits = [2110, 2160]
     best_model = models[chisqr_argmin_indx]
-    best_model_spec = load_normalized_phoenix_spectrum(best_model, limits=limits)
+    best_model_spec = load_phoenix_spectrum(best_model, limits=limits, normalize=True)
     best_model_spec = convolve_models([best_model_spec], obs_resolution, chip_limits=None)[0]
 
     best_xcorr_model = models[xcorr_argmax_indx]
-    best_xcorr_model_spec = load_normalized_phoenix_spectrum(best_xcorr_model, limits=limits)
+    best_xcorr_model_spec = load_phoenix_spectrum(best_xcorr_model, limits=limits, normalize=True)
     best_xcorr_model_spec = convolve_models([best_xcorr_model_spec], obs_resolution, chip_limits=None)[0]
 
-    close_model_spec = load_normalized_phoenix_spectrum(closest_model[0], limits=limits)
+    close_model_spec = load_phoenix_spectrum(closest_model[0], limits=limits, normalize=True)
     close_model_spec = convolve_models([close_model_spec], obs_resolution, chip_limits=None)[0]
 
     plt.plot(observed_spectra.xaxis, observed_spectra.flux, label="Observations")

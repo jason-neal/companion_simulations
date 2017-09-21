@@ -8,20 +8,20 @@ from utilities.norm import (chi2_model_norms, chi2_model_norms_slow,
                             continuum, continuum_slow, get_continuum_points,
                             local_normalization, local_normalization_slow,
                             spec_local_norm, spec_local_norm_slow)
-from utilities.phoenix_utils import load_normalized_starfish_spectrum
+from utilities.phoenix_utils import load_starfish_spectrum
 
 
 @pytest.fixture
 def host():
     """Host spectrum fixture."""
-    mod_spec = load_normalized_starfish_spectrum([5200, 4.50, 0.0], limits=[2100, 2105])
+    mod_spec = load_starfish_spectrum([5200, 4.50, 0.0], limits=[2100, 2105], normalize=True)
     return mod_spec
 
 
 @pytest.fixture
 def comp():
     """Companion spectrum fixture."""
-    mod_spec = load_normalized_starfish_spectrum([2600, 4.50, 0.0], limits=[2100, 2105])
+    mod_spec = load_starfish_spectrum([2600, 4.50, 0.0], limits=[2100, 2105], normalize=True)
     return mod_spec
 
 

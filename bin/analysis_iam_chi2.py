@@ -10,6 +10,8 @@ For HD30501 and HD211847 this means  +- 50K so a fixed temperature.
 import argparse
 import os
 import sys
+import matplotlib
+matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -278,7 +280,7 @@ def parabola_plots(engine, params, tb_name):
 
         plt.plot(unique_par, min_chi2)
 
-        popt, pcov = scipy.otimize.curve_fit(parabola, unique_par, min_chi2)
+        popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
         print("params", popt)
         x = np.linspace(unique_par[0], unique_par[-1], 40)
         plt.plt(x, parabola(x, *popt), label="parabola")
