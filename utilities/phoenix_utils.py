@@ -86,6 +86,8 @@ def phoenix_area(header):
     surface_area: float
         Stellar effective surface area. in Gm**2
     """
+    if header is None:
+        raise ValueError("Header should not be None.")
     # BUNIT 	'erg/s/cm^2/cm' 	Unit of flux
     # PHXREFF 	67354000000.0	[cm] Effective stellar radius
     radius = header["PHXREFF"] * 1e-11   # cm to Gm
