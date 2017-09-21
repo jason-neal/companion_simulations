@@ -34,6 +34,8 @@ def _parser():
     parser.add_argument("-e", "--echo", help="Echo the SQL queries", action="store_true")
     # parser.add_argument('-s', '--suffix', help='Suffix to add to database name.')
     # parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
+    parser.add_argument("-m", "--mode", help="Analysis mode to choose", default="parabola",
+        choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2", "test"])
     return parser.parse_args()
 
 
@@ -76,14 +78,21 @@ def main(database, echo=False):
     else:
         raise ValueError("Database has two many tables {}".format(table_names))
 
-    fix_host_parameters_reduced_gamma(engine, params, tb_name)
-    fix_host_parameters(engine, params, tb_name)
+    print("Mode =", mode)
 
-    get_column_limits(engine, params, tb_name)
-    # smallest_chi2_values(engine, params, tb_name)
+    if mode == "fixed_host_params":
+        fix_host_parameters_reduced_gamma(engine, params, tb_name)
+        fix_host_parameters(engine, params, tb_name)
+    elif mode == "param_limits":
+        get_column_limits(engine, params, tb_name)
+    elif mode == "parabola":
+        parabola_plots(db_table, params)
+    elif mode == "smallest_chi2":
+        smallest_chi2_values(engine, params, tb_name)
+    elif mode == "test":
+        test_figure(engine, params, tb_name)
 
-    # test_figure(engine, params, tb_name)
-    parabola_plots(engine, params, tb_name)
+    print("Done")
     return 0
 
 
