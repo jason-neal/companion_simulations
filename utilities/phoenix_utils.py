@@ -26,41 +26,21 @@ from utilities.norm import local_normalization, spec_local_norm
 debug = logging.debug
 
 
-def load_normalized_phoenix_spectrum(phoenix_name, limits=None):
+def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
     wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
     wav_model /= 10   # turn into nanometers
     flux = fits.getdata(phoenix_name)
     spec = Spectrum(flux=flux, xaxis=wav_model)
+
     # Limit to K band
     spec.wav_select(2070, 2350)
-    spec = spec_local_norm(spec, method="exponential")
+    if normalize:
+        spec = spec_local_norm(spec, method="exponential")
+
     if limits is not None:
         spec.wav_select(*limits)
     return spec
-
-
-def load_normalized_starfish_spectrum(params, limits=None, hdr=False):
-    """Load spectrum from hdf5 grid file with normaliztion on.
-
-    Helper function in which normalization is turned on.
-
-    Parameters
-    ----------
-    params: list
-        Model parameters [teff, logg, Z]
-    limits: list or None
-        wl limits, default is None
-    hdr: bool
-       Include hdr information
-
-    Returns
-    -------
-    spec: spectrum
-        Spectrum object for the given stellar parameters.
-
-    """
-    return load_starfish_spectrum(params, normalize=True, limits=limits, hdr=hdr)
 
 
 def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area_scale=False, flux_rescale=False):
