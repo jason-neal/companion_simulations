@@ -27,7 +27,7 @@ from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)
 from utilities.debug_utils import pv
 from utilities.model_convolution import convolve_models
-from utilities.param_file import parse_paramfile
+from utilities.param_file import load_param_file
 from utilities.phoenix_utils import \
     find_phoenix_model_names2 as find_phoenix_model_names
 from utilities.phoenix_utils import (load_phoenix_spectrum,
@@ -48,8 +48,7 @@ wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
 def main():
     """Main function."""
     star = "HD30501"
-    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
-    host_parameters = parse_paramfile(param_file, path=None)
+    host_parameters = load_param_file(star)
     obs_num = 1
     chip = 1
     obs_name = select_observation(star, obs_num, chip)

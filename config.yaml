@@ -30,7 +30,7 @@ instrument_ID: 0
 
 
 sim_grid:
-    gammas:  [-20, 20, 1]  # (start, stop, step)
+    gammas: [-20, 20, 1]  # (start, stop, step)
     rvs: [-20, 20, 1]
     alphas: [0.01, 0.25, 0.005]
     teff1: None
@@ -39,3 +39,6 @@ sim_grid:
     feh_2: None
     log_1: None
     log_2: None
+
+paths:
+    parameters: "/home/jneal/Phd/data/parameter_files/"

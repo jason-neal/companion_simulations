@@ -17,7 +17,7 @@ import pandas as pd
 
 import sqlalchemy as sa
 from utilities.debug_utils import timeit2
-from utilities.param_file import parse_paramfile
+from utilities.param_file import parse_paramfile, get_host_params
 from utilities.phoenix_utils import closest_model_params
 
 
@@ -42,13 +42,6 @@ def decompose_database_name(database):
     star, obsnum = name_split[0].split("-")
     chip = name_split[1]
     return path, star, obsnum, chip
-
-
-def get_host_params(star):
-    """Find host star parameters from param file."""
-    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
-    params = parse_paramfile(param_file)
-    return params["temp"], params["logg"], params["fe_h"]
 
 
 def main(database, echo=False):

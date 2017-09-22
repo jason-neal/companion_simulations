@@ -3,6 +3,8 @@ import logging
 import os
 from typing import Dict, List, Union
 
+import simulators
+
 
 def parse_paramfile(param_file: str, path: str=None) -> Dict[str, Union[str, float, List[float]]]:
     """Extract orbit and stellar parameters from parameter file.
@@ -58,3 +60,17 @@ def parse_list_string(string: str) -> List[Union[str, float]]:
     except ValueError as e:
         # Can't turn into floats.
         return [val.strip() for val in list_str]
+
+
+def get_host_params(star):
+    """Find host star parameters from param file."""
+    params = load_paramfile(star)
+    return params["temp"], params["logg"], params["fe_h"]
+
+
+def load_paramfile(star):
+    """Load parameter file with config path."""
+    # test assert for now
+    param_file = "{0}_params.dat".format(star)
+
+    return parse_paramfile(param_file, simulators.paths["parameters"])

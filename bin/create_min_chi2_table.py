@@ -5,13 +5,13 @@ Create Table of minimum Chi_2 values and save to a table.
 import argparse
 import os
 
-import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.plotting import scatter_matrix
 
 import sqlalchemy as sa
-from bin.analysis_iam_chi2 import decompose_database_name, get_host_params
+from bin.analysis_iam_chi2 import decompose_database_name
+from utilities.param_file import get_host_params
 from utilities.phoenix_utils import closest_model_params
 from utilities.scatter_corner import scatter_corner
 

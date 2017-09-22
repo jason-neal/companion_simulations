@@ -28,6 +28,7 @@ except FileNotFoundError as e:
 
 # Read the YAML variables into package-level dictionaries to be used by the other programs.
 sim_grid = config["sim_grid"]
+paths = config["paths"]
 name = config["name"]
 starfish_grid = config["grid"]
 # use as gammas = simulators.sim_grid["gammas"]

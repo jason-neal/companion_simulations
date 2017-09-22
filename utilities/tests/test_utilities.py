@@ -33,7 +33,7 @@ def test_parse_list_string(input, expected):
 
 
 def test_parse_paramfile():
-    test_param_file = "test_paramfile.txt"
+    test_param_file = "test_params.dat"
 
     params = paramfile.parse_paramfile(test_param_file, "utilities/tests/test_data")
 
@@ -48,3 +48,27 @@ def test_parse_paramfile_errors():
 
     with pytest.raises(Exception):
         paramfile.parse_paramfile(test_param_file, "utilities/tests/test_data")
+
+
+def test_get_host_params():
+    """Find host star parameters from param file."""
+    star = "test"
+    simulators.paths["parameters"] = "utilities/tests/test_data"
+
+    params = paramfile.get_host_params(star)
+
+    assert len(params) == 3
+    assert params == (5340, 4.65, -0.22)
+
+
+import simulators
+def test_load_paramfile_returns_parse_paramfile():
+    star = "test"
+    test_param_file = "test_params.dat"
+    simulators.paths["parameters"] = "utilities/tests/test_data"
+
+    params = paramfile.parse_paramfile(test_param_file, "utilities/tests/test_data")
+    params2 = paramfile.load_paramfile(star)
+
+    assert params == params2
+    assert isinstance(params2, dict)
