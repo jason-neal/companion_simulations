@@ -75,5 +75,3 @@ def select_observation(star, obs_num, chip):
 
             crires_name = filenames[0]
         return os.path.join(path, crires_name)
-
-

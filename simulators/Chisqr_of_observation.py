@@ -24,9 +24,9 @@ from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import parallel_chisqr
 from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)
-from utilities.spectrum_utils import load_spectrum, select_observation
 # from utilities.debug_utils import pv
 from utilities.model_convolution import convolve_models  # , apply_convolution
+from utilities.spectrum_utils import load_spectrum, select_observation
 
 # from utilities.simulation_utilities import combine_spectra
 

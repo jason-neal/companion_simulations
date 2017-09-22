@@ -11,7 +11,6 @@ from PyAstronomy import pyasl
 
 from spectrum_overload.Spectrum import Spectrum
 
-
 # TODO: Add a line in the header to check if this script has already been
 # applied.
 # TODO: wrapper to handle Specturm objects

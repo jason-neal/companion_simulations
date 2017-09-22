@@ -16,8 +16,7 @@ import multiprocess as mprocess
 import numpy as np
 
 from ajplanet import pl_rv_array
-from Chisqr_of_observation import (plot_obs_with_model)
-from utilities.spectrum_utils import load_spectrum, select_observation
+from Chisqr_of_observation import plot_obs_with_model
 from models.alpha_model import alpha_model2
 from Planet_spectral_simulations import \
     load_PHOENIX_hd211847  # load_PHOENIX_hd30501,
@@ -26,6 +25,7 @@ from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)
 from utilities.debug_utils import pv
 from utilities.model_convolution import convolve_models  # , apply_convolution,
+from utilities.spectrum_utils import load_spectrum, select_observation
 
 # from utilities.simulation_utilities import combine_spectra
 

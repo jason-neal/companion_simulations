@@ -1,10 +1,12 @@
 """Testing phoenix utilities."""
 
-import pytest
 import numpy as np
+import pytest
+
 from spectrum_overload.Spectrum import Spectrum
 # from utilities.crires_utilities import crires_resolution
-from utilities.phoenix_utils import (phoenix_area, load_phoenix_spectrum, load_starfish_spectrum)
+from utilities.phoenix_utils import (load_phoenix_spectrum,
+                                     load_starfish_spectrum, phoenix_area)
 
 
 @pytest.mark.parametrize("limits, normalize", [([2100, 2150], True), ([2050, 2150], False)])

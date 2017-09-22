@@ -1,4 +1,5 @@
 import copy
+import logging
 
 import numpy as np
 import pandas as pd
@@ -11,7 +12,6 @@ from utilities.chisqr import chi_squared
 from utilities.phoenix_utils import load_starfish_spectrum
 from utilities.xcorr import xcorr_peak
 
-import logging
 debug = logging.debug
 
 

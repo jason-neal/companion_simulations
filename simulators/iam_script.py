@@ -14,11 +14,13 @@ import sys
 
 import numpy as np
 from astropy.io import fits
-from simulators.iam_module import iam_analysis, iam_helper_function, parallel_iam_analysis
+
+import simulators
+from simulators.iam_module import (iam_analysis, iam_helper_function,
+                                   parallel_iam_analysis)
 # from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.phoenix_utils import (closest_model_params,
-                                     generate_close_params)
+from utilities.phoenix_utils import closest_model_params, generate_close_params
 from utilities.spectrum_utils import load_spectrum
 
 logging.basicConfig(level=logging.WARNING,
@@ -32,7 +34,6 @@ wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011
 wav_model /= 10   # turn into nm
 
 
-import simulators
 print(simulators.sim_grid["gammas"])
 gammas = np.arange(*simulators.sim_grid["gammas"])
 rvs = np.arange(*simulators.sim_grid["rvs"])

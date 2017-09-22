@@ -21,7 +21,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
 
-from utilities.spectrum_utils import load_spectrum, select_observation
 from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import (barycorr_crires_spectrum,
@@ -33,6 +32,7 @@ from utilities.phoenix_utils import \
     find_phoenix_model_names2 as find_phoenix_model_names
 from utilities.phoenix_utils import (load_phoenix_spectrum,
                                      phoenix_name_from_params, spec_local_norm)
+from utilities.spectrum_utils import load_spectrum, select_observation
 from utilities.xcorr import xcorr_peak
 
 # sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")

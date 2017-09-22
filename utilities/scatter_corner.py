@@ -1,15 +1,12 @@
 from __future__ import division
 
 import numpy as np
-
-from pandas.util._decorators import deprecate_kwarg
+from pandas.compat import lmap, lrange, range, zip
 from pandas.core.dtypes.missing import notnull as notna
-from pandas.compat import range, lrange, lmap, zip
 from pandas.io.formats.printing import pprint_thing
-
-
 from pandas.plotting._style import _get_standard_colors
-from pandas.plotting._tools import _subplots, _set_ticks_props
+from pandas.plotting._tools import _set_ticks_props, _subplots
+from pandas.util._decorators import deprecate_kwarg
 
 # Addapted slightly from pandas scatter matrix. pass plotting if in the corner you dont want to show.
 

@@ -21,8 +21,9 @@ from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 # import Starfish
 from Starfish.grid_tools import HDF5Interface
-from utilities.param_file import parse_paramfile
 from utilities.norm import local_normalization, spec_local_norm
+from utilities.param_file import parse_paramfile
+
 debug = logging.debug
 
 

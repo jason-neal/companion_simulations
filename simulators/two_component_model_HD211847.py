@@ -20,10 +20,12 @@ import sys
 
 import numpy as np
 from astropy.io import fits
-from simulators.tcm_module import parallel_tcm_analysis, tcm_analysis, tcm_helper_function
+
+import simulators
+from simulators.tcm_module import (parallel_tcm_analysis, tcm_analysis,
+                                   tcm_helper_function)
 from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.phoenix_utils import (closest_model_params,
-                                     generate_close_params)
+from utilities.phoenix_utils import closest_model_params, generate_close_params
 from utilities.spectrum_utils import load_spectrum  # , select_observation
 
 logging.basicConfig(level=logging.WARNING,
@@ -37,7 +39,6 @@ wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011
 wav_model /= 10   # turn into nm
 
 
-import simulators
 gammas = np.arange(*simulators.sim_grid["gammas"])
 rvs = np.arange(*simulators.sim_grid["rvs"])
 alphas = np.arange(*simulators.sim_grid["alphas"])

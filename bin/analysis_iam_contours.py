@@ -14,11 +14,11 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sqlalchemy as sa
 
+import sqlalchemy as sa
+from utilities.debug_utils import timeit2
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import closest_model_params
-from utilities.debug_utils import timeit2
 
 
 def _parser():

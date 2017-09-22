@@ -1,19 +1,20 @@
 """Run bhm analysis for HD211847."""
-import itertools
-import sys
 # import json
 import argparse
+import itertools
+import sys
 
 import numpy as np
 import pandas as pd
 
 import simulators
 from simulators.bhm_module import bhm_analysis
-from utilities.spectrum_utils import load_spectrum
 # from utilites.io import save_pd_csv
 from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.masking import get_maskinfo
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import closest_model_params, generate_close_params
+from utilities.spectrum_utils import load_spectrum
 
 
 def _parser():
@@ -64,7 +65,6 @@ def save_pd_cvs(name, data):
     df.to_csv(name, sep=',', index=False)
     return 0
 
-from utilities.masking import get_maskinfo
 
 
 def deconstruct_array(array, values):

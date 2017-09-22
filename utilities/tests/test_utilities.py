@@ -2,9 +2,9 @@
 
 import pytest
 
+import utilities.param_file as paramfile
 # from utilities.crires_utilities import crires_resolution
 from utilities.crires_utilities import crires_resolution
-import utilities.param_file as paramfile
 
 
 def test_crires_resolution():

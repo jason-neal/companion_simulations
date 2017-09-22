@@ -1,7 +1,7 @@
-from utilities.simulation_utilities import check_inputs
-
-import pytest
 import numpy as np
+import pytest
+
+from utilities.simulation_utilities import check_inputs
 
 
 @pytest.mark.parametrize("input,expected", [

@@ -1,17 +1,17 @@
+import logging
 import os
 
 import numpy as np
 import pandas as pd
 import scipy as sp
 from joblib import Parallel, delayed
-from models.broadcasted_models import inherint_alpha_model
-import logging
 from tqdm import tqdm
-from utilities.norm import continuum, chi2_model_norms
+
+from models.broadcasted_models import inherint_alpha_model
+from utilities.norm import chi2_model_norms, continuum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum
-from utilities.simulation_utilities import max_delta, check_inputs
-
+from utilities.simulation_utilities import check_inputs, max_delta
 
 debug = logging.debug
 

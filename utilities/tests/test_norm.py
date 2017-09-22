@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 
 from models.broadcasted_models import two_comp_model
-from utilities.norm import (chi2_model_norms, chi2_model_norms_slow,
-                            continuum, continuum_slow, get_continuum_points,
+from utilities.norm import (chi2_model_norms, chi2_model_norms_slow, continuum,
+                            continuum_slow, get_continuum_points,
                             local_normalization, local_normalization_slow,
                             spec_local_norm, spec_local_norm_slow)
 from utilities.phoenix_utils import load_starfish_spectrum
