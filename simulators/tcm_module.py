@@ -11,7 +11,9 @@ from simulators.two_component_model_HD211847 import check_inputs, debug
 from utilities.norm import chi2_model_norms
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum
-from utilities.simulation_utilities import max_delta
+from utilities.simulation_utilities import max_delta, check_inputs
+
+
 
 
 def tcm_helper_function(star, obs_num, chip):

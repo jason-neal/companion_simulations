@@ -108,14 +108,6 @@ def main(chip=None, parallel=True, small=True, verbose=False):
     # subprocess.call(make_chi2_bd.py)
 
 
-def check_inputs(var):
-    if var is None:
-        var = np.array([0])
-    elif isinstance(rvs, (float, int)):
-        var = np.asarray(var, dtype=np.float32)
-    return var
-
-
 if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}

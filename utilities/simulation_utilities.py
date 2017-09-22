@@ -6,7 +6,6 @@ from __future__ import division, print_function
 
 import copy
 
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -80,3 +79,11 @@ def plot_spectra(obs, model):
     plt.plot(model.xaxis, model.flux, label="model")
     plt.legend()
     plt.show()
+
+
+def check_inputs(var):
+    if var is None:
+        var = np.array([0])
+    elif isinstance(var, (float, int)):
+        var = np.asarray(var, dtype=np.float32)
+    return var

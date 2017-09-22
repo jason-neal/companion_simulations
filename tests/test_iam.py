@@ -1,6 +1,8 @@
 import pytest
 
-from simulators.iam_script import iam_analysis, parallel_iam_analysis, iam_helper_function, check_inputs, save_full_iam_chisqr
+from utilities.simulation_utilities import check_inputs
+from simulators.iam_module import iam_helper_function, iam_analysis, parallel_iam_analysis, save_full_iam_chisqr
+
 
 @pytest.mark.parametrize("star,obs,chip", [
     ("HD30501", 1, 1),("HD4747", "a", 4)])
