@@ -27,3 +27,15 @@ grid:
 chunk_ID: 0
 spectrum_ID: 0
 instrument_ID: 0
+
+
+sim_grid:
+    gammas: (-20, 20, 1)  # (start, stop, step)
+    rvs: (-20, 20, 1)
+    alphas: (0.01, 0.3, 0.01)
+    teff1: None
+    teff2: None
+    feh_1: None
+    feh_2: None
+    log_1: None
+    log_2: None
