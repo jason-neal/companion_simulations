@@ -2,7 +2,7 @@
 
 For the inherent alpha model
 
-We assume that the host temperature is well known so we will resitrict the
+We assume that the host temperature is well known so we will restrict the
 results to the host temperature. (within error bars)
 For HD30501 and HD211847 this means  +- 50K so a fixed temperature.
 

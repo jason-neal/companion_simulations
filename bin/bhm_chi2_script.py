@@ -14,12 +14,12 @@ def _parser():
     # parser = GooeyParser(description='Wavelength Calibrate CRIRES Spectra')
     parser = argparse.ArgumentParser(description='Perform bhm computations.')
     parser.add_argument('star', help='Star name file')
-    parser.add_argument('-n', '--obs_num', help='Obervation number')
+    parser.add_argument('-n', '--obs_num', help='Observation number')
     parser.add_argument('-d', '--detector', default=None,
                         help='detector number, All if not provided.')
-    parser.add_argument('-o', '--output', default=False, help='Ouput Filename')
+    parser.add_argument('-o', '--output', default=False, help='Output Filename')
     parser.add_argument('-s', '--model', choices=["tcm", "bhm"],
-                        help='Choose spectral model to evaulate, ["tcm"(default), "bhm"]')
+                        help='Choose spectral model to evaluate, ["tcm"(default), "bhm"]')
     parser.add_argument('-m', '--mode', choices=["chi2", "plot"],
                         help='Calculate chi2 or plot results.')
 

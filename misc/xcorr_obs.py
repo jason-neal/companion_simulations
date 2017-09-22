@@ -1,4 +1,4 @@
-# from utitlies.phoenix_utils import find_closest_phoenix
+# from utilities.phoenix_utils import find_closest_phoenix
 import glob
 import itertools
 import os

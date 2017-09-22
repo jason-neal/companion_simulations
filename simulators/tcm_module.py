@@ -54,7 +54,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
 
 def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
                           rvs=None, gammas=None, verbose=False, norm=False, save_only=True, chip=None, prefix=None):
-    """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
+    """Run two component model over all parameter combinations in model1_pars and model2_pars."""
     alphas = check_inputs(alphas)
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
@@ -65,12 +65,12 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
         debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
     # def filled_tcm_wrapper(num, param):
-    #     """Fill in all extra parameters for parrallel wrapper."""
+    #     """Fill in all extra parameters for parallel wrapper."""
     #    return tcm_wrapper(num, params, model2_pars, alphas, rvs, gammas,
     #                       obs_spec, norm=norm, save_only=save_only,
     #                       chip=chip, prefix=prefix, verbose=verbose)
 
-    print("Parallised running\n\n\n ###################")
+    print("Parallelized running\n\n\n ###################")
     raise NotImplementedError("Need to fix this up")
     # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
     #    delayed(filled_tcm_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
@@ -99,7 +99,7 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
 
 def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
                 norm=True, verbose=True, save_only=True, chip=None, prefix=None):
-    """Wrapper for iteration loop of tcm. To use with parallization."""
+    """Wrapper for iteration loop of tcm. To use with parallelization."""
     normalization_limits = [2105, 2185]   # small as possible?
 
     if prefix is None:
@@ -113,7 +113,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
     save_filename = sf
 
     if os.path.exists(save_filename) and save_only:
-        print("''{}' exists, so not repeating calcualtion.".format(save_filename))
+        print("''{}' exists, so not repeating calculation.".format(save_filename))
         return None
     else:
         if not save_only:
@@ -149,7 +149,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
             else:
                 obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
 
-            # sp_chisquare is much faster but dont think I can add masking.
+            # sp_chisquare is much faster but don't think I can add masking.
             # broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
             sp_chisquare = stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
             # assert np.all(sp_chisquare == broadcast_chisquare)

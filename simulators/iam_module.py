@@ -7,7 +7,7 @@ import scipy as sp
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-from models.broadcasted_models import inherint_alpha_model
+from models.broadcasted_models import inherent_alpha_model
 from utilities.norm import chi2_model_norms, continuum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum
@@ -72,8 +72,8 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
                            obs_spec, norm=norm, save_only=save_only,
                            chip=chip, prefix=prefix, verbose=verbose)
 
-    print("Parallised running\n\n\n ###################")
-    #raise NotImplementedError("Need to fix this up")
+    print("Parallelized running\n\n\n ###################")
+    # raise NotImplementedError("Need to fix this up")
     broadcast_chisqr_vals = Parallel(n_jobs=-2)(
         delayed(filled_iam_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
     # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
@@ -100,7 +100,7 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
 
 
 def continuum_alpha(model1, model2, chip=None):
-    """Inherint flux ratio between the continuum of the two models.
+    """Inherent flux ratio between the continuum of the two models.
 
     Assumes already scaled by area.
     Takes mean alpha of chip or full
@@ -127,7 +127,7 @@ def continuum_alpha(model1, model2, chip=None):
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 verbose=True, save_only=True, chip=None, prefix=None):
-    """Wrapper for iteration loop of iam. To use with parallization."""
+    """Wrapper for iteration loop of iam. To use with parallelization."""
     normalization_limits = [2105, 2185]   # small as possible?
 
     if prefix is None:
@@ -141,7 +141,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
     save_filename = sf
 
     if os.path.exists(save_filename) and save_only:
-        print("'{}' exists, so not repeating calcualtion.".format(save_filename))
+        print("'{}' exists, so not repeating calculation.".format(save_filename))
         return None
     else:
         if not save_only:
@@ -170,23 +170,23 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
             assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
-            # Calcualte continuumm alpha ratio.
-            inherint_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
-            # print("\ninherint_alpha value \n", inherint_alpha)
+            # Calculate continuum alpha ratio.
+            inherent_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
+            # print("\n inherent_alpha value \n", inherent_alpha)
             assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
 
-            broadcast_result = inherint_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+            broadcast_result = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
                                                     rvs=rvs, gammas=gammas)
             broadcast_values = broadcast_result(obs_spec.xaxis)
 
             # Continuum normalize all broadcasted results
             def axis_continuum(flux):
-                """Continuum to apply along axis with predefined varaibles parameters."""
+                """Continuum to apply along axis with predefined variables parameters."""
                 return continuum(obs_spec.xaxis, flux, splits=50, method="exponential", top=5)
 
-            broadcast_continuums = np.apply_along_axis(axis_continuum, 0, broadcast_values)
+            broadcast_continuum = np.apply_along_axis(axis_continuum, 0, broadcast_values)
 
-            broadcast_values = broadcast_values / broadcast_continuums
+            broadcast_values = broadcast_values / broadcast_continuum
 
             # ### RE-NORMALIZATION to observations?
             if norm:
@@ -210,7 +210,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
 
             save_full_iam_chisqr(save_filename, params1, params2,
-                                 inherint_alpha, rvs, gammas,
+                                 inherent_alpha, rvs, gammas,
                                  broadcast_chisquare, verbose=verbose)
 
         if save_only:

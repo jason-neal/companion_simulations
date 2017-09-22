@@ -33,7 +33,7 @@ def sql_join(pattern, suffix=None, verbose=True, move=False, remove=False):
     Inputs
     ------
     pattern: str
-        Regex to match with glob. Part before "_part" is prefix to databse.
+        Regex to match with glob. Part before "_part" is prefix to database.
     suffix: str
         Identifier to add before .db.
     verbose: bool (default True)
@@ -48,11 +48,11 @@ def sql_join(pattern, suffix=None, verbose=True, move=False, remove=False):
     """
     number_of_files = sum(1 for _ in glob.iglob(pattern))
     if verbose:
-        print("Concatinating {} files.".format(number_of_files))
+        print("Concatenating {} files.".format(number_of_files))
 
     if suffix is None:
         suffix = ""
-    # Get frist part of name
+    # Get first part of name
     prefix = next(glob.iglob(pattern)).split("_part")[0]
     print(prefix, suffix)
     database_name = 'sqlite:///{0}{1}.db'.format(prefix, suffix)

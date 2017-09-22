@@ -92,7 +92,7 @@ def smallest_chi2_values(engine, tb_name):
     df = pd.read_sql(sa.text('SELECT * FROM {0} ORDER BY chi2 ASC LIMIT 10'.format(tb_name)), engine)
     # df = pd.read_sql_query('SELECT alpha  FROM table', engine)
 
-    print("Samllest Chi2 values in the database.")
+    print("Smallest Chi2 values in the database.")
     print(df.head(n=15))
 
     plt.show()

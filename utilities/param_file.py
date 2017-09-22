@@ -19,7 +19,7 @@ def parse_paramfile(param_file: str, path: str=None) -> Dict[str, Union[str, flo
     Returns
     --------
     parameters: dict
-        Paramemters as a {param: value} dictionary.
+        Parameters as a {param: value} dictionary.
     """
     if path is not None:
         param_file = os.path.join(path, param_file)

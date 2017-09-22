@@ -2,7 +2,7 @@
 
 For the inherent alpha model
 
-We assume that the host temperature is well known so we will resitrict the
+We assume that the host temperature is well known so we will restrict the
 results to the host temperature. (within error bars)
 For HD30501 and HD211847 this means  +- 50K so a fixed temperature.
 
@@ -183,7 +183,7 @@ def smallest_chi2_values(engine, params, tb_name):
     df = pd.read_sql(sa.text('SELECT * FROM {0} ORDER BY chi2 ASC LIMIT 10'.format(tb_name)), engine)
     # df = pd.read_sql_query('SELECT alpha  FROM table', engine)
 
-    print("Samllest Chi2 values in the database.")
+    print("Smallest Chi2 values in the database.")
     print(df.head(n=15))
     name = "{0}-{1}_{2}_test_smallest_chi2.pdf".format(
         params["star"], params["obs_num"], params["chip"])

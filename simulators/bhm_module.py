@@ -16,7 +16,7 @@ debug = logging.debug
 
 
 def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
-    """Run one component model over all parameter cobinations in model_pars."""
+    """Run one component model over all parameter combinations in model_pars."""
     # Gammas
     if gammas is None:
         gammas = np.array([0])
@@ -118,7 +118,7 @@ def save_bhm_chisqr(name, params1, gammas, broadcast_chisquare):
 
 # Doesn't work yet
 def broadcast_normalize_observation(wav, obs_flux, broadcast_flux, splits=10):
-    """Renormalize obs_spec to the linear continum fit along."""
+    """Re-normalize obs_spec to the linear continuum fit along."""
     # Get median values of 10 highest points in the 0.5nm sections of flux
 
     obs_norm = broadcast_continuum_fit(wav, obs_flux, splits=splits, method="linear", plot=True)

@@ -1,7 +1,7 @@
 """Phoenix Utilities.
 
 Some functions to deal with phoenix models
-i.e. searching for models with certian parameters
+i.e. searching for models with certain parameters
 
 Jason Neal, January 2017
 """
@@ -50,7 +50,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area
     parameters: list
         Model parameters [teff, logg, Z]
     hdr: bool
-       Inlcude the model header. Default False.
+       Include the model header. Default False.
     normalize: bool
         Locally normalize the spectrum. Default False.
     """
@@ -116,7 +116,7 @@ def closest_model_params(teff, logg, feh, alpha=None):
                             np.arange(7000, 12100, 200)))
     loggs = np.arange(0, 6.1, 0.5)
     fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.1, 0.5)))
-    alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if nesessary
+    alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if necessary
 
     closest_teff = teffs[np.abs(teffs - teff).argmin()]
     closest_logg = loggs[np.abs(loggs - logg).argmin()]
@@ -169,7 +169,7 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None):
         phoenix_glob = ("Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                         "").format(closest_teff, closest_logg, closest_feh)
     logging.debug("Old Phoenix_glob {}".format(phoenix_glob))
-    phoenix_glob = phoenix_glob.replace("+0.0", "-0.0")      # Replace positive 0 metalicity with negative 0
+    phoenix_glob = phoenix_glob.replace("+0.0", "-0.0")      # Replace positive 0 metallicity with negative 0
     logging.debug("New Phoenix_glob {}".format(phoenix_glob))
     joint_glob = os.path.join(data_dir, phoenix_glob)
     logging.debug("Data dir = {}".format(data_dir))
@@ -183,9 +183,9 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None):
 
 
 def phoenix_name_from_params(data_dir, params):
-    """Return cloeset phoenix model given a stellar parameter file.
+    """Return closest phoenix model given a stellar parameter file.
 
-    Obtain temp, metalicity, and logg from parameter file.
+    Obtain temp, metallicity, and logg from parameter file.
     Parameters
     ----------
     data_dir: str
@@ -219,14 +219,14 @@ def phoenix_name_from_params(data_dir, params):
                 return find_closest_phoenix_name(data_dir, params[0], params[1], params[2],
                                                  alpha=params[4])
         else:
-            raise ValueError("Lenght of parameter list given is not valid, {}".format(len(params)))
+            raise ValueError("Length of parameter list given is not valid, {}".format(len(params)))
 
 
 def generate_close_params(params, small=True, limits="phoenix"):
     """teff, logg, Z."""
     temp, logg, metals = params[0], params[1], params[2]
     if small == "host":
-        # only include errorbounds.
+        # only include error bounds.
         new_temps = np.array([-100, 0, 100]) + temp
         new_metals = np.array([-0.5, 0.0, 0.5]) + metals
         new_loggs = np.array([-0.5, 0.0, 0.5]) + logg
@@ -252,7 +252,7 @@ def generate_close_params(params, small=True, limits="phoenix"):
 
 
 def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
-    """Find other phoenix models with similar temp and metalicities.
+    """Find other phoenix models with similar temp and metallicities.
 
     Parameters
     ----------
@@ -261,15 +261,15 @@ def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
     ref_model:
        Model to start from and search around.
     mode: str
-        Mode to find models, "temp" means all metalicity and logg but
+        Mode to find models, "temp" means all metallicity and logg but
         just limit temperature to +/- 400 K, "small" - smaller range of
-        +/- 1 logg and metalicity. "all" search all.
+        +/- 1 logg and metallicity. "all" search all.
         "closest", find the closest matches the given parameters.
 
     Returns
     -------
     phoenix_models: list[str]
-       List of filenames of phoenix models that match mode criteria.
+       List of filenames for phoenix models that match mode criteria.
 
     Notes
     -----
@@ -290,9 +290,9 @@ def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
                             np.arange(7000, 12100, 200)))
     loggs = np.arange(0, 6.1, 0.5)
     fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.1, 0.5)))
-    # alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if nesessary
+    # alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if necessary
 
-    ref_model = ref_model.split("/")[-1]  # Incase has folders in name
+    ref_model = ref_model.split("/")[-1]  # In case has folders in name
     ref_temp = int(ref_model[4:8])
     ref_logg = float(ref_model[9:13])
     ref_feh = float(ref_model[14:17])
@@ -327,7 +327,7 @@ def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
 
 # def find_phoenix_model_names2(base_dir: str, original_model: str) -> List[str]:    # mypy
 def find_phoenix_model_names2(base_dir, original_model):
-    """Find other phoenix models with similar temp and metalicities.
+    """Find other phoenix models with similar temp and metallicities.
 
     Returns list of model name strings.
 
@@ -357,7 +357,7 @@ def find_phoenix_model_names2(base_dir, original_model):
             name = os.path.join(base_dir,
                                 "lte{0:05d}-{1:1.02f}{2:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
 
-        if "+0.0" in name:   # Positive zero is not alowed in naming
+        if "+0.0" in name:   # Positive zero is not allowed in naming
             name = name.replace("+0.0", "-0.0")
 
         if os.path.isfile(name):

@@ -44,7 +44,7 @@ def combine_spectra(star, planet, alpha):
     star = copy.copy(star)
     planet = copy.copy(planet)
 
-    if np.all(star.xaxis == planet.xaxis):   # make sure wavelenghts even first
+    if np.all(star.xaxis == planet.xaxis):   # make sure wavelengths even first
         pass
     else:
         planet.interpolate1d_to(star)
@@ -57,7 +57,7 @@ def combine_spectra(star, planet, alpha):
 
 
 def max_delta(obs_spec, rvs, gammas):
-    """Calcualte max doppler shift.
+    """Calculate max doppler shift.
 
     Given a spectrum, and some doppler shifts, find the wavelength limit to have full coverage without much wastage computations.
 

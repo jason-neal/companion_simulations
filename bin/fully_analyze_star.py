@@ -42,7 +42,7 @@ def main(star, full_chi_calculation=False, suffix=""):
             db_name = "{0}/{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obs_num, chip, suffix)
             db_name = os.path.join(prefix_dir, db_name)
 
-            # Run single componet models
+            # Run single component models
             if full_chi_calculation:
                 if os.getcwd().endswith("Analysis"):
                     subprocess.call(

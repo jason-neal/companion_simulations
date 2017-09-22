@@ -8,7 +8,7 @@ import scipy as sp
 # Test that the two componet model with alpha = [0] and rvs=[0] are equal!
 from models.broadcasted_models import (check_broadcastable, one_comp_model,
                                        two_comp_model,
-                                       two_comp_model_with_transpose, inherint_alpha_model)
+                                       two_comp_model_with_transpose, inherent_alpha_model)
 from utilities.phoenix_utils import load_starfish_spectrum
 
 
@@ -126,7 +126,7 @@ def test_check_broadcastable():
 def test_inherinent_model_same_as_alpha_0(host, comp):
 
     tcm = two_comp_model(host.xaxis, host.flux, comp.flux, 0, [0, 2, 4], [1, 2, 3])
-    iam = inherint_alpha_model(host.xaxis, host.flux, comp.flux, [0, 2, 4], [1, 2, 3])
+    iam = inherent_alpha_model(host.xaxis, host.flux, comp.flux, [0, 2, 4], [1, 2, 3])
 
     host.wav_select(2100.5, 2104.5)   # cut to avoid Nans from doppler shifts
     tcm_value = tcm(host.xaxis)

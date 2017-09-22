@@ -1,4 +1,4 @@
-"""Companion simulat models useing Boradcasting."""
+"""Companion simulate models using Broadcasting."""
 import numpy as np
 from scipy.interpolate import interp1d
 
@@ -23,7 +23,7 @@ def one_comp_model(wav, model1, gammas):
 
 
 def check_broadcastable(var):
-    # My version of broadcasable with 1s on the right
+    # My version of broadcastable with 1s on the right
     var = np.atleast_2d(var)
     v_shape = var.shape
     # to make it (N, 1)
@@ -87,7 +87,7 @@ def two_comp_model_with_transpose(wav, model1, model2, alphas, rvs, gammas):
 
 
 # @timeit2
-def inherint_alpha_model(wav, model1, model2, rvs, gammas):
+def inherent_alpha_model(wav, model1, model2, rvs, gammas):
     """Make 2 component simulations, broadcasting over, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
     # alphas = check_broadcastable(alphas)

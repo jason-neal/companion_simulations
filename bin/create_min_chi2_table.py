@@ -21,9 +21,9 @@ def _parser():
 
     :returns: the args
     """
-    parser = argparse.ArgumentParser(description='Min chi2 tbale.')
+    parser = argparse.ArgumentParser(description='Minimum chi-squared table.')
     parser.add_argument('-s', '--stars', help='Star names', nargs="+", default=None)
-    parser.add_argument('--suffix', help='Suffix to add to filenames.', default="")
+    parser.add_argument('--suffix', help='Suffix to add to the file names.', default="")
     return parser.parse_args()
 
 
@@ -130,7 +130,7 @@ def scatter_corner_plots(star, name):
     plt.savefig(figname)
 
 
-# TODO common function to determine observatiosn and chips for different stars  (like here)
+# TODO common function to determine observations and chips for different stars  (like here)
 
 
 if __name__ == "__main__":

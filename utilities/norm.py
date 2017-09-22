@@ -39,13 +39,13 @@ def get_continuum_points(wave, flux, splits=50, top=20):
     """Get continuum points along a spectrum.
 
     This splits a spectrum into "splits" number of bins and calculates
-    the medain wavelength and flux of the upper "top" number of flux
+    the median wavelength and flux of the upper "top" number of flux
     values.
     """
     # Shorten array until can be evenly split up.
     remainder = len(flux) % splits
     if remainder:
-        # Nozero reainder needs this slicing
+        # Non-zero remainder needs this slicing
         wave = wave[:-remainder]
         flux = flux[:-remainder]
 
@@ -108,13 +108,13 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
     Inputs
     ------
     obs: n*1 N-D arrary
-    models: n*x*... N Darray
-    mehtod: str
+    models: n*x*... N-D array
+    method: str
         const or linear
     Returns
     -------
     norm_obs: N-D arrary
-        Observation normalized to all model continuums.
+        Observation normalized to all model continuum.
 
     Notes
     -----
@@ -124,13 +124,13 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
     """
     if np.any(np.isnan(models)):
         raise ValueError("NaNS are not allowed in models during normalization, "
-                         "check evaulated wavelength.")
+                         "check evaluated wavelength.")
 
     obs_continuum = continuum(wave, obs, splits=splits, method=method, top=top)
 
     # Try fit the apply_along_axis to get the continuum points only then polyfit n-D array.
     def axis_continuum(flux):
-        """Continuum to apply along axis with predefined varaibles parameters."""
+        """Continuum to apply along axis with predefined variables parameters."""
         return continuum(wave, flux, splits=splits, method=method, top=top)
 
     norm_models = np.apply_along_axis(axis_continuum, 0, models)
@@ -141,7 +141,7 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
     return (obs.T * norm_fraction.T).T
 
 
-# # # SPEC local norm_slow  and assiciated are the older version
+# # # SPEC local norm_slow  and associated are the older version
 @timeit2
 def chi2_model_norms_slow(wave, obs, models, method='scalar', splits=100, top=20):
     """Normalize the obs to the continuum of the models.
@@ -155,16 +155,16 @@ def chi2_model_norms_slow(wave, obs, models, method='scalar', splits=100, top=20
     Returns
     -------
     norm_obs: N-D arrary
-        Observation normalized to all model continuums.
+        Observation normalized to all model continuum.
     """
     if np.any(np.isnan(models)):
         raise ValueError("NaNS are not allowed in models during normalization, "
-                         "check evaulated wavelength.")
+                         "check evaluated wavelength.")
 
     obs_continuum = continuum_slow(wave, obs, splits=splits, method=method, top=top)
 
     def axis_continuum(flux):
-        """Continuum to apply along axis with predefined varaibles parameters."""
+        """Continuum to apply along axis with predefined variables parameters."""
         return continuum_slow(wave, flux, splits=splits, method=method, top=top)
 
     norm_models = np.apply_along_axis(axis_continuum, 0, models)
@@ -211,7 +211,7 @@ def continuum_slow(wave, flux, splits=50, method='scalar', plot=False, top=20):
     org_flux = copy.copy(flux)
 
     while len(wave) % splits != 0:
-        # Shorten array untill can be evenly split up.
+        # Shorten array until can be evenly split up.
         wave = wave[:-1]
         flux = flux[:-1]
 

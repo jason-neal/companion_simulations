@@ -21,7 +21,7 @@ def _parser():
     parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
     parser.add_argument('-s', '--sort', help='Sort by column.', default='chi2')
     # parser.add_argument('--direction', help='Sort direction.',
-    #                     default='ascending', choices=['ascending','decending'])
+    #                     default='ascending', choices=['ascending','descending'])
     parser.add_argument("-r", '--remove', action="store_true",
                         help='Remove original files after joining (default=False).')
     return parser.parse_args()
@@ -46,7 +46,7 @@ def pandas_join(pattern, output, sort='chi2', verbose=True, remove=False):
     """
     number_of_files = sum(1 for _ in glob.iglob(pattern))
     if verbose:
-        print("Concatinating {} files.".format(number_of_files))
+        print("Concatenating {} files.".format(number_of_files))
 
     dfs = (pd.read_csv(f) for f in glob.iglob(pattern))
     joint_df = pd.concat(dfs, ignore_index=True)
@@ -55,7 +55,7 @@ def pandas_join(pattern, output, sort='chi2', verbose=True, remove=False):
     if sort:
         column_names = joint_df.columns.values
         if sort in column_names:
-            joint_df.sort_values(sort, inplace=True)   # ascending/decending
+            joint_df.sort_values(sort, inplace=True)   # ascending/descending
 
     if verbose:
         print("Saving result to {}.".format(output))
