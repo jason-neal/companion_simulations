@@ -5,11 +5,16 @@ import pandas as pd
 import scipy as sp
 from joblib import Parallel, delayed
 from models.broadcasted_models import inherint_alpha_model
+import logging
 from tqdm import tqdm
 from utilities.norm import continuum, chi2_model_norms
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum
 from utilities.simulation_utilities import max_delta, check_inputs
+
+
+debug = logging.debug
+
 
 def iam_helper_function(star, obs_num, chip):
     param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)

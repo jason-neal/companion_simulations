@@ -1,5 +1,6 @@
 import os
 
+import logging
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -7,13 +8,14 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 
 from models.broadcasted_models import two_comp_model
-from simulators.two_component_model_HD211847 import check_inputs, debug
+
 from utilities.norm import chi2_model_norms
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum
 from utilities.simulation_utilities import max_delta, check_inputs
 
 
+debug = logging.debug
 
 
 def tcm_helper_function(star, obs_num, chip):

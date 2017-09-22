@@ -18,15 +18,13 @@ import logging
 import os
 import sys
 
-import matplotlib.pyplot as plt
 import numpy as np
-from utilities.spectrum_utils import load_spectrum  # , select_observation
 from astropy.io import fits
-
-from simulators.tcm_module import tcm_analysis, parallel_tcm_analysis, tcm_helper_function
+from simulators.tcm_module import parallel_tcm_analysis, tcm_analysis, tcm_helper_function
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params)
+from utilities.spectrum_utils import load_spectrum  # , select_observation
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
