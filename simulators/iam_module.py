@@ -11,7 +11,7 @@ from models.broadcasted_models import inherent_alpha_model
 from utilities.norm import chi2_model_norms, continuum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum
-from utilities.simulation_utilities import check_inputs, max_delta
+from utilities.simulation_utilities import check_inputs, spec_max_delta
 
 debug = logging.debug
 
@@ -161,7 +161,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
 
             # Wavelength selection
-            delta = max_delta(obs_spec, rvs, gammas)
+            delta = spec_max_delta(obs_spec, rvs, gammas)
             obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
 
             mod1_spec.wav_select(obs_min - delta, obs_max + delta)

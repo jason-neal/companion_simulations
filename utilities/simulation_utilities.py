@@ -56,16 +56,22 @@ def combine_spectra(star, planet, alpha):
     return combined_spectrum
 
 
-def max_delta(obs_spec, rvs, gammas):
+def spec_max_delta(obs_spec, rvs, gammas):
+    """Calculate max doppler shift of a spectrum."""
+    return max_delta(obs_spec.xaxis, rvs, gammas)
+
+
+def max_delta(wavelength, rvs, gammas):
     """Calculate max doppler shift.
 
-    Given a spectrum, and some doppler shifts, find the wavelength limit to have full coverage without much wastage computations.
+    Given a spectrum, and some doppler shifts, find the wavelength limit
+    to have full coverage without much wastage computations.
 
     # Currently set at 2*delta.
     """
     shift_max = np.max(np.abs(rvs)) + np.max(np.abs(gammas))
 
-    obs_limits = np.array([np.min(obs_spec.xaxis), np.max(obs_spec.xaxis)])
+    obs_limits = np.array([np.min(wavelength), np.max(wavelength)])
 
     for lim in obs_limits:
         delta = [lim * shift_max / 299792.458 for lim in obs_limits]
