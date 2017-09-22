@@ -7,10 +7,12 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm
 
 from models.broadcasted_models import one_comp_model
-from simulators.best_host_model_HD211847 import debug
 from utilities.chisqr import chi_squared
 from utilities.phoenix_utils import load_starfish_spectrum
 from utilities.xcorr import xcorr_peak
+
+import logging
+debug = logging.debug
 
 
 def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
@@ -137,7 +139,7 @@ def broadcast_continuum_fit(wave, flux, splits=50, method="linear", plot=True):
     org_wave = copy.copy(wave)
 
     while len(wave) % splits != 0:
-        # Shorten array untill can be evenly split up.
+        # Shorten array until it can be evenly split up.
         wave = wave[:-1]
         flux = flux[:-1]
         print(wave.shape)
