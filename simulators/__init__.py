@@ -1,7 +1,9 @@
 __version__ = '0.2'
-__all__ = ["best_host_model", "best_host_model_HD211847", "bhm_script", "Chisqr_of_HD211847_starfish",
-           "Chisqr_of_observation", "Chisqr_of_observation_HD211847", "iam_script", "Planet_spectral_simulations",
-           "two_component_model_HD211847", "two_component_model_HD211847_test_",]
+__all__ = ["best_host_model_old", "bhm_HD211847", "bhm_module", "bhm_script",
+           "Chisqr_of_HD211847_starfish", "Chisqr_of_observation",
+           "Chisqr_of_observation_HD211847", "iam_module", "iam_script",
+           "Planet_spectral_simulations", "tcm_HD211847", "tcm_HD211847_test_",
+           "tcm_module.py"]
 
 # Read the users config.yaml file.
 # If it doesn't exist, print a useful help message
