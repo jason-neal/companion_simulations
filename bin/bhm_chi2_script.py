@@ -1,10 +1,9 @@
 import argparse
-import json
 import sys
-
 import numpy as np
 
-from bhm_HD211847 import bhm_analysis
+from simulators.bhm_module import bhm_analysis
+import simulators
 
 
 def _parser():
@@ -28,22 +27,9 @@ def _parser():
     return args
 
 
-def grids_from_config(name=None):
-    """Load chi2 analysis params from json file."""
-    if name is None:
-        name = "chi2_config.json"
-        with open(name, "r") as f:
-            config_values = json.load(f)
-
-        for param in ["alphas", "gammas", "rvs"]:
-            if param not in values:
-                raise ValueError("Chi2 config file is invalid.")
-
-        alphas = np.arange(*config_values["alphas"])
-        gammas = np.arange(*config_values["gammas"])
-        rvs = np.arange(*config_values["rvs"])
-
-        return gammas, rvs, alphas
+alphas = np.arange(*simulators.sim_grid["alphas"])
+gammas = np.arange(*simulators.sim_grid["gammas"])
+rvs = np.arange(*simulators.sim_grid["rvs"])
 
 
 def main(star, obs_num, detector, output=None, model="tcm", mode="plot"):
@@ -60,15 +46,19 @@ def main(star, obs_num, detector, output=None, model="tcm", mode="plot"):
 
             pass
     elif mode == "chi2":
-        # Do the chi2 calcualtions and save to a file.
+        # Do the chi2 calculations and save to a file.
         if model == "bhm":
-            gammas, __, __ = grids_from_config()
 
-            bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False)
+            bhm_analysis(obs_spec, model_pars, gammas=gammas, verbose=False, norm=False)
             pass
 
         elif model == "tcm":
-            gammas, rvs, alphas = grids_from_config()
+            # use gammas, rvs, alphas ...
+            #tcm_analysis()
+            pass
+        elif model == "iam":
+            # use gammas, rvs, alphas ...
+            #iam_analysis()
             pass
 
 

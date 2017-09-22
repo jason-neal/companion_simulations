@@ -33,8 +33,6 @@ wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
 wav_model /= 10   # turn into nm
 
-
-print(simulators.sim_grid["gammas"])
 gammas = np.arange(*simulators.sim_grid["gammas"])
 rvs = np.arange(*simulators.sim_grid["rvs"])
 # alphas = np.arange(*simulators.sim_grid["alphas"])
