@@ -43,9 +43,10 @@ wav_model /= 10   # turn into nm
 
 
 import simulators
-gammas = np.arange(*simulators.sim_grids["gammas"])
-rvs = np.arange(*simulators.sim_grids["rvs"])
-# alphas = np.arange(*simulators.sim_grids["alphas"])
+print(simulators.sim_grid["gammas"])
+gammas = np.arange(*simulators.sim_grid["gammas"])
+rvs = np.arange(*simulators.sim_grid["rvs"])
+# alphas = np.arange(*simulators.sim_grid["alphas"])
 # alphas = np.arange(0.01, 0.2, 0.02)
 
 

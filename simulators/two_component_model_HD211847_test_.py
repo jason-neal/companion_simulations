@@ -1,7 +1,7 @@
 """two_compoonent_model.py.
 
 Jason Neal
-2nd Janurary 2017
+started 2nd January 2017
 
 Compare observed spectra to many different phoenix-aces spectral models to find which matches one is best fit by itself.
 
@@ -56,9 +56,9 @@ if test:
     print("Warning only small test feature set tried")
 else:
     import simulators
-    gammas = np.arange(*simulators.sim_grids["gammas"])
-    rvs = np.arange(*simulators.sim_grids["rvs"])
-    alphas = np.arange(*simulators.sim_grids["alphas"])
+    gammas = np.arange(*simulators.sim_grid["gammas"])
+    rvs = np.arange(*simulators.sim_grid["rvs"])
+    alphas = np.arange(*simulators.sim_grid["alphas"])
 
 
 @timeit2

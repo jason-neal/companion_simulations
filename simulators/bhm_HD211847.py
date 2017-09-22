@@ -81,7 +81,7 @@ def main():
         obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
 
     import simulators
-    gammas = np.arange(*simulators.sim_grids["gammas"])
+    gammas = np.arange(*simulators.sim_grid["gammas"])
 
 
     ####

@@ -40,9 +40,9 @@ wav_model /= 10   # turn into nm
 
 
 import simulators
-gammas = np.arange(*simulators.sim_grids["gammas"])
-rvs = np.arange(*simulators.sim_grids["rvs"])
-alphas = np.arange(*simulators.sim_grids["alphas"])
+gammas = np.arange(*simulators.sim_grid["gammas"])
+rvs = np.arange(*simulators.sim_grid["rvs"])
+alphas = np.arange(*simulators.sim_grid["alphas"])
 
 
 def _parser():
