@@ -33,7 +33,7 @@ from utilities.phoenix_utils import \
     find_phoenix_model_names2 as find_phoenix_model_names
 from utilities.phoenix_utils import (load_phoenix_spectrum,
                                      phoenix_name_from_params, spec_local_norm)
-from utitlies.xcorr import xcorr_peak
+from utilities.xcorr import xcorr_peak
 
 # sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 
