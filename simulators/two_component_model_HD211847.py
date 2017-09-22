@@ -50,9 +50,10 @@ wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011
 wav_model /= 10   # turn into nm
 
 
-gammas = np.arange(-20, 20, 2)
-rvs = np.arange(-10, 10, 1)
-alphas = np.arange(0.01, 0.2, 0.005)
+import simulators
+gammas = np.arange(*simulators.sim_grids["gammas"])
+rvs = np.arange(*simulators.sim_grids["rvs"])
+alphas = np.arange(*simulators.sim_grids["alphas"])
 
 
 def _parser():

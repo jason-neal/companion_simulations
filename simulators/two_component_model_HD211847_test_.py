@@ -55,9 +55,10 @@ if test:
     alphas = np.arange(0.01, 0.202, 0.05)
     print("Warning only small test feature set tried")
 else:
-    gammas = np.arange(-20, 20, 1)
-    rvs = np.arange(-20, 20, 2)
-    alphas = np.arange(0.01, 0.2, 0.02)
+    import simulators
+    gammas = np.arange(*simulators.sim_grids["gammas"])
+    rvs = np.arange(*simulators.sim_grids["rvs"])
+    alphas = np.arange(*simulators.sim_grids["alphas"])
 
 
 @timeit2

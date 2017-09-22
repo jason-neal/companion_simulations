@@ -80,7 +80,9 @@ def main():
         # Ignore first 40 pixels
         obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
 
-    gammas = np.arange(-20, 20, 1)
+    import simulators
+    gammas = np.arange(*simulators.sim_grids["gammas"])
+
 
     ####
     chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, verbose=True)
