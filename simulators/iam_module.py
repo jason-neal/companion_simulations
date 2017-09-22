@@ -121,7 +121,7 @@ def continuum_alpha(model1, model2, chip=None):
     mask2 = (model2.xaxis > chip_limits[0]) * (model2.xaxis < chip_limits[1])
 
     continuum_ratio = cont2[mask2] / cont1[mask1]
-    alpha_ratio = np.mean(continuum_ratio)
+    alpha_ratio = np.nanmean(continuum_ratio)
 
     return alpha_ratio
 
@@ -158,8 +158,6 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits,
                                                hdr=True, normalize=False, area_scale=True,
                                                flux_rescale=True)
-
-            # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
 
             # Wavelength selection
             delta = spec_max_delta(obs_spec, rvs, gammas)
@@ -206,7 +204,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
             # broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
             # Scipy version is 20 times faster then my version (but wont be able to take any extra scaling)!
-            sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
+            sp_chisquare = stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
             # assert np.all(sp_chisquare == broadcast_chisquare)
             broadcast_chisquare = sp_chisquare
 

@@ -149,3 +149,8 @@ def test_get_continuum_points(splits, top, size):
 
     assert np.all(x1 == x2)
     assert x1.shape == size
+
+
+def test_continuum():
+    continuum()
+    assert 0
