@@ -7,6 +7,8 @@ __all__ = ["best_host_model", "best_host_model_HD211847", "bhm_script", "Chisqr_
 # If it doesn't exist, print a useful help message
 
 import yaml
+import matplotlib
+matplotlib.use('Agg')
 
 try:
     f = open("config.yaml")
