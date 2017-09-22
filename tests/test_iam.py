@@ -1,6 +1,6 @@
 import pytest
 
-from simulators.inherint_alpha_model_HD211847 import iam_helper_function, check_inputs, save_full_iam_chisqr
+from simulators.inherint_alpha_model_HD211847 import iam_analysis, parallel_iam_analysis, iam_helper_function, check_inputs, save_full_iam_chisqr
 
 @pytest.mark.parametrize("star,obs,chip", [
     ("HD30501", 1, 1),("HD4747", "a", 4)])
@@ -25,3 +25,8 @@ def test_iam_check_inputs():
 @pytest.mark.xfail()
 def test_save_full_iam_chisqr():
     assert 0
+
+
+@pytest.mark.xfail()
+def test_iam_analysis_same_as_parallel():
+    assert parallel_iam_analysis() == iam_analysis()
