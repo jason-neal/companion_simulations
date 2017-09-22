@@ -39,6 +39,7 @@ sim_grid:
     feh_2: None
     log_1: None
     log_2: None
+    arb_norm: [0.95, 1.05, 0.02]   # Arbitrary normalization inside chisquare
 
 paths:
     parameters: "/home/jneal/Phd/data/parameter_files/"

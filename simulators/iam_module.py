@@ -3,11 +3,12 @@ import os
 
 import numpy as np
 import pandas as pd
-import scipy as sp
+from scipy import stats
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
 from models.broadcasted_models import inherent_alpha_model
+import simulators
 from utilities.norm import chi2_model_norms, continuum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum
@@ -198,11 +199,23 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
             #####
 
+            # Arbitary_normalization
+            arb_norm = np.arange(*simulators.sim_grid["arb_norm"])
+            obs_flux = obs_flux[:, :, :, :, np.newaxis]
+            broadcast_values = broadcast_values[:, :, :, :, np.newaxis] * arb_norm
+
             # broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
             # Scipy version is 20 times faster then my version (but wont be able to take any extra scaling)!
             sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
             # assert np.all(sp_chisquare == broadcast_chisquare)
             broadcast_chisquare = sp_chisquare
+
+            # take minimum chisquared value along normalization axis
+            print(np.argmin(broadcast_chisquare, axis=-1))
+            print("argmin in broadcast", broadcast_chisquare[np.argmin(broadcast_chisquare, axis=-1)])
+            print("argmin in arbnorm", arb_norm[np.argmin(broadcast_chisquare, axis=-1)])
+            broadcast_chisquare = np.min(broadcast_chisquare, axis=-1)
+            arbitrary_norms = arb_norm[np.argmin(broadcast_chisquare, axis=-1)]
 
             if not save_only:
                 # print(broadcast_chisquare.shape)
@@ -211,7 +224,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
             save_full_iam_chisqr(save_filename, params1, params2,
                                  inherent_alpha, rvs, gammas,
-                                 broadcast_chisquare, verbose=verbose)
+                                 broadcast_chisquare, arbitrary_norms, verbose=verbose)
 
         if save_only:
             return None
@@ -220,7 +233,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
 
 def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
-                         broadcast_chisquare, verbose=False):
+                         broadcast_chisquare, arbitrary_norms, verbose=False):
     """Save the iterations chisqr values to a cvs."""
     R, G = np.meshgrid(rvs, gammas, indexing='ij')
     # assert A.shape == R.shape
@@ -228,9 +241,10 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
     assert G.shape == broadcast_chisquare.shape
 
     data = {"rv": R.ravel(), "gamma": G.ravel(),
-            "chi2": broadcast_chisquare.ravel()}
+            "chi2": broadcast_chisquare.ravel(), "arbnorm": arbitrary_norms.ravel()}
 
-    columns = ["rv", "gamma", "chi2"]
+    columns = ["rv", "gamma", "chi2", "arbnorm"]
+    len_c = len(columns)
 
     df = pd.DataFrame(data=data, columns=columns)
     # Update all rows with same value.
@@ -246,7 +260,7 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
         columns = ["teff_1", "logg_1", "feh_1"] + columns
 
     df["alpha"] = alpha
-    columns = columns[:-3] + ["alpha"] + columns[-3:]
+    columns = columns[:-len_c] + ["alpha"] + columns[-len_c:]
 
     df = df.round(decimals={"logg_2": 1, "feh_2": 1, "alpha": 4,
                             "rv": 3, "gamma": 3, "chi2": 4})
