@@ -1,16 +1,34 @@
-"""Run bhm analyssi for HD211847."""
+"""Run bhm analysis for HD211847."""
 import itertools
-import json
+import sys
+# import json
+import argparse
 
 import numpy as np
 import pandas as pd
 
-from best_host_model_HD211847 import bhm_analysis
-from Chisqr_of_observation import load_spectrum
+import simulators
+from simulators.best_host_model_HD211847 import bhm_analysis
+from utilities.spectrum_utils import load_spectrum
 # from utilites.io import save_pd_csv
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import closest_model_params, generate_close_params
+
+
+def _parser():
+    """Take care of all the argparse stuff.
+
+    :returns: the args
+    """
+    parser = argparse.ArgumentParser(description='Best host modelling.')
+    parser.add_argument("star", help='Star name.', type=str)
+    parser.add_argument("obs_num", help='Star observation number.', type=str, narg="+")
+    parser.add_argument('-c', '--chips', help='Chip Number.', default=None, narg="+")
+    parser.add_argument('-m', '--mask', help='Apply wavelength mask.', type=bool, action="store_true")
+    parser.add_argument('-s', '--suffix', help='Extra name identifier.', type=str, default="")
+
+    return parser.parse_args()
 
 
 def bhm_helper_function(star, obs_num, chip):
@@ -46,17 +64,17 @@ def save_pd_cvs(name, data):
     df.to_csv(name, sep=',', index=False)
     return 0
 
-
-def get_maskinfo(star, obs_num, chip):
-    with open("/home/jneal/.handy_spectra/detector_masks.json", "r") as f:
-        mask_data = json.load(f)
-    try:
-        this_mask = mask_data[star][obs_num][str(chip)]
-        print(this_mask)
-        return this_mask
-    except KeyError:
-        print("No Masking data present for {0}-{1}_{2}".format(star, obs_num, chip))
-        return []
+from utilities.masking import get_maskinfo
+ # def get_maskinfo(star, obs_num, chip):
+ #    with open("/home/jneal/.handy_spectra/detector_masks.json", "r") as f:
+ #        mask_data = json.load(f)
+ #    try:
+ #        this_mask = mask_data[star][obs_num][str(chip)]
+ #        print(this_mask)
+ #        return this_mask
+ #    except KeyError:
+ #        print("No Masking data present for {0}-{1}_{2}".format(star, obs_num, chip))
+ #        return []
 
 
 def deconstruct_array(array, values):
@@ -74,19 +92,12 @@ def deconstruct_array(array, values):
     return indx, gam, chi2
 
 
-if __name__ == "__main__":
-    # ### ADD STAR INFO HERE
-    star = "HD211847"
-    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
-    params = parse_paramfile(param_file, path=None)
-    obs_num = [1]  # [1, 2]
-    chips = [1]    # [1, 2, 3, 4]
-    # obs_name = select_observation(star, obs_num, chip)
-    print("original_model = Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits")
+def main(star, obs_num, chips=None, verbose=False, suffix=None, mask=False):
+    """Best Host modelling main function."""
 
-    #########################
     # Define the broadcasted gamma grid
-    gammas = np.arange(-2, 2, 1)
+    gammas = np.arange(*simulators.sim_grid["gammas"])
+
 
     iters = itertools.product(obs_num, chips)
     for obs_num, chip in iters:
@@ -99,7 +110,7 @@ if __name__ == "__main__":
         # Load observation
         obs_spec = load_spectrum(obs_name)
         obs_spec = barycorr_crires_spectrum(obs_spec, -22)
-        # obs_spec.flux /= 1.02
+
         # Mask out bad portion of observed spectra ## HACK
         for mask_limits in chip_masks:
             if len(mask_limits) is not 2:
@@ -110,10 +121,10 @@ if __name__ == "__main__":
             # Ignore first 40 pixels
             # obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
 
-    ####
-        # chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, verbose=True, norm=True)
+
         chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, verbose=False, norm=False)
-    ####
+
+
         (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
             broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids
 
@@ -154,3 +165,16 @@ if __name__ == "__main__":
 
         print("Save the results to {}".format(output_name))
     print("Finished chisquare generation")
+
+
+
+if __name__ == "__main__":
+    args = vars(_parser())
+    opts = {k: args[k] for k in args}
+
+    # Do all chips
+    if opts["chip"] is None:
+        opts["chip"] = range(1, 5)
+
+
+    sys.exit(main(**opts))

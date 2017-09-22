@@ -25,7 +25,7 @@ import scipy as sp
 from astropy.io import fits
 from tqdm import tqdm
 
-from Chisqr_of_observation import load_spectrum
+from utilities.spectrum_utils import load_spectrum
 from models.broadcasted_models import one_comp_model
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
