@@ -28,7 +28,7 @@ from Chisqr_of_observation import load_spectrum  # , select_observation
 from models.broadcasted_models import two_comp_model
 # from spectrum_overload.Spectrum import Spectrum
 
-from two_component_model_HD211847 import save_full_chisqr, tcm_helper_function  # , plot_spectra
+from two_component_model_HD211847 import save_full_chisqr, tcm_helper_function
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import timeit2  # pv,

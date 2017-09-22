@@ -193,15 +193,6 @@ def main():
     debug("After plot")
 
 
-def plot_spectra(obs, model):
-    """Plot two spectra."""
-    plt.plot(obs.xaxis, obs.flux, label="obs")
-    plt.plot(model.xaxis, model.flux, label="model")
-    plt.legend()
-    plt.show()
-
-
-
 if __name__ == "__main__":
     def time_func(func, *args, **kwargs):
         start = dt.now()

@@ -8,6 +8,7 @@ import copy
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 def add_noise(flux, snr):
@@ -71,3 +72,11 @@ def max_delta(obs_spec, rvs, gammas):
         delta = [lim * shift_max / 299792.458 for lim in obs_limits]
 
     return 2 * round(max(delta), 3)
+
+
+def plot_spectra(obs, model):
+    """Plot two spectra."""
+    plt.plot(obs.xaxis, obs.flux, label="obs")
+    plt.plot(model.xaxis, model.flux, label="model")
+    plt.legend()
+    plt.show()

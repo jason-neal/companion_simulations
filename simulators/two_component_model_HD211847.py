@@ -116,14 +116,6 @@ def check_inputs(var):
     return var
 
 
-def plot_spectra(obs, model):
-    """Plot two spectra."""
-    plt.plot(obs.xaxis, obs.flux, label="obs")
-    plt.plot(model.xaxis, model.flux, label="model")
-    plt.legend()
-    plt.show()
-
-
 if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}
