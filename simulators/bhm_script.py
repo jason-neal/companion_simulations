@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 import simulators
-from simulators.best_host_model_HD211847 import bhm_analysis
+from simulators.bhm_module import bhm_analysis
 from utilities.spectrum_utils import load_spectrum
 # from utilites.io import save_pd_csv
 from utilities.crires_utilities import barycorr_crires_spectrum
