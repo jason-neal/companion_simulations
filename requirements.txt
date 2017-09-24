@@ -4,7 +4,7 @@ astropy==2.0.2
 matplotlib==2.0.2
 pandas==0.20.3
 ephem==3.7.6.0
-joblib
+joblib==0.11
 numba
 multiprocess
 tqdm
