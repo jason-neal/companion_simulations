@@ -5,7 +5,7 @@ matplotlib==2.0.2
 pandas==0.20.3
 ephem==3.7.6.0
 joblib==0.11
-numba
+numba==0.35.0
 multiprocess
 tqdm
 PyAstronomy
