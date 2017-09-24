@@ -1,5 +1,5 @@
 numpy==1.13.1
-scipy
+scipy==0.19.1
 astropy
 matplotlib
 pandas
