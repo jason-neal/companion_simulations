@@ -1,7 +1,7 @@
 numpy==1.13.1
 scipy==0.19.1
 astropy==2.0.2
-matplotlib
+matplotlib==2.0.2
 pandas
 ephem
 joblib
