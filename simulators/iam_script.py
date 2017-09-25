@@ -14,6 +14,7 @@ import sys
 
 import numpy as np
 from astropy.io import fits
+from joblib import Parallel, delayed
 
 import simulators
 from simulators.iam_module import (iam_analysis, iam_helper_function,
@@ -22,6 +23,7 @@ from simulators.iam_module import (iam_analysis, iam_helper_function,
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.phoenix_utils import closest_model_params, generate_close_params
 from utilities.spectrum_utils import load_spectrum
+
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -58,9 +60,6 @@ def _parser():
 def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, more_id=None):
     """Main function."""
 
-    # star = "HD211847"
-    # obs_num = 2
-
     if chip is None:
         chip = 4
 
@@ -76,8 +75,6 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, mor
     closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
     closest_comp_model = closest_model_params(*comp_params)
 
-    # Function to find the good models I need
-    # models = find_phoenix_model_names(model_base_dir, original_model)
     # Function to find the good models I need from parameters
     model1_pars = list(generate_close_params(closest_host_model, small="host"))
     model2_pars = list(generate_close_params(closest_comp_model, small=small))
@@ -117,11 +114,14 @@ if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}
 
+    def parallelized_main(opts, chip):
+        opts["chip"] = chip
+        return main(**opts)
+
     # Iterate over chips
     if opts["chip"] is None:
-        for chip in range(1, 5):
-            opts["chip"] = chip
-            res = main(**opts)
-        sys.exit(res)
+         res = Parallel(n_jobs=-1)(delayed(parallelized_main)(opts, chip)
+                                   for chip in range(1, 5))
+         sys.exit(sum(res))
     else:
         sys.exit(main(**opts))

@@ -5,11 +5,14 @@ Create Table of minimum Chi_2 values and save to a table.
 import argparse
 import os
 
+import corner
 import matplotlib.pyplot as plt
 import pandas as pd
+import sqlalchemy as sa
+from joblib import Parallel, delayed
 from pandas.plotting import scatter_matrix
 
-import sqlalchemy as sa
+import simulators
 from bin.analysis_iam_chi2 import decompose_database_name
 from utilities.param_file import get_host_params
 from utilities.phoenix_utils import closest_model_params
@@ -141,7 +144,8 @@ if __name__ == "__main__":
     print("Stars", stars)
     obs_nums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"]}
     chips = range(1, 5)
-    for star in stars:
+
+    def paralleled_main(star):
         star_obs_nums = obs_nums[star]
         for obs_num in star_obs_nums:
             for chip in chips:
@@ -151,7 +155,14 @@ if __name__ == "__main__":
                     print(e)
                     print("Table creation failed for {0}-{1}_{2}".format(star, obs_num, chip))
                     continue
+        try:
+            scatter_plots(star, save_name)
 
-        scatter_plots(star, save_name)
+            scatter_corner_plots(star, save_name)
 
-        scatter_corner_plots(star, save_name)
+        except Exception as e:
+            print(" Corner plots did not work.")
+            raise e
+
+    # Run in parallel
+    Parallel(n_jobs=-1)(delayed(paralleled_main)(star) for star in stars)
