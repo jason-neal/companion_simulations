@@ -73,34 +73,19 @@ def main(star, obs_num, chip, suffix="", echo=False):
     return save_name
 
 
-def scatter_plots(star, name):
+def scatter_plots(star, filename):
     """Load minimum chi2 table and make scatter plots across chips."""
-    df = pd.read_table(name, sep="\t")
-    print(df.columns)
-    print(df.dtypes)
+    df = pd.read_table(filename, sep="\t")
 
     df.loc[:, "chip"] = df.loc[:, "chip"].astype(int)
-    print(df.dtypes)
-    print(df)
+
     fig, axes = plt.subplots(5, 2)
-    print(axes)
-    print(axes[0, 0])
-    # df.plot(ax=axes[0, 0]).scatter("chip", "chi2")
-    # df.plot(ax=axes[0, 1]).scatter("chip", "teff_2", c="chi2", colorbar=True)
-    # df.plot(ax=axes[1, 0]).scatter("chip", "alpha", c="chi2", colorbar=True)
-    # df.plot(ax=axes[1, 1]).scatter("chip", "rv", c="chi2", colorbar=True)
-    # df.plot(ax=axes[2, 0]).scatter("chip", "gamma", c="chi2", colorbar=True)
-    # df.plot(ax=axes[2, 1]).scatter("gamma", "alpha", c="chi2", colorbar=True)
-    # df.plot(ax=axes[3, 0]).scatter("teff_2", "rv", c="chi2", colorbar=True)
-    # df.plot(ax=axes[3, 1]).scatter("teff_2", "gamma", c="chi2", colorbar=True)
-    # df.plot(ax=axes[4, 0]).scatter("teff_2", "alpha", c="chi2", colorbar=True)
-    # df.plot(ax=axes[4, 1]).scatter("rv", "alpha", c="chi2", colorbar=True)
     subdf = df.loc[:, ["chip", "teff_2", "alpha", "rv", "gamma", "chi2"]]  # "logg_2", "feh_2"
 
     scatter_matrix(subdf, alpha=1, figsize=(12, 12), diagonal='hist')
     plt.suptitle("{0} Observation/chip variations".format(star))
 
-    path, fname = os.path.split(name)
+    path, fname = os.path.split(filename)
     figname = os.path.join(path, "plots", "{0}_scatter.pdf".format(fname.split(".")[0]))
     plt.savefig(figname)
 
@@ -108,24 +93,19 @@ def scatter_plots(star, name):
     plt.savefig(figname)
 
 
-def scatter_corner_plots(star, name):
+def scatter_corner_plots(star, filename):
     """Load minimum chi2 table and make scatter plots across chips."""
-    df = pd.read_table(name, sep="\t")
-    print(df.columns)
-    print(df.dtypes)
+    df = pd.read_table(filename, sep="\t")
 
     df.loc[:, "chip"] = df.loc[:, "chip"].astype(int)
-    print(df.dtypes)
-    print(df)
+
     fig, axes = plt.subplots(5, 2)
-    print(axes)
-    print(axes[0, 0])
     subdf = df.loc[:, ["chip", "teff_2", "alpha", "rv", "gamma", "chi2"]]  # "logg_2", "feh_2"
 
     scatter_corner(subdf, alpha=1, figsize=(12, 12), diagonal='hist', corner="lower")
     plt.suptitle("{0} Observation/chip variations".format(star))
 
-    path, fname = os.path.split(name)
+    path, fname = os.path.split(filename)
     figname = os.path.join(path, "plots", "{0}_scatter_corner.pdf".format(fname.split(".")[0]))
     plt.savefig(figname)
 
@@ -133,9 +113,29 @@ def scatter_corner_plots(star, name):
     plt.savefig(figname)
 
 
+
+# Corner.corner
+def min_chi2_corner_plot(star, filename):
+    df = pd.read_table(filename, sep="\t")
+
+    df.loc[:, "chip"] = df.loc[:, "chip"].astype(int)
+
+    subdf = df.loc[:, ["chip", "teff_2", "alpha", "rv", "gamma", "chi2"]]  # "logg_2", "feh_2"
+
+    corner.corner(subdf.values, labels=subdf.columns.values)
+    plt.suptitle("{0} Observation/chip variations".format(star))
+
+    path, fname = os.path.split(filename)
+    figname = os.path.join(path, "plots", "{0}_corner_corner.png".format(fname.split(".")[0]))
+    plt.savefig(figname)
+
+    corner.corner(subdf.values, labels=subdf.columns.values, plot_contours=False)
+    plt.suptitle("{0} Observation/chip variations".format(star))
+    figname = os.path.join(path, "plots", "{0}_corner_contoured.png".format(fname.split(".")[0]))
+    plt.savefig(figname)
+
+
 # TODO common function to determine observations and chips for different stars  (like here)
-
-
 if __name__ == "__main__":
     args = _parser()
     stars = args.stars
@@ -160,6 +160,7 @@ if __name__ == "__main__":
 
             scatter_corner_plots(star, save_name)
 
+            min_chi2_corner_plot(star, save_name)
         except Exception as e:
             print(" Corner plots did not work.")
             raise e

@@ -1,9 +1,10 @@
 import argparse
 import sys
+
 import numpy as np
 
-from simulators.bhm_module import bhm_analysis
 import simulators
+from simulators.bhm_module import bhm_analysis
 
 
 def _parser():
