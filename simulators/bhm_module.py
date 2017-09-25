@@ -7,6 +7,7 @@ import scipy as sp
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
+import simulators
 from models.broadcasted_models import one_comp_model
 from utilities.chisqr import chi_squared
 from utilities.phoenix_utils import load_starfish_spectrum
@@ -38,9 +39,10 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
     normalization_limits = [2105, 2185]   # small as possible?
 
     for ii, params in enumerate(tqdm(model_pars)):
-        save_name = ("Analysis/{0}/bhm_{0}_{1}_part{2}"
-                     ".csv").format(obs_spec.header["OBJECT"],
-                                    int(obs_spec.header["MJD-OBS"]), ii)
+        save_name = os.path.join(
+            simulators.paths["output_dir"], obs_spec.header["OBJECT"],
+            "bhm_{0}_{1}_part{2}.csv".format(
+                obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), ii))
         if verbose:
             print("Starting iteration with parameter:s\n{}".format(params))
         mod_spec = load_starfish_spectrum(params, limits=normalization_limits, hdr=True, normalize=True)

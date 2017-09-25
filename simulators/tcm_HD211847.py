@@ -32,8 +32,7 @@ logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 debug = logging.debug
 
-model_base_dir = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
-wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+wav_dir = simulators.starfish_grid["raw_path"]
 
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
 wav_model /= 10   # turn into nm
@@ -76,8 +75,6 @@ def main(chip=None, parallel=True, small=True, verbose=False):
     closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
     closest_comp_model = closest_model_params(*comp_params)
 
-    # Function to find the good models I need
-    # models = find_phoenix_model_names(model_base_dir, original_model)
     # Function to find the good models I need from parameters
     model1_pars = list(generate_close_params(closest_host_model, small=small))
     model2_pars = list(generate_close_params(closest_comp_model, small=small))

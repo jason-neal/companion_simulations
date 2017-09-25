@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
 
+import simulators
 from simulators.bhm_module import bhm_analysis
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import pv
@@ -30,12 +31,12 @@ from utilities.phoenix_utils import (closest_model_params,
                                      load_starfish_spectrum)
 from utilities.spectrum_utils import load_spectrum
 
+
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 debug = logging.debug
 
-model_base_dir = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
-wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+wav_dir = simulators.starfish_grid["raw_path"]
 
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
 wav_model /= 10   # turn into nm
@@ -44,7 +45,7 @@ wav_model /= 10   # turn into nm
 def main():
     """Main function."""
     star = "HD211847"
-    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
+    param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)
     host_params = [params["temp"], params["logg"], params["fe_h"]]
     # comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
@@ -52,7 +53,8 @@ def main():
     obs_num = 2
     chip = 4
 
-    obs_name = "/home/jneal/.handy_spectra/{}-{}-mixavg-tellcorr_{}.fits".format(star, obs_num, chip)
+    obs_name = os.path.join(
+        simulators.paths["spectra"], "{}-{}-mixavg-tellcorr_{}.fits".format(star, obs_num, chip))
     print("The observation used is ", obs_name, "\n")
 
     closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *

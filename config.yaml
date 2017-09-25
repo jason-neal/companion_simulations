@@ -43,3 +43,5 @@ sim_grid:
 
 paths:
     parameters: "/home/jneal/Phd/data/parameter_files/"
+    spectra: "/home/jneal/.handy_spectra/"
+    output_dir: "Analysis/"

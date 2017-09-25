@@ -31,9 +31,9 @@ def _parser():
 
 
 def main(star, obs_num, chip, suffix="", echo=False):
-
-    database = os.path.join("Analysis/{0}/{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obs_num, chip, suffix))
+    database = os.path.join(simulators.paths["output_dir"], star, "{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obs_num, chip, suffix))
     path, star, obs_num, chip = decompose_database_name(database)
+    os.makedirs(os.path.join(path, "plots"), exist_ok=True)
     save_name = os.path.join(path, "{0}_iam_all_observation_min_chi2{1}.tsv".format(star, suffix))
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))

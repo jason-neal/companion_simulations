@@ -18,11 +18,13 @@ debug = logging.debug
 
 
 def iam_helper_function(star, obs_num, chip):
-    param_file = "/home/jneal/Phd/data/parameter_files/{}_params.dat".format(star)
+    param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)
-    obs_name = "/home/jneal/.handy_spectra/{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip)
-
-    output_prefix = "Analysis/{0}/{0}-{1}_{2}_iam_chisqr_results".format(star.upper(), obs_num, chip)
+    obs_name = os.path.join(
+        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
+    output_prefix = os.path.join(
+        simulators.paths["output_dir"], star.upper(), "{0}-{1}_{2}_iam_chisqr_results".format(
+            star.upper(), obs_num, chip))
     return obs_name, params, output_prefix
 
 
@@ -132,10 +134,10 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
     normalization_limits = [2105, 2185]   # small as possible?
 
     if prefix is None:
-        sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]"
-              ".csv").format(obs_spec.header["OBJECT"],
-                             int(obs_spec.header["MJD-OBS"]), chip,
-                             params1[0], params1[1], params1[2], num)
+        sf = os.path.join(simulators.paths["output_dir"], obs_spec.header["OBJECT"],
+           "tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}].csv".format(
+               obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), chip,
+               params1[0], params1[1], params1[2], num))
     else:
         sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(
             prefix, params1[0], params1[1], params1[2], num)

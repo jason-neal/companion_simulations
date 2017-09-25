@@ -29,8 +29,7 @@ logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 debug = logging.debug
 
-model_base_dir = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
-wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+wav_dir = simulators.starfish_grid["raw_path"]
 
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
 wav_model /= 10   # turn into nm
