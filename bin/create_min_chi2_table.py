@@ -31,7 +31,7 @@ def main(star, obs_num, chip, suffix="", echo=False):
 
     database = os.path.join("Analysis/{0}/{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obs_num, chip, suffix))
     path, star, obs_num, chip = decompose_database_name(database)
-    save_name = os.path.join(path, "{0}_iam_all_observation_min_chi2{}.tsv".format(star, suffix))
+    save_name = os.path.join(path, "{0}_iam_all_observation_min_chi2{1}.tsv".format(star, suffix))
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
     params = {"path": path, "star": star, "obs_num": obs_num, "chip": chip, "teff": teff, "logg": logg, "fe_h": fe_h}
@@ -42,14 +42,14 @@ def main(star, obs_num, chip, suffix="", echo=False):
         save_name = "../" + save_name
 
     if os.path.exists(database):
-        engine = sa.create_engine('sqlite:///{}'.format(database), echo=echo)
+        engine = sa.create_engine('sqlite:///{0}'.format(database), echo=echo)
     else:
         raise IOError("Database does not exist.")
     table_names = engine.table_names()
     if len(table_names) == 1:
         tb_name = table_names[0]
     else:
-        raise ValueError("Database has two many tables {}".format(table_names))
+        raise ValueError("Database has two many tables {0}".format(table_names))
 
     query = """SELECT * FROM {0}
                WHERE (teff_1 = {1} AND logg_1 = {2} AND feh_1 = {3})
@@ -95,13 +95,13 @@ def scatter_plots(star, name):
     subdf = df.loc[:, ["chip", "teff_2", "alpha", "rv", "gamma", "chi2"]]  # "logg_2", "feh_2"
 
     scatter_matrix(subdf, alpha=1, figsize=(12, 12), diagonal='hist')
-    plt.suptitle("{} Observation/chip variations".format(star))
+    plt.suptitle("{0} Observation/chip variations".format(star))
 
     path, fname = os.path.split(name)
-    figname = os.path.join(path, "plots", "{}_scatter.pdf".format(fname.split(".")[0]))
+    figname = os.path.join(path, "plots", "{0}_scatter.pdf".format(fname.split(".")[0]))
     plt.savefig(figname)
 
-    figname = os.path.join(path, "plots", "{}_scatter.png".format(fname.split(".")[0]))
+    figname = os.path.join(path, "plots", "{0}_scatter.png".format(fname.split(".")[0]))
     plt.savefig(figname)
 
 
@@ -120,13 +120,13 @@ def scatter_corner_plots(star, name):
     subdf = df.loc[:, ["chip", "teff_2", "alpha", "rv", "gamma", "chi2"]]  # "logg_2", "feh_2"
 
     scatter_corner(subdf, alpha=1, figsize=(12, 12), diagonal='hist', corner="lower")
-    plt.suptitle("{} Observation/chip variations".format(star))
+    plt.suptitle("{0} Observation/chip variations".format(star))
 
     path, fname = os.path.split(name)
-    figname = os.path.join(path, "plots", "{}_scatter_corner.pdf".format(fname.split(".")[0]))
+    figname = os.path.join(path, "plots", "{0}_scatter_corner.pdf".format(fname.split(".")[0]))
     plt.savefig(figname)
 
-    figname = os.path.join(path, "plots", "{}_scatter_corner.png".format(fname.split(".")[0]))
+    figname = os.path.join(path, "plots", "{0}_scatter_corner.png".format(fname.split(".")[0]))
     plt.savefig(figname)
 
 
@@ -151,5 +151,7 @@ if __name__ == "__main__":
                     print(e)
                     print("Table creation failed for {0}-{1}_{2}".format(star, obs_num, chip))
                     continue
+
         scatter_plots(star, save_name)
+
         scatter_corner_plots(star, save_name)
