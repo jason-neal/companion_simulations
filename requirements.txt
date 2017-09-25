@@ -9,4 +9,5 @@ numba
 multiprocess
 tqdm
 PyAstronomy
+sqlalchemy
 # Starfish
