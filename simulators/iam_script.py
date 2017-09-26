@@ -21,7 +21,7 @@ from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    parallel_iam_analysis)
 # from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.phoenix_utils import closest_model_params, generate_close_params
+from utilities.phoenix_utils import closest_model_params, generate_close_params, generate_close_params_with_simulator
 from utilities.spectrum_utils import load_spectrum
 
 
@@ -75,8 +75,12 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, mor
     closest_comp_model = closest_model_params(*comp_params)
 
     # Function to find the good models I need from parameters
-    model1_pars = list(generate_close_params(closest_host_model, small="host"))
-    model2_pars = list(generate_close_params(closest_comp_model, small=small))
+    model1_pars = list(generate_close_params_with_simulator(
+        closest_host_model, "host", small="host", limits="phoenix"))
+    model2_pars = list(generate_close_params_with_simulator(
+        closest_comp_model, "companion", small=small, limits="phoenix"))
+    # model1_pars = list(generate_close_params(closest_host_model, small="host"))
+    # model2_pars = list(generate_close_params(closest_comp_model, small=small))
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
@@ -107,6 +111,7 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, mor
     print("TODO: Add joining of sql table here")
 
     # subprocess.call(make_chi2_bd.py)
+    return 0
 
 
 if __name__ == "__main__":
@@ -119,7 +124,7 @@ if __name__ == "__main__":
 
     # Iterate over chips
     if opts["chip"] is None:
-         res = Parallel(n_jobs=-1)(delayed(parallelized_main)(opts, chip)
+         res = Parallel(n_jobs=-2)(delayed(parallelized_main)(opts, chip)
                                    for chip in range(1, 5))
          sys.exit(sum(res))
     else:
