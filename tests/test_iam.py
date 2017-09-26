@@ -41,13 +41,16 @@ def test_iam_wrapper(host, comp):
     host_params = [5600, 4.5, 0.0]
     comp_params = [[2300, 4.5, 0.0], [2400, 4.5, 0.0]]
 
-    obs_spec = host
+    host.wav_select(2110, 2115)
+    comp.wav_select(2110, 2115)
+
+    obs_spec = host.copy()
     obs_spec.flux += comp.flux
 
     result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
-                         gammas=[0, 1, 2], rvs=[-1, 1], norm=False,
-                         save_only=False, chip=1, prefix="Testtestest")
-    assert 0
+                         gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
+                         save_only=True, chip=1, prefix="Testtestest")
+    assert result is None
 
 
 @pytest.mark.parametrize("chip", [None, 1, 2, 3, 4])
