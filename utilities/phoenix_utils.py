@@ -253,33 +253,35 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
         if simulators.sim_grid["teff_1"] is None:
             pass
         else:
-            new_temps = np.array(simulators.sim_grid["teff_1"]) + temp
+            new_temps = np.arange(*simulators.sim_grid["teff_1"]) + temp
         if simulators.sim_grid["feh_1"] is None:
             pass
         else:
-            new_metals = np.array(simulators.sim_grid["feh_1"]) + metals
+            new_metals = np.arange(*simulators.sim_grid["feh_1"]) + metals
         if simulators.sim_grid["logg_1"] is None:
             pass
         else:
-            new_loggs = np.array(simulators.sim_grid["logg_1"]) + logg
+            new_loggs = np.arange(*simulators.sim_grid["logg_1"]) + logg
+
     elif target == "companion":
         if simulators.sim_grid["teff_2"] is None:
             pass
         else:
-            new_temps = np.array(simulators.sim_grid["teff_2"]) + temp
+            new_temps = np.arange(*simulators.sim_grid["teff_2"]) + temp
         if simulators.sim_grid["feh_2"] is None:
             pass
         else:
-            new_metals = np.array(simulators.sim_grid["feh_2"]) + metals
+            new_metals = np.arange(*simulators.sim_grid["feh_2"]) + metals
         if simulators.sim_grid["logg_2"] is None:
             pass
         else:
-            new_loggs = np.array(simulators.sim_grid["logg_2"]) + logg
+            new_loggs = np.arange(*simulators.sim_grid["logg_2"]) + logg
+
     else:
         raise ValueError("Target must be 'host' or 'companion', not '{}'".format(target))
 
-    print("simulator new params")
-    print("new_temps", new_temps, "\nnew_loggs", new_metals, "\nnew_metals")
+    # print("simulator new params")
+    # print("new_temps", new_temps, "\nnew_loggs", new_loggs, "\nnew_metals", new_metals)
 
     if limits == "phoenix":
         new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
