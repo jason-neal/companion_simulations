@@ -93,7 +93,7 @@ def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
         plt.plot(org_wave, continuum_fit, label='norm_flux')
         plt.legend()
         plt.subplot(212)
-        plt.plot(org_wave, org_flux / norm_flux)
+        plt.plot(org_wave, org_flux / continuum_fit)
         plt.title("Normalization")
         plt.xlabel("Wavelength (nm)")
         plt.show()
