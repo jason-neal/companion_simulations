@@ -1,5 +1,6 @@
-
-
+from astropy.io import fits
+from spectrum_overload.Spectrum import Spectrum
+from Get_filenames import get_filenames
 
 def load_spectrum(name, corrected=True):
     """Load in fits file and return as a Spectrum object.
@@ -49,7 +50,7 @@ def select_observation(star, obs_num, chip):
     inputs:
     star: name of host star target
     obs_num: observation number
-    chip: crires detetor chip number
+    chip: crires detector chip number
 
     returns:
     crires_name: name of file

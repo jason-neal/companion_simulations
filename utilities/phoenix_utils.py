@@ -23,6 +23,7 @@ from spectrum_overload.Spectrum import Spectrum
 from Starfish.grid_tools import HDF5Interface
 from utilities.norm import local_normalization, spec_local_norm
 from utilities.param_file import parse_paramfile
+import simulators
 
 debug = logging.debug
 
@@ -76,7 +77,11 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area
         spec = spec_local_norm(spec, method="exponential")
 
     if limits is not None:
+        if limits[0] > spec.xaxis[-1] or limits[-1] < spec.xaxis[0]:
+            print("Warning: The wavelength limits do not overlap the spectrum."
+                  "There is no spectrum left... Check your wavelength, or limits.")
         spec.wav_select(*limits)
+
     return spec
 
 
