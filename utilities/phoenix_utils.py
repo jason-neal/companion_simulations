@@ -225,6 +225,67 @@ def phoenix_name_from_params(data_dir, params):
 def generate_close_params(params, small=True, limits="phoenix"):
     """teff, logg, Z."""
     temp, logg, metals = params[0], params[1], params[2]
+
+    new_temps, new_metals, new_loggs = gen_new_param_values(temp, logg, metals, small=small)
+
+    if limits == "phoenix":
+        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
+        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
+        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
+
+    for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
+        yield [t, l, m]
+
+
+def generate_close_params_with_simulator(params, target, small=True, limits="phoenix"):
+    """teff, logg, Z.
+
+    "Target" is required to make sure this is used correctly..."""
+    temp, logg, metals = params[0], params[1], params[2]
+    new_temps, new_loggs, new_metals = gen_new_param_values(temp, logg, metals, small=small)
+
+    if target == "host":
+        if simulators.sim_grid["teff_1"] is None:
+            pass
+        else:
+            new_temps = np.array(simulators.sim_grid["teff_1"]) + temp
+        if simulators.sim_grid["feh_1"] is None:
+            pass
+        else:
+            new_metals = np.array(simulators.sim_grid["feh_1"]) + metals
+        if simulators.sim_grid["logg_1"] is None:
+            pass
+        else:
+            new_loggs = np.array(simulators.sim_grid["logg_1"]) + logg
+    elif target == "companion":
+        if simulators.sim_grid["teff_2"] is None:
+            pass
+        else:
+            new_temps = np.array(simulators.sim_grid["teff_2"]) + temp
+        if simulators.sim_grid["feh_2"] is None:
+            pass
+        else:
+            new_metals = np.array(simulators.sim_grid["feh_2"]) + metals
+        if simulators.sim_grid["logg_2"] is None:
+            pass
+        else:
+            new_loggs = np.array(simulators.sim_grid["logg_2"]) + logg
+    else:
+        raise ValueError("Target must be 'host' or 'companion', not '{}'".format(target))
+
+    print("simulator new params")
+    print("new_temps", new_temps, "\nnew_loggs", new_metals, "\nnew_metals")
+
+    if limits == "phoenix":
+        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
+        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
+        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
+
+    for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
+        yield [t, l, m]
+
+
+def gen_new_param_values(temp, metals, logg, small=True):
     if small == "host":
         # only include error bounds.
         new_temps = np.array([-100, 0, 100]) + temp
@@ -234,21 +295,14 @@ def generate_close_params(params, small=True, limits="phoenix"):
         new_temps = np.arange(-600, 1001, 100) + temp
         new_metals = np.array([-0.5, 0.0, 0.5]) + metals
         new_loggs = np.array([-0.5, 0.0, 0.5]) + logg
-        #new_temps = np.arange(-600, 601, 100) + temp
-        #new_metals = np.arange(1) + metals
-        #new_loggs = np.arange(1) + logg
+        # new_temps = np.arange(-600, 601, 100) + temp
+        # new_metals = np.arange(1) + metals
+        # new_loggs = np.arange(1) + logg
     else:
         new_temps = np.arange(-500, 501, 100) + temp
         new_metals = np.arange(-1, 1.1, 0.5) + metals
         new_loggs = np.arange(-1, 1.1, 0.5) + logg
-
-    if limits == "phoenix":
-        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
-        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
-        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
-
-    for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
-        yield [t, l, m]
+    return new_temps, new_metals, new_loggs
 
 
 def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
