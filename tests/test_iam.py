@@ -1,25 +1,11 @@
-import pytest
 import numpy as np
+import pytest
 from spectrum_overload.Spectrum import Spectrum
-from utilities.simulation_utilities import check_inputs
+
 from simulators.iam_module import (iam_helper_function, iam_analysis,
                                    parallel_iam_analysis, iam_wrapper,
-                                   save_full_iam_chisqr, continuum_alpha)
-from utilities.phoenix_utils import load_starfish_spectrum
+                                   continuum_alpha)
 
-
-@pytest.fixture
-def host():
-    """Host spectrum fixture."""
-    mod_spec = load_starfish_spectrum([5200, 4.50, 0.0], limits=[2100, 2105], normalize=True)
-    return mod_spec
-
-
-@pytest.fixture
-def comp():
-    """Noramlized Companion spectrum fixture."""
-    mod_spec = load_starfish_spectrum([2600, 4.50, 0.0], limits=[2100, 2105], normalize=True)
-    return mod_spec
 
 @pytest.mark.parametrize("star,obs,chip", [
     ("HD30501", 1, 1),("HD4747", "a", 4)])
