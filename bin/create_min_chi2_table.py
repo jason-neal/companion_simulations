@@ -91,6 +91,7 @@ def scatter_plots(star, filename):
 
     figname = os.path.join(path, "plots", "{0}_scatter.png".format(fname.split(".")[0]))
     plt.savefig(figname)
+    plt.close()
 
 
 def scatter_corner_plots(star, filename):
@@ -111,7 +112,7 @@ def scatter_corner_plots(star, filename):
 
     figname = os.path.join(path, "plots", "{0}_scatter_corner.png".format(fname.split(".")[0]))
     plt.savefig(figname)
-
+    plt.close()
 
 
 # Corner.corner
@@ -133,6 +134,7 @@ def min_chi2_corner_plot(star, filename):
     plt.suptitle("{0} Observation/chip variations".format(star))
     figname = os.path.join(path, "plots", "{0}_corner_contoured.png".format(fname.split(".")[0]))
     plt.savefig(figname)
+    plt.close()
 
 
 # TODO common function to determine observations and chips for different stars  (like here)
