@@ -109,6 +109,10 @@ def continuum_alpha(model1, model2, chip=None):
     Assumes already scaled by area.
     Takes mean alpha of chip or full
     """
+    assert not np.any(np.isnan(model1.xaxis))
+    assert not np.any(np.isnan(model1.flux))
+    assert not np.any(np.isnan(model2.xaxis))
+    assert not np.any(np.isnan(model2.flux))
     # Fit models with continuum
     cont1 = continuum(model1.xaxis, model1.flux, method="exponential")
     cont2 = continuum(model2.xaxis, model2.flux, method="exponential")
@@ -161,6 +165,8 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits,
                                                hdr=True, normalize=False, area_scale=True,
                                                flux_rescale=True)
+            assert len(mod1_spec.xaxis) > 0
+            assert len(mod2_spec.xaxis) > 0
 
             # Wavelength selection
             delta = spec_max_delta(obs_spec, rvs, gammas)
@@ -173,6 +179,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
             # Calculate continuum alpha ratio.
+            assert np.all(mod1_spec.xaxis == mod2_spec.xaxis)
             inherent_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
             # print("\n inherent_alpha value \n", inherent_alpha)
             assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
@@ -191,6 +198,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             broadcast_values = broadcast_values / broadcast_continuum
 
             # ### RE-NORMALIZATION to observations?
+            print("Broadcast values before renorm", broadcast_values.shape)
             if norm:
                 if verbose:
                     print("Re-normalizing!")
@@ -198,29 +206,33 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                                             broadcast_values, method="scalar")
             else:
                 obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
+                raise NotImplementedError("Need to check this")
             #####
 
             # Arbitary_normalization
+            print("obs_flux.shape", obs_flux.shape)
             arb_norm = np.arange(*simulators.sim_grid["arb_norm"])
-            obs_flux = obs_flux[:, :, :, :, np.newaxis]
-            broadcast_values = broadcast_values[:, :, :, :, np.newaxis] * arb_norm
+            # print("arb norm values", arb_norm)
+            obs_flux = obs_flux[:, :, :, np.newaxis]
+            broadcast_values = broadcast_values[:, :, :, np.newaxis] * arb_norm
+            print("Normalized Broadcast values before renorm", broadcast_values.shape)
 
             # broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
             # Scipy version is 20 times faster then my version (but wont be able to take any extra scaling)!
             sp_chisquare = stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
             # assert np.all(sp_chisquare == broadcast_chisquare)
             broadcast_chisquare = sp_chisquare
-
-            # take minimum chisquared value along normalization axis
-            print(np.argmin(broadcast_chisquare, axis=-1))
-            print("argmin in broadcast", broadcast_chisquare[np.argmin(broadcast_chisquare, axis=-1)])
-            print("argmin in arbnorm", arb_norm[np.argmin(broadcast_chisquare, axis=-1)])
+            print("Broadcast chisquare values with arb norm", broadcast_chisquare.shape)
+            # Take minimum chisquared value along normalization axis
+            # print("broadcast chi2 shape", broadcast_chisquare.shape)
+            min_locations = np.argmin(broadcast_chisquare, axis=-1)
             broadcast_chisquare = np.min(broadcast_chisquare, axis=-1)
-            arbitrary_norms = arb_norm[np.argmin(broadcast_chisquare, axis=-1)]
+            print("Boradcast chisquare values ", broadcast_chisquare.shape)
+            arbitrary_norms = arb_norm[min_locations]
+            # print("broadcast_chisquare shape", broadcast_chisquare.shape)
+            # print("arb norms shape", arbitrary_norms.shape)
 
             if not save_only:
-                # print(broadcast_chisquare.shape)
-                # print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
 
             save_full_iam_chisqr(save_filename, params1, params2,
