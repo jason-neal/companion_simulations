@@ -1,3 +1,8 @@
+import yaml
+import matplotlib
+
+matplotlib.use('Agg')
+
 __version__ = '0.2'
 __all__ = ["best_host_model_old", "bhm_HD211847", "bhm_module", "bhm_script",
            "Chisqr_of_HD211847_starfish", "Chisqr_of_observation",
@@ -7,11 +12,6 @@ __all__ = ["best_host_model_old", "bhm_HD211847", "bhm_module", "bhm_script",
 
 # Read the users config.yaml file.
 # If it doesn't exist, print a useful help message
-
-import yaml
-import matplotlib
-matplotlib.use('Agg')
-
 try:
     f = open("config.yaml")
     config = yaml.load(f)

@@ -21,7 +21,8 @@ from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    parallel_iam_analysis)
 # from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.phoenix_utils import closest_model_params, generate_close_params, generate_close_params_with_simulator
+from utilities.phoenix_utils import (closest_model_params, generate_close_params,
+                                     generate_close_params_with_simulator)
 from utilities.spectrum_utils import load_spectrum
 
 
@@ -50,7 +51,8 @@ def _parser():
     parser.add_argument("obs_num", help='Star observation number.', type=str)
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
     parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
-    parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
+    parser.add_argument('-s', '--small', help='Use smaller subset of parameters.',
+                        action="store_true")
     parser.add_argument('-m', '--more_id', help='Extra name identifier.', type=str)
 
     return parser.parse_args()
@@ -124,8 +126,8 @@ if __name__ == "__main__":
 
     # Iterate over chips
     if opts["chip"] is None:
-         res = Parallel(n_jobs=-2)(delayed(parallelized_main)(opts, chip)
-                                   for chip in range(1, 5))
-         sys.exit(sum(res))
+        res = Parallel(n_jobs=-2)(delayed(parallelized_main)(opts, chip)
+                                  for chip in range(1, 5))
+        sys.exit(sum(res))
     else:
         sys.exit(main(**opts))

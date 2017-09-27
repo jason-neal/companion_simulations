@@ -37,7 +37,8 @@ def main(star, obs_num, chip, suffix="", echo=False):
     save_name = os.path.join(path, "{0}_iam_all_observation_min_chi2{1}.tsv".format(star, suffix))
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
-    params = {"path": path, "star": star, "obs_num": obs_num, "chip": chip, "teff": teff, "logg": logg, "fe_h": fe_h}
+    params = {"path": path, "star": star, "obs_num": obs_num, "chip": chip,
+              "teff": teff, "logg": logg, "fe_h": fe_h}
 
     # Hack to run from editor
     if os.getcwd().endswith("companion_simulations/bin"):

@@ -8,7 +8,8 @@ from simulators.iam_module import (iam_helper_function, iam_analysis,
 
 
 @pytest.mark.parametrize("star,obs,chip", [
-    ("HD30501", 1, 1),("HD4747", "a", 4)])
+    ("HD30501", 1, 1),
+    ("HD4747", "a", 4)])
 def test_iam_helper_function(star, obs, chip):
     obs_name, params, output_prefix = iam_helper_function(star, obs, chip)
 
@@ -60,4 +61,4 @@ def test_continuum_alpha(chip):
     model2 = model1 * 2
     alpha = continuum_alpha(model1, model2, chip)
 
-    assert np.allclose(alpha, 2)
+    assert np.allclose(alpha, [2])
