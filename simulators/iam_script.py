@@ -93,8 +93,11 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, mor
         # Ignore first 40 pixels
         obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
 
-    param_iter = len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
-    print("STARTING iam_analysis\nWith {} parameter iterations".format(param_iter))
+    rv_iter = len(rvs) * len(gammas)
+    model_iter = len(model2_pars) * len(model1_pars)
+    print("STARTING iam_analysis\nWith {0} parameter iterations.\n{1} rv iterations, {2} model iterations ".format(
+        rv_iter * model_iter, rv_iter, model_iter))
+
     # print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
     ####
