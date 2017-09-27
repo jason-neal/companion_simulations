@@ -62,7 +62,6 @@ def _parser():
 
 def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, more_id=None):
     """Main function."""
-
     if chip is None:
         chip = 4
 
@@ -97,8 +96,8 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, mor
 
     rv_iter = len(rvs) * len(gammas)
     model_iter = len(model2_pars) * len(model1_pars)
-    print("STARTING iam_analysis\nWith {0} parameter iterations.\n{1} rv iterations, {2} model iterations ".format(
-        rv_iter * model_iter, rv_iter, model_iter))
+    print(("STARTING iam_analysis\nWith {0} parameter iterations.\n{1} rv iterations,"
+          " {2} model iterations").format(rv_iter * model_iter, rv_iter, model_iter))
 
     # print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
@@ -126,9 +125,9 @@ if __name__ == "__main__":
     opts = {k: args[k] for k in args}
     n_jobs = opts.pop("n_jobs", 1)
 
-    def parallelized_main(opts, chip):
-        opts["chip"] = chip
-        return main(**opts)
+    def parallelized_main(main_opts, chip):
+        main_opts["chip"] = chip
+        return main(**main_opts)
 
     # Iterate over chips
     if opts["chip"] is None:
