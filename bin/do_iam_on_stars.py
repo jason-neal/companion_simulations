@@ -18,12 +18,14 @@ def _parser():
     parser = argparse.ArgumentParser(description='Do iam simulations on stars.')
     parser.add_argument('-s', '--stars', help='Star names', nargs="+", default=None)
     parser.add_argument('--suffix', help='Suffix to add to the file names.', default="")
+    parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs", default=1)
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = _parser()
     stars = args.stars
+    n_jobs = args.pop("n_jobs", 1)
     if stars is None:
         stars = ["HD30501", "HD211847", "HD4747"]
     print("Performing simulations on", stars)
@@ -41,6 +43,6 @@ if __name__ == "__main__":
         for obs in obs_nums[star]:
             iam_opts["obs_num"] = obs
 
-            res = Parallel(n_jobs=-2)(delayed(parallelized_main)(iam_opts, chip)
-                                      for chip in range(1, 5))
+            res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(iam_opts, chip)
+                                          for chip in range(1, 5))
     sys.exit(0)

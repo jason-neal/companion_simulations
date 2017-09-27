@@ -51,6 +51,8 @@ def _parser():
     parser.add_argument("obs_num", help='Star observation number.', type=str)
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
     parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
+    parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs", default=1)
+
     parser.add_argument('-s', '--small', help='Use smaller subset of parameters.',
                         action="store_true")
     parser.add_argument('-m', '--more_id', help='Extra name identifier.', type=str)
@@ -122,6 +124,7 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, mor
 if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}
+    n_jobs = opts.pop("n_jobs", 1)
 
     def parallelized_main(opts, chip):
         opts["chip"] = chip
@@ -129,8 +132,8 @@ if __name__ == "__main__":
 
     # Iterate over chips
     if opts["chip"] is None:
-        res = Parallel(n_jobs=-2)(delayed(parallelized_main)(opts, chip)
-                                  for chip in range(1, 5))
+        res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
+                                      for chip in range(1, 5))
         sys.exit(sum(res))
     else:
         sys.exit(main(**opts))
