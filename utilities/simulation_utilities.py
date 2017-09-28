@@ -88,8 +88,12 @@ def plot_spectra(obs, model):
 
 
 def check_inputs(var):
-    if var is None:
+    if (var is None) or ("None" in str(var)):
         var = np.array([0])
-    elif isinstance(var, (float, int)):
+    elif isinstance(var, (np.float, np.int)):
         var = np.asarray(var, dtype=np.float32)
+
+    if len(var) == 0:  # Empty sequence
+            raise ValueError("Empty variable vector. Check config.yaml\n"
+                             "var = {0}".format(var))
     return var
