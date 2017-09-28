@@ -1,21 +1,10 @@
 import numpy as np
 import pytest
 
+from spectrum_overload.Spectrum import Spectrum
 from utilities.simulation_utilities import check_inputs, spec_max_delta, max_delta
 
 c = 299792.458
-
-
-@pytest.mark.parametrize("input,expected", [
-    (None, np.ndarray([0])),
-    ([0], np.array([0])),
-    (1, np.array([1])),
-    (range(5), np.array([0,1,2,3,4]))
-])
-def test_check_inputs(input, expected):
-    assert np.allclose(check_inputs(input), expected)
-
-from spectrum_overload.Spectrum import Spectrum
 
 
 @pytest.mark.parametrize("xaxis,rv,gamma", [
@@ -37,3 +26,36 @@ def test_spec_max_delta_applies_max_delta_on_xaxis(xaxis, rv, gamma):
 def test_spec_max_delta(wav, rv, gamma, expected):
 
     assert 2*round(expected, 3) == max_delta(wav, rv, gamma)
+
+
+@pytest.mark.parametrize("rv, gamma", [
+    (np.array([1, 2, 3, 4]), np.array([])),
+    (np.array([]), np.array([1, 2, 3, 4])),
+    ([], np.array([1, 2, 3, 4])),
+    (np.array([1, 2, 3, 4]), [])])
+def test_max_delta_with_empty_arrays(rv, gamma):
+    wav = np.arange(20)
+    with pytest.raises(ValueError) as excinfo:
+        max_delta(wav, rv, gamma)
+
+    assert 'Empty radial velocity vector' in str(excinfo.value)
+
+
+@pytest.mark.parametrize("inputs,expected", [
+    (range(5), np.array([0, 1, 2, 3, 4])),
+    ("None", np.ndarray([0])),
+    (None, np.ndarray([0])),
+    ([0], np.array([0])),
+    (1, np.array([1])),
+    (0, np.array([0]))
+])
+def test_check_inputs(inputs, expected):
+    assert np.allclose(check_inputs(inputs), expected)
+
+
+@pytest.mark.parametrize("inputs", [[], np.array([]), {}, ()])
+def test_check_inputs_raises_empty_error(inputs):
+    with pytest.raises(ValueError) as excinfo:
+        check_inputs(inputs)
+    assert "Empty variable" in str(excinfo.value)
+
