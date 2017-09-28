@@ -16,7 +16,6 @@ from utilities.simulation_utilities import check_inputs, spec_max_delta
 
 debug = logging.debug
 
-
 def iam_helper_function(star, obs_num, chip):
     param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)

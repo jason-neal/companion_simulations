@@ -11,6 +11,7 @@ __all__ = ["best_host_model_old", "bhm_HD211847", "bhm_module", "bhm_script",
 import yaml
 import numpy as np
 import matplotlib
+
 matplotlib.use('Agg')
 
 try:
@@ -41,8 +42,6 @@ plotdir = config["plotdir"]
 
 
 # Check the sim_grid parameters are not empty
-
-
 for key in sim_grid:
     if "None" in sim_grid[key]:
         pass
