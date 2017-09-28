@@ -9,6 +9,7 @@ __all__ = ["best_host_model_old", "bhm_HD211847", "bhm_module", "bhm_script",
 # If it doesn't exist, print a useful help message
 
 import yaml
+import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 
@@ -37,3 +38,14 @@ starfish_grid = config["grid"]
 data = config["data"]
 outdir = config["outdir"]
 plotdir = config["plotdir"]
+
+
+# Check the sim_grid parameters are not empty
+
+
+for key in sim_grid:
+    if "None" in sim_grid[key]:
+        pass
+    else:
+        assert len(np.arange(*sim_grid[key])) > 0, "Config.yaml parameters not correct for {}".format(key)
+ #   print(print("sim_grid key value", sim_grid[key]))

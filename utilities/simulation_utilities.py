@@ -69,6 +69,9 @@ def max_delta(wavelength, rvs, gammas):
 
     # Currently set at 2*delta.
     """
+    check_inputs(rvs)
+    check_inputs(gammas)
+
     shift_max = np.max(np.abs(rvs)) + np.max(np.abs(gammas))
 
     obs_limits = np.array([np.min(wavelength), np.max(wavelength)])

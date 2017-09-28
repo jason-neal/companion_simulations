@@ -20,6 +20,7 @@ import simulators
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    parallel_iam_analysis)
 # from utilities.chisqr import chi_squared
+from utilities.simulation_utilities import check_inputs
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.phoenix_utils import closest_model_params, generate_close_params, generate_close_params_with_simulator
 from utilities.spectrum_utils import load_spectrum
@@ -36,6 +37,9 @@ wav_model /= 10   # turn into nm
 
 gammas = np.arange(*simulators.sim_grid["gammas"])
 rvs = np.arange(*simulators.sim_grid["rvs"])
+# Pre-check_rv_vals(rvs)
+check_inputs(rvs)
+check_inputs(gammas)
 # alphas = np.arange(*simulators.sim_grid["alphas"])
 # alphas = np.arange(0.01, 0.2, 0.02)
 
