@@ -3,12 +3,12 @@ import os
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 from joblib import Parallel, delayed
+from scipy import stats
 from tqdm import tqdm
 
-from models.broadcasted_models import inherent_alpha_model
 import simulators
+from models.broadcasted_models import inherent_alpha_model
 from utilities.norm import chi2_model_norms, continuum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum

@@ -6,9 +6,10 @@ import pytest
 import scipy as sp
 
 # Test that the two componet model with alpha = [0] and rvs=[0] are equal!
-from models.broadcasted_models import (check_broadcastable, one_comp_model,
+from models.broadcasted_models import (check_broadcastable,
+                                       inherent_alpha_model, one_comp_model,
                                        two_comp_model,
-                                       two_comp_model_with_transpose, inherent_alpha_model)
+                                       two_comp_model_with_transpose)
 from utilities.phoenix_utils import load_starfish_spectrum
 
 

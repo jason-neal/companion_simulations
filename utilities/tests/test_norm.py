@@ -150,4 +150,3 @@ def test_continuum_exponential(x1, x0):
     cont = continuum(x, y, method="exponential")
     assert np.allclose(np.mean(y / cont), 1)
     assert np.allclose(cont, y, 2)
-

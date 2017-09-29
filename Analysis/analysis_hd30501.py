@@ -3,10 +3,11 @@
 
 
 """
-import os
-import sys
 import argparse
+import os
 import subprocess
+import sys
+
 star = "HD30501"
 observations = ["1", "2a", "2b", "3"]
 chips = range(1, 5)

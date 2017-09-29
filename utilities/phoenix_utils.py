@@ -16,15 +16,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
 
+import simulators
 # from utilities.debug_utils import pv
 # from astropy.modeling import models, fitting
 from spectrum_overload.Spectrum import Spectrum
 # import Starfish
 from Starfish.grid_tools import HDF5Interface
-from utilities.simulation_utilities import check_inputs
 from utilities.norm import local_normalization, spec_local_norm
 from utilities.param_file import parse_paramfile
-import simulators
+from utilities.simulation_utilities import check_inputs
 
 debug = logging.debug
 

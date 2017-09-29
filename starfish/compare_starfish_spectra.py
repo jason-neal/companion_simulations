@@ -4,13 +4,13 @@ I notice a difference in the flux level of starfish spectra compared to the manu
 
 Investigating that here.
 """
-import Starfish
-import numpy as np
-from spectrum_overload.Spectrum import Spectrum
-from astropy.io import fits
 import matplotlib.pyplot as plt
-from Starfish.grid_tools import HDF5Interface
+import numpy as np
+from astropy.io import fits
 
+import Starfish
+from spectrum_overload.Spectrum import Spectrum
+from Starfish.grid_tools import HDF5Interface
 
 myHDF5 = HDF5Interface()
 wl = myHDF5.wl

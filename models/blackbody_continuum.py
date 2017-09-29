@@ -7,8 +7,8 @@ import numpy as np
 from astropy import units as u
 from astropy.analytic_functions import blackbody_lambda
 from astropy.io import fits
-
 from lmfit import Parameters, minimize
+
 from spectrum_overload.Spectrum import Spectrum
 
 

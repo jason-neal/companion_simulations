@@ -2,6 +2,7 @@
 # import json
 import argparse
 import itertools
+import os
 import sys
 
 import numpy as np
@@ -15,7 +16,7 @@ from utilities.masking import get_maskinfo
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import closest_model_params, generate_close_params
 from utilities.spectrum_utils import load_spectrum
-import os
+
 
 def _parser():
     """Take care of all the argparse stuff.

@@ -2,8 +2,9 @@ import logging
 import os
 
 from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
+
 from Get_filenames import get_filenames
+from spectrum_overload.Spectrum import Spectrum
 
 debug = logging.debug
 

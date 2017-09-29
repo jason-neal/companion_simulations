@@ -7,8 +7,8 @@ from joblib import Parallel, delayed
 from scipy import stats
 from tqdm import tqdm
 
-from models.broadcasted_models import two_comp_model
 import simulators
+from models.broadcasted_models import two_comp_model
 from utilities.norm import chi2_model_norms
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum

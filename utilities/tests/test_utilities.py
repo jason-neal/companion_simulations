@@ -2,6 +2,7 @@
 
 import pytest
 
+import simulators
 import utilities.param_file as paramfile
 # from utilities.crires_utilities import crires_resolution
 from utilities.crires_utilities import crires_resolution
@@ -61,7 +62,6 @@ def test_get_host_params():
     assert params == (5340, 4.65, -0.22)
 
 
-import simulators
 def test_load_paramfile_returns_parse_paramfile():
     star = "test"
     test_param_file = "test_params.dat"

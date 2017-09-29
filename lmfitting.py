@@ -1,12 +1,12 @@
 """Try fitting with lmfit."""
 import os
 
+import lmfit
 import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
-
-import lmfit
 from lmfit import Parameters, minimize
+
 from models.alpha_model import double_shifted_alpha_model
 from Planet_spectral_simulations import simple_normalization
 from spectrum_overload.Spectrum import Spectrum

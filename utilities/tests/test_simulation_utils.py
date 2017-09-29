@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 
 from spectrum_overload.Spectrum import Spectrum
-from utilities.simulation_utilities import check_inputs, spec_max_delta, max_delta
+from utilities.simulation_utilities import (check_inputs, max_delta,
+                                            spec_max_delta)
 
 c = 299792.458
 
@@ -58,4 +59,3 @@ def test_check_inputs_raises_empty_error(inputs):
     with pytest.raises(ValueError) as excinfo:
         check_inputs(inputs)
     assert "Empty variable" in str(excinfo.value)
-

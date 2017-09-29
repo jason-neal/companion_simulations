@@ -19,13 +19,13 @@ from joblib import Parallel, delayed
 import simulators
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    parallel_iam_analysis)
+from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.phoenix_utils import (closest_model_params,
+                                     generate_close_params,
+                                     generate_close_params_with_simulator)
 # from utilities.chisqr import chi_squared
 from utilities.simulation_utilities import check_inputs
-from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.phoenix_utils import (closest_model_params, generate_close_params,
-                                     generate_close_params_with_simulator)
 from utilities.spectrum_utils import load_spectrum
-
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')

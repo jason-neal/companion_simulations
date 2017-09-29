@@ -31,7 +31,6 @@ from utilities.phoenix_utils import (closest_model_params,
                                      load_starfish_spectrum)
 from utilities.spectrum_utils import load_spectrum
 
-
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 debug = logging.debug
