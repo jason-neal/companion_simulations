@@ -22,7 +22,8 @@ from simulators.iam_module import (iam_analysis, iam_helper_function,
 # from utilities.chisqr import chi_squared
 from utilities.simulation_utilities import check_inputs
 from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.phoenix_utils import closest_model_params, generate_close_params, generate_close_params_with_simulator
+from utilities.phoenix_utils import (closest_model_params, generate_close_params,
+                                     generate_close_params_with_simulator)
 from utilities.spectrum_utils import load_spectrum
 
 
@@ -54,7 +55,10 @@ def _parser():
     parser.add_argument("obs_num", help='Star observation number.', type=str)
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
     parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
-    parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
+    parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs", default=1)
+
+    parser.add_argument('-s', '--small', help='Use smaller subset of parameters.',
+                        action="store_true")
     parser.add_argument('-m', '--more_id', help='Extra name identifier.', type=str)
 
     return parser.parse_args()
@@ -62,7 +66,6 @@ def _parser():
 
 def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, more_id=None):
     """Main function."""
-
     if chip is None:
         chip = 4
 
@@ -95,14 +98,12 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, mor
         # Ignore first 40 pixels
         obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
 
-    param_iter = len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
-    print("STARTING iam_analysis\nWith {} parameter iterations".format(param_iter))
+    rv_iter = len(rvs) * len(gammas)
+    model_iter = len(model2_pars) * len(model1_pars)
+    print(("STARTING iam_analysis\nWith {0} parameter iterations.\n{1} rv iterations,"
+          " {2} model iterations").format(rv_iter * model_iter, rv_iter, model_iter))
 
-    print("model1_pars", model1_pars, len(model1_pars),
-          "\nmodel2_pars", model2_pars, len(model2_pars))
-    print("closest_host_model", closest_host_model)
-    for par in model1_pars:
-        print(par)
+    # print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
     ####
     if parallel:
@@ -126,15 +127,16 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, mor
 if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}
+    n_jobs = opts.pop("n_jobs", 1)
 
-    def parallelized_main(opts, chip):
-        opts["chip"] = chip
-        return main(**opts)
+    def parallelized_main(main_opts, chip):
+        main_opts["chip"] = chip
+        return main(**main_opts)
 
     # Iterate over chips
     if opts["chip"] is None:
-         res = Parallel(n_jobs=-2)(delayed(parallelized_main)(opts, chip)
-                                   for chip in range(1, 5))
-         sys.exit(sum(res))
+        res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
+                                      for chip in range(1, 5))
+        sys.exit(sum(res))
     else:
         sys.exit(main(**opts))

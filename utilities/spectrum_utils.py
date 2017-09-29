@@ -1,6 +1,12 @@
+import logging
+import os
+
 from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 from Get_filenames import get_filenames
+
+debug = logging.debug
+
 
 def load_spectrum(name, corrected=True):
     """Load in fits file and return as a Spectrum object.

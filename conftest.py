@@ -25,6 +25,5 @@ def norm_method(request):
 
 @pytest.fixture()
 def tcm_model(host, comp):
-    return two_comp_model(host.xaxis, host.flux, comp.xaxis,
-                          alphas=[0.1, 0.2, 0.3], rvs=[-0.25, 0.25],
-                          gammas=[1, 2, 3, 4])
+    return two_comp_model(host.xaxis, host.flux, comp.xaxis, alphas=[0.1, 0.2, 0.3],
+                          rvs=[-0.25, 0.25], gammas=[1, 2, 3, 4])

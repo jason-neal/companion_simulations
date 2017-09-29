@@ -31,8 +31,7 @@ def iam_helper_function(star, obs_num, chip):
 def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
                  verbose=False, norm=False, save_only=True, chip=None,
                  prefix=None):
-    """Run two component model over all model combinations.
-     """
+    """Run two component model over all model combinations."""
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
 
@@ -138,10 +137,11 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
     normalization_limits = [2105, 2185]   # small as possible?
 
     if prefix is None:
-        sf = os.path.join(simulators.paths["output_dir"], obs_spec.header["OBJECT"],
-           "tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}].csv".format(
-               obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), chip,
-               params1[0], params1[1], params1[2], num))
+        sf = os.path.join(
+            simulators.paths["output_dir"], obs_spec.header["OBJECT"],
+            "tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}].csv".format(
+                obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), chip,
+                params1[0], params1[1], params1[2], num))
     else:
         sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(
             prefix, params1[0], params1[1], params1[2], num)

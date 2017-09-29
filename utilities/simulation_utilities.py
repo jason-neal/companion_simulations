@@ -76,8 +76,7 @@ def max_delta(wavelength, rvs, gammas):
 
     obs_limits = np.array([np.min(wavelength), np.max(wavelength)])
 
-    for lim in obs_limits:
-        delta = [lim * shift_max / 299792.458 for lim in obs_limits]
+    delta = [lim * shift_max / 299792.458 for lim in obs_limits]
 
     return 2 * round(max(delta), 3)
 
