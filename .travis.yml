@@ -29,7 +29,8 @@ install:
   - source activate test-environment
 
   # Install Starfish
-  - travis_retry conda install --yes scipy matplotlib Cython h5py scikit-learn astropy pyyaml pytest cython emcee corner
+  - travis_retry conda install --yes scipy matplotlib Cython h5py scikit-learn astropy pyyaml pytest cython emcee
+  - pip install corner
   - mkdir Starfish_dir
   - travis_retry git clone https://github.com/iancze/Starfish.git starfish_dir
   - travis_retry pip install -r starfish_dir/requirements.txt
