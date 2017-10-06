@@ -37,8 +37,8 @@ install:
   - rm Starfish_dir/tests -rf   # to not test Starfish
   # - python -c "import Starfish"
   - cd starfish_dir
-#  - python setup.py build_ext
-  - python setup.py install
+  - python setup.py build_ext --in-place
+  - python setup.py develop
   - python -c "import Starfish"
   - python -c "from Starfish.covariance import get_dense_C"
   - cd ..
