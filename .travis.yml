@@ -34,7 +34,7 @@ install:
   - cd $HOME
   - travis_retry git clone https://github.com/iancze/Starfish.git
   - cd Starfish
-  - travis_retry pip install -r ../starfish_dir/requirements.txt
+  - travis_retry pip install -r requirements.txt
   - python setup.py build_ext --inplace
   - python setup.py develop
 
@@ -47,7 +47,7 @@ install:
   # Clone spectrum_overload
   - travis_retry pip install https://github.com/jason-neal/spectrum_overload/archive/master.zip
 
-  - travis_retry python setup.py install
+  - python setup.py install
   - python -c "import Starfish"
 
 script:
