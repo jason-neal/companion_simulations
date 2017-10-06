@@ -54,11 +54,13 @@ def _parser():
     parser.add_argument("star", help='Star name.', type=str)
     parser.add_argument("obs_num", help='Star observation number.', type=str)
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
-    parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
-    parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs", default=1)
-
-    parser.add_argument('-s', '--small', help='Use smaller subset of parameters.',
+    parser.add_argument('-p', '--parallel', help='Use parallelization.',
                         action="store_true")
+    parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs",
+                        default=1, type=int)
+
+    parser.add_argument('-s', '--small', action="store_true",
+                        help='Use smaller subset of parameters.')
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
 
     return parser.parse_args()
