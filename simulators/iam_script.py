@@ -59,19 +59,19 @@ def _parser():
 
     parser.add_argument('-s', '--small', help='Use smaller subset of parameters.',
                         action="store_true")
-    parser.add_argument('-m', '--more_id', help='Extra name identifier.', type=str)
+    parser.add_argument('--suffix', help='Suffix for file.', type=str)
 
     return parser.parse_args()
 
 
-def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, more_id=None):
+def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, suffix=None):
     """Main function."""
     if chip is None:
         chip = 4
 
     obs_name, params, output_prefix = iam_helper_function(star, obs_num, chip)
-    if more_id is not None:
-        output_prefix = output_prefix + str(more_id)
+    if suffix is not None:
+        output_prefix = output_prefix + str(suffix)
 
     print("The observation used is ", obs_name, "\n")
 
