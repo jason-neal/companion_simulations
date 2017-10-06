@@ -25,15 +25,14 @@ cache:
     - $HOME/.cache/pip
 
 install:
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy astropy matplotlib numba llvmlite multiprocess ephem tqdm joblib
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION astropy ephem joblib llvmlite matplotlib multiprocess numba numpy scipy tqdm
   - source activate test-environment
 
   # Install Starfish
-  - travis_retry conda install --yes scipy matplotlib Cython h5py scikit-learn astropy pyyaml pytest cython emcee
-  - pip install corner
   - cd $HOME
   - travis_retry git clone https://github.com/iancze/Starfish.git
   - cd Starfish
+  - travis_retry conda install --yes astropy cython emcee h5py matplotlib pytest pyyaml scikit-learn scipy
   - travis_retry pip install -r requirements.txt
   - python setup.py build_ext --inplace
   - python setup.py develop
@@ -46,10 +45,9 @@ install:
 
   # Clone spectrum_overload
   - travis_retry pip install https://github.com/jason-neal/spectrum_overload/archive/master.zip
-  # Import Get_filenames.py
+  # Wget Get_filenames.py
   - wget https://raw.githubusercontent.com/jason-neal/equanimous-octo-tribble/master/Get_filenames.py
   - python setup.py install
-
 
 script:
     pytest --cov=. --cov-report term-missing --durations 5
