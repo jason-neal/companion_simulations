@@ -46,9 +46,10 @@ install:
 
   # Clone spectrum_overload
   - travis_retry pip install https://github.com/jason-neal/spectrum_overload/archive/master.zip
-
+  # Import Get_filenames.py
+  - wget https://raw.githubusercontent.com/jason-neal/equanimous-octo-tribble/master/Get_filenames.py
   - python setup.py install
-  - python -c "import Starfish"
+
 
 script:
     pytest --cov=. --cov-report term-missing --durations 5
