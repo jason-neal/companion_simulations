@@ -102,7 +102,7 @@ def sql_join(star, obsnum, suffix=None, verbose=True, move=False, remove=False):
 
             if move:
                 f_split = os.path.split(f)
-                new_f = os.path.join(f_split[0], "processed_cvs", f_split[1])
+                new_f = os.path.join(f_split[0], "processed_csv", f_split[1])
                 os.makedirs(os.path.dirname(new_f), exist_ok=True)
                 subprocess.call("mv {} {}".format(f, new_f), shell=True)
 
