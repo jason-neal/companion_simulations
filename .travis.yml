@@ -31,21 +31,18 @@ install:
   # Install Starfish
   - travis_retry conda install --yes scipy matplotlib Cython h5py scikit-learn astropy pyyaml pytest cython emcee
   - pip install corner
-  - mkdir Starfish_dir
-  - travis_retry git clone https://github.com/iancze/Starfish.git starfish_dir
-  - travis_retry pip install -r starfish_dir/requirements.txt
-  - rm Starfish_dir/tests -rf   # to not test Starfish
-  # - python -c "import Starfish"
-  - cd starfish_dir
+  - mkdir ../starfish_dir
+  - travis_retry git clone https://github.com/iancze/Starfish.git ../starfish_dir
+  - travis_retry pip install -r ../starfish_dir/requirements.txt
+  #- rm starfish_dir/tests -rf   # to not test Starfish
+  - cd ../starfish_dir
   - python setup.py build_ext --inplace
   - python setup.py develop
   - python -c "import Starfish"
   - python -c "from Starfish.covariance import get_dense_C"
-  - cd ..
-  - conda list
-  - pip list
   - export PYTHONPATH=$HOME/Starfish_dir/:$HOME/Starfish_dir/Starfish/:$HOME/Starfish_dir/scripts/:$PYTHONPATH
   - export PATH=$HOME/Starfish_dir/:$HOME/Starfish_dir/Starfish/:$HOME/Starfish_dir/scripts/:$PATH
+  - cd $HOME
   # - pip install https://github.com/iancze/Starfish/archive/master.zip
   - python -c "import Starfish"
   - python -c "from Starfish.covariance import get_dense_C"
