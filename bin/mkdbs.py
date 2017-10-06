@@ -50,17 +50,22 @@ def sql_join(star, obsnum, suffix=None, verbose=True, move=False, remove=False):
     """
     for chip in range(1, 5):
         star = star.upper()
+        if suffix is None:
+            suffix = ""
+
         pattern = os.path.join(simulators.paths["output_dir"], star,
-                               "{0}-{1}_{2}_iam_chisqr_results{3}_*.csv".format(star, obsnum, chip, suffix))
+                               "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obsnum, chip, suffix))
 
         number_of_files = sum(1 for _ in glob.iglob(pattern))
         if verbose:
             print("Concatenating {} files.".format(number_of_files))
 
-        if suffix is None:
-            suffix = ""
         # Get first part of name
-        prefix = next(glob.iglob(pattern)).split("_part")[0]
+        try:
+            prefix = next(glob.iglob(pattern)).split("_part")[0]
+        except:
+            print("Failing pattern", pattern)
+            print("glob, pattern", list(glob.iglob(pattern)))
         print(prefix, suffix)
         database_name = 'sqlite:///{0}{1}.db'.format(prefix, suffix)
         engine = sa.create_engine(database_name)
