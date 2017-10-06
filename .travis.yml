@@ -42,8 +42,10 @@ install:
   - python -c "import Starfish"
   - python -c "from Starfish.covariance import get_dense_C"
   - cd ..
-  - export PYTHONPATH=$HOME/Starfish/:$HOME/Starfish/Starfish/:$HOME/Starfish/scripts/:$PYTHONPATH
-  - export PATH=$HOME/Starfish/:$HOME/Starfish/Starfish/:$HOME/Starfish/scripts/:$PATH
+  - conda list
+  - pip list
+  - export PYTHONPATH=$HOME/Starfish_dir/:$HOME/Starfish_dir/Starfish/:$HOME/Starfish_dir/scripts/:$PYTHONPATH
+  - export PATH=$HOME/Starfish_dir/:$HOME/Starfish_dir/Starfish/:$HOME/Starfish_dir/scripts/:$PATH
   # - pip install https://github.com/iancze/Starfish/archive/master.zip
   - python -c "import Starfish"
   - python -c "from Starfish.covariance import get_dense_C"
