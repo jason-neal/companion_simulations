@@ -28,7 +28,7 @@ def _parser():
     """
     parser = argparse.ArgumentParser(description='Co-added Chi-squared db.')
     parser.add_argument('-s', '--stars', help='Star names', nargs="+", default=None)
-    parser.add_argument("-o", "-obsnum", help="Observation number", nargs="+", default=None)
+    parser.add_argument("-o", "--obsnum", help="Observation number", nargs="+", default=None)
     parser.add_argument('--suffix', help='Suffix to add to the file names.', default="")
     return parser.parse_args()
 
@@ -36,7 +36,7 @@ def _parser():
 def main(star, obs_num, suffix):
     databases = ["", "", "", ""]
     for chip in range(1, 5):
-        databasees[chip-1] = os.path.join(simulators.paths["output_dir"], star,
+        databases[chip-1] = os.path.join(simulators.paths["output_dir"], star,
            "{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obs_num, chip, suffix))
 
     print("databases", databases)
