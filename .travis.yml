@@ -30,11 +30,12 @@ install:
 
   # Install Starfish
   - travis_retry conda install --yes scipy matplotlib Cython h5py scikit-learn astropy pyyaml pytest cython emcee corner
-  - travis_retry git clone  https://github.com/iancze/Starfish.git
-  - travis_retry pip install -r Starfish/requirements.txt
-  - rm Starfish/tests -rf   # to not test Starfish
+  - mkdir Starfish_dir
+  - travis_retry git clone https://github.com/iancze/Starfish.git starfish_dir
+  - travis_retry pip install -r starfish_dir/requirements.txt
+  - rm Starfish_dir/tests -rf   # to not test Starfish
   - python -c "import Starfish"
-  - cd Starfish
+  - cd starfish_dir
   - python setup.py build_ext --inplace
   - python setup.py install
   - python -c "import Starfish"
