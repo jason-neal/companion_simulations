@@ -66,6 +66,7 @@ def sql_join(star, obsnum, suffix=None, verbose=True, move=False, remove=False):
         except:
             print("Failing pattern", pattern)
             print("glob, pattern", list(glob.iglob(pattern)))
+            raise
         print(prefix, suffix)
         database_name = 'sqlite:///{0}{1}.db'.format(prefix, suffix)
         engine = sa.create_engine(database_name)
