@@ -35,16 +35,18 @@ install:
   - travis_retry git clone https://github.com/iancze/Starfish.git starfish_dir
   - travis_retry pip install -r starfish_dir/requirements.txt
   - rm Starfish_dir/tests -rf   # to not test Starfish
-  - python -c "import Starfish"
+  # - python -c "import Starfish"
   - cd starfish_dir
   - python setup.py build_ext --inplace
   - python setup.py install
   - python -c "import Starfish"
+  - python -c "from Starfish.covariance import get_dense_C"
   - cd ..
   - export PYTHONPATH=$HOME/Starfish/:$HOME/Starfish/Starfish/:$HOME/Starfish/scripts/:$PYTHONPATH
   - export PATH=$HOME/Starfish/:$HOME/Starfish/Starfish/:$HOME/Starfish/scripts/:$PATH
   # - pip install https://github.com/iancze/Starfish/archive/master.zip
   - python -c "import Starfish"
+  - python -c "from Starfish.covariance import get_dense_C"
 
   # Now install companion simulations
   # Test requirements
