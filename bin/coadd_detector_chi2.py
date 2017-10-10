@@ -37,10 +37,13 @@ def _parser():
                         help='Overwrite the databse if already exists.')
     parser.add_argument('-c', '--chunksize', default=1000, type=int,
                         help='Chinksize for reading in csv files.')
+    parser.add_argument("-m", '--move', action="store_true",
+                            help='Move original files after joining (default=False).')
+
     return parser.parse_args()
 
 
-def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000):
+def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, move=False):
     patterns = [os.path.join(
             simulators.paths["output_dir"], star,
             "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))
@@ -129,6 +132,13 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000):
             j = pd_joint.index[-1] + 1
             if verbose:
                 print("indicies = ", i, j)
+
+        if move:
+            for f in files:
+                f_split = os.path.split(f)
+                new_f = os.path.join(f_split[0:-1], "processed_csv", f_split[-1])
+                os.makedirs(os.path.dirname(new_f), exist_ok=True)
+                subprocess.call("mv {} {}".format(f, new_f), shell=True)
 
         if verbose:
             print("Reached end of part =", num)
