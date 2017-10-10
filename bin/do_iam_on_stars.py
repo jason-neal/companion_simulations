@@ -18,7 +18,7 @@ def _parser():
     parser = argparse.ArgumentParser(description='Do iam simulations on stars.')
     parser.add_argument('-s', '--stars', help='Star names', nargs="+", default=None)
     parser.add_argument('--suffix', help='Suffix to add to the file names.', default="")
-    parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs", default=1)
+    parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs", default=1, type=int)
     return parser.parse_args()
 
 
