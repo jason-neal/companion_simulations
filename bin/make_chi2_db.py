@@ -7,6 +7,10 @@ import sys
 
 import pandas as pd
 import sqlalchemy as sa
+import logging
+
+
+logging.warning("This is obsolute you may be looking for coadd_chi2.py")
 
 
 def _parser():
