@@ -39,7 +39,7 @@ def test_max_delta_with_empty_arrays(rv, gamma):
     with pytest.raises(ValueError) as excinfo:
         max_delta(wav, rv, gamma)
 
-    assert 'Empty radial velocity vector' in str(excinfo.value)
+    assert 'Empty variable vector' in str(excinfo.value)
 
 
 @pytest.mark.parametrize("inputs,expected", [

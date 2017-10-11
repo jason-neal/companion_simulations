@@ -1,0 +1,41 @@
+# ## HD202206 B Single keplerian parameters
+# Some parameter description and units:
+# mean_val - Mean RV motion          (km/s)
+# k1 - semi-major axis of star       (km/s)
+# omega - Argument of periapsis       (deg)
+# tau - reference time  JD-2400000     (JD*)
+# period - orbital period             (day)
+# m_star - Mass of host star        (M_sun)
+# r_star - Radius of star           (R_sun)
+# age - Age of star                   (Gyr)
+# a - Semimajor axis distance.         (AU)
+# msini - Minimum mass of companion (M Jup)
+# m_true - Companion true mass      (M_jup)
+# i - inclination                     (deg)
+# temp - Host star Simbad temperature   (K)
+# fe_h - Host star metalicity         (dex)
+# logg - Host star logg           (cm s^-2)
+# Source - List of sources
+name         = HD202206  # error
+companion    = B
+mean_val     = 14.7      # correia 2005
+k1           = 0.567     # 0.001
+omega        = 161.9     # 0.2
+eccentricity = 0.432     # 0.001
+tau          = 52176.14  # 0.12
+period       = 256.33    # 0.02
+i            = 10.9      # 0.8
+a            = 0.83      #
+msini        = 17.7      #
+m_true       = 93.6      # -6.6, +7.7
+m_star       = 1.07      # 0.08
+temp         = 5766      #
+fe_h         = 0.3       # 0.1
+logg         = 4.5       # 0.1
+ r_star      = 1.04      # 0.01
+dist         = 45.5      # 0.03 pc
+age         =  2.9       # 1
+source      = https://arxiv.org/pdf/1705.00659.pdf#cite.Dup17
+
+# Stellar parameter sources
+# SIMBAD, Exoplanets Website (Han et al. 2014), this paper, 2MASS, Bonfanti et al. (2016),Hinkel et al. (2016).
