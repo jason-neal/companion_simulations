@@ -14,8 +14,8 @@ plotdir : plots/
 
 # The parameters defining your raw spectral library live here.
 grid:
-  raw_path: "$TRAVIS_BUILD_DIR/tests/testdata/"
-  hdf5_path: "$TRAVIS_BUILD_DIR/tests/testdata/PHOENIX_CRIRES_50k_test.hdf5"
+  raw_path: "./tests/testdata/"
+  hdf5_path: "./tests/testdata/PHOENIX_CRIRES_50k_test.hdf5"
   parname: ["temp", "logg", "Z"]
   key_name: "t{0:.0f}g{1:.1f}z{2:.1f}" # Specifies how the params are stored
   # in the HDF5 file
@@ -42,6 +42,6 @@ sim_grid:
     arb_norm: [0.95, 1.05, 0.02]   # Arbitrary normalization inside chisquare
 
 paths:
-    parameters: "$TRAVIS_BUILD_DIR/tests/testdata/parameter_files/"
-    spectra: "$TRAVIS_BUILD_DIR/tests/testdata/handy_spectra/"
-    output_dir: "$TRAVIS_BUILD_DIR/tests/testdata/Analysis/"
+    parameters: "./tests/testdata/parameter_files/"
+    spectra: "./tests/testdata/handy_spectra/"
+    output_dir: "./tests/testdata/Analysis/"
