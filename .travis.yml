@@ -49,6 +49,8 @@ install:
   - wget https://raw.githubusercontent.com/jason-neal/equanimous-octo-tribble/master/Get_filenames.py
   - python setup.py install
 
+  - cp tests/config.yml .
+
 script:
     pytest --cov=. --cov-report term-missing --durations 5
 
