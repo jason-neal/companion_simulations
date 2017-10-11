@@ -1,0 +1,42 @@
+# ## HD168443 c Single keplerian parameters
+# Some parameter description and units:
+# mean_val - Mean RV motion          (km/s)
+# k1 - semi-major axis of star       (km/s)
+# omega - Argument of periapsis       (deg)
+# tau - reference time  JD-2400000    (JD*)
+# period - orbital period             (day)
+# m_star - Mass of host star        (M_sun)
+# r_star - Radius of star           (R_sun)
+# age - Age of star                   (Gyr)
+# a - Semimajor axis distance.         (AU)
+# msini - Minimum mass of companion (M Jup)
+# m_true - Companion true mass      (M_jup)
+# i - inclination                     (deg)
+# temp - Host star Simbad temperature   (K)
+# fe_h - Host star metalicity         (dex)
+# logg - Host star logg           (cm s^-2)
+# Source - List of sources
+name         = HD168443      #
+companion    = c
+SpT          = G6V           # Simbad
+mean_val     = −0.046533     # 0.000552
+k1           = 0.29770        # 0.000618
+omega        = 64.87         # 0.5113
+eccentricity = 0.2113        # 0.00171
+tau          = 55521.3       # 2.2     Added 40000
+period       = 1749.83       # 0.57
+# i            =             #
+a            = 2.8373       # 0.0018
+msini        = 17.193       # 0.21
+m_true       =
+m_star       = 0.995        #(± 0.019) MSun
+temp         = 5591.0       # (± 44.0) K
+fe_h         = 0.06         # (± 0.03)
+# logg         =              #
+r_star       =  1.51        # (± 0.06)
+dist         = 37.38        # (± 1.26)
+age          = 9.8          # 1.0
+source       = https://arxiv.org/pdf/1109.5166.pdf
+#
+# Stellar parameter sources
+# SIMBAD, Exoplanets Website (Han et al. 2014), this paper, 2MASS, Bonfanti et al. (2016),Hinkel et al. (2016).

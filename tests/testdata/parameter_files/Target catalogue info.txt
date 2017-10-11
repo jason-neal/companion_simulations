@@ -1,0 +1,103 @@
+#########################################
+# HD30501 - http://simbad.u-strasbg.fr/simbad/sim-id?NbIdent=1&submit=submit+id&Ident=HD30501
+
+Spectral type :   K2V   (http://simbad.u-strasbg.fr/simbad/sim-ref?bibcode=2006AJ....132..161G)
+
+HD30501-b  Mass    89.6 Mjup
+           Msini   62.3 Mjup
+
+
+age = ~5
+
+
+
+#########################################
+# HD211847 - http://simbad.u-strasbg.fr/simbad/sim-basic?Ident=HD+211847+&submit=SIMBAD+search
+http://exoplanet.eu/catalog/hd_211847_b/
+spec type : G5V  (http://simbad.u-strasbg.fr/simbad/sim-ref?bibcode=1978MSS...C02....0H)
+
+Mass = 155 MJ   https://arxiv.org/pdf/1701.05664.pdf 2017    Face on binary
+msini 19.20
+This is a lowmass star not a brown dwarf.
+i = 0.07
+
+salhmann age = 0.1 -6.0
+
+#########################################
+
+# HD4747 - http://simbad.u-strasbg.fr/simbad/sim-id?Ident=HD+4747
+http://exoplanet.eu/catalog/hd_4747_b/
+Spec type : G8/K0V
+
+m = 60.2±3.3MJup) and orbit (e = 0.740±0.002)    https://arxiv.org/pdf/1604.00398.pdf
+
+"Interpolating the theoretical cooling curves from Baraffe et al. (2003), we find a model-dependent mass of
+m_model= M 72+3−13 MJup and Teff≈1700±100 K, assuming coevolution between the companion and host star."
+
+age salhmann  = 0.1 - 7.3
+
+
+#########################################
+# HD202206  -  http://simbad.u-strasbg.fr/simbad/sim-id?Ident=HD+202206
+As of May 2017 this is a "low-inclination, nearly face-on G8V + M6V binary orbited
+by a brown dwarf". https://arxiv.org/pdf/1705.00659.pdf    May 2017 !!!!!!!!!  Need to reanalyze the rv separation.
+
+Spec type host: G6V
+
+RV minimum mass
+Mbsini=17.4MJup
+Mcsini=2.44MJup
+.
+Measured masses
+HD202206B  - 93.6 Mj
+HD202206c  - 17.6 Mj
+
+
+Age = 5.6  Wikipedia
+
+Need to manually get BD flux ratio the old way. script to do it offline given the mag and band
+
+
+############################################
+
+
+# HD168443  -  http://simbad.u-strasbg.fr/simbad/sim-id?protocol=html&Ident=HD%20168443
+https://en.wikipedia.org/wiki/HD_168443
+
+https://arxiv.org/pdf/1109.5166.pdf
+SpT    = G6V
+
+2 planets /brown dwarfs
+MIsini b = 7.659
+msini c = 17.193
+
+
+age = 9.8 +/- 1  exoplanet.eu
+#########################################
+# HD167665   http://iopscience.iop.org/article/10.1086/519066/meta;jsessionid=4CA02DF0181B83F4CE1C2C0EB20F353B.c2.iopscience.cld.iop.org
+http://simbad.u-strasbg.fr/simbad/sim-id?Ident=HD%20167665
+
+F9V    or G0 V     (F9VFe-0.8CH-0.4)
+
+msini 50.3 MJup
+
+age from sahlmann   0.7-3.6 gyr
+
+flux ratio 2e-3 to 2e-5 from age.
+
+#########################################
+# HD162020   http://simbad.u-strasbg.fr/simbad/sim-id?Ident=HD%20162020&NbIdent=1&Radius=2&Radius.unit=arcmin&submit=submit+id
+
+M2sini = 14.4 MJ
+SpT = K3V
+
+sahlman paper.
+Undry 2002
+
+Age  	0.76 Gyr  from exoplanet.eu
+
+flux ratio K =  7e-6
+
+
+
+#########################################

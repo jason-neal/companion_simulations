@@ -15,7 +15,7 @@ plotdir : plots/
 # The parameters defining your raw spectral library live here.
 grid:
   raw_path: "$TRAVIS_BUILD_DIR/tests/testdata/"
-  hdf5_path: "$TRAVIS_BUILD_DIR/tests/testdata/PHOENIX_CRIRES_50k.hdf5"
+  hdf5_path: "$TRAVIS_BUILD_DIR/tests/testdata/PHOENIX_CRIRES_50k_test.hdf5"
   parname: ["temp", "logg", "Z"]
   key_name: "t{0:.0f}g{1:.1f}z{2:.1f}" # Specifies how the params are stored
   # in the HDF5 file
