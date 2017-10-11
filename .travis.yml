@@ -44,7 +44,7 @@ install:
   - travis_retry pip install -r requirements.txt
 
   # Clone spectrum_overload
-  - travis_retry pip install https://github.com/jason-neal/spectrum_overload/archive/master.zip
+  - travis_retry pip install https://github.com/jason-neal/spectrum_overload/archive/develop.zip
   # Wget Get_filenames.py
   - wget https://raw.githubusercontent.com/jason-neal/equanimous-octo-tribble/master/Get_filenames.py
   - python setup.py install
