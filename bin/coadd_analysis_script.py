@@ -13,11 +13,11 @@ import sys
 
 import sqlalchemy as sa
 
-from bin.analysis_module import (alpha_rv_contour, alpha_rv_contour_old,
+from bin.coadd_analysis_module import (alpha_rv_contour, alpha_rv_contour_old,
                                  fix_host_parameters,
                                  fix_host_parameters_reduced_gamma,
                                  get_column_limits, parabola_plots,
-                                 smallest_chi2_values, test_figure)
+                                 smallest_chi2_values, test_figure, display_arbitary_norm_values)
 import simulators
 from utilities.param_file import get_host_params
 from utilities.phoenix_utils import closest_model_params
@@ -29,17 +29,18 @@ def _parser():
     :returns: the args
     """
     parser = argparse.ArgumentParser(description='Chisquare analysis.')
-    parser.add_argument('database', help='Database name.')
+    parser.add_argument('star', help='Star Name')
+    parser.add_argument('obsnum', help="Observation label")
+    parser.add_argument('--suffix', help='Suffix to add to database name.', default=None)
     parser.add_argument("-e", "--echo", help="Echo the SQL queries", action="store_true")
-    # parser.add_argument('-s', '--suffix', help='Suffix to add to database name.')
-    # parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
+    parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
     parser.add_argument("-m", "--mode", help="Analysis mode to choose", default="parabola",
-        choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2", "test", "contour", "contour_old"])
+        choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2", "test", "contour", "arbnorm", "contour_old"])
     return parser.parse_args()
 
 
 def decompose_database_name(database):
-    """Database names of form */Star_obsnum_chip...db ."""
+    """Database names of form */Star_obsnum_chip...db."""
     os.path.split(database)
     path, name = os.path.split(database)
     name_split = name.split("_")
@@ -70,12 +71,22 @@ def load_sql_table(database, name="chi2_table", echo=False):
     return db_table
 
 
-def main(database, echo=False, mode="parabola"):
-    path, star, obs_num, chip = decompose_database_name(database)
+def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
+    suffix = "" if suffix is None else suffix
+    database = coadd_database = os.path.join(simulators.paths["output_dir"], star,
+        "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
+    if verbose:
+        print("Database name ", database)
+        print("Database exists", os.path.isfile(database))
+    path, dbstar, db_obsnum, chip = decompose_database_name(database)
+    assert dbstar == star
+    assert db_obsnum == obsnum
+    assert chip == "coadd"
+
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)  # make dir for plots
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
-    params = {"path": path, "star": star, "obs_num": obs_num, "chip": chip, "teff": teff, "logg": logg, "fe_h": fe_h}
+    params = {"path": path, "star": star, "obs_num": obsnum, "chip": chip, "teff": teff, "logg": logg, "fe_h": fe_h}
 
     sqlite_db = 'sqlite:///{}'.format(database)
 
@@ -112,7 +123,8 @@ def main(database, echo=False, mode="parabola"):
         alpha_rv_contour_old(engine, params, tb_name)
     elif mode == "test":
         test_figure(engine, params, tb_name)
-
+    elif mode == "arbnorm":
+        display_arbitary_norm_values(db_table, params)
     print("Done")
     return 0
 
