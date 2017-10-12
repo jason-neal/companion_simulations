@@ -11,12 +11,12 @@ import itertools
 import logging
 import os
 
+import numpy as np
+
 # from typing import List
 import matplotlib.pyplot as plt
-import numpy as np
-from astropy.io import fits
-
 import simulators
+from astropy.io import fits
 # from utilities.debug_utils import pv
 # from astropy.modeling import models, fitting
 from spectrum_overload.Spectrum import Spectrum
@@ -30,7 +30,7 @@ debug = logging.debug
 
 
 def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
-    wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+    wav_dir = simulators.paths["raw_path"]
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
     wav_model /= 10   # turn into nanometers
     flux = fits.getdata(phoenix_name)

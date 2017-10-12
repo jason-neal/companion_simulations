@@ -10,10 +10,10 @@ from __future__ import division, print_function
 import copy
 import logging
 
-import matplotlib.pyplot as plt
 import numpy as np
-from astropy.io import fits
 
+import matplotlib.pyplot as plt
+from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 from utilities.debug_utils import pv
 from utilities.phoenix_utils import load_starfish_spectrum, spec_local_norm
@@ -101,7 +101,7 @@ def load_PHOENIX_hd30501(limits=None, normalize=False):
     companion_spec  HD30501b
 
     """
-    pathwave = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
+    pathwave = os.path.join(simulators.paths["raw_path"], "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
     bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
                "HD30501b-lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     star_model = "/home/jneal/Phd/data/phoenixmodels/" \
@@ -124,7 +124,7 @@ def load_PHOENIX_hd211847(limits=None, normalize=False):
     hdr_bd : Companion header
 
     """
-    pathwave = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
+    pathwave = os.path.join(simulators.paths["raw_path"], "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
     bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
                "HD211847b-lte03100-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     star_model = "/home/jneal/Phd/data/phoenixmodels/" \
@@ -154,7 +154,7 @@ def load_starfish_hd211847(limits=None, normalize=False, hdr=False):
 def main():
     """Main."""
     # Load in the pheonix spectra
-    pathwave = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
+    pathwave = os.path.join(simulators.paths["raw_path"], "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
     bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
                "HD30501b-lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     star_model = "/home/jneal/Phd/data/phoenixmodels/" \

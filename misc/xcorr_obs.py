@@ -4,28 +4,29 @@ import itertools
 import os
 from collections import defaultdict
 
-import matplotlib.pyplot as plt
 import numpy as np
-from astropy.io import fits
-from joblib import Memory
-from tqdm import tqdm
 
+import matplotlib.pyplot as plt
+import simulators
+from astropy.io import fits
 from Chisqr_of_observation import load_spectrum
+from joblib import Memory
 from spectrum_overload.Spectrum import Spectrum
+from tqdm import tqdm
 from utilities.chisqr import spectrum_chisqr
 from utilities.crires_utilities import crires_resolution
 from utilities.model_convolution import apply_convolution
 from utilities.phoenix_utils import spec_local_norm
 
-cachedir = "/home/jneal/.simulation_cache"
+cachedir = simulators.paths["output_dir"]
 if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
 
 
 # find_closest_phoenix(data_dir, teff, logg, feh, alpha=None)
-model_base_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
-phoenix_path = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
+model_base_dir = simulators.paths["raw_path"]
+phoenix_path = simulators.paths["raw_path"]
 
 
 def generate_phoenix_files(data_dir, logg=4.5, feh=-0):

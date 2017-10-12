@@ -4,11 +4,14 @@ I notice a difference in the flux level of starfish spectra compared to the manu
 
 Investigating that here.
 """
-import matplotlib.pyplot as plt
-import numpy as np
-from astropy.io import fits
+import os
 
+import numpy as np
+
+import matplotlib.pyplot as plt
+import simulators
 import Starfish
+from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 from Starfish.grid_tools import HDF5Interface
 
@@ -29,10 +32,10 @@ flux_norm_air = myHDF5_norm_air.load_flux(np.array(params))
 flux_norm = myHDF5_norm.load_flux(np.array(params))
 # Load direct phoenix spectra
 
-path = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+path = simulators.paths["raw_path"]
 
-phoenix = path + "Z-0.0/lte{:05d}-{:0.2f}-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(params[0], params[1])
-phoenix_wav = path + "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"
+phoenix = os.path.join(path,"Z-0.0", "lte{:05d}-{:0.2f}-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(params[0], params[1]))
+phoenix_wav = os.path.join(path, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
 print(phoenix)
 raw_flux = fits.getdata(phoenix)
 wav = fits.getdata(phoenix_wav)
