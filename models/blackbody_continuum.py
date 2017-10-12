@@ -41,7 +41,7 @@ u_k = u.K
 host_temp = 5400
 comp_temp = 2400
 # Load in some phoenix data and make a simulation
-path = simulators.paths["raw_path"]
+path = simulators.starfish_grid["raw_path"]
 phoenix_wl = fits.getdata(os.path.join(path, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")) / 10
 
 host_phoenix = os.path.join(path, "Z-0.0", "lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(host_temp))

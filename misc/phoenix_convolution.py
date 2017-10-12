@@ -8,7 +8,7 @@ from spectrum_overload.Spectrum import Spectrum
 # Convolve All Phoenix Spectra to 50000.
 resolution = 50000   # 20000, 80000, 100000
 
-source_path = simulators.paths["raw_path"]
+source_path = simulators.starfish_grid["raw_path"]
 output_path = "/home/jneal/Phd/data/fullphoenix/convolved_R{0:d}k".format(int(resolution / 1000))
 
 # Limit phoenix spectra to the K Band "K": (2.07, 2.35) to reduce file sizes and convolution time.

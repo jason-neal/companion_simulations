@@ -30,12 +30,12 @@ flux = myHDF5.load_flux(np.array(params))
 flux_air = myHDF5_air.load_flux(np.array(params))
 flux_norm_air = myHDF5_norm_air.load_flux(np.array(params))
 flux_norm = myHDF5_norm.load_flux(np.array(params))
+
 # Load direct phoenix spectra
-
-path = simulators.paths["raw_path"]
-
+path = simulators.starfish_grid["raw_path"]
 phoenix = os.path.join(path,"Z-0.0", "lte{:05d}-{:0.2f}-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(params[0], params[1]))
 phoenix_wav = os.path.join(path, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
+
 print(phoenix)
 raw_flux = fits.getdata(phoenix)
 wav = fits.getdata(phoenix_wav)

@@ -42,8 +42,8 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 debug = logging.debug
 
-model_base_dir = (simulators.paths["raw_path"])
-wav_dir = simulators.paths["raw_path"]
+model_base_dir = (simulators.starfish_grid["raw_path"])
+wav_dir = simulators.starfish_grid["raw_path"]
 
 
 def main():

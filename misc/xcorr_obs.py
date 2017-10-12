@@ -25,8 +25,8 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 
 # find_closest_phoenix(data_dir, teff, logg, feh, alpha=None)
-model_base_dir = simulators.paths["raw_path"]
-phoenix_path = simulators.paths["raw_path"]
+model_base_dir = simulators.starfish_grid["raw_path"]
+phoenix_path = simulators.starfish_grid["raw_path"]
 
 
 def generate_phoenix_files(data_dir, logg=4.5, feh=-0):

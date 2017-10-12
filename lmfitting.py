@@ -48,7 +48,7 @@ def alpha_model_residual(params, x, data, eps_data, host_models, companion_model
 host_temp = 5300
 comp_temp = 2300
 # Load in some phoenix data and make a simulation
-base = simulators.paths["raw_path"]
+base = simulators.starfish_grid["raw_path"]
 phoenix_wl = fits.getdata(os.path.join(base, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")) / 10
 
 host_phoenix = os.path.join(base, ("Z-0.0/lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits").format(host_temp))

@@ -20,7 +20,7 @@ flux = myHDF5.load_flux(np.array(params))
 
 # Load direct phoenix spectra
 
-path = simulators.paths["raw_path"]
+path = simulators.starfish_grid["raw_path"]
 
 phoenix = os.path.join(path, "Z-0.0", "lte{:05d}-{:0.2f}-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(params[0], params[1]))
 phoenix_wav = os.path.join(path, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
@@ -38,7 +38,7 @@ flux = myHDF5.load_flux(np.array(params2))
 
 # Load direct phoenix spectra
 
-path = simulators.paths["raw_path"]
+path = simulators.starfish_grid["raw_path"]
 
 phoenix = os.path.join(path, "Z-0.0", "lte{:05d}-{:0.2f}-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(params2[0], params2[1]))
 phoenix_wav = os.path.join(path, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")

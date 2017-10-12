@@ -30,7 +30,7 @@ debug = logging.debug
 
 
 def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
-    wav_dir = simulators.paths["raw_path"]
+    wav_dir = simulators.starfish_grid["raw_path"]
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
     wav_model /= 10   # turn into nanometers
     flux = fits.getdata(phoenix_name)
