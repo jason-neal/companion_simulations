@@ -11,6 +11,8 @@ from utilities.phoenix_utils import (gen_new_param_values,
                                      load_phoenix_spectrum,
                                      load_starfish_spectrum, phoenix_area)
 
+print(simulators.paths)
+print(simualtors)
 
 @pytest.mark.parametrize("limits, normalize", [([2100, 2150], True), ([2050, 2150], False)])
 def test_load_phoenix_spectra(limits, normalize):
@@ -43,6 +45,7 @@ def test_load_starfish_spectra(teff, limits, normalize):
 
 
 def test_phoenix_and_starfish_load_differently_without_limits():
+    print("simulators paths in without limits",simulators.paths)
     test_spectrum = "utilities/tests/test_data/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     spec1 = load_phoenix_spectrum(test_spectrum, limits=None)
     spec2 = load_starfish_spectrum([2300, 5, 0], limits=None)
@@ -54,6 +57,7 @@ def test_phoenix_and_starfish_load_differently_without_limits():
 @pytest.mark.xfail()   # Starfish does resampling
 @pytest.mark.parametrize("limits", [[2090, 2135], [2450, 2570]])
 def test_phoenix_and_starfish_load_equally_with_limits(limits):
+    print("simulators paths in 'with limits' ",simulators.paths)
     test_spectrum = "utilities/tests/test_data/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     spec1 = load_phoenix_spectrum(test_spectrum, limits=limits)
     spec2 = load_starfish_spectrum([2300, 5, 0], limits=limits)
