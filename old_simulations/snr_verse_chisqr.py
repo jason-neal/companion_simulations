@@ -10,9 +10,9 @@ import time
 from collections import defaultdict
 
 import numpy as np
+
 import scipy
 import tqdm
-
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 # from utilities.simulation_utilities import add_noise
 from utilities.chisqr import chi_squared

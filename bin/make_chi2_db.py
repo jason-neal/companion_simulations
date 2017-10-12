@@ -1,14 +1,13 @@
 """Script to join all the chisquared part files into a sql database."""
 import argparse
 import glob as glob
+import logging
 import os
 import subprocess
 import sys
 
 import pandas as pd
 import sqlalchemy as sa
-import logging
-
 
 logging.warning("This is obsolute you may be looking for coadd_chi2.py")
 

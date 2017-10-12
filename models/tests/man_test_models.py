@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-
 from models.alpha_model import alpha_model2
 from models.no_alpha_model import no_alpha
 from utilities.phoenix_utils import load_starfish_spectrum

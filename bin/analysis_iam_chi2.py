@@ -11,14 +11,13 @@ import argparse
 import os
 import sys
 
+import simulators
 import sqlalchemy as sa
-
 from bin.analysis_module import (alpha_rv_contour, alpha_rv_contour_old,
                                  fix_host_parameters,
                                  fix_host_parameters_reduced_gamma,
                                  get_column_limits, parabola_plots,
                                  smallest_chi2_values, test_figure)
-import simulators
 from utilities.param_file import get_host_params
 from utilities.phoenix_utils import closest_model_params
 

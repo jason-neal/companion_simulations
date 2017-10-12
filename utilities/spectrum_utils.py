@@ -2,7 +2,6 @@ import logging
 import os
 
 from astropy.io import fits
-
 from Get_filenames import get_filenames
 from spectrum_overload.Spectrum import Spectrum
 

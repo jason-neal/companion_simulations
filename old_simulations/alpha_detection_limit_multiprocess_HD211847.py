@@ -22,15 +22,15 @@ import time
 from collections import defaultdict
 from datetime import datetime as dt
 
+import numpy as np
+
 import matplotlib.pyplot as plt
 import multiprocess as mprocess
-import numpy as np
 import scipy.stats
 from joblib import Memory
-from tqdm import tqdm
-
 from models.alpha_model import alpha_model
 from Planet_spectral_simulations import load_PHOENIX_hd211847
+from tqdm import tqdm
 from utilities.chisqr import chi_squared, parallel_chisqr
 from utilities.model_convolution import store_convolutions
 from utilities.simulate_obs import \

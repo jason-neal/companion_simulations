@@ -17,11 +17,11 @@ import os
 import sys
 from datetime import datetime as dt
 
-import matplotlib.pyplot as plt
 import numpy as np
-from astropy.io import fits
 
+import matplotlib.pyplot as plt
 import simulators
+from astropy.io import fits
 from simulators.bhm_module import bhm_analysis
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import pv

@@ -1,6 +1,7 @@
 from __future__ import division
 
 import numpy as np
+
 from pandas.compat import lmap, lrange, range, zip
 from pandas.core.dtypes.missing import notnull as notna
 from pandas.io.formats.printing import pprint_thing

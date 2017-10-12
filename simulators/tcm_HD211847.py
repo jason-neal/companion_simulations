@@ -19,9 +19,9 @@ import os
 import sys
 
 import numpy as np
-from astropy.io import fits
 
 import simulators
+from astropy.io import fits
 from simulators.tcm_module import (parallel_tcm_analysis, tcm_analysis,
                                    tcm_helper_function)
 from utilities.crires_utilities import barycorr_crires_spectrum

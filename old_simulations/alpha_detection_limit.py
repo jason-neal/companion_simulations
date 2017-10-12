@@ -23,10 +23,10 @@ import time
 from collections import defaultdict
 
 import numpy as np
-import scipy
-from tqdm import tqdm
 
+import scipy
 from Planet_spectral_simulations import combine_spectra, load_PHOENIX_hd30501
+from tqdm import tqdm
 from utilities.chisqr import chi_squared
 from utilities.model_convolution import apply_convolution, store_convolutions
 from utilities.simulate_obs import generate_observations
