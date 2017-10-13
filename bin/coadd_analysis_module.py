@@ -340,6 +340,47 @@ def test_figure(table, params):
     plt.savefig(os.path.join(params["path"], "plots", name))
     # plt.show()
     plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################
+# Oolder engine code
+
+
+@timeit2
+def fix_host_parameters_reduced_gamma_engine(engine, params, tb_name):
+    print("Fixed host analysis with reduced gamma.")
     d_gamma = 5
     # Select lowest chisqr gamma values.
     query = """SELECT {0}, {1} FROM {2} ORDER BY {1} ASC LIMIT 1""" .format(
@@ -360,7 +401,7 @@ def test_figure(table, params):
     # print("indicies", indices)
 
     columns = ["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]
-    assert len(columns) == (nrows * ncols)
+    assert len(columns) <= (nrows * ncols)
 
     for ii, col in enumerate(columns):
         query = """SELECT {0}, {1}, gamma FROM {2} WHERE (teff_1 = {3}  AND logg_1 = {4} AND
@@ -394,8 +435,43 @@ def test_figure(table, params):
     plt.close()
 
 
+
+
+
+@timeit2
+def fix_host_parameters_engine(engine, params, tb_name):
+    # "older version"
+    print("Fixed host analysis.")
+    nrows, ncols = 3, 2
+    fig, axes = plt.subplots(nrows, ncols)
+    # fig.subplots_adjust(hspace=.5, vspace=0.5)
+    fig.tight_layout()
+    # print("axes", axes)
+    indices = np.arange(nrows * ncols).reshape(nrows, ncols)
+    # print("indicies", indices)
+
+    columns = ["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]
+    assert len(columns) <= (nrows * ncols)
+
+    for ii, col in enumerate(columns):
+        query = """SELECT {}, {} FROM {} WHERE (teff_1 = {}  AND logg_1 = {} AND feh_1 = {})""" .format(
+            col, "chi2", tb_name, params["teff"], params["logg"], params["fe_h"])
+        df = pd.read_sql(sa.text(query), engine)
+        # print(df.columns)
+
+        axis_pos = [int(x) for x in np.where(indices == ii)]
+        df.plot(x=col, y="chi2", kind="scatter", ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma", colorbar=True)
+
+    name = "{0}-{1}_{2}_fixed_host_params_full_gamma.png".format(
+        params["star"], params["obs_num"], params["chip"])
+    plt.suptitle("Chi**2 Results (Fixed host): {0}-{1}_{2}".format(params["star"], params["obs_num"], params["chip"]))
+    fig.savefig(os.path.join(params["path"], "plots", name))
+    plt.close()
+
+
+def get_column_limits_engine(engine, params, tb_name):
     print("Column Value Ranges")
-    for col in ["teff_1", "teff_2", "logg_1", "logg_2", "alpha", "gamma", "rv", "chi2"]:
+    for col in ["teff_1", "teff_2", "logg_1", "logg_2", "gamma", "rv", "chi2"]:
         query = """
                SELECT * FROM (SELECT {1} FROM {0} ORDER BY {1} ASC LIMIT 1)
                UNION ALL
@@ -437,9 +513,11 @@ def get_column_limits_engine(engine, params, tb_name):
         df = pd.read_sql(sa.text(query), engine)
         print(col, min(df[col]), max(df[col]))
 
+
+def alpha_rv_contour_engine(engine, params, tb_name):
     df_min_chi2 = pd.read_sql(sa.text('SELECT * FROM {0} ORDER BY chi2 ASC LIMIT 1'.format(tb_name)), engine)
     print("Need to check host parameters")
-    db_names = {}
+
     print("columns", df_min_chi2.columns)
     pars = ["teff_2", "rv", "chi2"]
     cols = ['teff_2', 'alpha', 'rv', 'gamma', 'chi2']
@@ -491,28 +569,7 @@ def get_column_limits_engine(engine, params, tb_name):
     plt.savefig(os.path.join(params["path"], "plots", name))
     # plt.close()
     plt.show()
-
-
-def alpha_rv_contour_old(engine, params, tb_name):
-    df = pd.read_sql(
-        sa.text('SELECT alpha, rv, chi2, teff_2 FROM {0}'.format(
-            tb_name)), engine)
-
-    fig, ax = plt.subplots()
-    ax.contourf(df["rv"], df["chi2"], c=df["alpha"], alpha=0.5)
-
-    ax.set_xlabel('rv offset', fontsize=15)
-    ax.set_ylabel('chi2', fontsize=15)
-    ax.set_title('alpha (color)')
-
-    ax.grid(True)
-    fig.tight_layout()
-    name = "{0}-{1}_{2}_test_alpha_rv_contour2.pdf".format(
-        params["star"], params["obs_num"], params["chip"])
-    plt.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
-    # plt.show()
-
 
 def test_figure_engine(engine, params, tb_name):
     df = pd.read_sql_query('SELECT alpha, chi2 FROM {0} LIMIT 10000'.format(tb_name), engine)
