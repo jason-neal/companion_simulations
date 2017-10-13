@@ -112,8 +112,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
     print("Mode =", mode)
 
     if mode == "fixed_host_params":
-        fix_host_parameters_reduced_gamma(engine, params, tb_name)
-        fix_host_parameters(engine, params, tb_name)
+        fix_host_parameters_reduced_gamma(db_table, params)
+        fix_host_parameters(db_table, params)
     elif mode == "param_limits":
         get_column_limits(engine, params, tb_name)
     elif mode == "parabola":

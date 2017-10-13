@@ -76,31 +76,36 @@ def display_arbitary_norm_values(table, params):
 
 
 @timeit2
-def fix_host_parameters(engine, params, tb_name):
+def fix_host_parameters(table, params):
     print("Fixed host analysis.")
     nrows, ncols = 3, 2
     fig, axes = plt.subplots(nrows, ncols)
-    # fig.subplots_adjust(hspace=.5, vspace=0.5)
     fig.tight_layout()
-    # print("axes", axes)
     indices = np.arange(nrows * ncols).reshape(nrows, ncols)
-    # print("indicies", indices)
 
-    columns = ["teff_2", "logg_2", "feh_2", "alpha", "gamma", "rv"]
-    assert len(columns) == (nrows * ncols)
+    columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
+    assert len(columns) <= (nrows * ncols)
 
     for ii, col in enumerate(columns):
-        query = """SELECT {}, {} FROM {} WHERE (teff_1 = {}  AND logg_1 = {} AND feh_1 = {})""" .format(
-            col, "chi2", tb_name, params["teff"], params["logg"], params["fe_h"])
-        df = pd.read_sql(sa.text(query), engine)
-        # print(df.columns)
+        for jj, chi2_val in enumerate(chi2_names):
+            if jj == 4:
+                chi2legend = "coadd chi2"
+            else:
+                chi2legend = "det {}".format(jj + 1)
 
-        axis_pos = [int(x) for x in np.where(indices == ii)]
-        df.plot(x=col, y="chi2", kind="scatter", ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma", colorbar=True)
+            df = pd.read_sql(
+                    sa.select([table.c[col], table.c[chi2_val]]).where(
+                        sa.and_(table.c["teff_1"] == params["teff"],
+                                table.c["logg_1"] == params["logg"],
+                                table.c["feh_1"] == params["fe_h"])
+                        ), table.metadata.bind)
 
-    name = "{0}-{1}_{2}_fixed_host_params_full_gamma.png".format(
-        params["star"], params["obs_num"], params["chip"])
-    plt.suptitle("Chi**2 Results (Fixed host): {0}-{1}_{2}".format(params["star"], params["obs_num"], params["chip"]))
+            axis_pos = [int(x) for x in np.where(indices == ii)]
+            df.plot(x=col, y=chi2_val, kind="scatter", ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)  # , c="gamma", colorbar=True)
+
+    name = "{0}-{1}_coadd_fixed_host_params_full_gamma.png".format(
+        params["star"], params["obs_num"])
+    plt.suptitle("Co-add Chi**2 Results (Fixed host): {0}-{1}".format(params["star"], params["obs_num"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
 
@@ -154,8 +159,57 @@ def parabola(x, a, b, c):
 
 
 @timeit2
-def fix_host_parameters_reduced_gamma(engine, params, tb_name):
-    print("Fixed host analysis.")
+def fix_host_parameters_reduced_gamma(table, params):
+    print("Fixed host analysis with reduced gamma.")
+    d_gamma = 5
+    for jj, chi2_val in enumerate(chi2_names):
+        if jj == 4:
+            chi2legend = "coadd chi2"
+        else:
+            chi2legend = "det {}".format(jj + 1)
+
+        # Select lowest chisqr gamma values.
+        df = pd.read_sql(
+            sa.select([table.c.gamma, table.c[chi2_val]]
+            ).order_by(table.c[chi2_val].asc()
+            ).limit(1),
+            table.metadata.bind)
+
+        min_chi2_gamma = df.loc[0, "gamma"]
+        upper_lim = min_chi2_gamma + d_gamma
+        lower_lim = min_chi2_gamma - d_gamma
+        print("Reduced gamma_limits", lower_lim, upper_lim)
+
+        nrows, ncols = 3, 2
+        fig, axes = plt.subplots(nrows, ncols)
+        fig.tight_layout()
+        indices = np.arange(nrows * ncols).reshape(nrows, ncols)
+
+        columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
+        assert len(columns) <= (nrows * ncols)
+
+        for ii, col in enumerate(columns):
+            df = pd.read_sql(
+                    sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
+                        sa.and_(table.c["teff_1"] == int(params["teff"]),
+                                table.c["logg_1"] == float(params["logg"]),
+                                table.c["feh_1"] == float(params["fe_h"]),
+                                table.c.gamma > float(lower_lim),
+                                table.c.gamma < float(upper_lim)
+                                )
+                        ), table.metadata.bind)
+            # print("head", df.head())
+
+            axis_pos = [int(x) for x in np.where(indices == ii)]
+
+            df.plot(x=col, y=chi2_val, kind="scatter",
+                ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)  # , c="gamma", colorbar=True)
+
+    name = "{0}-{1}_coadd_fixed_host_params.png".format(
+        params["star"], params["obs_num"])
+    plt.suptitle("Coadd Chi**2 Results: {0}-{1}".format(params["star"], params["obs_num"]))
+    fig.savefig(os.path.join(params["path"], "plots", name))
+    plt.close()
     d_gamma = 5
     # Select lowest chisqr gamma values.
     query = """SELECT {0}, {1} FROM {2} ORDER BY {1} ASC LIMIT 1""" .format(
