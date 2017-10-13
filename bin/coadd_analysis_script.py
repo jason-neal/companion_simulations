@@ -13,7 +13,7 @@ import sys
 
 import simulators
 import sqlalchemy as sa
-from bin.coadd_analysis_module import (alpha_rv_contour, alpha_rv_contour_old,
+from bin.coadd_analysis_module import (contours,
                                        display_arbitary_norm_values,
                                        fix_host_parameters,
                                        fix_host_parameters_reduced_gamma,
@@ -31,11 +31,18 @@ def _parser():
     parser = argparse.ArgumentParser(description='Chisquare analysis.')
     parser.add_argument('star', help='Star Name')
     parser.add_argument('obsnum', help="Observation label")
-    parser.add_argument('--suffix', help='Suffix to add to database name.', default=None)
-    parser.add_argument("-e", "--echo", help="Echo the SQL queries", action="store_true")
-    parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
-    parser.add_argument("-m", "--mode", help="Analysis mode to choose", default="parabola",
-        choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2", "test", "contour", "arbnorm", "contour_old"])
+    parser.add_argument('--suffix', default=None,
+                        help='Suffix to add to database name.')
+    parser.add_argument("-e", "--echo", action="store_true",
+                        help="Echo the SQL queries")
+    parser.add_argument('-v', '--verbose', action="store_true",
+                        help='Turn on Verbose.')
+    parser.add_argument("-m", "--mode", default="parabola",
+                        help="Analysis mode to choose",
+        choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2",
+                 "test", "contour", "arbnorm", "all"])
+    parser.add_argument('-n', '--norm', action="store_true",
+                        help='Normalized chi2 (min(chi**2) == 1).')
     return parser.parse_args()
 
 
@@ -126,6 +133,15 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
         test_figure(db_table, params)
     elif mode == "arbnorm":
         display_arbitary_norm_values(db_table, params)
+    elif mode == "all":
+        fix_host_parameters_reduced_gamma(db_table, params,)
+        get_column_limits(db_table, params)
+        fix_host_parameters(db_table, params)
+        display_arbitary_norm_values(db_table, params)
+        smallest_chi2_values(db_table, params)
+        parabola_plots(db_table, params, norm=norm)
+        contours(db_table, params)
+        test_figure(db_table, params)
     print("Done")
     return 0
 
