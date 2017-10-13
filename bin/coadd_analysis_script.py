@@ -78,6 +78,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
     if verbose:
         print("Database name ", database)
         print("Database exists", os.path.isfile(database))
+    if not os.path.isfile(database):
+        raise IOError("Database '{}' does not exist.".format(database))
     path, dbstar, db_obsnum, chip = decompose_database_name(database)
     assert dbstar == star
     assert db_obsnum == obsnum
@@ -91,6 +93,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
     sqlite_db = 'sqlite:///{}'.format(database)
 
     try:
+        # Careful this creates an empty db if it doesn't exist
         engine = sa.create_engine(sqlite_db, echo=echo)
         table_names = engine.table_names()
     except Exception as e:
