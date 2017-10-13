@@ -117,7 +117,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
     elif mode == "param_limits":
         get_column_limits(db_table, params)
     elif mode == "parabola":
-        parabola_plots(db_table, params)
+        parabola_plots(db_table, params, norm=norm)
     elif mode == "smallest_chi2":
         smallest_chi2_values(db_table, params)
     elif mode == "contour":

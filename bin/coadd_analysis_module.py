@@ -8,6 +8,7 @@ import sqlalchemy as sa
 from matplotlib import pyplot as plt
 from utilities.debug_utils import timeit2
 
+chi2_names = ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]
 
 def alpha_rv_plot(engine, params, tb_name):
     for chi2 in ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]:
@@ -110,28 +111,38 @@ def fix_host_parameters(table, params):
     plt.close()
 
 
-def parabola_plots(table, params):
+def parabola_plots(table, params, limit=None, norm=False):
     parabola_list = ["teff_2", "gamma", "rv"]
     for par in parabola_list:
         df = pd.read_sql(sa.select([table.c[par]]), table.metadata.bind)
         unique_par = list(set(df[par].values))
         unique_par.sort()
         print(unique_par)
-        for chi2_val in ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]:
+        min_chi2 = 1
+        for chi2_val in chi2_names:
             min_chi2 = []
             for unique_val in unique_par:
                 df_chi2 = pd.read_sql(
-                    sa.select([table.c[par], table.c[chi2_val]]).where(table.c[par] == float(unique_val)).order_by(table.c[chi2_val].asc()).limit(3), table.metadata.bind)
+                    sa.select([table.c[par], table.c[chi2_val]]).where(
+                    table.c[par] == float(unique_val)).order_by(
+                    table.c[chi2_val].asc()).limit(3), table.metadata.bind)
                 min_chi2.append(df_chi2[chi2_val].values[0])
-            print(min_chi2)
+            #print(min_chi2)
+            if norm:
+                mc2 = min(min_chi2)
+                min_chi2 = [c2/mc2 for c2 in min_chi2]
             plt.plot(unique_par, min_chi2, label=chi2_val)
 
             popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
             print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
-            plt.plot(x, parabola(x, *popt), label="parabola")
-            plt.xlabel("{}".format(par))
-            plt.ylabel("Chi2")
+            plt.plot(x, parabola(x, *popt)) # , label="parabola")
+            plt.xlabel(r"${}$".format(par))
+            plt.ylabel(r"$\chi^2$")
+            # if limit:
+                #plt.xlim()
+            #    plt.ylim([])
+        plt.legend()
         filename = "Parabola_fit_{0}-{1}_{2}_param_{3}.png".format(
             params["star"], params["obs_num"], params["chip"], par)
 
