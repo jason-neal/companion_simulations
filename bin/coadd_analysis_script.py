@@ -56,7 +56,7 @@ def decompose_database_name(database):
     return path, star, obsnum, chip
 
 
-def load_sql_table(database, name="chi2_table", echo=False):
+def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
     sqlite_db = 'sqlite:///{}'.format(database)
     try:
         engine = sa.create_engine(sqlite_db, echo=echo)
@@ -65,7 +65,8 @@ def load_sql_table(database, name="chi2_table", echo=False):
         print("\nAccessing sqlite_db = {}\n".format(sqlite_db))
         print("cwd =", os.getcwd())
         raise e
-    print("Table names in database =", engine.table_names())
+    if verbose:
+        print("Table names in database =", engine.table_names())
     if len(table_names) == 1:
         tb_name = table_names[0]
     else:
@@ -78,15 +79,17 @@ def load_sql_table(database, name="chi2_table", echo=False):
     return db_table
 
 
-def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
+def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False, norm=False):
     suffix = "" if suffix is None else suffix
     database = coadd_database = os.path.join(simulators.paths["output_dir"], star,
         "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
+
     if verbose:
         print("Database name ", database)
         print("Database exists", os.path.isfile(database))
     if not os.path.isfile(database):
         raise IOError("Database '{}' does not exist.".format(database))
+
     path, dbstar, db_obsnum, chip = decompose_database_name(database)
     assert dbstar == star
     assert db_obsnum == obsnum
@@ -114,7 +117,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
     else:
         raise ValueError("Database has two many tables {}".format(table_names))
 
-    db_table = load_sql_table(database)
+    db_table = load_sql_table(database, verbose=verbose)
 
     print("Mode =", mode)
 
