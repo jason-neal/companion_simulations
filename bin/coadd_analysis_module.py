@@ -8,6 +8,10 @@ import sqlalchemy as sa
 from matplotlib import pyplot as plt
 from utilities.debug_utils import timeit2
 
+from matplotlib import rc
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+rc('text', usetex=True)
+rc("image", cmap="inferno")
 chi2_names = ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]
 
 def alpha_rv_plot(engine, params, tb_name):
