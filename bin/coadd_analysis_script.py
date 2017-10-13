@@ -100,22 +100,16 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False, 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
     params = {"path": path, "star": star, "obs_num": obsnum, "chip": chip, "teff": teff, "logg": logg, "fe_h": fe_h}
 
-    sqlite_db = 'sqlite:///{}'.format(database)
+    #sqlite_db = 'sqlite:///{}'.format(database)
 
-    try:
+    #try:
         # Careful this creates an empty db if it doesn't exist
-        engine = sa.create_engine(sqlite_db, echo=echo)
-        table_names = engine.table_names()
-    except Exception as e:
-        print("\nAccessing sqlite_db = {}\n".format(sqlite_db))
-        print("cwd =", os.getcwd())
-        raise e
-
-    print("Table names in database =", engine.table_names())
-    if len(table_names) == 1:
-        tb_name = table_names[0]
-    else:
-        raise ValueError("Database has two many tables {}".format(table_names))
+    #    engine = sa.create_engine(sqlite_db, echo=echo)
+    #    table_names = engine.table_names()
+    #except Exception as e:
+    #    print("\nAccessing sqlite_db = {}\n".format(sqlite_db))
+    #    print("cwd =", os.getcwd())
+    #    raise e
 
     db_table = load_sql_table(database, verbose=verbose)
 
