@@ -212,6 +212,46 @@ def fix_host_parameters_reduced_gamma(table, params):
     plt.suptitle("Coadd Chi**2 Results: {0}-{1}".format(params["star"], params["obs_num"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
+
+
+def get_column_limits(table, params):
+    print("Database Column Value Ranges")
+    for col in ["teff_1", "teff_2", "logg_1", "logg_2", "gamma", "rv",
+            "chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2", "alpha_1",
+            "alpha_2", "alpha_3", "alpha_4", "arbnorm_1", "arbnorm_2",
+            "arbnorm_3", "arbnorm_4"]:
+        #query = """
+        #       SELECT * FROM (SELECT {1} FROM {0} ORDER BY {1} ASC LIMIT 1)
+        #       UNION ALL
+        #       SELECT * FROM (SELECT {1} FROM {0} ORDER BY {1} DESC LIMIT 1)
+        #       """.format(tb_name, col)
+        # df = pd.read_sql(sa.text(query), engine)
+        min_df = pd.read_sql(
+            sa.select([table.c[col]]).order_by(table.c[col].asc()).limit(1),
+            table.metadata.bind)
+        max_df = pd.read_sql(
+            sa.select([table.c[col]]).order_by(table.c[col].desc()).limit(1),
+            table.metadata.bind)
+        print(col, min_df[col].values[0], max_df[col].values[0])
+
+def test_figure(table, params):
+    chi2_val = "coadd_chi2"
+    #df = pd.read_sql_query('SELECT alpha, chi2 FROM {0} LIMIT 10000'.format(tb_name), engine)
+    df = pd.read_sql_query(sa.select([table.c.gamma, table.c[chi2_val]]).limit(10000), table.metadata.bind)
+    fig, ax = plt.subplots()
+    ax.scatter(df["gamma"], df[chi2_val], s=3, alpha=0.5)
+
+    ax.set_xlabel(r'$\gamma$', fontsize=15)
+    ax.set_ylabel(r"$\rm {0}$".format(chi2_val), fontsize=15)
+    ax.set_title(r'$\gamma$ and $\chi^2$.')
+
+    ax.grid(True)
+    fig.tight_layout()
+    name = "{0}-{1}_{2}_test_test_figure1_{3}.pdf".format(
+        params["star"], params["obs_num"], params["chip"], chi2_val)
+    plt.savefig(os.path.join(params["path"], "plots", name))
+    # plt.show()
+    plt.close()
     d_gamma = 5
     # Select lowest chisqr gamma values.
     query = """SELECT {0}, {1} FROM {2} ORDER BY {1} ASC LIMIT 1""" .format(
@@ -279,6 +319,19 @@ def get_column_limits(engine, params, tb_name):
 
 
 def alpha_rv_contour(engine, params, tb_name):
+
+
+def get_column_limits_engine(engine, params, tb_name):
+    print("Column Value Ranges")
+    for col in ["teff_1", "teff_2", "logg_1", "logg_2", "gamma", "rv", "chi2"]:
+        query = """
+               SELECT * FROM (SELECT {1} FROM {0} ORDER BY {1} ASC LIMIT 1)
+               UNION ALL
+               SELECT * FROM (SELECT {1} FROM {0} ORDER BY {1} DESC LIMIT 1)
+               """.format(tb_name, col)
+        df = pd.read_sql(sa.text(query), engine)
+        print(col, min(df[col]), max(df[col]))
+
     df_min_chi2 = pd.read_sql(sa.text('SELECT * FROM {0} ORDER BY chi2 ASC LIMIT 1'.format(tb_name)), engine)
     print("Need to check host parameters")
     db_names = {}
@@ -356,7 +409,7 @@ def alpha_rv_contour_old(engine, params, tb_name):
     # plt.show()
 
 
-def test_figure(engine, params, tb_name):
+def test_figure_engine(engine, params, tb_name):
     df = pd.read_sql_query('SELECT alpha, chi2 FROM {0} LIMIT 10000'.format(tb_name), engine)
 
     fig, ax = plt.subplots()

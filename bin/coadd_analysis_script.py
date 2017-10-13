@@ -115,7 +115,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
         fix_host_parameters_reduced_gamma(db_table, params)
         fix_host_parameters(db_table, params)
     elif mode == "param_limits":
-        get_column_limits(engine, params, tb_name)
+        get_column_limits(db_table, params)
     elif mode == "parabola":
         parabola_plots(db_table, params)
     elif mode == "smallest_chi2":
@@ -123,7 +123,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
     elif mode == "contour":
         alpha_rv_contour_old(engine, params, tb_name)
     elif mode == "test":
-        test_figure(engine, params, tb_name)
+        test_figure(db_table, params)
     elif mode == "arbnorm":
         display_arbitary_norm_values(db_table, params)
     print("Done")
