@@ -140,17 +140,19 @@ def parabola_plots(table, params):
         print("saved parabolas for ", par)
 
 
-def smallest_chi2_values(engine, params, tb_name):
+def smallest_chi2_values(table, params, num=10):
     """Find smallest chi2 in table."""
-    df = pd.read_sql(sa.text('SELECT * FROM {0} ORDER BY chi2 ASC LIMIT 10'.format(tb_name)), engine)
-    # df = pd.read_sql_query('SELECT alpha  FROM table', engine)
+    chi2_val = "coadd_chi2"
+    df = pd.read_sql(
+        sa.select(table.c).order_by(table.c[chi2_val].asc()).limit(num),
+        table.metadata.bind)
 
-    print("Samllest Chi2 values in the database.")
-    print(df.head(n=15))
+    print("Samllest Co-add Chi2 values in the database.")
+    print(df.head(n=num))
     name = "{0}-{1}_{2}_test_smallest_chi2.pdf".format(
         params["star"], params["obs_num"], params["chip"])
-    plt.savefig(os.path.join(params["path"], "plots", name))
-    plt.close()
+    # plt.savefig(os.path.join(params["path"], "plots", name))
+    # plt.close()
     # plt.show()
 
 

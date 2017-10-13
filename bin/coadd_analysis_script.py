@@ -119,9 +119,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
     elif mode == "parabola":
         parabola_plots(db_table, params)
     elif mode == "smallest_chi2":
-        smallest_chi2_values(engine, params, tb_name)
-    elif mode == "contour":
-        alpha_rv_contour(engine, params, tb_name)
+        smallest_chi2_values(db_table, params)
     elif mode == "contour":
         alpha_rv_contour_old(engine, params, tb_name)
     elif mode == "test":
