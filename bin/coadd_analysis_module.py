@@ -84,21 +84,21 @@ def parabola_plots(table, params):
         unique_par = list(set(df[par].values))
         unique_par.sort()
         print(unique_par)
+        for chi2_val in ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]:
+            min_chi2 = []
+            for unique_val in unique_par:
+                df_chi2 = pd.read_sql(
+                    sa.select([table.c[par], table.c[chi2_val]]).where(table.c[par] == float(unique_val)).order_by(table.c[chi2_val].asc()).limit(3), table.metadata.bind)
+                min_chi2.append(df_chi2[chi2_val].values[0])
+            print(min_chi2)
+            plt.plot(unique_par, min_chi2, label=chi2_val)
 
-        min_chi2 = []
-        for unique_val in unique_par:
-            df_chi2 = pd.read_sql(
-                sa.select([table.c[par], table.c.chi2]).where(table.c[par] == float(unique_val)).order_by(table.c.chi2.asc()).limit(3), table.metadata.bind)
-            min_chi2.append(df_chi2.chi2.values[0])
-        print(min_chi2)
-        plt.plot(unique_par, min_chi2)
-
-        popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
-        print("params", popt)
-        x = np.linspace(unique_par[0], unique_par[-1], 40)
-        plt.plot(x, parabola(x, *popt), label="parabola")
-        plt.xlabel("{}".format(par))
-        plt.ylabel("Chi2")
+            popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
+            print("params", popt)
+            x = np.linspace(unique_par[0], unique_par[-1], 40)
+            plt.plot(x, parabola(x, *popt), label="parabola")
+            plt.xlabel("{}".format(par))
+            plt.ylabel("Chi2")
         filename = "Parabola_fit_{0}-{1}_{2}_param_{3}.png".format(
             params["star"], params["obs_num"], params["chip"], par)
 
