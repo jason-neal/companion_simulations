@@ -121,7 +121,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False):
     elif mode == "smallest_chi2":
         smallest_chi2_values(db_table, params)
     elif mode == "contour":
-        alpha_rv_contour_old(engine, params, tb_name)
+        contours(db_table, params)
     elif mode == "test":
         test_figure(db_table, params)
     elif mode == "arbnorm":

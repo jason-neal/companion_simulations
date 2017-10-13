@@ -234,6 +234,83 @@ def get_column_limits(table, params):
             table.metadata.bind)
         print(col, min_df[col].values[0], max_df[col].values[0])
 
+
+def contours(table, params):
+
+    for chi2_val in  ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]:
+        # df_min_chi2 = pd.read_sql(sa.text('SELECT * FROM {0} ORDER BY chi2 ASC LIMIT 1'.format(tb_name)), engine)
+        df_min_chi2 = pd.read_sql(
+            sa.select(table.c
+            ).order_by(table.c[chi2_val].asc()
+            ).limit(1),
+            table.metadata.bind)
+
+        print("columns", df_min_chi2.columns)
+        pars = ["teff_2", "rv", chi2_val]
+        cols = ['teff_2', 'rv', 'gamma', chi2_val]
+        par_limit = "gamma"    # gamma value at minimum chi2
+        print("df_min_chi2[par_limit]", df_min_chi2[par_limit].values[0])
+
+        df = pd.read_sql(
+            sa.select([table.c["teff_2"], table.c["rv"], table.c["gamma"], table.c[chi2_val]]
+            ).where(sa.and_(
+                table.c[par_limit] == float(df_min_chi2[par_limit][0]),
+                table.c.teff_1 == int(params["teff"]),
+                table.c.logg_1 == float(params["logg"]),
+                table.c.feh_1 == float(params["fe_h"]),
+                table.c.logg_2 == float(params["logg"]),  # Fix companion logg
+                table.c.feh_2 == float(params["fe_h"]))   # Fix companion fe_h
+            ), table.metadata.bind)
+
+        print(df.head())
+
+        for col in cols:
+            if col is not chi2_val:
+                print("unique {}".format(col), set(df[col].values), "length=", len(list(set(df[col].values))))
+
+        dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
+
+
+def dataframe_contour(df, xcol, ycol, zcol, params):
+    x = sorted(np.array(list(set(df[xcol].values))))
+    y = sorted(np.array(list(set(df[ycol].values))))
+
+    # Create grid for chi2 values
+    Z = np.empty((len(x), len(y)))
+    for i, xval in enumerate(x):
+        for j, yval in enumerate(y):
+            try:
+                Z[i, j] = df.loc[(df[xcol].values == xval) * (df[ycol].values == yval), zcol].values
+            except ValueError as e:
+                print("x_S * y_s", sum((df[xcol].values == xval)*(df[ycol].values == yval)))
+                print("Check metalicity and logg of companion")
+                raise e
+
+    X, Y = np.meshgrid(x, y, indexing='ij')
+
+    print(X, Y, Z)
+    # print("shapes", X.shape, Y.shape, Z.shape)
+    assert X.shape == Z.shape
+    assert X.shape == Y.shape
+
+    fig, ax = plt.subplots()
+    c = ax.contourf(X, Y, Z, alpha=0.5, cmap=plt.cm.inferno)
+    cbar = plt.colorbar(c)
+    cbar.ax.set_ylabel(zcol)
+    # plt.clabel(pars[2])
+    ax.set_xlabel(r"$\rm {0}$".format(xcol), fontsize=15)
+    ax.set_ylabel(r"$\rm {0}$".format(ycol), fontsize=15)
+    ax.set_title('{0}: {1} contour'.format(params["star"], zcol))
+
+    ax.grid(True)
+    fig.tight_layout()
+    name = "{0}-{1}_{2}_{3}_{4}_{5}_contour.pdf".format(
+        params["star"], params["obs_num"], params["chip"], xcol, ycol, zcol)
+    plt.savefig(os.path.join(params["path"], "plots", name))
+    plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+    # plt.show()
+    plt.close()
+
 def test_figure(table, params):
     chi2_val = "coadd_chi2"
     #df = pd.read_sql_query('SELECT alpha, chi2 FROM {0} LIMIT 10000'.format(tb_name), engine)
@@ -306,7 +383,6 @@ def test_figure(table, params):
     plt.close()
 
 
-def get_column_limits(engine, params, tb_name):
     print("Column Value Ranges")
     for col in ["teff_1", "teff_2", "logg_1", "logg_2", "alpha", "gamma", "rv", "chi2"]:
         query = """
@@ -318,7 +394,25 @@ def get_column_limits(engine, params, tb_name):
         print(col, min(df[col]), max(df[col]))
 
 
-def alpha_rv_contour(engine, params, tb_name):
+
+def alpha_rv_plot_engine(engine, params, tb_name):
+    for chi2 in ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]:
+        df = pd.read_sql(sa.text('SELECT alpha, rv, {1}, teff_2 FROM {0}'.format(tb_name, chi2)), engine)
+
+        fig, ax = plt.subplots()
+        ax.scatter(df["rv"], df["chi2"], c=df["alpha"], s=df["teff_2"] / 50, alpha=0.5)
+
+        ax.set_xlabel('rv offset', fontsize=15)
+        ax.set_ylabel('chi2', fontsize=15)
+        ax.set_title('alpha (color) and companion temperature (size=Temp/50).')
+
+        ax.grid(True)
+        fig.tight_layout()
+        name = "{0}-{1}_{2}_test_alpha_rv.pdf".format(
+            params["star"], params["obs_num"], params["chip"])
+        plt.savefig(os.path.join(params["path"], "plots", name))
+        plt.close()
+
 
 
 def get_column_limits_engine(engine, params, tb_name):
