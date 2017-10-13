@@ -15,7 +15,7 @@ import simulators
 import sqlalchemy as sa
 from bin.coadd_analysis_module import (contours,
                                        display_arbitary_norm_values,
-                                       fix_host_parameters,
+                                       fix_host_parameters, rv_plot,
                                        fix_host_parameters_reduced_gamma,
                                        get_column_limits, parabola_plots,
                                        smallest_chi2_values, test_figure)
@@ -40,7 +40,7 @@ def _parser():
     parser.add_argument("-m", "--mode", default="parabola",
                         help="Analysis mode to choose",
         choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2",
-                 "test", "contour", "arbnorm", "all"])
+                 "test", "contour", "arbnorm", "all", "rvplot"])
     parser.add_argument('-n', '--norm', action="store_true",
                         help='Normalized chi2 (min(chi**2) == 1).')
     return parser.parse_args()
@@ -128,6 +128,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False, 
         contours(db_table, params)
     elif mode == "test":
         test_figure(db_table, params)
+    elif mode == "rvplot":
+        rv_plot(db_table, params)
     elif mode == "arbnorm":
         display_arbitary_norm_values(db_table, params)
     elif mode == "all":

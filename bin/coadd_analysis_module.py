@@ -14,22 +14,28 @@ rc('text', usetex=True)
 rc("image", cmap="inferno")
 chi2_names = ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]
 
-def alpha_rv_plot(engine, params, tb_name):
-    for chi2 in ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]:
-        df = pd.read_sql(sa.text('SELECT alpha, rv, {1}, teff_2 FROM {0}'.format(tb_name, chi2)), engine)
-
+def rv_plot(table, params):
+    for chi2_val in ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]:
+        # df = pd.read_sql(sa.text('SELECT alpha, rv, {1}, teff_2 FROM {0}'.format(tb_name, chi2)), engine)
+        df = pd.read_sql(
+            sa.select([table.c["rv"], table.c[chi2_val], table.c["teff_2"]]),
+            table.metadata.bind)
         fig, ax = plt.subplots()
-        ax.scatter(df["rv"], df["chi2"], c=df["alpha"], s=df["teff_2"] / 50, alpha=0.5)
+        c = ax.scatter(df["rv"], df[chi2_val], c=df["teff_2"], alpha=0.8)
 
-        ax.set_xlabel('rv offset', fontsize=15)
-        ax.set_ylabel('chi2', fontsize=15)
-        ax.set_title('alpha (color) and companion temperature (size=Temp/50).')
+        cbar = plt.colorbar(c)
+        cbar.ax.set_ylabel(r"\rm teff_2")
+
+        ax.set_xlabel(r'RV offset', fontsize=12)
+        ax.set_ylabel(r"$\rm {0}$".format(chi2_val), fontsize=12)
+        ax.set_title(r'$\rm teff_2$ (color) and companion temperature.')
 
         ax.grid(True)
         fig.tight_layout()
-        name = "{0}-{1}_{2}_test_alpha_rv.pdf".format(
-            params["star"], params["obs_num"], params["chip"])
+        name = "{0}-{1}_{2}_scatter_rv_{3}.pdf".format(
+            params["star"], params["obs_num"], params["chip"], chi2_val)
         plt.savefig(os.path.join(params["path"], "plots", name))
+        plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
 
 
@@ -591,6 +597,3 @@ def test_figure_engine(engine, params, tb_name):
         params["star"], params["obs_num"], params["chip"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     # plt.show()
-
-    alpha_rv_plot(engine, params, tb_name)
-    # alpha_rv_contour(engine, tb_name)
