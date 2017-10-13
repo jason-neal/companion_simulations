@@ -29,22 +29,50 @@ def alpha_rv_plot(engine, params, tb_name):
 
 
 def display_arbitary_norm_values(table, params):
-    for arbnorm in ["arbnorm_1", "arbnorm_2", "arbnorm_3", "arbnorm_4", "arbnorm_4"]:
-        df = pd.read_sql(sa.text('SELECT alpha, rv, {1}, teff_2 FROM {0}'.format(tb_name, arbnorm)), engine)
+    fig, axarr = plt.subplots(3)
+    for ii, arbnorm in enumerate([r"arbnorm_1", r"arbnorm_2", r"arbnorm_3", r"arbnorm_4"]):
+        xshift = lambda x, num: x + num * (x * 0.1)   # to separate points
 
-        fig, ax = plt.subplots()
-        ax.scatter(df["rv"], df[arbnorm], c=df["teff_2"] / 50, alpha=0.5, legend=arbnorm)
+        df = pd.read_sql(
+            sa.select([table.c.gamma, table.c[arbnorm],
+                       table.c.rv, table.c.teff_2]), table.metadata.bind)
 
-        ax.set_xlabel('rv offset', fontsize=15)
-        ax.set_ylabel('chi2', fontsize=15)
-        ax.set_title('alpha (color) and companion temperature (size=Temp/50).')
+        c = axarr[0].scatter(xshift(df["rv"], ii), df[arbnorm],
+            c=df[r"teff_2"].values, alpha=0.9, label=arbnorm)
 
-        ax.grid(True)
-        fig.tight_layout()
-        name = "{0}-{1}_{2}_plot_{3}.pdf".format(
-            params["star"], params["obs_num"], params["chip"], arbnorm)
-        plt.savefig(os.path.join(params["path"], "plots", name))
-        plt.close()
+        axarr[0].set_xlabel(r'rv offset', fontsize=12)
+        axarr[0].set_ylabel(r'Arbitary norm', fontsize=12)
+        axarr[0].set_title(r'Arbitary normalization.')
+
+        d = axarr[1].scatter(xshift(df[r"gamma"], ii), df[arbnorm],
+            c=df[r"teff_2"].values, alpha=0.9, label=arbnorm)
+        axarr[1].set_xlabel(r'$\gamma$ offset', fontsize=12)
+        axarr[1].set_ylabel(r'Arbitary norm', fontsize=12)
+        axarr[1].set_title(r'$\gamma$.')
+
+        e = axarr[2].scatter(xshift(df[r"teff_2"], ii), df[arbnorm],
+            c=df[r"gamma"].values, alpha=0.9, label=arbnorm)
+        axarr[2].set_xlabel(r'Companion temperature', fontsize=15)
+        axarr[2].set_ylabel(r'Arbitary norm ', fontsize=15)
+        axarr[2].set_title(r'Companion Temperature')
+    axarr[0].grid(True)
+    axarr[1].grid(True)
+    axarr[2].grid(True)
+
+    cbar0 = plt.colorbar(c)
+    cbar0.ax.set_ylabel(r"\rm teff_2")
+    cbar1 = plt.colorbar(d)
+    cbar1.ax.set_ylabel(r"\rm teff_2")
+    cbar2 = plt.colorbar(e)
+    cbar1.ax.set_ylabel(r"$\gamma$")
+    fig.tight_layout()
+    fig.suptitle("Arbitrary normalization used, \n slight shift with detetor")
+    name = "{0}-{1}_{2}_plot_arbnormalization.pdf".format(
+        params["star"], params["obs_num"], params["chip"])
+    plt.savefig(os.path.join(params["path"], "plots", name))
+    plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+    plt.close()
+
 
 
 @timeit2
