@@ -6,8 +6,9 @@ import subprocess
 import sys
 
 import pandas as pd
-import sqlalchemy as sa
 import simulators
+import sqlalchemy as sa
+
 
 def _parser():
     """Take care of all the argparse stuff.

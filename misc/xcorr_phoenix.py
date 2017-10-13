@@ -1,11 +1,11 @@
 
-import matplotlib.pyplot as plt
 # Xcorr the phoenix spectra against observation to find RV value.
 # Test using the cross correlation function on a spectrum.
 import numpy as np
+
+import matplotlib.pyplot as plt
 from astropy.io import fits
 from PyAstronomy import pyasl
-
 from spectrum_overload.Spectrum import Spectrum
 
 pathwave = "/home/jneal/Phd/data/phoenixmodels/" \

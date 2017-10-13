@@ -10,13 +10,13 @@ import os
 import pickle
 from datetime import datetime as dt
 
+import numpy as np
+
 import ephem
 import matplotlib.pyplot as plt
 import multiprocess as mprocess
-import numpy as np
-from astropy.io import fits
-
 from ajplanet import pl_rv_array
+from astropy.io import fits
 from Get_filenames import get_filenames
 from models.alpha_model import alpha_model2
 from Planet_spectral_simulations import load_PHOENIX_hd30501

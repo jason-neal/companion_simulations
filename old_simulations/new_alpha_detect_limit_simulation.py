@@ -7,9 +7,9 @@ from __future__ import division, print_function
 import copy
 import logging
 
-import matplotlib.pyplot as plt
 import numpy as np
 
+import matplotlib.pyplot as plt
 from models.alpha_model import alpha_model
 from Planet_spectral_simulations import load_PHOENIX_hd30501
 from spectrum_overload.Spectrum import Spectrum

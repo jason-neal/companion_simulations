@@ -2,9 +2,9 @@
 # Test Noise Addition:
 import copy
 
-import matplotlib.pyplot as plt
 import numpy as np
 
+import matplotlib.pyplot as plt
 from spectrum_overload.Spectrum import Spectrum
 from utilities.simulate_utilities import add_noise
 

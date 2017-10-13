@@ -10,11 +10,11 @@ import os
 import pickle
 from datetime import datetime as dt
 
+import numpy as np
+
 import ephem
 import matplotlib.pyplot as plt
 import multiprocess as mprocess
-import numpy as np
-
 from ajplanet import pl_rv_array
 from Chisqr_of_observation import plot_obs_with_model
 from models.alpha_model import alpha_model2

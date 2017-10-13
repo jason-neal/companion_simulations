@@ -2,13 +2,13 @@ import logging
 import os
 
 import numpy as np
+
 import pandas as pd
+import simulators
 from joblib import Parallel, delayed
+from models.broadcasted_models import inherent_alpha_model
 from scipy import stats
 from tqdm import tqdm
-
-import simulators
-from models.broadcasted_models import inherent_alpha_model
 from utilities.norm import chi2_model_norms, continuum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum

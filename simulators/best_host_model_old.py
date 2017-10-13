@@ -17,10 +17,11 @@ import os
 import sys
 from datetime import datetime as dt
 
-import matplotlib.pyplot as plt
 import numpy as np
-from astropy.io import fits
 
+import matplotlib.pyplot as plt
+import simulators
+from astropy.io import fits
 from spectrum_overload.Spectrum import Spectrum
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import (barycorr_crires_spectrum,
@@ -41,8 +42,8 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 debug = logging.debug
 
-model_base_dir = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
-wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+model_base_dir = (simulators.starfish_grid["raw_path"])
+wav_dir = simulators.starfish_grid["raw_path"]
 
 
 def main():

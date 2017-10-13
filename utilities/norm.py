@@ -1,9 +1,9 @@
 """Normalization codes."""
 import copy
 
-import matplotlib.pyplot as plt
 import numpy as np
 
+import matplotlib.pyplot as plt
 from utilities.debug_utils import timeit2
 
 

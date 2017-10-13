@@ -13,10 +13,10 @@ import os
 import sys
 
 import numpy as np
-from astropy.io import fits
-from joblib import Parallel, delayed
 
 import simulators
+from astropy.io import fits
+from joblib import Parallel, delayed
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    parallel_iam_analysis)
 from utilities.crires_utilities import barycorr_crires_spectrum

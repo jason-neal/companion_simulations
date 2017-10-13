@@ -1,7 +1,7 @@
 """Companion simulate models using Broadcasting."""
 import numpy as np
-from scipy.interpolate import interp1d
 
+from scipy.interpolate import interp1d
 from utilities.debug_utils import timeit2
 
 

@@ -2,13 +2,14 @@
 
 Sometimes works, but spectral lines and depressions are a problem.
 """
-import matplotlib.pyplot as plt
 import numpy as np
+
+import matplotlib.pyplot as plt
+import simulators
 from astropy import units as u
 from astropy.analytic_functions import blackbody_lambda
 from astropy.io import fits
 from lmfit import Parameters, minimize
-
 from spectrum_overload.Spectrum import Spectrum
 
 
@@ -40,11 +41,12 @@ u_k = u.K
 host_temp = 5400
 comp_temp = 2400
 # Load in some phoenix data and make a simulation
-phoenix_wl = fits.getdata("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits") / 10
+path = simulators.starfish_grid["raw_path"]
+phoenix_wl = fits.getdata(os.path.join(path, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")) / 10
 
-host_phoenix = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/Z-0.0/lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(host_temp)
+host_phoenix = os.path.join(path, "Z-0.0", "lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(host_temp))
 
-comp_phoenix = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/Z-0.0/lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(comp_temp)
+comp_phoenix = os.path.join(path, "Z-0.0", "lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(comp_temp))
 
 unnorm_host_spec = Spectrum(flux=fits.getdata(host_phoenix), xaxis=phoenix_wl)
 unnorm_comp_spec = Spectrum(flux=fits.getdata(comp_phoenix), xaxis=phoenix_wl)

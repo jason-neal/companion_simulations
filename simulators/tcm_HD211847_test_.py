@@ -19,13 +19,14 @@ import sys
 
 # import matplotlib.pyplot as plt
 import numpy as np
+
 # import pandas as pd
 import scipy as sp
+import simulators
 from astropy.io import fits
-from tqdm import tqdm
-
 from Chisqr_of_observation import load_spectrum  # , select_observation
 from models.broadcasted_models import two_comp_model
+from tqdm import tqdm
 from two_component_model_HD211847 import save_full_chisqr, tcm_helper_function
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
@@ -43,8 +44,8 @@ logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 debug = logging.debug
 
-model_base_dir = ("/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/")
-wav_dir = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+model_base_dir = (simulators["raw_path"])
+wav_dir = simulators["raw_path"]
 
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
 wav_model /= 10   # turn into nm

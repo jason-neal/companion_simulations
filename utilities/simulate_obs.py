@@ -4,7 +4,6 @@ import os
 from collections import defaultdict
 
 from joblib import Memory
-
 from utilities.simulation_utilities import combine_spectra
 
 from .models.alpha_model import alpha_model

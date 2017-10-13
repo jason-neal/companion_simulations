@@ -3,8 +3,8 @@ from __future__ import division, print_function
 
 import numpy as np
 import pytest
-import scipy as sp
 
+import scipy as sp
 # Test that the two componet model with alpha = [0] and rvs=[0] are equal!
 from models.broadcasted_models import (check_broadcastable,
                                        inherent_alpha_model, one_comp_model,

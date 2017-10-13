@@ -1,12 +1,13 @@
 """Try fitting with lmfit."""
 import os
 
+import numpy as np
+
 import lmfit
 import matplotlib.pyplot as plt
-import numpy as np
+import simulators
 from astropy.io import fits
 from lmfit import Parameters, minimize
-
 from models.alpha_model import double_shifted_alpha_model
 from Planet_spectral_simulations import simple_normalization
 from spectrum_overload.Spectrum import Spectrum
@@ -47,7 +48,7 @@ def alpha_model_residual(params, x, data, eps_data, host_models, companion_model
 host_temp = 5300
 comp_temp = 2300
 # Load in some phoenix data and make a simulation
-base = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+base = simulators.starfish_grid["raw_path"]
 phoenix_wl = fits.getdata(os.path.join(base, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")) / 10
 
 host_phoenix = os.path.join(base, ("Z-0.0/lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits").format(host_temp))

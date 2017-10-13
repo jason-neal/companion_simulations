@@ -6,7 +6,6 @@ import argparse
 import sys
 
 from joblib import Parallel, delayed
-
 from simulators.iam_script import main
 
 
