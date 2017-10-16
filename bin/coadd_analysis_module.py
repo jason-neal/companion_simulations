@@ -160,6 +160,53 @@ def parabola_plots(table, params, limit=None, norm=False):
         plt.close()
         print("saved parabolas for ", par)
 
+def chi2_at_sigma(df, sigma):
+    "Use inverse survial function to calculate the chi2 value for signifigances."
+    sigma_percent = {1: 0.68, 2:0.90, 3:0.99}
+    return scipy.stats.chi2(df).isf(1 - sigma_percent[sigma])
+
+def chi2_parabola_plots(table, params, limit=None, npars=3):
+    parabola_list = ["teff_2", "gamma", "rv"]
+    for par in parabola_list:
+        df = pd.read_sql(sa.select([table.c[par]]), table.metadata.bind)
+        unique_par = list(set(df[par].values))
+        unique_par.sort()
+        print(unique_par)
+
+        for chi2_val in chi2_names:
+            min_chi2 = []
+            for unique_val in unique_par:
+                df_chi2 = pd.read_sql(
+                    sa.select([table.c[par], table.c[chi2_val]]).where(
+                    table.c[par] == float(unique_val)).order_by(
+                    table.c[chi2_val].asc()).limit(3), table.metadata.bind)
+                min_chi2.append(df_chi2[chi2_val].values[0])
+
+            min_chi2 = min_chi2 - min(min_chi2)
+
+            plt.plot(unique_par, min_chi2, label=chi2_val)
+
+            popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
+            print("params", popt)
+            x = np.linspace(unique_par[0], unique_par[-1], 40)
+            plt.plot(x, parabola(x, *popt)) # , label="parabola")
+            plt.xlabel(r"${}$".format(par))
+            plt.ylabel(r"$\Delta \chi^2$  from mimimum")
+
+        plt.axhline(y=chi2_at_sigma(npars, 1), label="1 sigma")
+        plt.axhline(y=chi2_at_sigma(npars, 2), label="2 sigma")
+        plt.axhline(y=chi2_at_sigma(npars, 3), label="3 sigma")
+            # if limit:
+                #plt.xlim()
+            #    plt.ylim([])
+        plt.legend()
+        filename = "Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}.png".format(
+            params["star"], params["obs_num"], params["chip"], par)
+
+        plt.savefig(os.path.join(params["path"], "plots", filename))
+        plt.close()
+        print("saved parabolas for ", par)
+
 
 def smallest_chi2_values(table, params, num=10):
     """Find smallest chi2 in table."""

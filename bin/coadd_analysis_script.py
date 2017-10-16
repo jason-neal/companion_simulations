@@ -17,7 +17,8 @@ from bin.coadd_analysis_module import (contours,
                                        display_arbitary_norm_values,
                                        fix_host_parameters, rv_plot,
                                        fix_host_parameters_reduced_gamma,
-                                       get_column_limits, parabola_plots,
+                                       get_column_limits,chi2_parabola_plots,
+                                        parabola_plots,
                                        smallest_chi2_values, test_figure)
 from utilities.param_file import get_host_params
 from utilities.phoenix_utils import closest_model_params
@@ -37,10 +38,12 @@ def _parser():
                         help="Echo the SQL queries")
     parser.add_argument('-v', '--verbose', action="store_true",
                         help='Turn on Verbose.')
+    parser.add_argument('-p', '--npars', type=int, default=3,
+                        help='Number of interesting parameters. (default=3)')
     parser.add_argument("-m", "--mode", default="parabola",
                         help="Analysis mode to choose",
         choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2",
-                 "test", "contour", "arbnorm", "all", "rvplot"])
+                 "test", "contour", "arbnorm", "all", "rvplot", "chi2_parabola"])
     parser.add_argument('-n', '--norm', action="store_true",
                         help='Normalized chi2 (min(chi**2) == 1).')
     return parser.parse_args()
@@ -79,7 +82,8 @@ def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
     return db_table
 
 
-def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False, norm=False):
+def main(star, obsnum, suffix=None, echo=False, mode="parabola",
+         verbose=False, norm=False, npars=3):
     suffix = "" if suffix is None else suffix
     database = coadd_database = os.path.join(simulators.paths["output_dir"], star,
         "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
@@ -132,6 +136,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False, 
         rv_plot(db_table, params)
     elif mode == "arbnorm":
         display_arbitary_norm_values(db_table, params)
+    elif mode == "chi2_parabola":
+        chi2_parabola_plots(db_table, params, npars=npars)
     elif mode == "all":
         fix_host_parameters_reduced_gamma(db_table, params,)
         get_column_limits(db_table, params)
@@ -141,6 +147,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola", verbose=False, 
         parabola_plots(db_table, params, norm=norm)
         contours(db_table, params)
         test_figure(db_table, params)
+        chi2_parabola_plots(db_table, params, npars=npars)
     print("Done")
     return 0
 
