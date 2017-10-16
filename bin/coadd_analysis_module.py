@@ -32,8 +32,8 @@ def rv_plot(table, params):
 
         ax.grid(True)
         fig.tight_layout()
-        name = "{0}-{1}_{2}_scatter_rv_{3}.pdf".format(
-            params["star"], params["obs_num"], params["chip"], chi2_val)
+        name = "{0}-{1}_{2}_scatter_rv_{3}_{4}.pdf".format(
+            params["star"], params["obs_num"], params["chip"], chi2_val, params["suffix"])
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
@@ -78,8 +78,8 @@ def display_arbitary_norm_values(table, params):
     cbar1.ax.set_ylabel(r"$\gamma$")
     fig.tight_layout()
     fig.suptitle("Arbitrary normalization used, \n slight shift with detetor")
-    name = "{0}-{1}_{2}_plot_arbnormalization.pdf".format(
-        params["star"], params["obs_num"], params["chip"])
+    name = "{0}-{1}_{2}_plot_arbnormalization_{3}.pdf".format(
+        params["star"], params["obs_num"], params["chip"], params["suffix"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
     plt.close()
@@ -114,8 +114,8 @@ def fix_host_parameters(table, params):
             axis_pos = [int(x) for x in np.where(indices == ii)]
             df.plot(x=col, y=chi2_val, kind="scatter", ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)  # , c="gamma", colorbar=True)
 
-    name = "{0}-{1}_coadd_fixed_host_params_full_gamma.png".format(
-        params["star"], params["obs_num"])
+    name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}.png".format(
+        params["star"], params["obs_num"], params["suffix"])
     plt.suptitle("Co-add Chi**2 Results (Fixed host): {0}-{1}".format(params["star"], params["obs_num"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
@@ -153,8 +153,8 @@ def parabola_plots(table, params, limit=None, norm=False):
                 #plt.xlim()
             #    plt.ylim([])
         plt.legend()
-        filename = "Parabola_fit_{0}-{1}_{2}_param_{3}.png".format(
-            params["star"], params["obs_num"], params["chip"], par)
+        filename = "Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
+            params["star"], params["obs_num"], params["chip"], par, params["suffix"])
 
         plt.savefig(os.path.join(params["path"], "plots", filename))
         plt.close()
@@ -200,8 +200,8 @@ def chi2_parabola_plots(table, params, limit=None, npars=3):
                 #plt.xlim()
             #    plt.ylim([])
         plt.legend()
-        filename = "Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}.png".format(
-            params["star"], params["obs_num"], params["chip"], par)
+        filename = "Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
+            params["star"], params["obs_num"], params["chip"], par, params["suffix"])
 
         plt.savefig(os.path.join(params["path"], "plots", filename))
         plt.close()
@@ -217,8 +217,8 @@ def smallest_chi2_values(table, params, num=10):
 
     print("Samllest Co-add Chi2 values in the database.")
     print(df.head(n=num))
-    name = "{0}-{1}_{2}_test_smallest_chi2.pdf".format(
-        params["star"], params["obs_num"], params["chip"])
+    name = "{0}-{1}_{2}_test_smallest_chi2_{3}.pdf".format(
+        params["star"], params["obs_num"], params["chip"], params["suffix"])
     # plt.savefig(os.path.join(params["path"], "plots", name))
     # plt.close()
     # plt.show()
@@ -275,8 +275,8 @@ def fix_host_parameters_reduced_gamma(table, params):
             df.plot(x=col, y=chi2_val, kind="scatter",
                 ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)  # , c="gamma", colorbar=True)
 
-    name = "{0}-{1}_coadd_fixed_host_params.png".format(
-        params["star"], params["obs_num"])
+    name = "{0}-{1}_coadd_fixed_host_params_{2}.png".format(
+        params["star"], params["obs_num"], params["suffix"])
     plt.suptitle("Coadd Chi**2 Results: {0}-{1}".format(params["star"], params["obs_num"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
@@ -372,8 +372,8 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
 
     ax.grid(True)
     fig.tight_layout()
-    name = "{0}-{1}_{2}_{3}_{4}_{5}_contour.pdf".format(
-        params["star"], params["obs_num"], params["chip"], xcol, ycol, zcol)
+    name = "{0}-{1}_{2}_{3}_{4}_{5}_contour_{6}.pdf".format(
+        params["star"], params["obs_num"], params["chip"], xcol, ycol, zcol, params["suffix"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
     # plt.show()
@@ -392,8 +392,8 @@ def test_figure(table, params):
 
     ax.grid(True)
     fig.tight_layout()
-    name = "{0}-{1}_{2}_test_test_figure1_{3}.pdf".format(
-        params["star"], params["obs_num"], params["chip"], chi2_val)
+    name = "{0}-{1}_{2}_test_test_figure1_{3}_{4}.pdf".format(
+        params["star"], params["obs_num"], params["chip"], chi2_val, params["suffix"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     # plt.show()
     plt.close()

@@ -102,7 +102,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)  # make dir for plots
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
-    params = {"path": path, "star": star, "obs_num": obsnum, "chip": chip, "teff": int(teff), "logg": float(logg), "fe_h": float(fe_h)}
+    params = {"path": path, "star": star, "obs_num": obsnum, "chip": chip, "suffix": suffix
+              "teff": int(teff), "logg": float(logg), "fe_h": float(fe_h)}
 
     #sqlite_db = 'sqlite:///{}'.format(database)
 
