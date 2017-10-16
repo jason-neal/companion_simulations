@@ -10,7 +10,7 @@ from utilities.debug_utils import timeit2
 
 from matplotlib import rc
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-rc('text', usetex=True)
+# rc('text', usetex=True)
 rc("image", cmap="inferno")
 chi2_names = ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]
 
@@ -24,11 +24,11 @@ def rv_plot(table, params):
         c = ax.scatter(df["rv"], df[chi2_val], c=df["teff_2"], alpha=0.8)
 
         cbar = plt.colorbar(c)
-        cbar.ax.set_ylabel(r"\rm teff_2")
+        cbar.ax.set_ylabel(r"teff_2")
 
         ax.set_xlabel(r'RV offset', fontsize=12)
-        ax.set_ylabel(r"$\rm {0}$".format(chi2_val), fontsize=12)
-        ax.set_title(r'$\rm teff_2$ (color) and companion temperature.')
+        ax.set_ylabel(r"${0}$".format(chi2_val), fontsize=12)
+        ax.set_title(r'$teff_2$ (color) and companion temperature.')
 
         ax.grid(True)
         fig.tight_layout()
@@ -71,9 +71,9 @@ def display_arbitary_norm_values(table, params):
     axarr[2].grid(True)
 
     cbar0 = plt.colorbar(c)
-    cbar0.ax.set_ylabel(r"\rm teff_2")
+    cbar0.ax.set_ylabel(r" teff_2")
     cbar1 = plt.colorbar(d)
-    cbar1.ax.set_ylabel(r"\rm teff_2")
+    cbar1.ax.set_ylabel(r" teff_2")
     cbar2 = plt.colorbar(e)
     cbar1.ax.set_ylabel(r"$\gamma$")
     fig.tight_layout()
@@ -319,8 +319,8 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
     cbar = plt.colorbar(c)
     cbar.ax.set_ylabel(zcol)
     # plt.clabel(pars[2])
-    ax.set_xlabel(r"$\rm {0}$".format(xcol), fontsize=15)
-    ax.set_ylabel(r"$\rm {0}$".format(ycol), fontsize=15)
+    ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
+    ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
     ax.set_title('{0}: {1} contour'.format(params["star"], zcol))
 
     ax.grid(True)
@@ -340,7 +340,7 @@ def test_figure(table, params):
     ax.scatter(df["gamma"], df[chi2_val], s=3, alpha=0.5)
 
     ax.set_xlabel(r'$\gamma$', fontsize=15)
-    ax.set_ylabel(r"$\rm {0}$".format(chi2_val), fontsize=15)
+    ax.set_ylabel(r"$ {0}$".format(chi2_val), fontsize=15)
     ax.set_title(r'$\gamma$ and $\chi^2$.')
 
     ax.grid(True)
