@@ -7,6 +7,7 @@ Create Table of minimum Chi_2 values and save to a table.
 import argparse
 import glob
 import os
+import subprocess
 
 import corner
 import matplotlib.pyplot as plt
