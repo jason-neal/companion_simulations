@@ -134,8 +134,8 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
 
         if move:
             for f in files:
-                f_split = os.path.split(f)
-                new_f = os.path.join(f_split[0:-1], "processed_csv", f_split[-1])
+                f_split = os.path.split(f)   #  ["head", "tail"]
+                new_f = os.path.join(f_split[0], "processed_csv", f_split[1])
                 os.makedirs(os.path.dirname(new_f), exist_ok=True)
                 subprocess.call("mv {} {}".format(f, new_f), shell=True)
 
