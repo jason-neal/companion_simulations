@@ -103,20 +103,17 @@ def main(star, obs_num, chips=None, verbose=False, suffix=None, mask=False):
         obs_spec = load_spectrum(obs_name)
         obs_spec = barycorr_crires_spectrum(obs_spec, -22)
 
-        chip_masks = get_maskinfo(star, obs_num, chip)
         # Mask out bad portion of observed spectra ## HACK
+        chip_masks = get_maskinfo(star, obs_num, chip)
+        if chip == 4:
+            # Ignore first 50 pixels of detector 4
+            obs_spec.wav_select(obs_spec.xaxis[50], obs_spec.xaxis[-1])
         for mask_limits in chip_masks:
             if len(mask_limits) is not 2:
                 raise ValueError("Mask limits in mask file is incorrect for {0}-{1}_{2}".format(star, obs_num, chip))
             obs_spec.wav_select(*mask_limits)  # Wavelengths to include
 
-        # if chip == 4:
-            # Ignore first 40 pixels
-            # obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
-
-
         chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, verbose=False, norm=False)
-
 
         (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
             broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids

@@ -95,24 +95,20 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, suf
     obs_spec = load_spectrum(obs_name)
     obs_spec = barycorr_crires_spectrum(obs_spec)
 
-    chip_masks = get_maskinfo(star, obs_num, chip)
     # Mask out bad portion of observed spectra ## HACK
+    chip_masks = get_maskinfo(star, obs_num, chip)
+    if chip == 4:
+        # Ignore first 50 pixels of detector 4
+        obs_spec.wav_select(obs_spec.xaxis[50], obs_spec.xaxis[-1])
     for mask_limits in chip_masks:
         if len(mask_limits) is not 2:
             raise ValueError("Mask limits in mask file is incorrect for {0}-{1}_{2}".format(star, obs_num, chip))
         obs_spec.wav_select(*mask_limits)  # Wavelengths to include
 
-    if chip == 4:
-        # Ignore first 40 pixels
-        obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
-        logging.warning("Remove this for chip ==4 !!!")
-
     rv_iter = len(rvs) * len(gammas)
     model_iter = len(model2_pars) * len(model1_pars)
     print(("STARTING iam_analysis\nWith {0} parameter iterations.\n{1} rv iterations,"
           " {2} model iterations").format(rv_iter * model_iter, rv_iter, model_iter))
-
-    # print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
     ####
     if parallel:
