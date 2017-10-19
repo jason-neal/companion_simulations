@@ -20,6 +20,16 @@ def chi_squared(observed, expected, error=None, axis=0):
     return chisqr
 
 
+def reduced_chi_squared(chi_squared, N, P):
+    """
+    :param chi_squared: Chi squared value
+    :param N: (int) number of observations
+    :param P: (int) number of important parameters
+    :return: Reduced Chi squared
+    """
+    return chi_squared / (N - P)
+
+
 def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
     """Chi squared for specturm objects."""
     # Spectrum wrapper for chisquare

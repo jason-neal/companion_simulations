@@ -166,8 +166,8 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
                 print(broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)])
 
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
-
-            save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=verbose)
+            npix = obs_flux.shape[0]
+            save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix, verbose=verbose)
 
         if save_only:
             return None
@@ -175,7 +175,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
             return broadcast_chisqr_vals
 
 
-def save_full_chisqr(filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=False):
+def save_full_chisqr(filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix, verbose=False):
     """Save the iterations chisqr values to a cvs."""
     a_grid, r_grid, g_grid = np.meshgrid(alphas, rvs, gammas, indexing='ij')
     assert a_grid.shape == r_grid.shape
@@ -186,6 +186,7 @@ def save_full_chisqr(filename, params1, params2, alphas, rvs, gammas, broadcast_
             "chi2": broadcast_chisquare.ravel()}
 
     columns = ["alpha", "rv", "gamma", "chi2"]
+    len_c = len(columns)
 
     df = pd.DataFrame(data=data, columns=columns)
 
@@ -198,6 +199,9 @@ def save_full_chisqr(filename, params1, params2, alphas, rvs, gammas, broadcast_
         for par, value in zip(["teff_1", "logg_1", "feh_1"], params1):
             df[par] = value
         columns = ["teff_1", "logg_1", "feh_1"] + columns
+
+    df["npix"] = npix
+    columns = columns[:-len_c] + ["npix"] + columns[-len_c:]
 
     df = df.round(decimals={"logg_2": 1, "feh_2": 1, "alpha": 4,
                             "rv": 3, "gamma": 3, "chi2": 4})
