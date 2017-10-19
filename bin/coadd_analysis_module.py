@@ -139,7 +139,8 @@ def fix_host_parameters(table, params):
     plt.close()
 
 
-def parabola_plots(table, params, limit=None, norm=False):
+def parabola_plots(table, params):
+    norm = params["norm"]
     parabola_list = ["teff_2", "gamma", "rv"]
     for par in parabola_list:
         df = pd.read_sql(sa.select([table.c[par]]), table.metadata.bind)
@@ -169,9 +170,7 @@ def parabola_plots(table, params, limit=None, norm=False):
             plt.plot(x, parabola(x, *popt), "--") # , label="parabola")
             plt.xlabel(r"${}$".format(par))
             plt.ylabel(r"$\chi^2$")
-            # if limit:
-                #plt.xlim()
-            #    plt.ylim([])
+
         plt.legend()
         filename = "Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
             params["star"], params["obs_num"], params["chip"], par, params["suffix"])
@@ -187,7 +186,7 @@ def chi2_at_sigma(df, sigma):
     return scipy.stats.chi2(df).isf(1 - sigma_percent[sigma])
 
 
-def chi2_parabola_plots(table, params, limit=None, npars=3):
+def chi2_parabola_plots(table, params):
     parabola_list = ["teff_2", "gamma", "rv"]
     for par in parabola_list:
         df = pd.read_sql(sa.select([table.c[par]]), table.metadata.bind)
@@ -227,7 +226,7 @@ def chi2_parabola_plots(table, params, limit=None, npars=3):
 
         plt.savefig(os.path.join(params["path"], "plots", filename))
         plt.close()
-        print("saved parabolas for ", par)
+        print("saved chi2 parabolas for ", par)
 
 
 def smallest_chi2_values(table, params, num=10):

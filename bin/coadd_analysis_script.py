@@ -130,7 +130,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     elif mode == "param_limits":
         get_column_limits(db_table, params)
     elif mode == "parabola":
-        parabola_plots(db_table, params, norm=norm)
+        parabola_plots(db_table, params)
     elif mode == "smallest_chi2":
         smallest_chi2_values(db_table, params)
     elif mode == "contour":
@@ -142,17 +142,17 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     elif mode == "arbnorm":
         display_arbitary_norm_values(db_table, params)
     elif mode == "chi2_parabola":
-        chi2_parabola_plots(db_table, params, npars=npars)
+        chi2_parabola_plots(db_table, params)
     elif mode == "all":
-        fix_host_parameters_reduced_gamma(db_table, params,)
+        fix_host_parameters_reduced_gamma(db_table, params)
         get_column_limits(db_table, params)
         fix_host_parameters(db_table, params)
         display_arbitary_norm_values(db_table, params)
         smallest_chi2_values(db_table, params)
-        parabola_plots(db_table, params, norm=norm)
+        parabola_plots(db_table, params)
         contours(db_table, params)
         test_figure(db_table, params)
-        chi2_parabola_plots(db_table, params, npars=npars)
+        chi2_parabola_plots(db_table, params)
     print("Done")
     return 0
 
