@@ -13,16 +13,15 @@ import sys
 
 import simulators
 import sqlalchemy as sa
-from bin.coadd_analysis_module import (contours, get_npix_values,
+from bin.coadd_analysis_module import (chi2_parabola_plots, contours,
                                        display_arbitary_norm_values,
-                                       fix_host_parameters, rv_plot,
+                                       fix_host_parameters,
                                        fix_host_parameters_reduced_gamma,
-                                       get_column_limits,chi2_parabola_plots,
-                                        parabola_plots,
+                                       get_column_limits, get_npix_values,
+                                       parabola_plots, rv_plot,
                                        smallest_chi2_values, test_figure)
 from utilities.param_file import get_host_params
 from utilities.phoenix_utils import closest_model_params
-
 
 
 def _parser():
@@ -43,8 +42,9 @@ def _parser():
                         help='Number of interesting parameters. (default=3)')
     parser.add_argument("-m", "--mode", default="parabola",
                         help="Analysis mode to choose",
-        choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2",
-                 "test", "contour", "arbnorm", "all", "rvplot", "chi2_parabola"])
+                        choices=["parabola", "fixed_host_params", "param_limits",
+                                 "smallest_chi2", "test", "contour", "arbnorm",
+                                 "all", "rvplot", "chi2_parabola"])
     parser.add_argument('-n', '--norm', action="store_true",
                         help='Normalized chi2 (min(chi**2) == 1).')
     return parser.parse_args()
@@ -86,7 +86,8 @@ def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
 def main(star, obsnum, suffix=None, echo=False, mode="parabola",
          verbose=False, norm=False, npars=3):
     suffix = "" if suffix is None else suffix
-    database = coadd_database = os.path.join(simulators.paths["output_dir"], star,
+    database = os.path.join(
+        simulators.paths["output_dir"], star,
         "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
 
     if verbose:
@@ -106,18 +107,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     params = {"path": path, "star": star, "obs_num": obsnum, "chip": chip, "suffix": suffix,
               "teff": int(teff), "logg": float(logg), "fe_h": float(fe_h), "npars": npars, "norm": norm}
 
-    #sqlite_db = 'sqlite:///{}'.format(database)
-
-    #try:
-        # Careful this creates an empty db if it doesn't exist
-    #    engine = sa.create_engine(sqlite_db, echo=echo)
-    #    table_names = engine.table_names()
-    #except Exception as e:
-    #    print("\nAccessing sqlite_db = {}\n".format(sqlite_db))
-    #    print("cwd =", os.getcwd())
-    #    raise e
-
-    db_table = load_sql_table(database, verbose=verbose)
+    db_table = load_sql_table(database, verbose=verbose, echo=echo)
 
     # Put pixel counts in params
     params["npix"] = get_npix_values(db_table)

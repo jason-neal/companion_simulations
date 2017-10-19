@@ -226,7 +226,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             # print("broadcast chi2 shape", broadcast_chisquare.shape)
             min_locations = np.argmin(broadcast_chisquare, axis=-1)
             broadcast_chisquare = np.min(broadcast_chisquare, axis=-1)
-            print("Boradcast chisquare values ", broadcast_chisquare.shape)
+            print("Broadcast chisquare values ", broadcast_chisquare.shape)
             arbitrary_norms = arb_norm[min_locations]
             # print("broadcast_chisquare shape", broadcast_chisquare.shape)
             # print("arb norms shape", arbitrary_norms.shape)

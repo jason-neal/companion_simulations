@@ -38,7 +38,7 @@ def _parser():
     parser.add_argument('-c', '--chunksize', default=1000, type=int,
                         help='Chinksize for reading in csv files.')
     parser.add_argument("-m", '--move', action="store_true",
-                            help='Move original files after joining (default=False).')
+                        help='Move original files after joining (default=False).')
 
     return parser.parse_args()
 
@@ -47,13 +47,13 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
     patterns = [os.path.join(
             simulators.paths["output_dir"], star,
             "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))
-        for chip in range(1,5)]
+        for chip in range(1, 5)]
 
     if (sum(1 for _ in glob.iglob(patterns[0]))) == 0:
         patterns = [os.path.join(
                 simulators.paths["output_dir"], star, "processed_csv",
                 "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))
-            for chip in range(1,5)]
+            for chip in range(1, 5)]
 
     print("new Patterns", patterns)
     if sum(sum(1 for _ in glob.iglob(pattern)) for pattern in patterns) == 0:
@@ -67,12 +67,11 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
     print("Replace", replace)
     print("os.path.isfile(coadd_database)", os.path.isfile(coadd_database))
     if os.path.isfile(coadd_database):
-       if replace:
-           os.remove(coadd_database)
-       else:
-           raise IOError("The database file {0} already exists."
-                " Add the switch -r to replace the old database file.".format(
-                coadd_database))
+        if replace:
+            os.remove(coadd_database)
+        else:
+            raise IOError("The database file {0} already exists. Add the switch"
+                          " -r to replace the old database file.".format(coadd_database))
 
     database_name = 'sqlite:///{0}'.format(coadd_database)
     engine = sa.create_engine(database_name)
@@ -84,9 +83,8 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
     # get list of patterns. and sort in order for loading in.
     detector_files = [sorted(glob.glob(pattern)) for pattern in patterns]
 
-    i = 0
-    j = 1
-    for num, files  in enumerate(zip(*detector_files)):
+    i, j = 0, 1
+    for num, files in enumerate(zip(*detector_files)):
         assert len(files) == 4
         f_0 = files[0]
 
@@ -100,26 +98,31 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
             host_flag = True
         else:
             host_flag = False
+            teff, logg, feh = np.nan, np.nan, np.nan
 
         # Initalize iterators:
-        iterators =  [pd.read_csv(f, iterator=True, chunksize=chunksize) for f in files]
+        iterators = [pd.read_csv(f, iterator=True, chunksize=chunksize) for f in files]
 
         while True:
             try:
                 chunks = [pd_iter.get_chunk() for pd_iter in iterators]
-                assert all([len(chunks[k]) == len(chunks[l]) for k, l in ((0,1), (1,2), (2,3))])
+                assert all([len(chunks[k]) == len(chunks[l])
+                            for k, l in ((0, 1), (1, 2), (2, 3))])
             except StopIteration:
                 break
 
-            joint_12 = pd.merge(chunks[0], chunks[1], how="outer", on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'], suffixes=["_1", "_2"])
-            joint_34 = pd.merge(chunks[2], chunks[3],  how="outer", on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'], suffixes=["_3", "_4"])
-            pd_joint = pd.merge(joint_12, joint_34,  how="outer", on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'])
+            joint_12 = pd.merge(chunks[0], chunks[1], how="outer", suffixes=["_1", "_2"],
+                                on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'])
+            joint_34 = pd.merge(chunks[2], chunks[3],  how="outer", suffixes=["_3", "_4"],
+                                on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'])
+            pd_joint = pd.merge(joint_12, joint_34,  how="outer",
+                                on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'])
 
             # co-adding chisquare values across detectors
             pd_joint["coadd_chi2"] = pd_joint["chi2_1"] + pd_joint["chi2_2"] + pd_joint["chi2_3"] + pd_joint["chi2_4"]
             pd_joint["coadd_npix"] = pd_joint["npix_1"] + pd_joint["npix_2"] + pd_joint["npix_3"] + pd_joint["npix_4"]
 
-            assert not pd_joint.isnull().values.any(), "There are nans in the joint dataframe!!!"
+            assert not pd_joint.isnull().values.any(), "There are nans in the joint DataFrame!!!"
 
             # Adding host parameters
             pd_joint["teff_1"] = teff
@@ -132,11 +135,11 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
             pd_joint.to_sql('chi2_table', engine, if_exists='append')
             j = pd_joint.index[-1] + 1
             if verbose:
-                print("indicies = ", i, j)
+                print("Indicies = ", i, j)
 
         if move:
             for f in files:
-                f_split = os.path.split(f)   #  ["head", "tail"]
+                f_split = os.path.split(f)  # ["head", "tail"]
                 new_f = os.path.join(f_split[0], "processed_csv", f_split[1])
                 os.makedirs(os.path.dirname(new_f), exist_ok=True)
                 subprocess.call("mv {} {}".format(f, new_f), shell=True)
@@ -154,6 +157,6 @@ if __name__ == "__main__":
     obsnums = args.pop('obsnum')
     opts = {k: args[k] for k in args}
 
-    assert len(stars) == len(obsnums), "Number of stars and obsnums need to be the same number."
-    for star, obs in zip(stars, obsnums):
-        main(star, obs, **opts)
+    assert len(stars) == len(obsnums), "Number of stars and observation numbers need to be the same number."
+    for star_, obs in zip(stars, obsnums):
+        main(star_, obs, **opts)
