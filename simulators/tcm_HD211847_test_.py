@@ -94,12 +94,10 @@ def main():
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
+    # Mask out bad portion of observed spectra
+    obs_spec = spectrum_masking(spec, star, obs_num, chip)
+    # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec, -22)
-    obs_spec.flux /= 1.02
-    # Mask out bad portion of observed spectra ## HACK
-    if chip == 4:
-        # Ignore first 40 pixels
-        obs_spec.wav_select(obs_spec.xaxis[40], obs_spec.xaxis[-1])
 
     if test:
         model1_pars = model1_pars[:6]

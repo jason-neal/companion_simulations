@@ -1,7 +1,6 @@
 """Chisquared calculation."""
 
 import numpy as np
-
 from joblib import Parallel, delayed
 from numba import jit
 
@@ -23,7 +22,7 @@ def chi_squared(observed, expected, error=None, axis=0):
 
 def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
     """Chi squared for specturm objects."""
-    # Spectrum wrapper for chissquare
+    # Spectrum wrapper for chisquare
     # make sure xaxis is the Same
     nan_number = np.sum(np.isnan(spectrum_1.flux))
     if nan_number:

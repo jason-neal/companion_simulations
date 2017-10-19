@@ -20,6 +20,7 @@ from joblib import Parallel, delayed
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    parallel_iam_analysis)
 from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.masking import spectrum_masking
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
                                      generate_close_params_with_simulator)
@@ -93,17 +94,10 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, suf
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
+    # Mask out bad portion of observed spectra
+    obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
+    # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec)
-
-    # Mask out bad portion of observed spectra ## HACK
-    chip_masks = get_maskinfo(star, obs_num, chip)
-    if chip == 4:
-        # Ignore first 50 pixels of detector 4
-        obs_spec.wav_select(obs_spec.xaxis[50], obs_spec.xaxis[-1])
-    for mask_limits in chip_masks:
-        if len(mask_limits) is not 2:
-            raise ValueError("Mask limits in mask file is incorrect for {0}-{1}_{2}".format(star, obs_num, chip))
-        obs_spec.wav_select(*mask_limits)  # Wavelengths to include
 
     rv_iter = len(rvs) * len(gammas)
     model_iter = len(model2_pars) * len(model1_pars)
