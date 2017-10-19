@@ -117,6 +117,7 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
 
             # co-adding chisquare values across detectors
             pd_joint["coadd_chi2"] = pd_joint["chi2_1"] + pd_joint["chi2_2"] + pd_joint["chi2_3"] + pd_joint["chi2_4"]
+            pd_joint["coadd_npix"] = pd_joint["npix_1"] + pd_joint["npix_2"] + pd_joint["npix_3"] + pd_joint["npix_4"]
 
             assert not pd_joint.isnull().values.any(), "There are nans in the joint dataframe!!!"
 

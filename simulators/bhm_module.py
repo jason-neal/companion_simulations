@@ -96,13 +96,14 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
         broadcast_gamma[ii] = gammas[np.argmin(broadcast_chisquare)]
         full_broadcast_chisquare[ii, :] = broadcast_chisquare
 
-        save_bhm_chisqr(save_name, params, gammas, broadcast_chisquare)
+        npix = obs_flux.shape[0]
+        save_bhm_chisqr(save_name, params, gammas, broadcast_chisquare, npix)
 
     return (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
             broadcast_chisqr_vals, broadcast_gamma, full_broadcast_chisquare)
 
 
-def save_bhm_chisqr(name, params1, gammas, broadcast_chisquare):
+def save_bhm_chisqr(name, params1, gammas, broadcast_chisquare, npix):
     """Save the bhm chisqr values to a cvs."""
     assert gammas.shape == broadcast_chisquare.shape
     ravel_size = len(gammas)
@@ -112,8 +113,9 @@ def save_bhm_chisqr(name, params1, gammas, broadcast_chisquare):
 
     assert p1_2.shape == gammas.shape
     data = {"teff_1": p1_0, "logg_1": p1_1, "feh_1": p1_2, "gamma": gammas, "chi2": broadcast_chisquare.ravel()}
-    columns = ["teff_1", "logg_1", "feh_1", "gamma", "chi2"]
+    columns = ["teff_1", "logg_1", "feh_1", "gamma", "npix", "chi2"]
     df = pd.DataFrame(data=data)
+    df["npix"] = npix
     df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
     return None
 

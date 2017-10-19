@@ -231,12 +231,14 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             # print("broadcast_chisquare shape", broadcast_chisquare.shape)
             # print("arb norms shape", arbitrary_norms.shape)
 
+            npix = obs_flux.shape[0]    # Number of pixels used
+
             if not save_only:
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
 
             save_full_iam_chisqr(save_filename, params1, params2,
                                  inherent_alpha, rvs, gammas,
-                                 broadcast_chisquare, arbitrary_norms, verbose=verbose)
+                                 broadcast_chisquare, arbitrary_norms, npix, verbose=verbose)
 
         if save_only:
             return None
@@ -245,7 +247,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
 
 def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
-                         broadcast_chisquare, arbitrary_norms, verbose=False):
+                         broadcast_chisquare, arbitrary_norms, npix, verbose=False):
     """Save the iterations chisqr values to a cvs."""
     R, G = np.meshgrid(rvs, gammas, indexing='ij')
     # assert A.shape == R.shape
@@ -272,7 +274,8 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
         columns = ["teff_1", "logg_1", "feh_1"] + columns
 
     df["alpha"] = alpha
-    columns = columns[:-len_c] + ["alpha"] + columns[-len_c:]
+    df["npix"] = npix
+    columns = columns[:-len_c] + ["alpha", "npix"] + columns[-len_c:]
 
     df = df.round(decimals={"logg_2": 1, "feh_2": 1, "alpha": 4,
                             "rv": 3, "gamma": 3, "chi2": 4})
