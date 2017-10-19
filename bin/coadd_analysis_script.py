@@ -13,7 +13,7 @@ import sys
 
 import simulators
 import sqlalchemy as sa
-from bin.coadd_analysis_module import (contours,
+from bin.coadd_analysis_module import (contours, get_npix_values,
                                        display_arbitary_norm_values,
                                        fix_host_parameters, rv_plot,
                                        fix_host_parameters_reduced_gamma,
@@ -22,6 +22,7 @@ from bin.coadd_analysis_module import (contours,
                                        smallest_chi2_values, test_figure)
 from utilities.param_file import get_host_params
 from utilities.phoenix_utils import closest_model_params
+
 
 
 def _parser():
@@ -103,7 +104,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
     params = {"path": path, "star": star, "obs_num": obsnum, "chip": chip, "suffix": suffix,
-              "teff": int(teff), "logg": float(logg), "fe_h": float(fe_h)}
+              "teff": int(teff), "logg": float(logg), "fe_h": float(fe_h), "npars": npars, "norm": norm}
 
     #sqlite_db = 'sqlite:///{}'.format(database)
 
@@ -117,6 +118,9 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     #    raise e
 
     db_table = load_sql_table(database, verbose=verbose)
+
+    # Put pixel counts in params
+    params["npix"] = get_npix_values(db_table)
 
     print("Mode =", mode)
 
