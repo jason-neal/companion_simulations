@@ -9,6 +9,7 @@ import simulators
 from matplotlib import pyplot as plt
 from models.broadcasted_models import one_comp_model
 from tqdm import tqdm
+
 from utilities.chisqr import chi_squared
 from utilities.phoenix_utils import load_starfish_spectrum
 from utilities.xcorr import xcorr_peak
@@ -16,7 +17,7 @@ from utilities.xcorr import xcorr_peak
 debug = logging.debug
 
 
-def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
+def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, verbose=False, norm=False):
     """Run one component model over all parameter combinations in model_pars."""
     # Gammas
     if gammas is None:
@@ -75,10 +76,10 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, verbose=False, norm=False):
             obs_flux = obs_spec.flux[:, np.newaxis]
         #####
 
-        broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
-        sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
+        broadcast_chisquare = chi_squared(obs_flux, broadcast_values, error=errors)
+        # sp_chisquare = sp.stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
 
-        assert np.all(sp_chisquare == broadcast_chisquare)
+        # assert np.all(sp_chisquare == broadcast_chisquare)
 
         # Interpolate to obs
         mod_spec.spline_interpolate_to(obs_spec)

@@ -20,13 +20,14 @@ from joblib import Parallel, delayed
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    parallel_iam_analysis)
 from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.errors import spectrum_error
 from utilities.masking import spectrum_masking
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
                                      generate_close_params_with_simulator)
-# from utilities.chisqr import chi_squared
 from utilities.simulation_utilities import check_inputs
 from utilities.spectrum_utils import load_spectrum
+
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -59,7 +60,8 @@ def _parser():
                         action="store_true")
     parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs",
                         default=1, type=int)
-
+    parser.add_argument("--error_off", help="Turn snr value errors off.",
+                        action="store_true")
     parser.add_argument('-s', '--small', action="store_true",
                         help='Use smaller subset of parameters.')
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
@@ -67,7 +69,8 @@ def _parser():
     return parser.parse_args()
 
 
-def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, suffix=None):
+def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
+         suffix=None, error_off=False):
     """Main function."""
     if chip is None:
         chip = 4
@@ -98,6 +101,8 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, suf
     obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec)
+    # Determine Spectrum Errors
+    errors = spectrum_error(star, obs_num, chip, error_off=error_off)
 
     rv_iter = len(rvs) * len(gammas)
     model_iter = len(model2_pars) * len(model1_pars)
@@ -109,11 +114,11 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False, suf
         chi2_grids = parallel_iam_analysis(obs_spec, model1_pars, model2_pars,
                                            rvs, gammas, verbose=verbose,
                                            norm=True, prefix=output_prefix,
-                                           save_only=True)
+                                           save_only=True, errors=errors )
     else:
         chi2_grids = iam_analysis(obs_spec, model1_pars, model2_pars, rvs,
                                   gammas, verbose=verbose, norm=True,
-                                  prefix=output_prefix)
+                                  prefix=output_prefix, errors=errors)
 
     ####
     # Print TODO

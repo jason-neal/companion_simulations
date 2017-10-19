@@ -9,6 +9,8 @@ from joblib import Parallel, delayed
 from models.broadcasted_models import inherent_alpha_model
 from scipy import stats
 from tqdm import tqdm
+
+from utilities.chisqr import chi_squared
 from utilities.norm import chi2_model_norms, continuum
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import load_starfish_spectrum
@@ -30,7 +32,7 @@ def iam_helper_function(star, obs_num, chip):
 
 def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
                  verbose=False, norm=False, save_only=True, chip=None,
-                 prefix=None):
+                 prefix=None, errors=None):
     """Run two component model over all model combinations."""
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
@@ -45,7 +47,7 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
 
     args = [model2_pars, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
-              "prefix": prefix, "verbose": verbose}
+              "prefix": prefix, "verbose": verbose, "errors": errors}
 
     for ii, params1 in enumerate(tqdm(model1_pars)):
         broadcast_chisqr_vals[ii] = iam_wrapper(ii, params1, *args, **kwargs)
@@ -58,7 +60,8 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
 
 def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
                           gammas=None, verbose=False, norm=False,
-                          save_only=True, chip=None, prefix=None):
+                          save_only=True, chip=None, prefix=None,
+                          errors=None):
     """Run two component model over all model combinations."""
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
@@ -72,7 +75,7 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
         """Fill in all extra parameters for parrallel wrapper."""
         return iam_wrapper(num, param, model2_pars, rvs, gammas,
                            obs_spec, norm=norm, save_only=save_only,
-                           chip=chip, prefix=prefix, verbose=verbose)
+                           chip=chip, prefix=prefix, verbose=verbose, errors=errors)
 
     print("Parallelized running\n\n\n ###################")
     # raise NotImplementedError("Need to fix this up")
@@ -89,7 +92,7 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
     prefix += "_parallel"
     args = [model2_pars, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
-              "prefix": prefix, "verbose": verbose}
+              "prefix": prefix, "verbose": verbose, "errors": errors}
 
     broadcast_chisqr_vals = Parallel(n_jobs=-2)(
         delayed(iam_wrapper)(ii, param, *args, **kwargs)
@@ -132,7 +135,7 @@ def continuum_alpha(model1, model2, chip=None):
 
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
-                verbose=True, save_only=True, chip=None, prefix=None):
+                verbose=True, save_only=True, chip=None, prefix=None, errors=None):
     """Wrapper for iteration loop of iam. To use with parallelization."""
     normalization_limits = [2105, 2185]   # small as possible?
 
@@ -216,11 +219,11 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             broadcast_values = broadcast_values[:, :, :, np.newaxis] * arb_norm
             print("Normalized Broadcast values before renorm", broadcast_values.shape)
 
-            # broadcast_chisquare = chi_squared(obs_flux, broadcast_values)
+            broadcast_chisquare = chi_squared(obs_flux, broadcast_values, error=errors)
             # Scipy version is 20 times faster then my version (but wont be able to take any extra scaling)!
-            sp_chisquare = stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
+            # sp_chisquare = stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
             # assert np.all(sp_chisquare == broadcast_chisquare)
-            broadcast_chisquare = sp_chisquare
+            # broadcast_chisquare = sp_chisquare
             print("Broadcast chisquare values with arb norm", broadcast_chisquare.shape)
             # Take minimum chisquared value along normalization axis
             # print("broadcast chi2 shape", broadcast_chisquare.shape)

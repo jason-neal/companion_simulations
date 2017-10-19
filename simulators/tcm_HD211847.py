@@ -24,6 +24,7 @@ from astropy.io import fits
 import simulators
 from simulators.tcm_module import (parallel_tcm_analysis, tcm_analysis,
                                    tcm_helper_function)
+from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.errors import spectrum_error
 from utilities.masking import spectrum_masking
@@ -54,11 +55,12 @@ def _parser():
     parser.add_argument('--chip', help='Chip Number.', default=None)
     parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
     parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
-
+    parser.add_argument("--error_off", help="Turn snr value errors off.",
+                            action="store_true", type=bool)
     return parser.parse_args()
 
 
-def main(chip=None, parallel=True, small=True, verbose=False):
+def main(chip=None, parallel=True, small=True, verbose=False, error_off=False):
     """Main function."""
 
     star = "HD211847"
@@ -87,6 +89,8 @@ def main(chip=None, parallel=True, small=True, verbose=False):
     obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec)
+    # Determine Spectrum Errors
+    errors = spectrum_error(star, obs_num, chip, error_off=error_off)
 
     param_iter = len(alphas) * len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
     print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
@@ -94,9 +98,9 @@ def main(chip=None, parallel=True, small=True, verbose=False):
 
     ####
     if parallel:
-        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=verbose, norm=True, prefix=output_prefix, save_only=True)
+        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors, verbose=verbose, norm=True, prefix=output_prefix, save_only=True)
     else:
-        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=verbose, norm=True, prefix=output_prefix)
+        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors, verbose=verbose, norm=True, prefix=output_prefix)
 
     # Print TODO
     print("TODO: Add joining of sql table here")

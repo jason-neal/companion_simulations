@@ -12,6 +12,7 @@ import simulators
 from simulators.bhm_module import bhm_analysis
 # from utilites.io import save_pd_csv
 from utilities.crires_utilities import barycorr_crires_spectrum
+from utilities.errors import spectrum_error
 from utilities.masking import spectrum_masking
 from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import closest_model_params, generate_close_params
@@ -25,11 +26,12 @@ def _parser():
     """
     parser = argparse.ArgumentParser(description='Best host modelling.')
     parser.add_argument("star", help='Star name.', type=str)
-    parser.add_argument("obs_num", help='Star observation number.', type=str, narg="+")
+    parser.add_argument("obs_nums", help='Star observation number.', type=str, narg="+")
     parser.add_argument('-c', '--chips', help='Chip Number.', default=None, narg="+")
     parser.add_argument('-m', '--mask', help='Apply wavelength mask.', type=bool, action="store_true")
     parser.add_argument('-s', '--suffix', help='Extra name identifier.', type=str, default="")
-
+    parser.add_argument("--error_off", help="Turn snr value errors off.",
+                            action="store_true", type=bool)
     return parser.parse_args()
 
 
@@ -85,13 +87,13 @@ def deconstruct_array(array, values):
     return indx, gam, chi2
 
 
-def main(star, obs_num, chips=None, verbose=False, suffix=None, mask=False):
+def main(star, obs_nums, chips=None, verbose=False, suffix=None, mask=False, error_off=False):
     """Best Host modelling main function."""
 
     # Define the broadcasted gamma grid
     gammas = np.arange(*simulators.sim_grid["gammas"])
 
-    iters = itertools.product(obs_num, chips)
+    iters = itertools.product(obs_nums, chips)
     for obs_num, chip in iters:
         obs_name, params, output_name = bhm_helper_function(star, obs_num, chip)
 
@@ -105,8 +107,10 @@ def main(star, obs_num, chips=None, verbose=False, suffix=None, mask=False):
         obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
         # Barycentric correct spectrum
         obs_spec = barycorr_crires_spectrum(obs_spec, -22)
+        # Determine Spectrum Errors
+        errors = spectrum_error(star, obs_num, chip, error_off=error_off)
 
-        chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, verbose=False, norm=False)
+        chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False)
 
         (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
             broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids

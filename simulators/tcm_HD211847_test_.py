@@ -98,6 +98,8 @@ def main():
     obs_spec = spectrum_masking(spec, star, obs_num, chip)
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec, -22)
+    # Determine Spectrum Errors
+    errors = spectrum_error(star, obs, chip, error_off=error_off)
 
     if test:
         model1_pars = model1_pars[:6]
