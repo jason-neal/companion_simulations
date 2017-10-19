@@ -20,7 +20,7 @@ npix_names = ["npix_1", "npix_2", "npix_3", "npix_4", "coadd_npix"]
 def get_npix_values(table):
     npix_values = {}
     df_npix = pd.read_sql(
-        sa.select([table.c[col] for col in npix_names]]),
+        sa.select([table.c[col] for col in npix_names]),
         table.metadata.bind)
 
     for col in npix_names:
