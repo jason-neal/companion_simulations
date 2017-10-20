@@ -2,10 +2,10 @@
 
 import numpy as np
 from joblib import Parallel, delayed
-from numba import jit
+# from numba import jit
 
 
-@jit
+# @jit
 def chi_squared(observed, expected, error=None, axis=0):
     """Calculate chi squared.
 
