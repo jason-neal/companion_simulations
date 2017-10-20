@@ -37,8 +37,7 @@ def test_spectrum_masking(host, star, obsnum, chip):
     info = get_maskinfo(star, obsnum, chip)[0]
     assert host.xaxis[0] < info[0]
     assert host.xaxis[-1] > info[1]
-    print("info", info[0], info[1])
-    print("host wave", host.xaxis[0], host.xaxis[-1])
+
     host = spectrum_masking(host, star, obsnum, chip)
 
     assert not host.xaxis[0] < info[0]

@@ -8,7 +8,6 @@ from utilities.phoenix_utils import load_starfish_spectrum
 def host():
     """Host spectrum fixture."""
     mod_spec = load_starfish_spectrum([5200, 4.50, 0.0], limits=[2110, 2165], normalize=True)
-    print("fixture end wave", mod_spec.xaxis[0], mod_spec.xaxis[-1] )
     return mod_spec
 
 
