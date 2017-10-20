@@ -354,7 +354,7 @@ def contours(table, params):
 
             #print(df.head())
             params["this_npix"] = npix_val
-            params["par_limit"]
+            params["par_limit"] = par_limit
 
             pars = [contour_param, "teff_2", red_chi2]
             dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
