@@ -223,9 +223,9 @@ def chi2_parabola_plots(table, params):
             plt.xlabel(r"${}$".format(par))
             plt.ylabel(r"$\Delta \chi^2_{red}$  from mimimum")
 
-        plt.axhline(y=chi2_at_sigma(npars, 1), label="1 sigma")
-        plt.axhline(y=chi2_at_sigma(npars, 2), label="2 sigma")
-        plt.axhline(y=chi2_at_sigma(npars, 3), label="3 sigma")
+        plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
+        plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
+        plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma")
 
         plt.legend()
         filename = "red_Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
