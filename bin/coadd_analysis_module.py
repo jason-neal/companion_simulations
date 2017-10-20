@@ -406,7 +406,7 @@ def test_figure(table, params):
     chi2_val = "coadd_chi2"
     df = pd.read_sql_query(sa.select([table.c.gamma, table.c[chi2_val]]).limit(10000), table.metadata.bind)
     fig, ax = plt.subplots()
-    red_chi2 = reduced_chi_squared(df[chi2_val], params["npix"]["coadd_npix"], params["npars]"])
+    red_chi2 = reduced_chi_squared(df[chi2_val], params["npix"]["coadd_npix"], params["npars"]])
     ax.scatter(df["gamma"], red_chi2, s=3, alpha=0.5)
 
     ax.set_xlabel(r'$\gamma$', fontsize=15)
