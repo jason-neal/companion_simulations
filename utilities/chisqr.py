@@ -14,9 +14,8 @@ def chi_squared(observed, expected, error=None, axis=0):
     if np.any(error):
         chisqr = np.sum((observed - expected)**2 / error**2, axis=axis)
     else:
-        # chisqr = np.sum((observed-expected)**2)
-        chisqr = np.sum((observed - expected)**2 / expected, axis=axis)
-        # When divided by expected the result is identical to scipy
+        # Equal to scipy.stats.chisquare(observed, expected).statistic
+        chisqr = np.sum((observed - expected)**2 / expected, axis=axis) # identical to scipy
     return chisqr
 
 
