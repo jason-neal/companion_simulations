@@ -163,7 +163,7 @@ def parabola_plots(table, params):
                             table.c[chi2_val].asc()).limit(3), table.metadata.bind)
                 min_chi2.append(df_chi2[chi2_val].values[0])
 
-            min_chi2 = reduced_chi_square(min_chi, params["npix"][npix_val], params["npars"])
+            min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
 
             if norm:
                 mc2 = min(min_chi2)
@@ -210,7 +210,7 @@ def chi2_parabola_plots(table, params):
                             table.c[chi2_val].asc()).limit(3), table.metadata.bind)
                 min_chi2.append(df_chi2[chi2_val].values[0])
 
-            min_chi2 = reduced_chi_square(min_chi, params["npix"][npix_val], params["npars"])
+            min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
 
             min_chi2 = min_chi2 - min(min_chi2)
 
@@ -265,7 +265,7 @@ def fix_host_parameters_reduced_gamma(table, params):
     fig.tight_layout()
     indices = np.arange(nrows * ncols).reshape(nrows, ncols)
 
-    for jj, chi2_val, npix_val in enumerate(zip(chi2_names, npix_names)):
+    for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
         red_chi2 = "red_{}".format(chi2_val)
         if jj == 4:
             chi2legend = "coadd"
