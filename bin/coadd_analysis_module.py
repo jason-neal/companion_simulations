@@ -173,7 +173,7 @@ def parabola_plots(table, params):
             popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
 
             x = np.linspace(unique_par[0], unique_par[-1], 40)
-            plt.plot(x, parabola(x, *popt), "--") 
+            plt.plot(x, parabola(x, *popt), "--")
             plt.xlabel(r"${}$".format(par))
             plt.ylabel(r"$\chi^2$")
 
@@ -326,40 +326,42 @@ def get_column_limits(table, params):
 
 
 def contours(table, params):
+    for par_limit, contour_param in zip(["gamma", "rv"], ["rv", "gamma"]):
+        for chi2_val, npix_val in zip(chi2_names, npix_names):
+            red_chi2 = "red_{0}".format(chi2_val)
+            df_min_chi2 = pd.read_sql(
+                sa.select(table.c).order_by(
+                    table.c[chi2_val].asc()).limit(1),
+                table.metadata.bind)
 
-    for chi2_val, npix_val in zip(chi2_names, npix_names):
-        red_chi2 = "red_{0}".format(chi2_val)
-        df_min_chi2 = pd.read_sql(
-            sa.select(table.c).order_by(
-                table.c[chi2_val].asc()).limit(1),
-            table.metadata.bind)
+            print("contour db columns", df_min_chi2.columns)
 
-        print("columns", df_min_chi2.columns)
+            # cols = ['teff_2', 'rv', 'gamma', chi2_val]
+            #par_limit = "gamma"  # gamma value at minimum chi2
+            #print("df_min_chi2[par_limit]", df_min_chi2[par_limit].values[0])
 
-        # cols = ['teff_2', 'rv', 'gamma', chi2_val]
-        par_limit = "gamma"  # gamma value at minimum chi2
-        print("df_min_chi2[par_limit]", df_min_chi2[par_limit].values[0])
+            df = pd.read_sql(
+                sa.select([table.c["teff_2"], table.c["rv"], table.c["gamma"], table.c[chi2_val]]).where(
+                    sa.and_(table.c[par_limit] == float(df_min_chi2[par_limit][0]),
+                            table.c.teff_1 == int(params["teff"]),
+                            table.c.logg_1 == float(params["logg"]),
+                            table.c.feh_1 == float(params["fe_h"]),
+                            table.c.logg_2 == float(params["logg"]),   # Fix companion logg
+                            table.c.feh_2 == float(params["fe_h"]))),  # Fix companion fe_h
+                table.metadata.bind)
 
-        df = pd.read_sql(
-            sa.select([table.c["teff_2"], table.c["rv"], table.c["gamma"], table.c[chi2_val]]).where(
-                sa.and_(table.c[par_limit] == float(df_min_chi2[par_limit][0]),
-                        table.c.teff_1 == int(params["teff"]),
-                        table.c.logg_1 == float(params["logg"]),
-                        table.c.feh_1 == float(params["fe_h"]),
-                        table.c.logg_2 == float(params["logg"]),   # Fix companion logg
-                        table.c.feh_2 == float(params["fe_h"]))),  # Fix companion fe_h
-            table.metadata.bind)
+            df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
 
-        df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
+            #print(df.head())
+            params["this_npix"] = npix_val
+            params["par_limit"]
 
-        print(df.head())
-
-        pars = ["rv", "teff_2", red_chi2]
-        dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
-        pars = ["gamma", "rv", red_chi2]
-        dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
-        pars = ["gamma", "teff_2", red_chi2]
-        dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
+            pars = [contour_param, "teff_2", red_chi2]
+            dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
+            # pars = ["gamma", "rv", red_chi2]
+            # dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
+            # pars = ["gamma", "teff_2", red_chi2]
+            # dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
 
 
 def dataframe_contour(df, xcol, ycol, zcol, params):
@@ -379,7 +381,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
 
     x_grid, y_grid = np.meshgrid(x, y, indexing='ij')
 
-    print(x_grid, y_grid, z_grid)
+
     assert x_grid.shape == z_grid.shape
     assert x_grid.shape == y_grid.shape
 
@@ -389,7 +391,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
     cbar.ax.set_ylabel(zcol)
     ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
     ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
-    ax.set_title('{0}: {1} contour'.format(params["star"], zcol))
+    ax.set_title('{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"], params["this_npix"], params["npars"]))
 
     ax.grid(True)
     fig.tight_layout()
