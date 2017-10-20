@@ -7,14 +7,14 @@ from utilities.phoenix_utils import load_starfish_spectrum
 @pytest.fixture
 def host():
     """Host spectrum fixture."""
-    mod_spec = load_starfish_spectrum([5200, 4.50, 0.0], limits=[2110, 2165], normalize=True)
+    mod_spec = load_starfish_spectrum([5200, 4.50, 0.0], limits=[2110, 2170], normalize=True)
     return mod_spec
 
 
 @pytest.fixture
 def comp():
     """Noramlized Companion spectrum fixture."""
-    mod_spec = load_starfish_spectrum([2600, 4.50, 0.0], limits=[2110, 2165], normalize=True)
+    mod_spec = load_starfish_spectrum([2600, 4.50, 0.0], limits=[2110, 2170], normalize=True)
     return mod_spec
 
 
