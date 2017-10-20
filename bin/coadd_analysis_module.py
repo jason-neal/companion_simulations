@@ -201,7 +201,7 @@ def chi2_parabola_plots(table, params):
         unique_par.sort()
         print(unique_par)
 
-        for chi2_val in chi2_names:
+        for chi2_val, npix_val in zip(chi2_names, npix_names):
             min_chi2 = []
             for unique_val in unique_par:
                 df_chi2 = pd.read_sql(
