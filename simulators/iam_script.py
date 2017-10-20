@@ -17,6 +17,9 @@ import numpy as np
 import simulators
 from astropy.io import fits
 from joblib import Parallel, delayed
+
+from bin.coadd_chi2_db import main as coadd_db
+from bin.coadd_analysis_script import main as coadd_analysis
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    parallel_iam_analysis)
 from utilities.crires_utilities import barycorr_crires_spectrum
@@ -141,6 +144,15 @@ if __name__ == "__main__":
     if opts["chip"] is None:
         res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
                                       for chip in range(1, 5))
-        sys.exit(sum(res))
+        if not sum(res):
+            print("\nDoing analysis after simulations!\n")
+            coadd_db(opts["star"], opts["obs_num"], opts["suffix"], replace=True,
+                     verbose=True, chunksize=10000, move=True)
+
+            coadd_analysis(opts["star"], opts["obs_num"], suffix=opts["suffix"],
+                           echo=False, mode="all", verbose=False, norm=False, npars=3)
+            sys.exit(0)
+        else:
+            sys.exit(sum(res))
     else:
         sys.exit(main(**opts))
