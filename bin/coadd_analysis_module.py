@@ -111,19 +111,22 @@ def display_arbitary_norm_values(table, params):
 def fix_host_parameters(table, params):
     print("Fixed host analysis.")
     nrows, ncols = 3, 2
-    fig, axes = plt.subplots(nrows, ncols)
-    fig.tight_layout()
-    indices = np.arange(nrows * ncols).reshape(nrows, ncols)
-
     columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
     assert len(columns) <= (nrows * ncols)
 
-    for ii, col in enumerate(columns):
-        for jj, chi2_val in enumerate(chi2_names):
-            if jj == 4:
-                chi2legend = "coadd chi2"
-            else:
-                chi2legend = "det {}".format(jj + 1)
+    for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
+        if jj == 4:
+            chi2legend = "coadd chi2"
+        else:
+            chi2legend = "det {}".format(jj + 1)
+
+        fig, axes = plt.subplots(nrows, ncols)
+        fig.tight_layout()
+        indices = np.arange(nrows * ncols).reshape(nrows, ncols)
+
+
+        for ii, col in enumerate(columns):
+
 
             df = pd.read_sql(
                     sa.select([table.c[col], table.c[chi2_val]]).where(
@@ -131,17 +134,58 @@ def fix_host_parameters(table, params):
                                 table.c["logg_1"] == params["logg"],
                                 table.c["feh_1"] == params["fe_h"])
                         ), table.metadata.bind)
+            df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
 
             axis_pos = [int(x) for x in np.where(indices == ii)]
-            df.plot(x=col, y=chi2_val, kind="scatter",
+            df.plot(x=col, y=red_chi2, kind="scatter",
                     ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)  # , c="gamma", colorbar=True)
 
-    name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}.png".format(
-        params["star"], params["obs_num"], params["suffix"])
-    plt.suptitle("Co-add Chi**2 Results (Fixed host): {0}-{1}".format(
-                    params["star"], params["obs_num"]))
-    fig.savefig(os.path.join(params["path"], "plots", name))
-    plt.close()
+        plt.suptitle("Co-add Chi**2 Results (Fixed host): {0}-{1}".format(
+                     params["star"], params["obs_num"]))
+        name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}_{3}.png".format(
+            params["star"], params["obs_num"], params["suffix"], chi2_val)
+        fig.savefig(os.path.join(params["path"], "plots", name))
+        fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+        plt.close()
+
+    fix_host_parameter_individual(table, params)
+
+def fix_host_parameters_individual(table, params):
+    print("Fixed host analysis.")
+    nrows, ncols = 1, 1
+    #fig, axes = plt.subplots(nrows, ncols)
+    fig.tight_layout()
+    #indices = np.arange(nrows * ncols).reshape(nrows, ncols)
+
+    columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
+    # assert len(columns) <= (nrows * ncols)
+
+    for ii, col in enumerate(columns):
+        for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
+            if jj == 4:
+                chi2legend = "coadd chi2"
+            else:
+                chi2legend = "det {}".format(jj + 1)
+            fig, axes = plt.subplots(nrows, ncols)
+            fig.tight_layout()
+            df = pd.read_sql(
+                    sa.select([table.c[col], table.c[chi2_val]]).where(
+                        sa.and_(table.c["teff_1"] == params["teff"],
+                                table.c["logg_1"] == params["logg"],
+                                table.c["feh_1"] == params["fe_h"])
+                        ), table.metadata.bind)
+            df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
+            #axis_pos = [int(x) for x in np.where(indices == ii)]
+            df.plot(x=col, y=red_chi2, kind="scatter",
+                    label=chi2legend)  # , c="gamma", colorbar=True)
+
+            name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}_{3}_individual_{4}.png".format(
+            params["star"], params["obs_num"], params["suffix"], col)
+            plt.suptitle("Co-add {2}-Chi**2 Results (Fixed host): {0}-{1}".format(
+                         params["star"], params["obs_num"], chi2_val, col))
+            fig.savefig(os.path.join(params["path"], "plots", name))
+            fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+            plt.close()
 
 
 def parabola_plots(table, params):
@@ -221,7 +265,7 @@ def chi2_parabola_plots(table, params):
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
             plt.xlabel(r"${}$".format(par))
-            plt.ylabel(r"$\Delta \chi^2_{red}$  from mimimum")
+            plt.ylabel(r"$\Delta \chi^2_{red}$ from mimimum")
 
         plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
         plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
@@ -304,10 +348,68 @@ def fix_host_parameters_reduced_gamma(table, params):
                     ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)
 
     plt.suptitle("Coadd reduced Chi**2 Results: {0}-{1}".format(params["star"], params["obs_num"]))
-    name = "{0}-{1}_coadd_fixed_host_params_{2}.png".format(
-        params["star"], params["obs_num"], params["suffix"])
+    name = "{0}-{1}_coadd_fixed_host_params_{2}_{3}.png".format(
+        params["star"], params["obs_num"], params["suffix"], chi2_val)
     fig.savefig(os.path.join(params["path"], "plots", name))
+    fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
     plt.close()
+
+    fix_host_parameters_reduced_gamma_individual(table, params)
+
+
+def fix_host_parameters_reduced_gamma_individual(table, params):
+    print("Fixed host analysis with reduced gamma individual plots.")
+    d_gamma = 5
+
+    nrows, ncols = 1, 1
+
+    # indices = np.arange(nrows * ncols).reshape(nrows, ncols)
+
+    for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
+        red_chi2 = "red_{}".format(chi2_val)
+        if jj == 4:
+            chi2legend = "coadd"
+        else:
+            chi2legend = "det {}".format(jj + 1)
+
+        # Select lowest chi square gamma values.
+        df = pd.read_sql(
+            sa.select([table.c.gamma, table.c[chi2_val]]).order_by(
+                table.c[chi2_val].asc()).limit(1),
+            table.metadata.bind)
+
+        min_chi2_gamma = df.loc[0, "gamma"]
+        upper_lim = min_chi2_gamma + d_gamma
+        lower_lim = min_chi2_gamma - d_gamma
+        print("Reduced gamma_limits", lower_lim, upper_lim)
+
+        columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
+        # assert len(columns) <= (nrows * ncols)
+
+        for ii, col in enumerate(columns):
+            df = pd.read_sql(
+                    sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
+                        sa.and_(table.c["teff_1"] == int(params["teff"]),
+                                table.c["logg_1"] == float(params["logg"]),
+                                table.c["feh_1"] == float(params["fe_h"]),
+                                table.c.gamma > float(lower_lim),
+                                table.c.gamma < float(upper_lim)
+                                )
+                        ), table.metadata.bind)
+
+            df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
+            # axis_pos = [int(x) for x in np.where(indices == ii)]
+            fig, axes = plt.subplots(nrows, ncols)
+            fig.tight_layout()
+            df.plot(x=col, y=red_chi2, kind="scatter",
+                    label=chi2legend)
+
+            plt.suptitle("Coadd {2}-reduced Chi**2 Results: {0}-{1}".format(params["star"], params["obs_num"], col))
+            name = "{0}-{1}_coadd_fixed_host_params_{2}_{3}_individual_{4}.png".format(
+                params["star"], params["obs_num"], params["suffix"], chi2_val, col)
+            fig.savefig(os.path.join(params["path"], "plots", name))
+            fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+            plt.close()
 
 
 def get_column_limits(table, params):
