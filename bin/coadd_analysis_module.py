@@ -391,7 +391,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
     cbar.ax.set_ylabel(zcol)
     ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
     ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
-    ax.set_title('{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"], params["this_npix"], params["npars"]))
+    ax.set_title('{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"], df[params["this_npix"]], params["npars"]))
 
     ax.grid(True)
     fig.tight_layout()
