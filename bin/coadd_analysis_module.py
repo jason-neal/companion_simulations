@@ -120,6 +120,8 @@ def fix_host_parameters(table, params):
         else:
             chi2legend = "det {}".format(jj + 1)
 
+        red_chi2 = "red_{}".format(chi2_val)
+
         fig, axes = plt.subplots(nrows, ncols)
         fig.tight_layout()
         indices = np.arange(nrows * ncols).reshape(nrows, ncols)
@@ -148,14 +150,14 @@ def fix_host_parameters(table, params):
         fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
 
-    fix_host_parameter_individual(table, params)
+    fix_host_parameters_individual(table, params)
 
 def fix_host_parameters_individual(table, params):
     print("Fixed host analysis.")
     nrows, ncols = 1, 1
-    #fig, axes = plt.subplots(nrows, ncols)
-    fig.tight_layout()
-    #indices = np.arange(nrows * ncols).reshape(nrows, ncols)
+    # fig, axes = plt.subplots(nrows, ncols)
+    # fig.tight_layout()
+    # indices = np.arange(nrows * ncols).reshape(nrows, ncols)
 
     columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
     # assert len(columns) <= (nrows * ncols)
@@ -166,6 +168,9 @@ def fix_host_parameters_individual(table, params):
                 chi2legend = "coadd chi2"
             else:
                 chi2legend = "det {}".format(jj + 1)
+
+            red_chi2 = "red_{}".format(chi2_val)
+
             fig, axes = plt.subplots(nrows, ncols)
             fig.tight_layout()
             df = pd.read_sql(
@@ -180,7 +185,7 @@ def fix_host_parameters_individual(table, params):
                     label=chi2legend)  # , c="gamma", colorbar=True)
 
             name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}_{3}_individual_{4}.png".format(
-            params["star"], params["obs_num"], params["suffix"], col)
+                params["star"], params["obs_num"], params["suffix"], chi2_val, col)
             plt.suptitle("Co-add {2}-Chi**2 Results (Fixed host): {0}-{1}".format(
                          params["star"], params["obs_num"], chi2_val, col))
             fig.savefig(os.path.join(params["path"], "plots", name))
