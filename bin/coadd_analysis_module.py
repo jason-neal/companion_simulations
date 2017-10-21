@@ -455,7 +455,7 @@ def contours(table, params):
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
 
             #print(df.head())
-            params["this_npix"] = npix_val
+            params["this_npix"] = params["npix"][npix_val]
             params["par_limit"] = par_limit
 
             pars = [contour_param, "teff_2", red_chi2]
@@ -493,7 +493,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
     cbar.ax.set_ylabel(zcol)
     ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
     ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
-    ax.set_title('{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"], df[params["this_npix"]], params["npars"]))
+    ax.set_title('{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"], params["this_npix"], params["npars"]))
 
     ax.grid(True)
     fig.tight_layout()
