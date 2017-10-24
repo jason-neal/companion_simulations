@@ -44,6 +44,8 @@ def _parser():
 
 
 def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, move=False):
+    star = star.upper()
+
     patterns = [os.path.join(
             simulators.paths["output_dir"], star,
             "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))

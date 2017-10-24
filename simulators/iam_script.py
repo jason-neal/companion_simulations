@@ -78,6 +78,7 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
     if chip is None:
         chip = 4
 
+    star = star.upper()
     obs_name, params, output_prefix = iam_helper_function(star, obs_num, chip)
     if suffix is not None:
         output_prefix = output_prefix + str(suffix)

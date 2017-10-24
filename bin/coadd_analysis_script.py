@@ -85,6 +85,7 @@ def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
 
 def main(star, obsnum, suffix=None, echo=False, mode="parabola",
          verbose=False, norm=False, npars=3):
+    star = star.upper()
     suffix = "" if suffix is None else suffix
     database = os.path.join(
         simulators.paths["output_dir"], star,
