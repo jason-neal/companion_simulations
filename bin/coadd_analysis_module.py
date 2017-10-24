@@ -180,7 +180,7 @@ def fix_host_parameters_individual(table, params):
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
             #axis_pos = [int(x) for x in np.where(indices == ii)]
             df.plot(x=col, y=red_chi2, kind="scatter",
-                    label=chi2legend)  # , c="gamma", colorbar=True)
+                    ax=axes, label=chi2legend)  # , c="gamma", colorbar=True)
 
             name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}_{3}_individual_{4}.png".format(
                 params["star"], params["obs_num"], params["suffix"], chi2_val, col)
@@ -189,7 +189,7 @@ def fix_host_parameters_individual(table, params):
             fig.savefig(os.path.join(params["path"], "plots", name))
             fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
             plt.close()
-
+        plt.close()
 
 def parabola_plots(table, params):
     norm = params["norm"]
@@ -405,7 +405,7 @@ def fix_host_parameters_reduced_gamma_individual(table, params):
             fig, axes = plt.subplots(nrows, ncols)
             fig.tight_layout()
             df.plot(x=col, y=red_chi2, kind="scatter",
-                    label=chi2legend)
+                    ax=axes, label=chi2legend)
 
             plt.suptitle("Coadd {2}-reduced Chi**2 Results: {0}-{1}".format(params["star"], params["obs_num"], col))
             name = "{0}-{1}_coadd_fixed_host_params_{2}_{3}_individual_{4}.png".format(
@@ -413,6 +413,7 @@ def fix_host_parameters_reduced_gamma_individual(table, params):
             fig.savefig(os.path.join(params["path"], "plots", name))
             fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
             plt.close()
+        plt.close()
 
 
 def get_column_limits(table, params):
