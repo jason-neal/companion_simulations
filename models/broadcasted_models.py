@@ -44,7 +44,7 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
     am2rv = np.empty(am2.shape + (len(rvs),))  # am2rv = am2 with rv doppler-shift
 
     for i, rv in enumerate(rvs):
-        wav_i = (1 - rv / 299792.458) * wav
+        wav_i = (1 + rv / 299792.458) * wav
         am2rv[:, :, i] = interp1d(wav_i, am2, axis=0, bounds_error=False)(wav)
 
     # Normalize by (1 / 1 + alpha)
@@ -71,7 +71,7 @@ def two_comp_model_with_transpose(wav, model1, model2, alphas, rvs, gammas):
     am2rv = np.empty(am2.shape + (len(rvs),))  # am2rv = am2 with rv doppler-shift
 
     for i, rv in enumerate(rvs):
-        wav_i = (1 - rv / 299792.458) * wav
+        wav_i = (1 + rv / 299792.458) * wav
         am2rv[:, :, i] = interp1d(wav_i, am2, axis=0, bounds_error=False)(wav)
 
     # Normalize by (1 / 1 + alpha)
@@ -98,7 +98,7 @@ def inherent_alpha_model(wav, model1, model2, rvs, gammas):
     m2rv = np.empty(model2.shape + (len(rvs),))  # m2rv = model2 with rv doppler-shift
 
     for i, rv in enumerate(rvs):
-        wav_i = (1 - rv / 299792.458) * wav
+        wav_i = (1 + rv / 299792.458) * wav
         m2rv[:, i] = interp1d(wav_i, model2, axis=0, bounds_error=False)(wav)
 
     m2rvm1 = (model1.T + m2rv.T).T  # m2rvm1 = am2rv + model_1
