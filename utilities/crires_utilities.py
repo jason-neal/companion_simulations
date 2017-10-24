@@ -8,6 +8,7 @@ from __future__ import division, print_function
 
 import ephem
 from PyAstronomy import pyasl
+import logging
 from spectrum_overload.Spectrum import Spectrum
 
 # TODO: Add a line in the header to check if this script has already been
@@ -28,16 +29,28 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
 
     # SHOULD test again with bary and see what the  difference is.
     """
-    longitude = float(header["HIERARCH ESO TEL GEOLON"])
-    latitude = float(header["HIERARCH ESO TEL GEOLAT"])
-    altitude = float(header["HIERARCH ESO TEL GEOELEV"])
+    if (not header) or (header is None):
+        logging.warning("No barycorrection done as no header information")
+        if extra_offset is None:
+            return wavelength, flux
+        else:
+            # TODO ? # This can but I have not added the code (do I need it)
+            # return None
+            raise ValueError("Extra offset can not yet be applied when no header information given.")
+    try:
+        longitude = float(header["HIERARCH ESO TEL GEOLON"])
+        latitude = float(header["HIERARCH ESO TEL GEOLAT"])
+        altitude = float(header["HIERARCH ESO TEL GEOELEV"])
 
-    ra = header["RA"]    # CRIRES RA already in degrees
-    dec = header["DEC"]  # CRIRES hdr DEC already in degrees
+        ra = header["RA"]    # CRIRES RA already in degrees
+        dec = header["DEC"]  # CRIRES hdr DEC already in degrees
 
     # Pyastronomy helcorr needs the time of observation in julian Days
     # #############################################
-    time = header["DATE-OBS"]    # Observing date  '2012-08-02T08:47:30.8425'
+        time = header["DATE-OBS"]    # Observing date  '2012-08-02T08:47:30.8425'
+    except KeyError as e:
+        logging.warning("Not a valid header so not doing bary correction")
+        return wavelength, flux
 
     # Convert easily to julian date with ephem
     jd = ephem.julian_date(time.replace("T", " ").split(".")[0])

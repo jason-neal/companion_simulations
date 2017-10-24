@@ -20,7 +20,7 @@ def get_snrinfo(star, obs_num, chip):
 
 
 def spectrum_error(star, obs_num, chip, error_off=False):
-    """Return the specturm error.
+    """Return the spectrum error.
 
     errors = None will perform a normal chi**2 statistic.
     """
