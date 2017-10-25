@@ -9,14 +9,10 @@ import glob
 import os
 import subprocess
 
-import corner
-import matplotlib.pyplot as plt
 import pandas as pd
 import simulators
 import sqlalchemy as sa
-from bin.analysis_iam_chi2 import decompose_database_name
-from utilities.param_file import get_host_params
-from utilities.phoenix_utils import closest_model_params
+import numpy as np
 
 
 def _parser():
@@ -44,6 +40,7 @@ def _parser():
 
 
 def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, move=False):
+    """"""
     star = star.upper()
 
     patterns = [os.path.join(
