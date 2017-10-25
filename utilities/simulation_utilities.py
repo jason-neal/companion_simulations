@@ -91,6 +91,10 @@ def plot_spectra(obs, model):
 
 
 def check_inputs(var):
+    """Turn inputs into numpy arrays.
+
+    Defaults to zero if None.
+    """
     if (var is None) or ("None" in str(var)):
         var = np.array([0])
     elif isinstance(var, (np.float, np.int)):

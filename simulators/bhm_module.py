@@ -107,16 +107,14 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, verbose=False, 
 def save_bhm_chisqr(name, params1, gammas, broadcast_chisquare, npix):
     """Save the bhm chisqr values to a cvs."""
     assert gammas.shape == broadcast_chisquare.shape
-    ravel_size = len(gammas)
-    p1_0 = np.ones(ravel_size) * params1[0]
-    p1_1 = np.ones(ravel_size) * params1[1]
-    p1_2 = np.ones(ravel_size) * params1[2]
 
-    assert p1_2.shape == gammas.shape
-    data = {"teff_1": p1_0, "logg_1": p1_1, "feh_1": p1_2, "gamma": gammas, "chi2": broadcast_chisquare.ravel()}
-    columns = ["teff_1", "logg_1", "feh_1", "gamma", "npix", "chi2"]
+    data = {"gamma": gammas, "chi2": broadcast_chisquare.ravel()}
     df = pd.DataFrame(data=data)
+    df["teff_1"] = params1[0]
+    df["logg_1"] = params1[1]
+    df["feh_1"] = params1[2]
     df["npix"] = npix
+    columns = ["teff_1", "logg_1", "feh_1", "gamma", "npix", "chi2"]
     df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
     return None
 

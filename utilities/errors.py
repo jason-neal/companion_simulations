@@ -8,7 +8,9 @@ import json
    For a first go using an fixed SNR of 200 for all observations.
 """
 
+
 def get_snrinfo(star, obs_num, chip):
+    """Load SNR info from json file."""
     snr_file = os.path.join(simulators.paths["spectra"], "detector_snrs.json")
     with open(snr_file, "r") as f:
         snr_data = json.load(f)

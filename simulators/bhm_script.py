@@ -26,12 +26,14 @@ def _parser():
     """
     parser = argparse.ArgumentParser(description='Best host modelling.')
     parser.add_argument("star", help='Star name.', type=str)
-    parser.add_argument("obs_nums", help='Star observation number.', type=str, narg="+")
-    parser.add_argument('-c', '--chips', help='Chip Number.', default=None, narg="+")
-    parser.add_argument('-m', '--mask', help='Apply wavelength mask.', type=bool, action="store_true")
-    parser.add_argument('-s', '--suffix', help='Extra name identifier.', type=str, default="")
-    parser.add_argument("--error_off", help="Turn snr value errors off.",
-                            action="store_true", type=bool)
+    parser.add_argument("obs_nums", help='Star observation number.', nargs="+")
+    parser.add_argument('-c', '--chips', help='Chip Number.', default=None, nargs="+")
+    parser.add_argument('-m', '--mask', action="store_true",
+                        help='Apply wavelength mask.')
+    parser.add_argument('-s', '--suffix', type=str, default="",
+                        help='Extra name identifier.')
+    parser.add_argument("--error_off", action="store_true",
+                        help="Turn snr value errors off.")
     return parser.parse_args()
 
 
@@ -39,7 +41,7 @@ def bhm_helper_function(star, obs_num, chip):
     param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)
     obs_name = os.path.join(
-        simulators.paths["spectra"],"{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
+        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
 
     output_name = os.path.join(
         simulators.paths["output_dir"], star.upper(), "{0}-{1}_{2}_bhm_chisqr_results.dat".format(star.upper(), obs_num, chip))
@@ -65,11 +67,10 @@ def get_model_pars(params, method="close"):
 
 
 def save_pd_cvs(name, data):
-    # Take dict of data to save to csv caled name
+    # Take dict of data to save to csv called name
     df = pd.DataFrame(data=data)
     df.to_csv(name, sep=',', index=False)
     return 0
-
 
 
 def deconstruct_array(array, values):
@@ -130,7 +131,7 @@ def main(star, obs_nums, chips=None, verbose=False, suffix=None, mask=False, err
         print("broadcast_chi2_gamma", broadcast_chi2_gamma.shape)
         print("broadcast_chi2_gamma", broadcast_chi2_gamma[:20])
 
-        indx, gam, chi2 = deconstruct_array(broadcast_chi2_gamma, gammas)
+        # indx, gam, chi2 = deconstruct_array(broadcast_chi2_gamma, gammas)
 
         # Save the result to a csv, in a single column
         save_results = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
@@ -144,15 +145,14 @@ def main(star, obs_nums, chips=None, verbose=False, suffix=None, mask=False, err
         df.to_csv(output_name + ".tsv", sep='\t', index=False, columns=cols)
         print("Save the results to {}".format(output_name))
 
-        # Save as atropy table, and all gamma values from broadcasting.
+        # Save as astropy table, and all gamma values from broadcasting.
         save_results2 = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
                          "broadcast_chisqr": chi2_grids[3],
                          "broadcast_gamma": chi2_grids[4],
                          "chi2_gamma": broadcast_chi2_gamma[5], "gammas": gammas}
 
         print("Save the results to {}".format(output_name))
-    print("Finished chisquare generation")
-
+    print("Finished chi square generation")
 
 
 if __name__ == "__main__":
@@ -160,8 +160,7 @@ if __name__ == "__main__":
     opts = {k: args[k] for k in args}
 
     # Do all chips
-    if opts["chip"] is None:
-        opts["chip"] = range(1, 5)
-
+    if opts["chips"] is None:
+        opts["chips"] = range(1, 5)
 
     sys.exit(main(**opts))
