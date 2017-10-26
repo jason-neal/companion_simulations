@@ -133,25 +133,25 @@ def main(star, obs_nums, chips=None, verbose=False, suffix=None, mask=False, err
 
         # indx, gam, chi2 = deconstruct_array(broadcast_chi2_gamma, gammas)
 
-        # Save the result to a csv, in a single column
-        save_results = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
-                        "model_chisqr": chi2_grids[0],
-                        "broadcast_chisqr": chi2_grids[3],
-                        "broadcast_gamma": chi2_grids[4]}
-
-        # save_pd_cvs(output_name, data=save_results)
-        cols = ["temp", "logg", "fe_h", "model_chisqr", "broadcast_chisqr", "broadcast_gamma"]
-        df = pd.DataFrame(data=save_results)
-        df.to_csv(output_name + ".tsv", sep='\t', index=False, columns=cols)
-        print("Save the results to {}".format(output_name))
-
-        # Save as astropy table, and all gamma values from broadcasting.
-        save_results2 = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
-                         "broadcast_chisqr": chi2_grids[3],
-                         "broadcast_gamma": chi2_grids[4],
-                         "chi2_gamma": broadcast_chi2_gamma[5], "gammas": gammas}
-
-        print("Save the results to {}".format(output_name))
+        # # Save the result to a csv, in a single column
+        # save_results = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
+        #                 "model_chisqr": chi2_grids[0],
+        #                 "broadcast_chisqr": chi2_grids[3],
+        #                 "broadcast_gamma": chi2_grids[4]}
+        #
+        # # save_pd_cvs(output_name, data=save_results)
+        # cols = ["temp", "logg", "fe_h", "model_chisqr", "broadcast_chisqr", "broadcast_gamma"]
+        # df = pd.DataFrame(data=save_results)
+        # df.to_csv(output_name + ".tsv", sep='\t', index=False, columns=cols)
+        # print("Save the results to {}".format(output_name))
+        #
+        # # Save as astropy table, and all gamma values from broadcasting.
+        # save_results2 = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
+        #                  "broadcast_chisqr": chi2_grids[3],
+        #                  "broadcast_gamma": chi2_grids[4],
+        #                  "chi2_gamma": broadcast_chi2_gamma[5], "gammas": gammas}
+        #
+        # print("Save the results to {}".format(output_name))
     print("Finished chi square generation")
 
 
