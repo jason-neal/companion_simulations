@@ -6,9 +6,17 @@ import scipy
 import sqlalchemy as sa
 from matplotlib import rc
 from matplotlib import pyplot as plt
+from scipy.optimize import curve_fit
+from scipy.stats import chi2
 
+from models.broadcasted_models import inherent_alpha_model
+from spectrum_overload.Spectrum import Spectrum
+from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.chisqr import reduced_chi_squared
 from utilities.debug_utils import timeit2
+from utilities.spectrum_utils import load_spectrum
+from utilities.phoenix_utils import load_starfish_spectrum
+
 
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
@@ -526,16 +534,63 @@ def test_figure(table, params):
     plt.close()
 
 
+def compare_spectra(table, params):
+    """Plot the min chi2 result against the observations."""
+    for ii, chi2_val in enumerate(chi2_names[0:-2]):
+        df = pd.read_sql_query(sa.select([table.c.teff_1, table.c.logg_1, table.c.feh_1,
+                                          table.c.teff_2, table.c.logg_2, table.c.feh_2,
+                                          table.c.rv, table.c.gamma,
+                                          table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1), table.metadata.bind)
 
+        params1 = [df["teff_1"].values[0], df["logg_1"].values[0], df["feh_1"].values[0]]
+        params2 = [df["teff_2"].values[0], df["logg_2"].values[0], df["feh_2"].values[0]]
 
+        gamma = df["gamma"]
+        rv = df["rv"]
 
+        from simulators.iam_module import iam_helper_function
+        obs_name, params, output_prefix = iam_helper_function(params["star"], params["obs_num"], ii + 1)
 
+        obs_spec = load_spectrum(obs_name)
 
+        # Mask out bad portion of observed spectra
+        # obs_spec = spectrum_masking(obs_spec, params["star"], params["obs_num"], ii + 1)
 
+        # Barycentric correct spectrum
+        obs_spec = barycorr_crires_spectrum(obs_spec)
+        normalization_limits = [obs_spec.xaxis[0] - 5, obs_spec.xaxis[-1] + 5]
+        # models
+        mod1 = load_starfish_spectrum(params1, limits=normalization_limits,
+                                           hdr=True, normalize=False, area_scale=True,
+                                           flux_rescale=True)
 
+        mod2 = load_starfish_spectrum(params2, limits=normalization_limits,
+                                           hdr=True, normalize=False, area_scale=True,
+                                           flux_rescale=True)
+
+        broadcast_model = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
+                                                rvs=rv, gammas=gamma)
+
+        broadcast_model = broadcast_model(obs_spec.xaxis)
+        model_spec = Spectrum(flux=broadcast_model.squeeze(), xaxis=mod1.xaxis)
+
+        model_spec = model_spec.remove_nans()
+        model_spec = model_spec.normalize(method="exponential")
+
+        fig, ax = plt.subplots(1, 1)
+        plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation")
+        plt.plot(model_spec.xaxis, model_spec.flux, label="Minimum \chi^2 model")
+
+        plt.legend()
+        # plt.show()
 
         fig.tight_layout()
+        name = "{0}-{1}_{2}_min_chi2_spectrum_comparison_{4}.pdf".format(
+            params["star"], params["obs_num"], params["chip"], chi2_val, params["suffix"])
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.close()
 
 
+    # Load in real observations
+    # Reconstruct model for given parameters
+    # Plot together

@@ -18,7 +18,7 @@ from bin.coadd_analysis_module import (chi2_parabola_plots, contours,
                                        fix_host_parameters,
                                        fix_host_parameters_reduced_gamma,
                                        get_column_limits, get_npix_values,
-                                       parabola_plots, rv_plot,
+                                       parabola_plots, rv_plot, compare_spectra,
                                        smallest_chi2_values, test_figure)
 from utilities.param_file import get_host_params
 from utilities.phoenix_utils import closest_model_params
@@ -44,7 +44,7 @@ def _parser():
                         help="Analysis mode to choose",
                         choices=["parabola", "fixed_host_params", "param_limits",
                                  "smallest_chi2", "test", "contour", "arbnorm",
-                                 "all", "rvplot", "chi2_parabola"])
+                                 "all", "rvplot", "chi2_parabola", "compare_spectra"])
     parser.add_argument('-n', '--norm', action="store_true",
                         help='Normalized chi2 (min(chi**2) == 1).')
     return parser.parse_args()
@@ -134,6 +134,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         display_arbitary_norm_values(db_table, params)
     elif mode == "chi2_parabola":
         chi2_parabola_plots(db_table, params)
+    elif mode == "compare_spectra":
+        compare_spectra(db_table, params)
     elif mode == "all":
         fix_host_parameters_reduced_gamma(db_table, params)
         get_column_limits(db_table, params)
@@ -144,6 +146,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         contours(db_table, params)
         test_figure(db_table, params)
         chi2_parabola_plots(db_table, params)
+        compare_spectra(db_table, params)
     print("Done")
     return 0
 
