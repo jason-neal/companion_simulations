@@ -150,8 +150,8 @@ def fix_host_parameters(table, params):
 
     fix_host_parameters_individual(table, params)
 
+
 def fix_host_parameters_individual(table, params):
-    print("Fixed host analysis.")
     nrows, ncols = 1, 1
     # fig, axes = plt.subplots(nrows, ncols)
     # fig.tight_layout()
@@ -217,7 +217,7 @@ def parabola_plots(table, params):
                 min_chi2 = [c2/mc2 for c2 in min_chi2]
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
-            popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
+            popt, pcov = curve_fit(parabola, unique_par, min_chi2)
 
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt), "--")
@@ -237,7 +237,7 @@ def parabola_plots(table, params):
 def chi2_at_sigma(df, sigma):
     """Use inverse survival function to calculate the chi2 value for significances."""
     sigma_percent = {1: 0.68, 2: 0.90, 3: 0.99}
-    return scipy.stats.chi2(df).isf(1 - sigma_percent[sigma])
+    return chi2(df).isf(1 - sigma_percent[sigma])
 
 
 def chi2_parabola_plots(table, params):
@@ -263,7 +263,7 @@ def chi2_parabola_plots(table, params):
 
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
-            popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
+            popt, pcov = curve_fit(parabola, unique_par, min_chi2)
             print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
@@ -486,7 +486,6 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
                 raise e
 
     x_grid, y_grid = np.meshgrid(x, y, indexing='ij')
-
 
     assert x_grid.shape == z_grid.shape
     assert x_grid.shape == y_grid.shape
