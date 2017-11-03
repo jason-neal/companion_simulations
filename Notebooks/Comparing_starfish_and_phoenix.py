@@ -5,7 +5,7 @@
 # 
 # 
 
-# In[18]:
+# In[1]:
 
 
 from spectrum_overload import Spectrum
@@ -15,7 +15,7 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 
 
-# In[19]:
+# In[2]:
 
 
 params1 = [6000, 4.5, 0.0]
@@ -57,7 +57,7 @@ for name, mod1_spec, mod2_spec in zip(["area scaled", "area unscaled"],
 
 
 
-# In[20]:
+# In[3]:
 
 
 # Manually load Phoenix spectra
@@ -84,7 +84,7 @@ plt.show()
 
 
 
-# In[21]:
+# In[4]:
 
 
 from Convolution.IP_multi_Convolution import ip_convolution, convolve_spectrum
@@ -94,7 +94,7 @@ conv1 = convolve_spectrum(spec1, [2100, 2150], 50000, numProcs=4)
 conv2 = convolve_spectrum(spec2, [2100, 2150], 50000, numProcs=4)
 
 
-# In[22]:
+# In[5]:
 
 
 (1e12 + conv1).plot(label="1")
@@ -108,7 +108,7 @@ plt.show()
 plt.show()
 
 
-# In[54]:
+# In[ ]:
 
 
 # Comparion to Starfish
@@ -125,7 +125,7 @@ plt.legend()
 plt.show()
 
 
-# In[64]:
+# In[ ]:
 
 
 ((conv1 / 1e7)/(mod1_spec_unscaled)).plot()

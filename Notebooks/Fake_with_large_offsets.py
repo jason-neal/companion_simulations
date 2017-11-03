@@ -23,7 +23,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 
-# In[18]:
+# In[ ]:
 
 
 snr = 300
@@ -67,7 +67,7 @@ plt.show()
 
 
 
-# In[19]:
+# In[ ]:
 
 
 # Need to sample the spectrum away from the ends so that you don't get nans at the ends
@@ -75,7 +75,7 @@ plt.show()
 sample_x = np.linspace(2112, 2145, 1024)
 
 
-# In[20]:
+# In[ ]:
 
 
 def join_with_broadcast_spectrum(mod1, mod2, rv, gamma, new_x, independent=False):
@@ -157,14 +157,14 @@ for independent in (True, False):
         dof = len(fake_data.xaxis) - 1
 
 
-# In[21]:
+# In[ ]:
 
 
 plt.plot(fake_data.flux)
 plt.show()
 
 
-# In[14]:
+# In[ ]:
 
 
 def plt_1d_grid(grid):
