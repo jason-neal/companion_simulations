@@ -22,7 +22,7 @@ from models.alpha_model import alpha_model2
 from Planet_spectral_simulations import (load_PHOENIX_hd30501,
                                          load_PHOENIX_hd211847,
                                          load_starfish_hd211847)
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 from utilities.chisqr import parallel_chisqr  # , alpha_model
 from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)

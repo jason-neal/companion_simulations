@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 import simulators
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 # from utilities.crires_utilities import crires_resolution
 from utilities.phoenix_utils import (gen_new_param_values,
                                      generate_close_params_with_simulator,

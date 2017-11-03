@@ -10,7 +10,7 @@ from astropy import units as u
 from astropy.analytic_functions import blackbody_lambda
 from astropy.io import fits
 from lmfit import Parameters, minimize
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 
 
 def blackbody_residual(params, x, data):

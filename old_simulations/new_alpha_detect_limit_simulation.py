@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from models.alpha_model import alpha_model
 from Planet_spectral_simulations import load_PHOENIX_hd30501
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 from utilities.chisqr import parallel_chisqr, spectrum_chisqr
 # self written modules
 from utilities.debug_utils import pv

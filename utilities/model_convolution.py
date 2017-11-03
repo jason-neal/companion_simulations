@@ -10,7 +10,7 @@ import numpy as np
 
 from IP_multi_Convolution import ip_convolution
 from joblib import Memory
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 from utilities.simulation_utilities import (check_inputs, max_delta,
                                             spec_max_delta)
 

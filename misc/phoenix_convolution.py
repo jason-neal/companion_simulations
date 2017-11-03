@@ -3,7 +3,7 @@ import os
 
 import simulators
 from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 
 # Convolve All Phoenix Spectra to 50000.
 resolution = 50000   # 20000, 80000, 100000

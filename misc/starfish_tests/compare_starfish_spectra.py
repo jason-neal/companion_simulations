@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import simulators
 import Starfish
 from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 from Starfish.grid_tools import HDF5Interface
 
 myHDF5 = HDF5Interface(filename="/home/jneal/Phd/Codes/companion_simulations/starfish_tests/libraries/PHOENIX_50k.hdf5")

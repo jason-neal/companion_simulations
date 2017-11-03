@@ -4,7 +4,7 @@ import pytest
 from simulators.iam_module import (continuum_alpha, iam_analysis,
                                    iam_helper_function, iam_wrapper,
                                    parallel_iam_analysis)
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 
 
 @pytest.mark.parametrize("star,obs,chip", [

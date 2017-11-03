@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import simulators
 from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)

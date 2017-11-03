@@ -37,7 +37,7 @@ from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
                                      load_starfish_spectrum)
 
-# from spectrum_overload.Spectrum import Spectrum
+# from spectrum_overload import Spectrum
 
 
 logging.basicConfig(level=logging.WARNING,

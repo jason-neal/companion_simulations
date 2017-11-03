@@ -14,7 +14,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from astropy.io import fits
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 from utilities.debug_utils import pv
 from utilities.phoenix_utils import load_starfish_spectrum, spec_local_norm
 # from todcor import todcor

@@ -9,7 +9,7 @@ from __future__ import division, print_function
 import ephem
 from PyAstronomy import pyasl
 import logging
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 
 # TODO: Add a line in the header to check if this script has already been
 # applied.

@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 from PyAstronomy import pyasl
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 
 pathwave = "/home/jneal/Phd/data/phoenixmodels/" \
            "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"

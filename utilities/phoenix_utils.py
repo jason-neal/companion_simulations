@@ -19,7 +19,7 @@ import simulators
 from astropy.io import fits
 # from utilities.debug_utils import pv
 # from astropy.modeling import models, fitting
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 # import Starfish
 from Starfish.grid_tools import HDF5Interface
 from utilities.norm import local_normalization, spec_local_norm
