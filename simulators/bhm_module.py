@@ -37,7 +37,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, verbose=False, 
     broadcast_gamma = np.empty(len(model_pars))
     full_broadcast_chisquare = np.empty((len(model_pars), len(gammas)))
 
-    normalization_limits = [2105, 2185]   # small as possible?
+    normalization_limits = [2105, 2185]  # small as possible?
 
     for ii, params in enumerate(tqdm(model_pars)):
         save_name = os.path.join(
@@ -173,7 +173,7 @@ def broadcast_continuum_fit(wave, flux, splits=50, method="linear", plot=True):
     for i, (w, f) in enumerate(zip(wav_split, flux_split)):
         # Take the median of the wavelength values of max values.
         wav_points[i] = np.median(w[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)
-        flux_points[i, ] = np.median(f[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)
+        flux_points[i,] = np.median(f[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)
 
     print("flux_points", flux_points)
     print("flux_points.shape", flux_points.shape)
@@ -192,7 +192,7 @@ def broadcast_continuum_fit(wave, flux, splits=50, method="linear", plot=True):
     elif method == "exponential":
         z = np.polyfit(wav_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
         p = np.poly1d(z)
-        norm_flux = np.exp(p(org_wave))   # Un-log the y values.
+        norm_flux = np.exp(p(org_wave))  # Un-log the y values.
 
     if plot:
         plt.subplot(211)

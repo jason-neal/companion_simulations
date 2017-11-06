@@ -19,14 +19,13 @@ def test_spec_max_delta_applies_max_delta_on_xaxis(xaxis, rv, gamma):
 
 
 @pytest.mark.parametrize("wav, rv, gamma, expected", [
-    ([1], 3, 5, 5/c),
-    ([2], 1, -7.1, 2*7.1/c),
-    (2, 1, 7.1, 2*7.1/c),
+    ([1], 3, 5, 5 / c),
+    ([2], 1, -7.1, 2 * 7.1 / c),
+    (2, 1, 7.1, 2 * 7.1 / c),
     ([1, 2], 0, 0, 0)
 ])
 def test_spec_max_delta(wav, rv, gamma, expected):
-
-    assert 2*round(expected, 3) == max_delta(wav, rv, gamma)
+    assert 2 * round(expected, 3) == max_delta(wav, rv, gamma)
 
 
 @pytest.mark.parametrize("rv, gamma", [

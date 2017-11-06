@@ -48,7 +48,7 @@ model_base_dir = (simulators["raw_path"])
 wav_dir = simulators["raw_path"]
 
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
-wav_model /= 10   # turn into nm
+wav_model /= 10  # turn into nm
 
 test = False
 if test:
@@ -58,6 +58,7 @@ if test:
     print("Warning only small test feature set tried")
 else:
     import simulators
+
     gammas = np.arange(*simulators.sim_grid["gammas"])
     rvs = np.arange(*simulators.sim_grid["rvs"])
     alphas = np.arange(*simulators.sim_grid["alphas"])
@@ -111,7 +112,8 @@ def main():
     print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
     print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
     ####
-    chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True, chip=chip, prefix=output_prefix)
+    chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True,
+                              chip=chip, prefix=output_prefix)
 
     bcast_chisqr_vals = chi2_grids
 
@@ -120,12 +122,12 @@ def main():
     print("model1_pars len", len(model1_pars))
     print("model2_pars len", len(model2_pars))
 
-
     print("Done")
 
 
 @timeit2
-def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False, chip=None, prefix=None):
+def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gammas=None, verbose=False, norm=False,
+                 chip=None, prefix=None):
     """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
     if chip is None:
         chip = ""
@@ -159,7 +161,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     # broadcast_gamma = np.empty((len(model1_pars), len(model2_pars)))
     # full_broadcast_chisquare = np.empty((len(model1_pars), len(model2_pars), len(alphas), len(rvs), len(gammas)))
 
-    normalization_limits = [2105, 2185]   # small as possible?
+    normalization_limits = [2105, 2185]  # small as possible?
     # combined_params = itertools.product(model1_pars, model2_pars)
     for ii, params1 in enumerate(tqdm(model1_pars)):
         if prefix is None:
@@ -170,7 +172,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
 
         else:
             sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}]_par.csv".format(prefix,
-                  params1[0], params1[1], params1[2], ii)
+                                                                      params1[0], params1[1], params1[2], ii)
         save_filename = sf
 
         for jj, params2 in enumerate(model2_pars):
@@ -183,16 +185,17 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
 
             # Wavelength selection
             mod1_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
+                                 np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
             mod2_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                                np.max(obs_spec.xaxis) + 5)
+                                 np.max(obs_spec.xaxis) + 5)
             obs_spec = obs_spec.remove_nans()
 
             # One component model with broadcasting over gammas
             # two_comp_model(wav, model1, model2, alphas, rvs, gammas)
             assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
 
-            broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux, alphas=alphas, rvs=rvs, gammas=gammas)
+            broadcast_result = two_comp_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux, alphas=alphas, rvs=rvs,
+                                              gammas=gammas)
             broadcast_values = broadcast_result(obs_spec.xaxis)
 
             assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
@@ -219,7 +222,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
 
             save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, verbose=verbose)
 
-    return broadcast_chisqr_vals   # Just output the best value for each model pair
+    return broadcast_chisqr_vals  # Just output the best value for each model pair
 
 
 if __name__ == "__main__":

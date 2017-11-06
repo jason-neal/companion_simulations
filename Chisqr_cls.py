@@ -1,7 +1,4 @@
-
-
 class ChisqrAnalyser(object):
-
     def __init__(self, star, num, chip):
         self.star = star
         self.num = num

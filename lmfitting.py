@@ -104,7 +104,7 @@ def vel_vect(wav, ref_wav=None):
     """Convert wavelength to velocity vector."""
     if ref_wav is None:
         ref_wav = np.median(wav)
-    v = (wav - ref_wav) * 299792.458 / ref_wav   # km/s
+    v = (wav - ref_wav) * 299792.458 / ref_wav  # km/s
     return v
 
 
@@ -136,7 +136,7 @@ params.add('min_limit', value=2100, vary=False)
 params.add('max_limit', value=2180, vary=False)
 
 out = minimize(alpha_model_residual, params, args=(data_spec.xaxis, data_spec.flux,
-               np.ones_like(data_spec.flux), host_models, comp_models))
+                                                   np.ones_like(data_spec.flux), host_models, comp_models))
 
 print(out)
 out.params.pretty_print()
@@ -147,8 +147,7 @@ fit_params = out.params
 result = double_shifted_alpha_model(fit_params['alpha'].value, fit_params['rv1'].value,
                                     fit_params['rv2'].value, host_models[fit_params['host_index'].value],
                                     comp_models[fit_params['companion_index'].value], [fit_params['min_limit'].value,
-                                    fit_params['max_limit'].value])
-
+                                                                                       fit_params['max_limit'].value])
 
 plt.plot(data_spec.xaxis, data_spec.flux, label="Simulation")
 plt.plot(phoenix_wl, )

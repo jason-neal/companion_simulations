@@ -33,7 +33,8 @@ def _parser():
     # parser.add_argument('-s', '--suffix', help='Suffix to add to database name.')
     # parser.add_argument('-v', '--verbose', help='Turn on Verbose.', action="store_true")
     parser.add_argument("-m", "--mode", help="Analysis mode to choose", default="parabola",
-        choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2", "test", "contour", "contour_old"])
+                        choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2", "test", "contour",
+                                 "contour_old"])
     return parser.parse_args()
 
 

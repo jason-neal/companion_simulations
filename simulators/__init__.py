@@ -20,6 +20,7 @@ try:
 except FileNotFoundError as e:
     default = __file__[:-11] + "config.yaml"
     import warnings
+
     warnings.warn("Using the default config.yaml file located at {0}."
                   "This is likely NOT what you want. "
                   "Please create a similar 'config.yaml' file in your "
@@ -27,7 +28,6 @@ except FileNotFoundError as e:
     f = open(default)
     config = yaml.load(f)
     f.close()
-
 
 # Read the YAML variables into package-level dictionaries to be used by the other programs.
 sim_grid = config["sim_grid"]
@@ -38,7 +38,6 @@ starfish_grid = config["grid"]
 data = config["data"]
 outdir = config["outdir"]
 plotdir = config["plotdir"]
-
 
 # Check the sim_grid parameters are not empty
 for key in sim_grid:

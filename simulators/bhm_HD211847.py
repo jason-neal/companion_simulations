@@ -38,7 +38,7 @@ debug = logging.debug
 wav_dir = simulators.starfish_grid["raw_path"]
 
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
-wav_model /= 10   # turn into nm
+wav_model /= 10  # turn into nm
 
 
 def main():
@@ -84,12 +84,11 @@ def main():
     import simulators
     gammas = np.arange(*simulators.sim_grid["gammas"])
 
-
     ####
     chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, verbose=True)
     ####
     (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
-        broadcast_chisqr_vals, broadcast_gamma, broadcast_chisquare) = chi2_grids
+     broadcast_chisqr_vals, broadcast_gamma, broadcast_chisquare) = chi2_grids
 
     TEFF = [par[0] for par in model_pars]
     LOGG = [par[1] for par in model_pars]
@@ -203,5 +202,6 @@ if __name__ == "__main__":
         print("Endded at: {}".format(end))
         print("Runtime: {}".format(end - start))
         return result
+
 
     sys.exit(time_func(main))

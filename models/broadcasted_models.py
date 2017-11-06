@@ -12,14 +12,14 @@ def one_comp_model(wav, model1, gammas):
     gammas = check_broadcastable(gammas).squeeze(axis=1)
 
     m1 = model1
-    m1g = np.empty(model1.shape + (len(gammas),))   # am2rvm1g = am2rvm1 with gamma doppler-shift
+    m1g = np.empty(model1.shape + (len(gammas),))  # am2rvm1g = am2rvm1 with gamma doppler-shift
 
     for j, gamma in enumerate(gammas):
         wav_j = (1 + gamma / 299792.458) * wav
         m1g[:, j] = interp1d(wav_j, m1, axis=0, bounds_error=False)(wav)
 
     assert m1g.shape == (len(model1), len(gammas)), "Dimensions of broadcast output not correct"
-    return interp1d(wav, m1g, axis=0)    # pass it the wavelength values to return
+    return interp1d(wav, m1g, axis=0)  # pass it the wavelength values to return
 
 
 def check_broadcastable(var):
@@ -126,14 +126,13 @@ def independent_inherent_alpha_model(wav, model1, model2, rvs, gammas, independe
         wav_i = (1 + rv / 299792.458) * wav
         m2_shifted[:, i] = interp1d(wav_i, model2, axis=0, bounds_error=False)(wav)
 
-    m1_shifted = np.empty(model1.shape + (len(gammas),))       # m2rvm1g = m2rvm1 with gamma doppler-shift
+    m1_shifted = np.empty(model1.shape + (len(gammas),))  # m2rvm1g = m2rvm1 with gamma doppler-shift
     for j, gamma in enumerate(gammas):
         wav_j = (1 + gamma / 299792.458) * wav
         m1_shifted[:, j] = interp1d(wav_j, model1, axis=0, bounds_error=False)(wav)
 
-
-    #print(m2rvm1g.shape)
-    #print(m2rv.shape)
+    # print(m2rvm1g.shape)
+    # print(m2rv.shape)
     print("m1_shifted", m1_shifted.shape)
     print("m2_shifted", m2_shifted.shape)
     m2rvm1g = (m1_shifted[:, np.newaxis, :] + m2_shifted[:, :, np.newaxis])

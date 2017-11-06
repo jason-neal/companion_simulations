@@ -22,7 +22,8 @@ flux = myHDF5.load_flux(np.array(params))
 
 path = simulators.starfish_grid["raw_path"]
 
-phoenix = os.path.join(path, "Z-0.0", "lte{:05d}-{:0.2f}-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(params[0], params[1]))
+phoenix = os.path.join(path, "Z-0.0",
+                       "lte{:05d}-{:0.2f}-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(params[0], params[1]))
 phoenix_wav = os.path.join(path, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
 print(phoenix)
 raw_flux = fits.getdata(phoenix)
@@ -32,7 +33,6 @@ plt.plot(wl, flux * 5e7, label="starfish")
 plt.legend()
 plt.show()
 
-
 params2 = [5200, 4.5, 0.0]
 flux = myHDF5.load_flux(np.array(params2))
 
@@ -40,7 +40,8 @@ flux = myHDF5.load_flux(np.array(params2))
 
 path = simulators.starfish_grid["raw_path"]
 
-phoenix = os.path.join(path, "Z-0.0", "lte{:05d}-{:0.2f}-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(params2[0], params2[1]))
+phoenix = os.path.join(path, "Z-0.0",
+                       "lte{:05d}-{:0.2f}-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(params2[0], params2[1]))
 phoenix_wav = os.path.join(path, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
 
 print(phoenix)

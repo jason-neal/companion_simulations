@@ -55,11 +55,11 @@ def main(star, obs_num, detector, output=None, model="tcm", mode="plot"):
 
         elif model == "tcm":
             # use gammas, rvs, alphas ...
-            #tcm_analysis()
+            # tcm_analysis()
             pass
         elif model == "iam":
             # use gammas, rvs, alphas ...
-            #iam_analysis()
+            # iam_analysis()
             pass
 
 

@@ -18,6 +18,7 @@ from utilities.simulation_utilities import check_inputs, spec_max_delta
 
 debug = logging.debug
 
+
 def iam_helper_function(star, obs_num, chip):
     param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)
@@ -55,7 +56,7 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
     if save_only:
         return None
     else:
-        return broadcast_chisqr_vals   # Just output the best value for each model pair
+        return broadcast_chisqr_vals  # Just output the best value for each model pair
 
 
 def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
@@ -101,7 +102,7 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
     # for ii, param in enumerate(model1_pars):
     #    broadcast_chisqr_vals[ii] = iam_wrapper(ii, param, *args, **kwargs)
 
-    return broadcast_chisqr_vals   # Just output the best value for each model pair
+    return broadcast_chisqr_vals  # Just output the best value for each model pair
 
 
 def continuum_alpha(model1, model2, chip=None):
@@ -120,7 +121,7 @@ def continuum_alpha(model1, model2, chip=None):
 
     # Masking for individual chips
     if chip is None:
-        chip = -1   # Full Crires range
+        chip = -1  # Full Crires range
 
     all_limits = {-1: [2111, 2169], 1: [2111, 2124], 2: [2125, 2139], 3: [2140, 2152], 4: [2153, 2169]}
     chip_limits = all_limits[chip]
@@ -137,7 +138,7 @@ def continuum_alpha(model1, model2, chip=None):
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 verbose=True, save_only=True, chip=None, prefix=None, errors=None):
     """Wrapper for iteration loop of iam. To use with parallelization."""
-    normalization_limits = [2105, 2185]   # small as possible?
+    normalization_limits = [2105, 2185]  # small as possible?
 
     if prefix is None:
         sf = os.path.join(
@@ -234,7 +235,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             # print("broadcast_chisquare shape", broadcast_chisquare.shape)
             # print("arb norms shape", arbitrary_norms.shape)
 
-            npix = obs_flux.shape[0]    # Number of pixels used
+            npix = obs_flux.shape[0]  # Number of pixels used
 
             if not save_only:
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]

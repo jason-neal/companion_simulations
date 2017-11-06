@@ -96,7 +96,7 @@ def sql_join(pattern, suffix=None, verbose=True, move=False, remove=False):
             subprocess.call("mv {} {}".format(f, new_f), shell=True)
 
     if verbose:
-            print("Saved results to {}.".format(database_name))
+        print("Saved results to {}.".format(database_name))
 
     if remove:
         print("Removing original files.")

@@ -24,7 +24,8 @@ def tcm_helper_function(star, obs_num, chip):
         simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
 
     output_prefix = os.path.join(
-        simulators.paths["output_dir"], star.upper(), "{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obs_num, chip))
+        simulators.paths["output_dir"], star.upper(),
+        "{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obs_num, chip))
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper()))
     return obs_name, params, output_prefix
 
@@ -54,11 +55,12 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
     if save_only:
         return None
     else:
-        return broadcast_chisqr_vals   # Just output the best value for each model pair
+        return broadcast_chisqr_vals  # Just output the best value for each model pair
 
 
 def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
-                          rvs=None, gammas=None, errors=None, verbose=False, norm=False, save_only=True, chip=None, prefix=None):
+                          rvs=None, gammas=None, errors=None, verbose=False, norm=False, save_only=True, chip=None,
+                          prefix=None):
     """Run two component model over all parameter combinations in model1_pars and model2_pars."""
     alphas = check_inputs(alphas)
     rvs = check_inputs(rvs)
@@ -100,20 +102,20 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
     # for ii, param in enumerate(model1_pars):
     #    broadcast_chisqr_vals[ii] = tcm_wrapper(ii, param, *args, **kwargs)
 
-    return broadcast_chisqr_vals   # Just output the best value for each model pair
+    return broadcast_chisqr_vals  # Just output the best value for each model pair
 
 
 def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
                 errors=None, norm=True, verbose=True, save_only=True,
                 chip=None, prefix=None):
     """Wrapper for iteration loop of tcm. To use with parallelization."""
-    normalization_limits = [2105, 2185]   # small as possible?
+    normalization_limits = [2105, 2185]  # small as possible?
 
     if prefix is None:
         sf = os.path.join(simulators.paths["output_dir"], obs_spec.header["OBJECT"],
-            "tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}].csv".format(
-                obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), chip,
-                params1[0], params1[1], params1[2], num))
+                          "tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}].csv".format(
+                              obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), chip,
+                              params1[0], params1[1], params1[2], num))
     else:
         sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(
             prefix, params1[0], params1[1], params1[2], num)
@@ -167,7 +169,8 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
 
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
             npix = obs_flux.shape[0]
-            save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix, verbose=verbose)
+            save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix,
+                             verbose=verbose)
 
         if save_only:
             return None

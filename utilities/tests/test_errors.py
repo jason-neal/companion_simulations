@@ -1,4 +1,3 @@
-
 from utilities.errors import get_snrinfo, spectrum_error
 import pytest
 
@@ -34,17 +33,18 @@ def test_get_snrinfo_with_bad_key(star, obsnum, chip):
 def test_spectrum_error_expected(star, obsnum, chip, expected):
     assert spectrum_error(star, obsnum, chip) == expected
 
+
 @pytest.mark.parametrize("star, obsnum, chip", [
-        ("HD30501", "1", "1"),
-        ("HD30501", 1, 1),
-    ])
+    ("HD30501", "1", "1"),
+    ("HD30501", 1, 1),
+])
 def test_spectrum_error_inverse_snr(star, obsnum, chip):
-        assert spectrum_error(star, obsnum, chip) == 1 / get_snrinfo(star, obsnum, chip)[0]
+    assert spectrum_error(star, obsnum, chip) == 1 / get_snrinfo(star, obsnum, chip)[0]
 
 
 @pytest.mark.parametrize("star, obsnum, chip", [
-        ("HD30501", "1", "1"),
-        ("HD30501", 1, 1),
-    ])
+    ("HD30501", "1", "1"),
+    ("HD30501", 1, 1),
+])
 def test_spectrum_error_error_off(star, obsnum, chip):
     assert spectrum_error(star, obsnum, chip, error_off=True) is None

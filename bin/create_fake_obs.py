@@ -5,7 +5,6 @@ from utilities.phoenix_utils import load_starfish_spectrum
 from spectrum_overload import Spectrum
 
 
-
 def _parser():
     """Take care of all the argparse stuff.
 
@@ -54,11 +53,9 @@ def fake_obs(simnum, snr=200, suffix=None, plot=False):
         mod_combine.normalize(method="exponential")
         mod_combine.interpolate(obs_spec.xaxis)
         result_spectrum = mod_combine
-        #result_spectrum = Spectrum(flux=broadcast_values, xaxis=obs_spec.xaxis)
-
+        # result_spectrum = Spectrum(flux=broadcast_values, xaxis=obs_spec.xaxis)
 
     result_spectrum.add_noise(snr)
-
 
     # Save as
     # Detector limits
@@ -70,7 +67,7 @@ def fake_obs(simnum, snr=200, suffix=None, plot=False):
         spec.resample(1024)
 
         name = "HDsim-{0}_{1}_snr_{2}".format(sim_num, ii, snr)
-        #spec.save...
+        # spec.save...
 
 
 if __name__ == "__main__":

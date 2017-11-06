@@ -30,7 +30,8 @@ def _parser():
 
 
 def main(star, obs_num, chip, suffix="", echo=False):
-    database = os.path.join(simulators.paths["output_dir"], star, "{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obs_num, chip, suffix))
+    database = os.path.join(simulators.paths["output_dir"], star,
+                            "{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obs_num, chip, suffix))
     path, star, obs_num, chip = decompose_database_name(database)
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)
     save_name = os.path.join(path, "{0}_iam_all_observation_min_chi2{1}.tsv".format(star, suffix))
@@ -57,7 +58,7 @@ def main(star, obs_num, chip, suffix="", echo=False):
     query = """SELECT * FROM {0}
                WHERE (teff_1 = {1} AND logg_1 = {2} AND feh_1 = {3})
                ORDER BY chi2 LIMIT 1
-               """ .format(tb_name, params["teff"], params["logg"], params["fe_h"])
+               """.format(tb_name, params["teff"], params["logg"], params["fe_h"])
     df = pd.read_sql(sa.text(query), engine)
 
     df["obs_num"] = obs_num
@@ -147,6 +148,7 @@ if __name__ == "__main__":
     obs_nums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"]}
     chips = range(1, 5)
 
+
     def paralleled_main(star):
         star_obs_nums = obs_nums[star]
         for obs_num in star_obs_nums:
@@ -166,6 +168,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(" Corner plots did not work.")
             raise e
+
 
     # Run in parallel
     Parallel(n_jobs=-1)(delayed(paralleled_main)(star) for star in stars)

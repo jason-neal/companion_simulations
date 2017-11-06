@@ -45,7 +45,7 @@ def combine_spectra(star, planet, alpha):
     star = copy.copy(star)
     planet = copy.copy(planet)
 
-    if np.all(star.xaxis == planet.xaxis):   # make sure wavelengths even first
+    if np.all(star.xaxis == planet.xaxis):  # make sure wavelengths even first
         pass
     else:
         planet.interpolate1d_to(star)
@@ -101,6 +101,6 @@ def check_inputs(var):
         var = np.asarray([var], dtype=np.float32)
 
     if len(var) == 0:  # Empty sequence
-            raise ValueError("Empty variable vector. Check config.yaml\n"
-                             "var = {0}".format(var))
+        raise ValueError("Empty variable vector. Check config.yaml\n"
+                         "var = {0}".format(var))
     return var

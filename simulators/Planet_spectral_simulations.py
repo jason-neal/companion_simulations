@@ -64,6 +64,8 @@ def simple_normalization(spectrum):
     # This is bad coding I am just trying to get something together
     # maxes = []
     # for index1, index2 in zip(indexes[:-1], indexes[1:]):
+
+
 #        section = np.argmax(spectrum[index1:index2])
 #        m = argmax(section)
 #        maxes.append(m)
@@ -74,7 +76,7 @@ def simple_normalization(spectrum):
 def load_model_spec(pathwave, specpath, limits=None, normalize=False):
     """Load model spec from given path to file and wavefile."""
     w_mod = fits.getdata(pathwave)
-    w_mod /= 10   # turn into nm
+    w_mod /= 10  # turn into nm
     flux = fits.getdata(specpath)
     hdr = fits.getheader(specpath)
     spec = Spectrum(xaxis=w_mod, flux=flux, header=hdr)
@@ -219,6 +221,7 @@ def main():
     # pshift = 5     #????
     # sshift = 0    #????
     # cps_R,cps_m,cps_fits,cps_vp,cps_vs,cps_cntr = todcor(ccf1,ccf2,ccf12,pshift,sshift,images)
+
 
 # main()
 

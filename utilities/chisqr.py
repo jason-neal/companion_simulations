@@ -2,6 +2,8 @@
 
 import numpy as np
 from joblib import Parallel, delayed
+
+
 # from numba import jit
 
 
@@ -12,10 +14,10 @@ def chi_squared(observed, expected, error=None, axis=0):
     Same result as as scipy.stats.chisquare
     """
     if np.any(error):
-        chisqr = np.sum((observed - expected)**2 / error**2, axis=axis)
+        chisqr = np.sum((observed - expected) ** 2 / error ** 2, axis=axis)
     else:
         # Equal to scipy.stats.chisquare(observed, expected).statistic
-        chisqr = np.sum((observed - expected)**2 / expected, axis=axis) # identical to scipy
+        chisqr = np.sum((observed - expected) ** 2 / expected, axis=axis)  # identical to scipy
     return chisqr
 
 

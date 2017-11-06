@@ -1,5 +1,3 @@
-
-
 """Co-add_chi2_values.py.
 
 Create Table of minimum Chi_2 values and save to a table.
@@ -44,14 +42,14 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
     star = star.upper()
 
     patterns = [os.path.join(
-            simulators.paths["output_dir"], star,
-            "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))
+        simulators.paths["output_dir"], star,
+        "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))
         for chip in range(1, 5)]
 
     if (sum(1 for _ in glob.iglob(patterns[0]))) == 0:
         patterns = [os.path.join(
-                simulators.paths["output_dir"], star, "processed_csv",
-                "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))
+            simulators.paths["output_dir"], star, "processed_csv",
+            "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))
             for chip in range(1, 5)]
 
     print("new Patterns", patterns)
@@ -60,8 +58,8 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
 
     # Start up database
     coadd_database = os.path.join(
-            simulators.paths["output_dir"], star,
-            "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obs_num, suffix))
+        simulators.paths["output_dir"], star,
+        "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obs_num, suffix))
 
     print("Replace", replace)
     print("os.path.isfile(coadd_database)", os.path.isfile(coadd_database))
@@ -90,7 +88,7 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
         if "[" in f_0:
             n = f_0.split("[")[-1]
             n = n.split("]")[0]
-            assert all(n in f for f in files)   # All have this same host
+            assert all(n in f for f in files)  # All have this same host
             teff, logg, feh = n.split("_")
             if verbose:
                 print("host params", teff, logg, feh)
@@ -112,9 +110,9 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
 
             joint_12 = pd.merge(chunks[0], chunks[1], how="outer", suffixes=["_1", "_2"],
                                 on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'])
-            joint_34 = pd.merge(chunks[2], chunks[3],  how="outer", suffixes=["_3", "_4"],
+            joint_34 = pd.merge(chunks[2], chunks[3], how="outer", suffixes=["_3", "_4"],
                                 on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'])
-            pd_joint = pd.merge(joint_12, joint_34,  how="outer",
+            pd_joint = pd.merge(joint_12, joint_34, how="outer",
                                 on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'])
 
             # co-adding chisquare values across detectors

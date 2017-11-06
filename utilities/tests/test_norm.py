@@ -40,7 +40,7 @@ def test_manual_normalization():
 
 @pytest.mark.xfail()
 def test_chi2_model_norms(host, tcm_model, norm_method):
-    host.wav_select(2110.5, 2114.5)   # cut to avoid Nans from doppler shifts
+    host.wav_select(2110.5, 2114.5)  # cut to avoid Nans from doppler shifts
     wave = host.xaxis
     obs = host.xaxis
     models = tcm_model(wave)
@@ -64,13 +64,12 @@ def test_shortening_array(splits):
 
 
 @pytest.mark.parametrize("splits,top,size", [
-    (10, 5, (10,)),   # zero remainder
+    (10, 5, (10,)),  # zero remainder
     (11, 4, (11,)),
     (51, 5, (51,)),
     (100, 7, (100,))  # zero remainder
 ])
 def test_get_continuum_points(splits, top, size):
-
     x = np.arange(200)
     x1, x2 = get_continuum_points(x, x, splits=splits, top=top)
 
@@ -78,7 +77,7 @@ def test_get_continuum_points(splits, top, size):
     assert x1.shape == size
 
 
-@pytest.mark.parametrize("scale", [1,2,3,10])
+@pytest.mark.parametrize("scale", [1, 2, 3, 10])
 def test_continuum_scalar(scale):
     x = np.linspace(2000, 2100, 2000)
     y = scale * np.ones(2000)
@@ -90,7 +89,7 @@ def test_continuum_scalar(scale):
 @pytest.mark.parametrize("x1, x0", [(0.1, .5), (0.002, .7), (0.08, 1)])
 def test_continuum_linear(x1, x0):
     x = np.linspace(2000, 2100, 2000)
-    y = x1*x + x0
+    y = x1 * x + x0
 
     cont = continuum(x, y, method="linear")
     assert np.allclose(np.mean(y / cont), 1)
@@ -100,7 +99,7 @@ def test_continuum_linear(x1, x0):
 @pytest.mark.parametrize("x1, x0", [(0.1, .5), (0.002, .7), (0.08, 1)])
 def test_continuum_exponential(x1, x0):
     x = np.linspace(2000, 2100, 2000)
-    y = np.exp(x1*x) + x0
+    y = np.exp(x1 * x) + x0
 
     cont = continuum(x, y, method="exponential")
     assert np.allclose(np.mean(y / cont), 1)

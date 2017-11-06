@@ -3,8 +3,9 @@ import numpy as np
 from utilities.chisqr import chi_squared, reduced_chi_squared, spectrum_chisqr
 from scipy.stats import chisquare
 
+
 @pytest.mark.parametrize("observed, expected", [
-    ([1.1, 2.2, 3.1, 3.9, 4.8], [1,2,3,4,5]),
+    ([1.1, 2.2, 3.1, 3.9, 4.8], [1, 2, 3, 4, 5]),
     (5, 6)])
 def test_chisquare_without_erros_equals_scipy(observed, expected):
     observed = np.asarray(observed)
@@ -13,7 +14,7 @@ def test_chisquare_without_erros_equals_scipy(observed, expected):
 
 
 @pytest.mark.parametrize("observed, expected, error", [
-    ([1.1, 2.2, 3.1, 3.9, 4.8], [1,2,3,4,5], [0.1, 0.1, 0.2]),
+    ([1.1, 2.2, 3.1, 3.9, 4.8], [1, 2, 3, 4, 5], [0.1, 0.1, 0.2]),
     ([5, 3], [6, 2], [0.2, 0.5, 0.6])])
 def test_chisquare_with_error_unequal_length(observed, expected, error):
     observed = np.asarray(observed)
@@ -32,9 +33,9 @@ def test_model_equal_observed_chisquare_returns_zero(observed):
 
 
 @pytest.mark.parametrize("chi2, n, p, expected", [
-    (7.1, 8, 1, 7.1/7),
-    (19, 25, 3, 19/22),
-    ([2, 3, 5], 3, 1, [1, 3/2, 5/2])])
+    (7.1, 8, 1, 7.1 / 7),
+    (19, 25, 3, 19 / 22),
+    ([2, 3, 5], 3, 1, [1, 3 / 2, 5 / 2])])
 def test_reduced_chisquare_without_erros_equals_scipy(chi2, n, p, expected):
     if isinstance(chi2, list):
         chi2 = np.asarray(chi2)

@@ -52,7 +52,6 @@ def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
         plt.show()
 
 
-
 def main():
     """Main."""
     star = "HD30501"
@@ -88,7 +87,7 @@ def main():
     except ValueError:
         print("Parameters for {} are not in parameters list. Improve this.".format(star))
         raise
-    host_params[1] = host_params[1] / 1000   # Convert K! to km/s
+    host_params[1] = host_params[1] / 1000  # Convert K! to km/s
     host_params[2] = np.deg2rad(host_params[2])  # Omega needs to be in radians for ajplanet
 
     obs_time = observed_spectra.header["DATE-OBS"]
@@ -103,7 +102,7 @@ def main():
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum
     berv_corrected_observed_spectra.wav_select(*berv_corrected_observed_spectra.xaxis[
-                                               np.isfinite(berv_corrected_observed_spectra.flux)][[0, -1]])
+        np.isfinite(berv_corrected_observed_spectra.flux)][[0, -1]])
     # Shift to star RV
 
     plot_obs_with_model(berv_corrected_observed_spectra, host_spectrum_model,
@@ -112,7 +111,7 @@ def main():
     # print("\nWarning!!!\n BERV is not good have added a offset to get rest working\n")
 
     # Chisquared fitting
-    alphas = 10**np.linspace(-4, 0.1, 100)
+    alphas = 10 ** np.linspace(-4, 0.1, 100)
     rvs = np.arange(-50, 50, 0.05)
 
     # chisqr_store = np.empty((len(alphas), len(rvs)))
@@ -179,7 +178,7 @@ def main():
     with open(os.path.join(pickle_path, pickle_name), "wb") as f:
         # Pickle all the necessary parameters to store.
         pickle.dump((rvs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,
-                    rv_solution, alpha_solution, min_chisqr, min_loc, solution_model), f)
+                     rv_solution, alpha_solution, min_chisqr, min_loc, solution_model), f)
 
 
 if __name__ == "__main__":

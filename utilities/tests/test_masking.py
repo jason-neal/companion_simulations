@@ -24,7 +24,7 @@ def test_get_maskinfo(star, obsnum, chip, expected):
 def test_get_maskinfo_with_bad_key(star, obsnum, chip):
     # Has value of 200
     # This also checks if the datafile exists
-    assert get_maskinfo(star, obsnum, chip) == []   # empty mask list
+    assert get_maskinfo(star, obsnum, chip) == []  # empty mask list
 
 
 @pytest.mark.parametrize("star, obsnum, chip", [

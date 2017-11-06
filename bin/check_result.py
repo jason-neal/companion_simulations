@@ -18,7 +18,7 @@ def _parser():
     parser.add_argument('logg_2', type=float, help='Host Temperature')
     parser.add_argument('feh_2', type=float, help='Host Temperature')
     parser.add_argument('gamma', type=float, help='Host Temperature')
-    parser.add_argument("rv", , type=float, help='Host Temperature')
+    parser.add_argument("rv",, type = float, help = 'Host Temperature')
 
     parser.add_argument('-v', '--verbose', action="store_true",
                         help='Turn on Verbose.')

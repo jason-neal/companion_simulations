@@ -44,13 +44,14 @@ comp_temp = 2400
 path = simulators.starfish_grid["raw_path"]
 phoenix_wl = fits.getdata(os.path.join(path, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")) / 10
 
-host_phoenix = os.path.join(path, "Z-0.0", "lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(host_temp))
+host_phoenix = os.path.join(path, "Z-0.0",
+                            "lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(host_temp))
 
-comp_phoenix = os.path.join(path, "Z-0.0", "lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(comp_temp))
+comp_phoenix = os.path.join(path, "Z-0.0",
+                            "lte{:05d}-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(comp_temp))
 
 unnorm_host_spec = Spectrum(flux=fits.getdata(host_phoenix), xaxis=phoenix_wl)
 unnorm_comp_spec = Spectrum(flux=fits.getdata(comp_phoenix), xaxis=phoenix_wl)
-
 
 # Waveleght limits. The result is sensitive to these limits.
 min_wav = 500

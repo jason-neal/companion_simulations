@@ -38,8 +38,7 @@ debug = logging.debug
 wav_dir = simulators.starfish_grid["raw_path"]
 
 wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
-wav_model /= 10   # turn into nm
-
+wav_model /= 10  # turn into nm
 
 gammas = np.arange(*simulators.sim_grid["gammas"])
 rvs = np.arange(*simulators.sim_grid["rvs"])
@@ -56,7 +55,7 @@ def _parser():
     parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
     parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
     parser.add_argument("--error_off", help="Turn snr value errors off.",
-                            action="store_true", type=bool)
+                        action="store_true", type=bool)
     return parser.parse_args()
 
 
@@ -98,9 +97,11 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False):
 
     ####
     if parallel:
-        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors, verbose=verbose, norm=True, prefix=output_prefix, save_only=True)
+        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
+                                           verbose=verbose, norm=True, prefix=output_prefix, save_only=True)
     else:
-        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors, verbose=verbose, norm=True, prefix=output_prefix)
+        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
+                                  verbose=verbose, norm=True, prefix=output_prefix)
 
     # Print TODO
     print("TODO: Add joining of sql table here")

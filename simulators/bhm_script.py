@@ -44,7 +44,8 @@ def bhm_helper_function(star, obs_num, chip):
         simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
 
     output_name = os.path.join(
-        simulators.paths["output_dir"], star.upper(), "{0}-{1}_{2}_bhm_chisqr_results.dat".format(star.upper(), obs_num, chip))
+        simulators.paths["output_dir"], star.upper(),
+        "{0}-{1}_{2}_bhm_chisqr_results.dat".format(star.upper(), obs_num, chip))
     return obs_name, params, output_name
 
 
@@ -114,7 +115,7 @@ def main(star, obs_nums, chips=None, verbose=False, suffix=None, mask=False, err
         chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False)
 
         (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
-            broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids
+         broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids
 
         TEFF = np.array([par[0] for par in model_pars])
         LOGG = np.array([par[1] for par in model_pars])

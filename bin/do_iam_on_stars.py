@@ -30,10 +30,12 @@ if __name__ == "__main__":
     print("Performing simulations on", stars)
     obs_nums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"]}
 
+
     def parallelized_main(opts, chip):
         """Run main with different chips in parallel."""
         opts["chip"] = chip
         return main(**opts)
+
 
     iam_opts = {"parallel": False, "more_id": args.suffix, "small": True, }
 

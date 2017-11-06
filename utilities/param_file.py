@@ -6,7 +6,7 @@ from typing import Dict, List, Union
 import simulators
 
 
-def parse_paramfile(param_file: str, path: str=None) -> Dict[str, Union[str, float, List[float]]]:
+def parse_paramfile(param_file: str, path: str = None) -> Dict[str, Union[str, float, List[float]]]:
     """Extract orbit and stellar parameters from parameter file.
 
     Parameters
@@ -32,12 +32,12 @@ def parse_paramfile(param_file: str, path: str=None) -> Dict[str, Union[str, flo
             if line.startswith("#"):
                 pass
             else:
-                if '#' in line:   # Remove comment from end of line
+                if '#' in line:  # Remove comment from end of line
                     line = line.split("#")[0]
                 if line.endswith("="):
                     logging.warning(("Parameter missing value in {0}.\nLine = {1}."
                                      " Value set to None.").format(param_file, line))
-                    line = line + " None"   # Add None value when parameter is missing
+                    line = line + " None"  # Add None value when parameter is missing
                 par, val = line.lower().split('=')
                 par, val = par.strip(), val.strip()
                 if (val.startswith("[") and val.endswith("]")) or ("," in val):  # Val is a list

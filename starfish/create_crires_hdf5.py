@@ -16,16 +16,18 @@ from Starfish.grid_tools import HDF5Creator, Instrument
 # Create CRIRES instrument at the resolution we have.
 class CRIRES_50k(Instrument):
     '''CRIRES instrument at R=50000.'''
-    fwhm = 299792.458 / 50000     # fwhm = c / R
+    fwhm = 299792.458 / 50000  # fwhm = c / R
+
     # Full crires wavelength range=(9500, 53800)
     def __init__(self, name="CRIRES", FWHM=fwhm, wl_range=Starfish.grid["wl_range"]):
         super().__init__(name=name, FWHM=FWHM, wl_range=wl_range)
         # Sets the FWHM and wl_range
 
+
 print(CRIRES_50k())
 
 # Process the grid and save to the hdf5 file.
-mygrid = PHOENIX(norm=False, air=False)    # Disable normalization to solar boloametic flux.
+mygrid = PHOENIX(norm=False, air=False)  # Disable normalization to solar boloametic flux.
 instrument = CRIRES_50k()
 # HDF5Creator(GridInterface, filename, Instrument, ranges=None, key_name='t{0:.0f}g{1:.1f}', vsinis=None)
 # Specify hdf5_path in config.yaml file.

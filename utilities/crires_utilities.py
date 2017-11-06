@@ -11,6 +11,7 @@ from PyAstronomy import pyasl
 import logging
 from spectrum_overload import Spectrum
 
+
 # TODO: Add a line in the header to check if this script has already been
 # applied.
 # TODO: wrapper to handle Specturm objects
@@ -42,12 +43,12 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
         latitude = float(header["HIERARCH ESO TEL GEOLAT"])
         altitude = float(header["HIERARCH ESO TEL GEOELEV"])
 
-        ra = header["RA"]    # CRIRES RA already in degrees
+        ra = header["RA"]  # CRIRES RA already in degrees
         dec = header["DEC"]  # CRIRES hdr DEC already in degrees
 
-    # Pyastronomy helcorr needs the time of observation in julian Days
-    # #############################################
-        time = header["DATE-OBS"]    # Observing date  '2012-08-02T08:47:30.8425'
+        # Pyastronomy helcorr needs the time of observation in julian Days
+        # #############################################
+        time = header["DATE-OBS"]  # Observing date  '2012-08-02T08:47:30.8425'
     except KeyError as e:
         logging.warning("Not a valid header so not doing bary correction")
         return wavelength, flux

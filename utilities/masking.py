@@ -5,6 +5,7 @@ import os
 
 import simulators
 
+
 def get_maskinfo(star, obs_num, chip):
     mask_file = os.path.join(simulators.paths["spectra"], "detector_masks.json")
     with open(mask_file, "r") as f:
@@ -22,7 +23,7 @@ def spectrum_masking(spec, star, obs_num, chip):
     if int(chip) == 4:
         # Ignore first 50 pixels of detector 4
         dw = 0.0000001  # small offset to mask inclusive
-        spec.wav_select(spec.xaxis[50]-dw, spec.xaxis[-1] + dw)
+        spec.wav_select(spec.xaxis[50] - dw, spec.xaxis[-1] + dw)
     for mask_limits in chip_masks:
         # If empty they do not go in here
         if len(mask_limits) is not 2:

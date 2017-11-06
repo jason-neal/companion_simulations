@@ -10,7 +10,7 @@
 # In[2]:
 
 
-from spectrum_overload.Spectrum import Spectrum
+from spectrum_overload import Spectrum
 from utilities.phoenix_utils import load_starfish_spectrum
 
 from models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model

@@ -32,7 +32,7 @@ debug = logging.debug
 def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
     wav_dir = simulators.starfish_grid["raw_path"]
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
-    wav_model /= 10   # turn into nanometers
+    wav_model /= 10  # turn into nanometers
     flux = fits.getdata(phoenix_name)
     spec = Spectrum(flux=flux, xaxis=wav_model)
 
@@ -57,7 +57,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area
         Locally normalize the spectrum. Default False.
     """
     my_hdf5 = HDF5Interface()
-    my_hdf5.wl = my_hdf5.wl / 10   # Turn into Nanometer
+    my_hdf5.wl = my_hdf5.wl / 10  # Turn into Nanometer
 
     if hdr:
         flux, myhdr = my_hdf5.load_flux_hdr(np.array(params))
@@ -97,8 +97,8 @@ def phoenix_area(header):
         raise ValueError("Header should not be None.")
     # BUNIT 	'erg/s/cm^2/cm' 	Unit of flux
     # PHXREFF 	67354000000.0	[cm] Effective stellar radius
-    radius = header["PHXREFF"] * 1e-11   # cm to Gm
-    surface_area = np.pi * radius ** 2
+    radius = header["PHXREFF"] * 1e-11  # cm to Gm
+    surface_area = np.pi * radius ** 2  #  towards Earth
     return surface_area
 
 
@@ -175,7 +175,7 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None):
         phoenix_glob = ("Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                         "").format(closest_teff, closest_logg, closest_feh)
     logging.debug("Old Phoenix_glob {}".format(phoenix_glob))
-    phoenix_glob = phoenix_glob.replace("+0.0", "-0.0")      # Replace positive 0 metallicity with negative 0
+    phoenix_glob = phoenix_glob.replace("+0.0", "-0.0")  # Replace positive 0 metallicity with negative 0
     logging.debug("New Phoenix_glob {}".format(phoenix_glob))
     joint_glob = os.path.join(data_dir, phoenix_glob)
     logging.debug("Data dir = {}".format(data_dir))
@@ -222,8 +222,8 @@ def phoenix_name_from_params(data_dir, params):
         if len(params) == 3:
             params = params + [None]  # for alpha
         elif len(params) == 4:  # assumes alpha given
-                return find_closest_phoenix_name(data_dir, params[0], params[1], params[2],
-                                                 alpha=params[4])
+            return find_closest_phoenix_name(data_dir, params[0], params[1], params[2],
+                                             alpha=params[4])
         else:
             raise ValueError("Length of parameter list given is not valid, {}".format(len(params)))
 
@@ -422,7 +422,7 @@ def find_phoenix_model_names2(base_dir, original_model):
             name = os.path.join(base_dir,
                                 "lte{0:05d}-{1:1.02f}{2:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
 
-        if "+0.0" in name:   # Positive zero is not allowed in naming
+        if "+0.0" in name:  # Positive zero is not allowed in naming
             name = name.replace("+0.0", "-0.0")
 
         if os.path.isfile(name):

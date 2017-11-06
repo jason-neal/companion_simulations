@@ -1,8 +1,6 @@
-
 import copy
 
 from Planet_spectral_simulations import spec_local_norm
-
 
 """Model that does not adjust the flux ratio of the two input spectra.
 

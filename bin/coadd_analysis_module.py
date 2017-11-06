@@ -17,7 +17,6 @@ from utilities.debug_utils import timeit2
 from utilities.spectrum_utils import load_spectrum
 from utilities.phoenix_utils import load_starfish_spectrum
 
-
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
 rc("image", cmap="inferno")
@@ -73,7 +72,6 @@ def xshift(x, num):
 def display_arbitary_norm_values(table, params):
     fig, axarr = plt.subplots(3)
     for ii, arbnorm in enumerate([r"arbnorm_1", r"arbnorm_2", r"arbnorm_3", r"arbnorm_4"]):
-
         df = pd.read_sql(
             sa.select([table.c.gamma, table.c[arbnorm],
                        table.c.rv, table.c.teff_2]), table.metadata.bind)
@@ -134,14 +132,13 @@ def fix_host_parameters(table, params):
         fig.tight_layout()
         indices = np.arange(nrows * ncols).reshape(nrows, ncols)
 
-
         for ii, col in enumerate(columns):
             df = pd.read_sql(
-                    sa.select([table.c[col], table.c[chi2_val]]).where(
-                        sa.and_(table.c["teff_1"] == params["teff"],
-                                table.c["logg_1"] == params["logg"],
-                                table.c["feh_1"] == params["fe_h"])
-                        ), table.metadata.bind)
+                sa.select([table.c[col], table.c[chi2_val]]).where(
+                    sa.and_(table.c["teff_1"] == params["teff"],
+                            table.c["logg_1"] == params["logg"],
+                            table.c["feh_1"] == params["fe_h"])
+                ), table.metadata.bind)
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
 
             axis_pos = [int(x) for x in np.where(indices == ii)]
@@ -149,7 +146,7 @@ def fix_host_parameters(table, params):
                     ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)  # , c="gamma", colorbar=True)
 
         plt.suptitle("Co-add Chi**2 Results (Fixed host): {0}-{1}".format(
-                     params["star"], params["obs_num"]))
+            params["star"], params["obs_num"]))
         name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}_{3}.png".format(
             params["star"], params["obs_num"], params["suffix"], chi2_val)
         fig.savefig(os.path.join(params["path"], "plots", name))
@@ -180,24 +177,25 @@ def fix_host_parameters_individual(table, params):
             fig, axes = plt.subplots(nrows, ncols)
             fig.tight_layout()
             df = pd.read_sql(
-                    sa.select([table.c[col], table.c[chi2_val]]).where(
-                        sa.and_(table.c["teff_1"] == params["teff"],
-                                table.c["logg_1"] == params["logg"],
-                                table.c["feh_1"] == params["fe_h"])
-                        ), table.metadata.bind)
+                sa.select([table.c[col], table.c[chi2_val]]).where(
+                    sa.and_(table.c["teff_1"] == params["teff"],
+                            table.c["logg_1"] == params["logg"],
+                            table.c["feh_1"] == params["fe_h"])
+                ), table.metadata.bind)
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
-            #axis_pos = [int(x) for x in np.where(indices == ii)]
+            # axis_pos = [int(x) for x in np.where(indices == ii)]
             df.plot(x=col, y=red_chi2, kind="scatter",
                     ax=axes, label=chi2legend)  # , c="gamma", colorbar=True)
 
             name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}_{3}_individual_{4}.png".format(
                 params["star"], params["obs_num"], params["suffix"], chi2_val, col)
             plt.suptitle("Co-add {2}-Chi**2 Results (Fixed host): {0}-{1}".format(
-                         params["star"], params["obs_num"], chi2_val, col))
+                params["star"], params["obs_num"], chi2_val, col))
             fig.savefig(os.path.join(params["path"], "plots", name))
             fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
             plt.close()
         plt.close()
+
 
 def parabola_plots(table, params):
     norm = params["norm"]
@@ -215,14 +213,14 @@ def parabola_plots(table, params):
                 df_chi2 = pd.read_sql(
                     sa.select([table.c[par], table.c[chi2_val]]).where(
                         table.c[par] == float(unique_val)).order_by(
-                            table.c[chi2_val].asc()).limit(3), table.metadata.bind)
+                        table.c[chi2_val].asc()).limit(3), table.metadata.bind)
                 min_chi2.append(df_chi2[chi2_val].values[0])
 
             min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
 
             if norm:
                 mc2 = min(min_chi2)
-                min_chi2 = [c2/mc2 for c2 in min_chi2]
+                min_chi2 = [c2 / mc2 for c2 in min_chi2]
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
             popt, pcov = curve_fit(parabola, unique_par, min_chi2)
@@ -262,7 +260,7 @@ def chi2_parabola_plots(table, params):
                 df_chi2 = pd.read_sql(
                     sa.select([table.c[par], table.c[chi2_val]]).where(
                         table.c[par] == float(unique_val)).order_by(
-                            table.c[chi2_val].asc()).limit(3), table.metadata.bind)
+                        table.c[chi2_val].asc()).limit(3), table.metadata.bind)
                 min_chi2.append(df_chi2[chi2_val].values[0])
 
             min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
@@ -307,7 +305,7 @@ def smallest_chi2_values(table, params, num=10):
 
 
 def parabola(x, a, b, c):
-    return a * x**2 + b * x + c
+    return a * x ** 2 + b * x + c
 
 
 @timeit2
@@ -343,14 +341,14 @@ def fix_host_parameters_reduced_gamma(table, params):
 
         for ii, col in enumerate(columns):
             df = pd.read_sql(
-                    sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
-                        sa.and_(table.c["teff_1"] == int(params["teff"]),
-                                table.c["logg_1"] == float(params["logg"]),
-                                table.c["feh_1"] == float(params["fe_h"]),
-                                table.c.gamma > float(lower_lim),
-                                table.c.gamma < float(upper_lim)
-                                )
-                        ), table.metadata.bind)
+                sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
+                    sa.and_(table.c["teff_1"] == int(params["teff"]),
+                            table.c["logg_1"] == float(params["logg"]),
+                            table.c["feh_1"] == float(params["fe_h"]),
+                            table.c.gamma > float(lower_lim),
+                            table.c.gamma < float(upper_lim)
+                            )
+                ), table.metadata.bind)
 
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
             axis_pos = [int(x) for x in np.where(indices == ii)]
@@ -399,14 +397,14 @@ def fix_host_parameters_reduced_gamma_individual(table, params):
 
         for ii, col in enumerate(columns):
             df = pd.read_sql(
-                    sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
-                        sa.and_(table.c["teff_1"] == int(params["teff"]),
-                                table.c["logg_1"] == float(params["logg"]),
-                                table.c["feh_1"] == float(params["fe_h"]),
-                                table.c.gamma > float(lower_lim),
-                                table.c.gamma < float(upper_lim)
-                                )
-                        ), table.metadata.bind)
+                sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
+                    sa.and_(table.c["teff_1"] == int(params["teff"]),
+                            table.c["logg_1"] == float(params["logg"]),
+                            table.c["feh_1"] == float(params["fe_h"]),
+                            table.c.gamma > float(lower_lim),
+                            table.c.gamma < float(upper_lim)
+                            )
+                ), table.metadata.bind)
 
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
             # axis_pos = [int(x) for x in np.where(indices == ii)]
@@ -451,8 +449,8 @@ def contours(table, params):
             print("contour db columns", df_min_chi2.columns)
 
             # cols = ['teff_2', 'rv', 'gamma', chi2_val]
-            #par_limit = "gamma"  # gamma value at minimum chi2
-            #print("df_min_chi2[par_limit]", df_min_chi2[par_limit].values[0])
+            # par_limit = "gamma"  # gamma value at minimum chi2
+            # print("df_min_chi2[par_limit]", df_min_chi2[par_limit].values[0])
 
             df = pd.read_sql(
                 sa.select([table.c["teff_2"], table.c["rv"], table.c["gamma"], table.c[chi2_val]]).where(
@@ -460,13 +458,13 @@ def contours(table, params):
                             table.c.teff_1 == int(params["teff"]),
                             table.c.logg_1 == float(params["logg"]),
                             table.c.feh_1 == float(params["fe_h"]),
-                            table.c.logg_2 == float(params["logg"]),   # Fix companion logg
+                            table.c.logg_2 == float(params["logg"]),  # Fix companion logg
                             table.c.feh_2 == float(params["fe_h"]))),  # Fix companion fe_h
                 table.metadata.bind)
 
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
 
-            #print(df.head())
+            # print(df.head())
             params["this_npix"] = params["npix"][npix_val]
             params["par_limit"] = par_limit
 
@@ -489,7 +487,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
             try:
                 z_grid[i, j] = df.loc[(df[xcol].values == x_value) * (df[ycol].values == y_value), zcol].values
             except ValueError as e:
-                print("x_S * y_s", sum((df[xcol].values == x_value)*(df[ycol].values == y_value)))
+                print("x_S * y_s", sum((df[xcol].values == x_value) * (df[ycol].values == y_value)))
                 print("Check metallicity and logg of companion")
                 raise e
 
@@ -504,7 +502,9 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
     cbar.ax.set_ylabel(zcol)
     ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
     ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
-    ax.set_title('{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"], params["this_npix"], params["npars"]))
+    ax.set_title(
+        '{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"],
+                                                                      params["this_npix"], params["npars"]))
 
     ax.grid(True)
     fig.tight_layout()
@@ -540,7 +540,8 @@ def compare_spectra(table, params):
         df = pd.read_sql_query(sa.select([table.c.teff_1, table.c.logg_1, table.c.feh_1,
                                           table.c.teff_2, table.c.logg_2, table.c.feh_2,
                                           table.c.rv, table.c.gamma,
-                                          table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1), table.metadata.bind)
+                                          table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
+                               table.metadata.bind)
 
         params1 = [df["teff_1"].values[0], df["logg_1"].values[0], df["feh_1"].values[0]]
         params2 = [df["teff_2"].values[0], df["logg_2"].values[0], df["feh_2"].values[0]]
@@ -561,15 +562,15 @@ def compare_spectra(table, params):
         normalization_limits = [obs_spec.xaxis[0] - 5, obs_spec.xaxis[-1] + 5]
         # models
         mod1 = load_starfish_spectrum(params1, limits=normalization_limits,
-                                           hdr=True, normalize=False, area_scale=True,
-                                           flux_rescale=True)
+                                      hdr=True, normalize=False, area_scale=True,
+                                      flux_rescale=True)
 
         mod2 = load_starfish_spectrum(params2, limits=normalization_limits,
-                                           hdr=True, normalize=False, area_scale=True,
-                                           flux_rescale=True)
+                                      hdr=True, normalize=False, area_scale=True,
+                                      flux_rescale=True)
 
         broadcast_model = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
-                                                rvs=rv, gammas=gamma)
+                                               rvs=rv, gammas=gamma)
 
         broadcast_model = broadcast_model(obs_spec.xaxis)
         model_spec = Spectrum(flux=broadcast_model.squeeze(), xaxis=mod1.xaxis)
@@ -591,6 +592,6 @@ def compare_spectra(table, params):
         plt.close()
 
 
-    # Load in real observations
-    # Reconstruct model for given parameters
-    # Plot together
+        # Load in real observations
+        # Reconstruct model for given parameters
+        # Plot together

@@ -43,7 +43,7 @@ def fix_host_parameters(engine, params, tb_name):
     assert len(columns) == (nrows * ncols)
 
     for ii, col in enumerate(columns):
-        query = """SELECT {}, {} FROM {} WHERE (teff_1 = {}  AND logg_1 = {} AND feh_1 = {})""" .format(
+        query = """SELECT {}, {} FROM {} WHERE (teff_1 = {}  AND logg_1 = {} AND feh_1 = {})""".format(
             col, "chi2", tb_name, params["teff"], params["logg"], params["fe_h"])
         df = pd.read_sql(sa.text(query), engine)
         # print(df.columns)
@@ -69,7 +69,8 @@ def parabola_plots(table, params):
         min_chi2 = []
         for unique_val in unique_par:
             df_chi2 = pd.read_sql(
-                sa.select([table.c[par], table.c.chi2]).where(table.c[par] == float(unique_val)).order_by(table.c.chi2.asc()).limit(3), table.metadata.bind)
+                sa.select([table.c[par], table.c.chi2]).where(table.c[par] == float(unique_val)).order_by(
+                    table.c.chi2.asc()).limit(3), table.metadata.bind)
             min_chi2.append(df_chi2.chi2.values[0])
         print(min_chi2)
         plt.plot(unique_par, min_chi2)
@@ -103,7 +104,7 @@ def smallest_chi2_values(engine, params, tb_name):
 
 
 def parabola(x, a, b, c):
-    return a * x**2 + b * x + c
+    return a * x ** 2 + b * x + c
 
 
 @timeit2
@@ -111,7 +112,7 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
     print("Fixed host analysis.")
     d_gamma = 5
     # Select lowest chisqr gamma values.
-    query = """SELECT {0}, {1} FROM {2} ORDER BY {1} ASC LIMIT 1""" .format(
+    query = """SELECT {0}, {1} FROM {2} ORDER BY {1} ASC LIMIT 1""".format(
         "gamma", "chi2", tb_name)
     df = pd.read_sql(sa.text(query), engine)
     min_chi2_gamma = df.loc[0, "gamma"]
@@ -148,7 +149,7 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
         # else:
         #    df.plot(ax=axes.ravel()[ii]).scatter(col, "chi2")  #, c="gamma", colorbar=True)
         axis_pos = [int(x) for x in np.where(indices == ii)]
-        if col == "gamma":   # Duplicate columns
+        if col == "gamma":  # Duplicate columns
             df["gamma2"] = df.gamma.iloc[:, 0]
             df.plot(x="gamma2", y="chi2", kind="scatter",
                     ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma2", colorbar=True)
@@ -182,12 +183,23 @@ def alpha_rv_contour(engine, params, tb_name):
     print("columns", df_min_chi2.columns)
     pars = ["teff_2", "rv", "chi2"]
     cols = ['teff_2', 'alpha', 'rv', 'gamma', 'chi2']
-    par_limit = "gamma"    # gamma value at minimum chi2
+    par_limit = "gamma"  # gamma value at minimum chi2
     print("df_min_chi2[par_limit]", df_min_chi2[par_limit].values)
     df = pd.read_sql(sa.text((
-        "SELECT teff_2, alpha, rv, gamma, chi2 "
-        "FROM {0} "
-        "WHERE ({1} = {2} AND teff_1 = {3} AND logg_1 = {4} AND feh_1 = {5})").format(tb_name, par_limit, df_min_chi2[par_limit][0], params["teff"], params["logg"], params["fe_h"])), engine)
+                                 "SELECT teff_2, alpha, rv, gamma, chi2 "
+                                 "FROM {0} "
+                                 "WHERE ({1} = {2} AND teff_1 = {3} AND logg_1 = {4} AND feh_1 = {5})").format(tb_name,
+                                                                                                               par_limit,
+                                                                                                               df_min_chi2[
+                                                                                                                   par_limit][
+                                                                                                                   0],
+                                                                                                               params[
+                                                                                                                   "teff"],
+                                                                                                               params[
+                                                                                                                   "logg"],
+                                                                                                               params[
+                                                                                                                   "fe_h"])),
+                     engine)
 
     print("len df", len(df))
     print("columns", df.columns)
@@ -208,7 +220,6 @@ def alpha_rv_contour(engine, params, tb_name):
     for i, xval in enumerate(x):
         for j, yval in enumerate(y):
             Z[i, j] = df.loc[(df[pars[0]].values == xval) * (df[pars[1]].values == yval), "chi2"].values
-
 
     X, Y = np.meshgrid(x, y, indexing='ij')
 

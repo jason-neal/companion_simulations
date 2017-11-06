@@ -9,6 +9,7 @@ from pandas.plotting._style import _get_standard_colors
 from pandas.plotting._tools import _set_ticks_props, _subplots
 from pandas.util._decorators import deprecate_kwarg
 
+
 # Addapted slightly from pandas scatter matrix. pass plotting if in the corner you dont want to show.
 
 def scatter_corner(frame, alpha=0.5, figsize=None, ax=None, grid=False,
@@ -136,9 +137,9 @@ def scatter_corner(frame, alpha=0.5, figsize=None, ax=None, grid=False,
 
     return axes
 
-def _label_axis(ax, kind='x', label='', position='top',
-    ticks=True, rotate=False):
 
+def _label_axis(ax, kind='x', label='', position='top',
+                ticks=True, rotate=False):
     from matplotlib.artist import setp
     if kind == 'x':
         ax.set_xlabel(label, visible=True)
@@ -156,9 +157,6 @@ def _label_axis(ax, kind='x', label='', position='top',
     return
 
 
-
-
-
 def _gca():
     import matplotlib.pyplot as plt
     return plt.gca()
@@ -167,6 +165,7 @@ def _gca():
 def _gcf():
     import matplotlib.pyplot as plt
     return plt.gcf()
+
 
 def _get_marker_compat(marker):
     import matplotlib.lines as mlines

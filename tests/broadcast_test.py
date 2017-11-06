@@ -47,7 +47,7 @@ def test_models_are_same_with_no_companion(host):
 @pytest.mark.parametrize("alpha,equal", [
     (0.1, False),
     (0, True)
-    ])
+])
 def test_no_tcm_companion(host, alpha, equal):
     """To compare models give equvalient ouptut.
 
@@ -125,11 +125,10 @@ def test_check_broadcastable():
 
 
 def test_inherinent_model_same_as_alpha_0(host, comp):
-
     tcm = two_comp_model(host.xaxis, host.flux, comp.flux, 0, [0, 2, 4], [1, 2, 3])
     iam = inherent_alpha_model(host.xaxis, host.flux, comp.flux, [0, 2, 4], [1, 2, 3])
 
-    host.wav_select(2100.5, 2104.5)   # cut to avoid Nans from doppler shifts
+    host.wav_select(2100.5, 2104.5)  # cut to avoid Nans from doppler shifts
     tcm_value = tcm(host.xaxis)
     iam_value = iam(host.xaxis)
     # print(tcm_value)

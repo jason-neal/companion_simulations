@@ -28,7 +28,8 @@ def test_load_phoenix_spectra(limits, normalize):
     assert np.all(spec.xaxis < limits[-1])
 
 
-@pytest.mark.parametrize("teff,limits,normalize", [(2300, [2100, 2150], True), (2300, [2100, 2150], False), (5000, [2050, 2150], False)])
+@pytest.mark.parametrize("teff,limits,normalize",
+                         [(2300, [2100, 2150], True), (2300, [2100, 2150], False), (5000, [2050, 2150], False)])
 def test_load_starfish_spectra(teff, limits, normalize):
     spec = load_starfish_spectrum([teff, 5, 0], limits=limits, normalize=normalize)
 
@@ -46,12 +47,12 @@ def test_phoenix_and_starfish_load_differently_without_limits():
     test_spectrum = "utilities/tests/test_data/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     spec1 = load_phoenix_spectrum(test_spectrum, limits=None)
     spec2 = load_starfish_spectrum([2300, 5, 0], limits=None)
-    assert len(spec1) > len(spec2)   # Spec1 is full spectrum
+    assert len(spec1) > len(spec2)  # Spec1 is full spectrum
     assert isinstance(spec1, Spectrum)
     assert isinstance(spec2, Spectrum)
 
 
-@pytest.mark.xfail()   # Starfish does resampling
+@pytest.mark.xfail()  # Starfish does resampling
 @pytest.mark.parametrize("limits", [[2090, 2135], [2450, 2570]])
 def test_phoenix_and_starfish_load_equally_with_limits(limits):
     test_spectrum = "utilities/tests/test_data/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
@@ -68,7 +69,7 @@ def test_phoenix_and_starfish_load_equally_with_limits(limits):
 
 
 def test_phoenix_area():
-    test_header = {"PHXREFF": 1e11}   # scales effective radius down by 1e-11
+    test_header = {"PHXREFF": 1e11}  # scales effective radius down by 1e-11
     assert np.allclose(phoenix_area(test_header), np.pi)
 
     with pytest.raises(ValueError):

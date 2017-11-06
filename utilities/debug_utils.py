@@ -12,7 +12,6 @@ def pv(name):
 
 
 def timeit(method):
-
     def timed(*args, **kw):
         ts = time.time()
         result = method(*args, **kw)
@@ -25,7 +24,6 @@ def timeit(method):
 
 
 def timeit2(method):
-
     def timed(*args, **kw):
         ts = time.time()
         result = method(*args, **kw)
