@@ -298,10 +298,21 @@ def smallest_chi2_values(table, params, num=10):
         table.metadata.bind)
     df[chi2_val] = reduced_chi_squared(df[chi2_val], params["npix"]["coadd_npix"], params["npars"])
 
+    df_min = df[:1]
     print("Smallest Co-add reduced Chi2 values in the database.")
     print(df.head(n=num))
     # name = "{0}-{1}_{2}_test_smallest_chi2_{3}.pdf".format(
     # params["star"], params["obs_num"], params["chip"], params["suffix"])
+    name = "minimum_coaad_chi2_db_ouput_{}_{}_{}.csv".format(params["star"], params["obs_num"], params["suffix"])
+    from bin.check_result import main as visual_inspection
+    df.to_csv(os.path.join(params["path"], name))
+
+    plot_name = os.path.join(params["path"], "plots",
+                             "visual_inspection_min_chi2_coadd_{}_{}_{}".format(params["star"], params["obs_num"],
+                                                                                params["suffix"]))
+    visual_inspection(params["star"], params["obs_num"], float(df_min.teff_1), float(df_min.logg_1),
+                      float(df_min.feh_1), float(df_min.teff_2), float(df_min.logg_2),
+                      float(df_min.feh_2), float(df_min.gamma), float(df_min.rv), plot_name=plot_name)
 
 
 def parabola(x, a, b, c):
@@ -583,15 +594,9 @@ def compare_spectra(table, params):
         plt.plot(model_spec.xaxis, model_spec.flux, label="Minimum \chi^2 model")
 
         plt.legend()
-        # plt.show()
 
         fig.tight_layout()
         name = "{0}-{1}_{2}_min_chi2_spectrum_comparison_{4}.pdf".format(
             params["star"], params["obs_num"], params["chip"], chi2_val, params["suffix"])
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.close()
-
-
-        # Load in real observations
-        # Reconstruct model for given parameters
-        # Plot together
