@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """Fully Run analysis for a given star."""
 import argparse
 import os

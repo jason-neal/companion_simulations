@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """create_min_chi2_table.py.
 
 Create Table of minimum Chi_2 values and save to a table.

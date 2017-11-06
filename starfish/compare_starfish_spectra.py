@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Starfish spectra verse phoenix spectra.
 
 I notice a difference in the flux level of starfish spectra compared to the manually loaded spectra.
@@ -7,6 +8,7 @@ Investigating that here.
 import numpy as np
 
 import matplotlib.pyplot as plt
+import simulators
 import Starfish
 from astropy.io import fits
 from spectrum_overload import Spectrum

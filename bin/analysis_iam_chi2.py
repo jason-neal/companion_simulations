@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Script to load part files into a sql database.
 
 For the inherent alpha model

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Script to join all the chisquared part files into a sql database."""
 import argparse
 import glob as glob

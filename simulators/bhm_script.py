@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Run bhm analysis for HD211847."""
 # import json
 import argparse

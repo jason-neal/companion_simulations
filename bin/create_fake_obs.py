@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 "Create some fake observations to test recovery"
 
 from models.broadcasted_models import inherent_alpha_model

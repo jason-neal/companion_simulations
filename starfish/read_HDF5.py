@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Test reading hdf5 file that I created
 import numpy as np
 

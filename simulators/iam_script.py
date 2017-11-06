@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """inherint_alpha_model.py.
 
 Jason Neal

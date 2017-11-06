@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Co-add_chi2_values.py.
 
 Create Table of minimum Chi_2 values and save to a table.

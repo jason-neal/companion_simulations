@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """create_min_chi2_table.py.
 
 Create Table of minimum Chi_2 values and save to a table.
@@ -145,7 +146,8 @@ if __name__ == "__main__":
     if stars is None:
         stars = ["HD30501", "HD211847", "HD4747"]
     print("Stars", stars)
-    obs_nums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"]}
+    obs_nums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"],
+     "HDSIM": ["1", "2", "3"], "HDSIM2": ["1", "2", "3"], "HDSIM3": ["1", "2", "3"],}
     chips = range(1, 5)
 
 

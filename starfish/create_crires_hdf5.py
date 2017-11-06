@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """CRIRES 50k HDF& creation for companion simulations."""
 ## Make HDF5Creator to simplify files, optimize the data access.
 # 1. Use only a range of spectra that span the likely parameter space of your star. For example, if we know we have an F5 star, maybe we will only use spectra that have 5900 K≤Teff≤6500 K
