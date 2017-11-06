@@ -8,10 +8,11 @@ import glob
 import os
 import subprocess
 
-import pandas as pd
-import simulators
-import sqlalchemy as sa
 import numpy as np
+import pandas as pd
+import sqlalchemy as sa
+
+import simulators
 
 
 def _parser():

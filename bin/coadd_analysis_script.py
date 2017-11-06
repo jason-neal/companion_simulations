@@ -12,14 +12,15 @@ import argparse
 import os
 import sys
 
-import simulators
 import sqlalchemy as sa
-from bin.coadd_analysis_module import (chi2_parabola_plots, contours,
-                                       display_arbitary_norm_values,
+
+import simulators
+from bin.coadd_analysis_module import (chi2_parabola_plots, compare_spectra,
+                                       contours, display_arbitary_norm_values,
                                        fix_host_parameters,
                                        fix_host_parameters_reduced_gamma,
                                        get_column_limits, get_npix_values,
-                                       parabola_plots, rv_plot, compare_spectra,
+                                       parabola_plots, rv_plot,
                                        smallest_chi2_values, test_figure)
 from utilities.param_file import get_host_params
 from utilities.phoenix_utils import closest_model_params

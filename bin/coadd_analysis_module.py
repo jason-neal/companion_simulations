@@ -3,20 +3,19 @@ import os
 
 import numpy as np
 import pandas as pd
-import scipy
 import sqlalchemy as sa
-from matplotlib import rc
 from matplotlib import pyplot as plt
+from matplotlib import rc
 from scipy.optimize import curve_fit
 from scipy.stats import chi2
+from spectrum_overload import Spectrum
 
 from models.broadcasted_models import inherent_alpha_model
-from spectrum_overload import Spectrum
-from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.chisqr import reduced_chi_squared
+from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import timeit2
-from utilities.spectrum_utils import load_spectrum
 from utilities.phoenix_utils import load_starfish_spectrum
+from utilities.spectrum_utils import load_spectrum
 
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)

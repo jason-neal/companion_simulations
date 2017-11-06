@@ -12,8 +12,9 @@ import argparse
 import os
 import sys
 
-import simulators
 import sqlalchemy as sa
+
+import simulators
 from bin.analysis_module import (alpha_rv_contour, alpha_rv_contour_old,
                                  fix_host_parameters,
                                  fix_host_parameters_reduced_gamma,

@@ -7,8 +7,9 @@ import subprocess
 import sys
 
 import pandas as pd
-import simulators
 import sqlalchemy as sa
+
+import simulators
 
 
 def _parser():
