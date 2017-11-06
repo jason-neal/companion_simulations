@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """two_compoonent_model.py.
 
 Jason Neal
