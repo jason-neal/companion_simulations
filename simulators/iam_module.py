@@ -138,8 +138,6 @@ def continuum_alpha(model1, model2, chip=None):
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 verbose=True, save_only=True, chip=None, prefix=None, errors=None):
     """Wrapper for iteration loop of iam. To use with parallelization."""
-    normalization_limits = [2105, 2185]  # small as possible?
-
     if prefix is None:
         sf = os.path.join(
             simulators.paths["output_dir"], obs_spec.header["OBJECT"],
@@ -162,30 +160,18 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 print(("Starting iteration with parameters: "
                        "{0}={1},{2}={3}").format(num, params1, jj, params2))
 
-            mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits,
-                                               hdr=True, normalize=False, area_scale=True,
-                                               flux_rescale=True)
-            mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits,
-                                               hdr=True, normalize=False, area_scale=True,
-                                               flux_rescale=True)
-            assert len(mod1_spec.xaxis) > 0
-            assert len(mod2_spec.xaxis) > 0
+            # ### Main Part ###
+            rv_limits = observation_rv_limits(obs_spec, rvs, gammas)
 
-            # Wavelength selection
-            delta = spec_max_delta(obs_spec, rvs, gammas)
-            obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
-
-            mod1_spec.wav_select(obs_min - delta, obs_max + delta)
-            mod2_spec.wav_select(obs_min - delta, obs_max + delta)
             obs_spec = obs_spec.remove_nans()
+            assert ~np.any(np.isnan(obs_spec.flux)), "Observation has nan"
 
-            assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
+            # Load phoenix models and scale by area and wavelength limit
+            mod1_spec, mod2_spec = \
+                prepare_iam_model_spectra(params1, params2, limits=rv_limits)
 
-            # Calculate continuum alpha ratio.
-            assert np.all(mod1_spec.xaxis == mod2_spec.xaxis)
+            # Estimated flux ratio from models
             inherent_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
-            # print("\n inherent_alpha value \n", inherent_alpha)
-            assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
 
             # Combine model spectra with iam model
             iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
@@ -243,6 +229,26 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             return None
         else:
             return iam_grid_chisqr_vals
+
+def observation_rv_limits(obs_spec, rvs, gammas):
+    """Calculate wavelenght limits needed to cover RV shifts used."""
+    delta = spec_max_delta(obs_spec, rvs, gammas)
+    obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
+    return [obs_min - delta, obs_max + delta]
+
+
+def prepare_iam_model_spectra(params1, params2, limits):
+    """Load spectra with same settings."""
+    mod1_spec = load_starfish_spectrum(params1, limits=limits,
+                                       hdr=True, normalize=False, area_scale=True,
+                                       flux_rescale=True)
+    mod2_spec = load_starfish_spectrum(params2, limits=limits,
+                                       hdr=True, normalize=False, area_scale=True,
+                                       flux_rescale=True)
+    assert len(mod1_spec.xaxis) > 0 and len(mod2_spec.xaxis) > 0
+    assert np.all(mod1_spec.xaxis == mod2_spec.xaxis)
+
+    return mod1_spec, mod2_spec
 
 
 def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
