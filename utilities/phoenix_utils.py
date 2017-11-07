@@ -49,12 +49,25 @@ def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
 def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area_scale=False, flux_rescale=False):
     """Load spectrum from hdf5 grid file.
 
-    parameters: list
+    Parameters
+    ----------
+    params: list
         Model parameters [teff, logg, Z]
+    limits= List[float, float] default=None
+        Wavelength limits.
     hdr: bool
        Include the model header. Default False.
     normalize: bool
         Locally normalize the spectrum. Default False.
+    area_scale: bool
+        Multiply by stellar surface area pi*R**2 (towards Earth)
+    flux_rescale: bool
+        Convert from /cm to /nm by dividing by 1e7
+
+    Returns
+    -------
+    spec: Spectrum
+        The loaded spectrum as Spectrum object.
     """
     my_hdf5 = HDF5Interface()
     my_hdf5.wl = my_hdf5.wl / 10  # Turn into Nanometer
