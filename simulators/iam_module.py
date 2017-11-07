@@ -44,19 +44,19 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
         debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
     # Solution Grids to return
-    broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
+    iam_grid_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
 
     args = [model2_pars, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
               "prefix": prefix, "verbose": verbose, "errors": errors}
 
     for ii, params1 in enumerate(tqdm(model1_pars)):
-        broadcast_chisqr_vals[ii] = iam_wrapper(ii, params1, *args, **kwargs)
+        iam_grid_chisqr_vals[ii] = iam_wrapper(ii, params1, *args, **kwargs)
 
     if save_only:
         return None
     else:
-        return broadcast_chisqr_vals  # Just output the best value for each model pair
+        return iam_grid_chisqr_vals  # Just output the best value for each model pair
 
 
 def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
@@ -80,9 +80,9 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
 
     print("Parallelized running\n\n\n ###################")
     # raise NotImplementedError("Need to fix this up")
-    broadcast_chisqr_vals = Parallel(n_jobs=-2)(
+    iam_grid_chisqr_vals = Parallel(n_jobs=-2)(
         delayed(filled_iam_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
-    # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
+    # iam_grid_chisqr_vals = Parallel(n_jobs=-2)(
     #     delayed(iam_wrapper)(ii, param, model2_pars, rvs, gammas,
     #                          obs_spec, norm=norm, save_only=save_only,
     #                          chip=chip, prefix=prefix, verbose=verbose)
@@ -95,14 +95,14 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
               "prefix": prefix, "verbose": verbose, "errors": errors}
 
-    broadcast_chisqr_vals = Parallel(n_jobs=-2)(
+    iam_grid_chisqr_vals = Parallel(n_jobs=-2)(
         delayed(iam_wrapper)(ii, param, *args, **kwargs)
         for ii, param in enumerate(model1_pars))
-    # broadcast_chisqr_vals = np.empty_like(model1_pars)
+    # iam_grid_chisqr_vals = np.empty_like(model1_pars)
     # for ii, param in enumerate(model1_pars):
-    #    broadcast_chisqr_vals[ii] = iam_wrapper(ii, param, *args, **kwargs)
+    #    iam_grid_chisqr_vals[ii] = iam_wrapper(ii, param, *args, **kwargs)
 
-    return broadcast_chisqr_vals  # Just output the best value for each model pair
+    return iam_grid_chisqr_vals  # Just output the best value for each model pair
 
 
 def continuum_alpha(model1, model2, chip=None):
@@ -156,7 +156,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
         return None
     else:
         if not save_only:
-            broadcast_chisqr_vals = np.empty(len(model2_pars))
+            iam_grid_chisqr_vals = np.empty(len(model2_pars))
         for jj, params2 in enumerate(model2_pars):
             if verbose:
                 print(("Starting iteration with parameters: "
@@ -187,79 +187,74 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             # print("\n inherent_alpha value \n", inherent_alpha)
             assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
 
-            broadcast_result = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
-                                                    rvs=rvs, gammas=gammas)
-            broadcast_values = broadcast_result(obs_spec.xaxis)
+            # Combine model spectra with iam model
+            iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+                                                 rvs=rvs, gammas=gammas)
+            iam_grid_models = iam_grid_func(obs_spec.xaxis)
 
-            # Continuum normalize all broadcasted results
+            # Continuum normalize all iam_gird_models
             def axis_continuum(flux):
                 """Continuum to apply along axis with predefined variables parameters."""
                 return continuum(obs_spec.xaxis, flux, splits=50, method="exponential", top=5)
 
-            broadcast_continuum = np.apply_along_axis(axis_continuum, 0, broadcast_values)
+            iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
 
-            broadcast_values = broadcast_values / broadcast_continuum
+            iam_grid_models = iam_grid_models / iam_grid_continuum
 
             # ### RE-NORMALIZATION to observations?
-            print("Broadcast values before renorm", broadcast_values.shape)
+            print("Shape of iam_grid_models before renormalization", iam_grid_models.shape)
             if norm:
                 if verbose:
                     print("Re-normalizing!")
                 obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux,
-                                            broadcast_values, method="scalar")
+                                            iam_grid_models, method="scalar")
             else:
                 obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
                 raise NotImplementedError("Need to check this")
-            #####
 
-            # Arbitary_normalization
-            print("obs_flux.shape", obs_flux.shape)
+
+            # Arbitrary_normalization of observation
             arb_norm = np.arange(*simulators.sim_grid["arb_norm"])
-            # print("arb norm values", arb_norm)
-            obs_flux = obs_flux[:, :, :, np.newaxis]
-            broadcast_values = broadcast_values[:, :, :, np.newaxis] * arb_norm
-            print("Normalized Broadcast values before renorm", broadcast_values.shape)
+            iam_grid_models = iam_grid_models[:, :, :, np.newaxis] * arb_norm
+            print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
 
-            broadcast_chisquare = chi_squared(obs_flux, broadcast_values, error=errors)
-            # Scipy version is 20 times faster then my version (but wont be able to take any extra scaling)!
-            # sp_chisquare = stats.chisquare(obs_flux, broadcast_values, axis=0).statistic
-            # assert np.all(sp_chisquare == broadcast_chisquare)
-            # broadcast_chisquare = sp_chisquare
-            print("Broadcast chisquare values with arb norm", broadcast_chisquare.shape)
-            # Take minimum chisquared value along normalization axis
-            # print("broadcast chi2 shape", broadcast_chisquare.shape)
-            min_locations = np.argmin(broadcast_chisquare, axis=-1)
-            broadcast_chisquare = np.min(broadcast_chisquare, axis=-1)
-            print("Broadcast chisquare values ", broadcast_chisquare.shape)
+            # Calculate Chi-squared
+            obs_flux = obs_flux[:, :, :, np.newaxis]
+            iam_norm_grid_chisquare = chi_squared(obs_flux, iam_grid_models, error=errors)
+
+            print("Broadcast chi-squared values with arb norm", iam_norm_grid_chisquare.shape)
+
+            # Take minimum chi-squared value along Arbitrary normalization axis
+            min_locations = np.argmin(iam_norm_grid_chisquare, axis=-1)
+            iam_grid_chisquare = np.min(iam_norm_grid_chisquare, axis=-1)
+            print("Broadcast chi-squared values ", iam_grid_chisquare.shape)
             arbitrary_norms = arb_norm[min_locations]
-            # print("broadcast_chisquare shape", broadcast_chisquare.shape)
-            # print("arb norms shape", arbitrary_norms.shape)
 
             npix = obs_flux.shape[0]  # Number of pixels used
 
             if not save_only:
-                broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
+                iam_grid_chisqr_vals[jj] = iam_grid_chisquare.ravel()[np.argmin(iam_grid_chisquare)]
 
             save_full_iam_chisqr(save_filename, params1, params2,
                                  inherent_alpha, rvs, gammas,
-                                 broadcast_chisquare, arbitrary_norms, npix, verbose=verbose)
+                                 iam_grid_chisquare, arbitrary_norms, npix, verbose=verbose)
 
         if save_only:
             return None
         else:
-            return broadcast_chisqr_vals
+            return iam_grid_chisqr_vals
 
 
 def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
-                         broadcast_chisquare, arbitrary_norms, npix, verbose=False):
+                         iam_grid_chisquare, arbitrary_norms, npix, verbose=False):
     """Save the iterations chisqr values to a cvs."""
     R, G = np.meshgrid(rvs, gammas, indexing='ij')
     # assert A.shape == R.shape
     assert R.shape == G.shape
-    assert G.shape == broadcast_chisquare.shape
+    assert G.shape == iam_grid_chisquare.shape
 
     data = {"rv": R.ravel(), "gamma": G.ravel(),
-            "chi2": broadcast_chisquare.ravel(), "arbnorm": arbitrary_norms.ravel()}
+            "chi2": iam_grid_chisquare.ravel(), "arbnorm": arbitrary_norms.ravel()}
 
     columns = ["rv", "gamma", "chi2", "arbnorm"]
     len_c = len(columns)
@@ -292,5 +287,5 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
         df[columns].to_csv(filename, sep=',', mode="a", index=False, header=True)
 
     if verbose:
-        print("Saved chi2 values to {}".format(filename))
+        print("Saved chi-squared values to {}".format(filename))
     return None
