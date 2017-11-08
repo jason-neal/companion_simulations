@@ -2,6 +2,7 @@ import os
 import simulators
 import numpy as np
 import json
+import warnings
 
 """Calculate Errors on the Spectrum.
 
@@ -17,8 +18,9 @@ def get_snrinfo(star, obs_num, chip):
     try:
         return snr_data[str(star)][str(obs_num)][str(chip)]
     except KeyError as e:
-        print("No snr data present for {0}-{1}_{2}".format(star, obs_num, chip))
-        raise e
+        warnings.warn("No snr data present for {0}-{1}_{2}. "
+                      "Setting error to None instead".format(star, obs_num, chip))
+        return None
 
 
 def spectrum_error(star, obs_num, chip, error_off=False):
@@ -30,7 +32,9 @@ def spectrum_error(star, obs_num, chip, error_off=False):
         errors = None
     else:
         snr = get_snrinfo(star, obs_num, chip)
-        if len(snr) == 1:
+        if snr is None:
+            errors = None
+        elif len(snr) == 1:
             errors = 1 / np.float(snr[0])
         else:
             raise NotImplementedError("Haven't checked if an error array can be handled yet.")
