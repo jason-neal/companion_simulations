@@ -197,6 +197,8 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
                 raise NotImplementedError("Need to check this")
 
+            plot_iam_grid_slices(obs_spec.xaxis, rvs, gammas, iam_grid_models, star=obs_spec.header["OBJECT"],
+                                 xlabel="wavelength", ylabel="rv", zlabel="gamma", suffix="iam_grid_models")
 
             # Arbitrary_normalization of observation
             arb_norm = np.arange(*simulators.sim_grid["arb_norm"])
@@ -217,6 +219,10 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             arbitrary_norms = arb_norm[min_locations]
 
             npix = obs_flux.shape[0]  # Number of pixels used
+
+            plot_iam_grid_slices(rvs, gammas, arb_norm, iam_grid_chisquare, star=obs_spec.header["OBJECT"],
+                                 xlabel="rv", ylabel="gamma", zlabel="Arbitrary Normalization",
+                                 suffix="iam_grid_chisquare")
 
             if not save_only:
                 iam_grid_chisqr_vals[jj] = iam_grid_chisquare.ravel()[np.argmin(iam_grid_chisquare)]
@@ -296,3 +302,45 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
     if verbose:
         print("Saved chi-squared values to {0}".format(filename))
     return None
+
+
+def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, suffix=None, star=None):
+    """Slice up 3d grid and plot slices."""
+    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "grid_plots"), exist_ok=True)
+    X, Y, Z = np.meshgrid(x, y, z, indexing="ij")
+
+    if xlabel is None:
+        xlabel = "x"
+    if ylabel is None:
+        ylabel = "y"
+    if zlabel is None:
+        zlabel = "z"
+
+    print("shape of x, y, z", x.shape, y.shape, z.shape)
+    print("shape of X, Y, Z", X.shape, Y.shape, Z.shape)
+    for ii, y_val in enumerate(y):
+        plt.subplot(111)
+        cmap = plt.contour(X[:, ii, :], Z[:, ii, :], grid[:, ii, :])
+        plt.colorbar(cmap)
+        plt.xlabel(xlabel)
+        plt.ylabel(zlabel)
+        plt.title("Grid slice for {0}={1}".format(ylabel, y_val))
+
+        plt.show()
+        pltname = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
+                               "grid_slice_{0}_{1}_{2}.png".format(ylabel, ii, suffix))
+        plt.savefig(pltname)
+
+    for jj, z_val in enumerate(z):
+        plt.subplot(111)
+
+        cmap = plt.contour(X[:, :, jj], Z[:, :, jj], grid[:, :, jj])
+        plt.colorbar(cmap)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+
+        plt.title("Grid slice for {0}={1}".format(zlabel, z_val))
+        plt.show()
+        pltname = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
+                               "grid_slice_{0}_{1}_{2}.png".format(zlabel, ii, suffix))
+        plt.savefig(pltname)
