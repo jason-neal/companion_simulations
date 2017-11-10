@@ -557,11 +557,14 @@ def compare_spectra(table, params):
         params1 = [df["teff_1"].values[0], df["logg_1"].values[0], df["feh_1"].values[0]]
         params2 = [df["teff_2"].values[0], df["logg_2"].values[0], df["feh_2"].values[0]]
 
-        gamma = df["gamma"]
-        rv = df["rv"]
+        params1 = [float(param1) for param1 in params1]
+        params2 = [float(param2) for param2 in params2]
+
+        gamma = df["gamma"].values
+        rv = df["rv"].values
 
         from simulators.iam_module import iam_helper_function
-        obs_name, params, output_prefix = iam_helper_function(params["star"], params["obs_num"], ii + 1)
+        obs_name, obs_params, output_prefix = iam_helper_function(params["star"], params["obs_num"], ii + 1)
 
         obs_spec = load_spectrum(obs_name)
 
@@ -572,6 +575,7 @@ def compare_spectra(table, params):
         obs_spec = barycorr_crires_spectrum(obs_spec)
         normalization_limits = [obs_spec.xaxis[0] - 5, obs_spec.xaxis[-1] + 5]
         # models
+        print("params for models", params1, params2)
         mod1 = load_starfish_spectrum(params1, limits=normalization_limits,
                                       hdr=True, normalize=False, area_scale=True,
                                       flux_rescale=True)
@@ -580,18 +584,24 @@ def compare_spectra(table, params):
                                       hdr=True, normalize=False, area_scale=True,
                                       flux_rescale=True)
 
-        broadcast_model = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
+        iam_grid_func = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
                                                rvs=rv, gammas=gamma)
 
-        broadcast_model = broadcast_model(obs_spec.xaxis)
-        model_spec = Spectrum(flux=broadcast_model.squeeze(), xaxis=mod1.xaxis)
+        iam_grid_model = iam_grid_func(obs_spec.xaxis).squeeze()
+        iam_grid_model_full = iam_grid_func(mod1.xaxis).squeeze()
+
+        model_spec_full = Spectrum(flux=iam_grid_model_full, xaxis=mod1.xaxis)
+        model_spec = Spectrum(flux=iam_grid_model, xaxis=obs_spec.xaxis)
 
         model_spec = model_spec.remove_nans()
         model_spec = model_spec.normalize(method="exponential")
+        model_spec_full = model_spec_full.remove_nans()
+        model_spec_full = model_spec_full.normalize(method="exponential")
 
         fig, ax = plt.subplots(1, 1)
         plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation")
         plt.plot(model_spec.xaxis, model_spec.flux, label="Minimum \chi^2 model")
+        plt.plot(model_spec_full.xaxis, model_spec_full.flux, "--", label="Model_full_res")
 
         plt.legend()
 
@@ -600,3 +610,6 @@ def compare_spectra(table, params):
             params["star"], params["obs_num"], params["chip"], chi2_val, params["suffix"])
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.close()
+
+        plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation")
+        plt.show()
