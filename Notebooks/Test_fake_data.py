@@ -6,7 +6,7 @@
 # 
 # 
 
-# In[1]:
+# In[ ]:
 
 
 from spectrum_overload import Spectrum
@@ -19,7 +19,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 
-# In[2]:
+# In[ ]:
 
 
 snr = 300
@@ -34,7 +34,7 @@ rv = -40
 #params2 = [3500, 4.5, 0.0]
 #gamma = 20
 #rv = 4
-normalization_limits = [2070, 2180]
+normalization_limits = [2070, 2160]
 
 mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits,
                                        hdr=True, normalize=False, area_scale=True,
@@ -57,7 +57,7 @@ plt.legend()
 plt.show()
 
 
-# In[3]:
+# In[ ]:
 
 
 ##################################
@@ -124,7 +124,7 @@ plt.show()
 
 
 
-# In[4]:
+# In[ ]:
 
 
 
@@ -137,6 +137,7 @@ result3.interpolate1d_to(result1.xaxis)
 print(result3.flux - result1.flux)
 print(np.any(result3.flux - result1.flux))
 
+result3_a = result3.copy()
 result3 = result3.normalize(method="exponential")
 result1 = result1.normalize(method="exponential")
 result2 = result2.normalize(method="exponential")
@@ -161,7 +162,23 @@ plt.title("Differences after norm")
 plt.show()
 
 
-# In[5]:
+# In[ ]:
+
+
+results_3a
+results_3b = results_3a.copy()
+
+results_3a = spec_local_norm(results_3a, method="exponential")
+
+results_3b = sresults_3b.normalize(method="exponential")
+
+results_3a.plot(label="3a")
+results_3b.plot(label="3b")
+plt.legend()
+plt.show()
+
+
+# In[ ]:
 
 
 noise_res1 =  result1.copy()
@@ -179,7 +196,7 @@ plt.legend()
 plt.show()
 
 
-# In[6]:
+# In[ ]:
 
 
 
@@ -217,7 +234,7 @@ def append_hdr(hdr, keys=None, values=None, item=0):
     return hdr
 
 
-# In[7]:
+# In[ ]:
 
 
 from astropy.io import fits

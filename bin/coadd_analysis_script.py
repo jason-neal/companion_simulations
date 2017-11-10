@@ -63,12 +63,12 @@ def decompose_database_name(database):
 
 
 def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
-    sqlite_db = 'sqlite:///{}'.format(database)
+    sqlite_db = 'sqlite:///{0}'.format(database)
     try:
         engine = sa.create_engine(sqlite_db, echo=echo)
         table_names = engine.table_names()
     except Exception as e:
-        print("\nAccessing sqlite_db = {}\n".format(sqlite_db))
+        print("\nAccessing sqlite_db = {0}\n".format(sqlite_db))
         print("cwd =", os.getcwd())
         raise e
     if verbose:
@@ -76,7 +76,7 @@ def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
     if len(table_names) == 1:
         tb_name = table_names[0]
     else:
-        raise ValueError("Database has two many tables {}".format(table_names))
+        raise ValueError("Database has two many tables {0}".format(table_names))
     if tb_name != name:
         raise NameError("Name given does not match table in database.")
 
@@ -97,7 +97,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         print("Database name ", database)
         print("Database exists", os.path.isfile(database))
     if not os.path.isfile(database):
-        raise IOError("Database '{}' does not exist.".format(database))
+        raise IOError("Database '{0}' does not exist.".format(database))
 
     path, dbstar, db_obsnum, chip = decompose_database_name(database)
     assert dbstar == star

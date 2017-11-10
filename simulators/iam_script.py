@@ -108,8 +108,11 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec)
     # Determine Spectrum Errors
-    errors = spectrum_error(star, obs_num, chip, error_off=error_off)
-
+    try:
+        errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+    except KeyError as e:
+        errors = None
+        
     rv_iter = len(rvs) * len(gammas)
     model_iter = len(model2_pars) * len(model1_pars)
     print(("STARTING iam_analysis\nWith {0} parameter iterations.\n{1} rv iterations,"

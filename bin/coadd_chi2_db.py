@@ -42,6 +42,8 @@ def _parser():
 def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, move=False):
     """"""
     star = star.upper()
+    if suffix is None:
+        suffix = ""
 
     patterns = [os.path.join(
         simulators.paths["output_dir"], star,

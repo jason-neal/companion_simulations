@@ -20,10 +20,8 @@ def test_get_snrinfo(star, obsnum, chip):
     ("FHe37823", "1", "1")
 ])
 def test_get_snrinfo_with_bad_key(star, obsnum, chip):
-    # Has value of 200
-    # This also checks if the datafile exists
-    with pytest.raises(KeyError):
-        get_snrinfo(star, obsnum, chip)
+    """If KeyError then it returns None."""
+    assert get_snrinfo(star, obsnum, chip) is None
 
 
 @pytest.mark.parametrize("star, obsnum, chip, expected", [

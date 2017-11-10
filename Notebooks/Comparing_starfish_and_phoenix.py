@@ -27,17 +27,17 @@ normalization_limits = [2000, 2300]
 
 mod1_spec_scaled = load_starfish_spectrum(params1, limits=normalization_limits,
                                        hdr=True, normalize=False, area_scale=True,
-                                       flux_rescale=True)
+                                       flux_rescale=False)
 mod1_spec_unscaled = load_starfish_spectrum(params1, limits=normalization_limits,
                                        hdr=True, normalize=False, area_scale=False,
-                                       flux_rescale=True)
+                                       flux_rescale=False)
 
 mod2_spec_scaled = load_starfish_spectrum(params2, limits=normalization_limits,
                                        hdr=True, normalize=False, area_scale=True,
-                                       flux_rescale=True)
+                                       flux_rescale=False)
 mod2_spec_unscaled = load_starfish_spectrum(params2, limits=normalization_limits,
                                        hdr=True, normalize=False, area_scale=False,
-                                       flux_rescale=True)
+                                       flux_rescale=False)
 
 
 for name, mod1_spec, mod2_spec in zip(["area scaled", "area unscaled"],

@@ -1,15 +1,15 @@
 import logging
 import os
+import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
-
 import pandas as pd
-import simulators
 from joblib import Parallel, delayed
-from models.broadcasted_models import inherent_alpha_model
-from scipy import stats
 from tqdm import tqdm
 
+import simulators
+from models.broadcasted_models import inherent_alpha_model
 from utilities.chisqr import chi_squared
 from utilities.norm import chi2_model_norms, continuum
 from utilities.param_file import parse_paramfile
@@ -20,7 +20,7 @@ debug = logging.debug
 
 
 def iam_helper_function(star, obs_num, chip):
-    param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
+    param_file = os.path.join(simulators.paths["parameters"], "{0}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)
     obs_name = os.path.join(
         simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
@@ -39,9 +39,9 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
     gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model1_pars)))
+        debug("Number of close model_pars returned {0}".format(len(model1_pars)))
     if isinstance(model2_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model2_pars)))
+        debug("Number of close model_pars returned {0}".format(len(model2_pars)))
 
     # Solution Grids to return
     iam_grid_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
@@ -68,9 +68,9 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
     gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model1_pars)))
+        debug("Number of close model_pars returned {0}".format(len(model1_pars)))
     if isinstance(model2_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model2_pars)))
+        debug("Number of close model_pars returned {0}".format(len(model2_pars)))
 
     def filled_iam_wrapper(num, param):
         """Fill in all extra parameters for parrallel wrapper."""
@@ -150,7 +150,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
     save_filename = sf
 
     if os.path.exists(save_filename) and save_only:
-        print("'{}' exists, so not repeating calculation.".format(save_filename))
+        print("'{0}' exists, so not repeating calculation.".format(save_filename))
         return None
     else:
         if not save_only:
@@ -190,8 +190,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             # ### RE-NORMALIZATION to observations?
             print("Shape of iam_grid_models before renormalization", iam_grid_models.shape)
             if norm:
-                if verbose:
-                    print("Re-normalizing!")
+                warnings.warn("Scalar Re-normalizing to observations!")
                 obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux,
                                             iam_grid_models, method="scalar")
             else:
@@ -201,6 +200,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
             # Arbitrary_normalization of observation
             arb_norm = np.arange(*simulators.sim_grid["arb_norm"])
+
             iam_grid_models = iam_grid_models[:, :, :, np.newaxis] * arb_norm
             print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
 
@@ -230,11 +230,12 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
         else:
             return iam_grid_chisqr_vals
 
+
 def observation_rv_limits(obs_spec, rvs, gammas):
-    """Calculate wavelenght limits needed to cover RV shifts used."""
+    """Calculate wavelength limits needed to cover RV shifts used."""
     delta = spec_max_delta(obs_spec, rvs, gammas)
     obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
-    return [obs_min - delta, obs_max + delta]
+    return [obs_min - 1.1 * delta, obs_max + 1.1 * delta]
 
 
 def prepare_iam_model_spectra(params1, params2, limits):
@@ -272,7 +273,7 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
 
     columns = ["teff_2", "logg_2", "feh_2"] + columns
 
-    if "[{}_{}_{}]".format(params1[0], params1[1], params1[2]) not in filename:
+    if "[{0}_{1}_{2}]".format(params1[0], params1[1], params1[2]) not in filename:
         # Need to add the model values.
         for par, value in zip(["teff_1", "logg_1", "feh_1"], params1):
             df[par] = value
@@ -293,5 +294,5 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
         df[columns].to_csv(filename, sep=',', mode="a", index=False, header=True)
 
     if verbose:
-        print("Saved chi-squared values to {}".format(filename))
+        print("Saved chi-squared values to {0}".format(filename))
     return None

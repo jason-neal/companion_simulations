@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 # Monitor fake detection processing etc.
@@ -23,7 +23,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 
-# In[ ]:
+# In[3]:
 
 
 snr = 300
@@ -67,7 +67,7 @@ plt.show()
 
 
 
-# In[ ]:
+# In[4]:
 
 
 # Need to sample the spectrum away from the ends so that you don't get nans at the ends
@@ -75,7 +75,7 @@ plt.show()
 sample_x = np.linspace(2112, 2145, 1024)
 
 
-# In[ ]:
+# In[5]:
 
 
 def join_with_broadcast_spectrum(mod1, mod2, rv, gamma, new_x, independent=False):
@@ -199,7 +199,7 @@ plt_2d_grid(dual_grid_data)
 
 
 
-# In[ ]:
+# In[6]:
 
 
 # Reduced chi_2

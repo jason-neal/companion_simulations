@@ -8,9 +8,9 @@ from matplotlib import pyplot as plt
 from matplotlib import rc
 from scipy.optimize import curve_fit
 from scipy.stats import chi2
-from spectrum_overload import Spectrum
 
 from models.broadcasted_models import inherent_alpha_model
+from spectrum_overload import Spectrum
 from utilities.chisqr import reduced_chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import timeit2
@@ -39,7 +39,7 @@ def get_npix_values(table):
 
 def rv_plot(table, params):
     for chi2_val, npix_val in zip(chi2_names, npix_names):
-        red_chi2 = "red_{}".format(chi2_val)
+        red_chi2 = "red_{0}".format(chi2_val)
         # df = pd.read_sql(sa.text('SELECT alpha, rv, {1}, teff_2 FROM {0}'.format(tb_name, chi2)), engine)
         df = pd.read_sql(
             sa.select([table.c["rv"], table.c[chi2_val], table.c["teff_2"]]),
@@ -124,9 +124,9 @@ def fix_host_parameters(table, params):
         if jj == 4:
             chi2legend = "coadd chi2"
         else:
-            chi2legend = "det {}".format(jj + 1)
+            chi2legend = "det {0}".format(jj + 1)
 
-        red_chi2 = "red_{}".format(chi2_val)
+        red_chi2 = "red_{0}".format(chi2_val)
 
         fig, axes = plt.subplots(nrows, ncols)
         fig.tight_layout()
@@ -170,9 +170,9 @@ def fix_host_parameters_individual(table, params):
             if jj == 4:
                 chi2legend = "coadd chi2"
             else:
-                chi2legend = "det {}".format(jj + 1)
+                chi2legend = "det {0}".format(jj + 1)
 
-            red_chi2 = "red_{}".format(chi2_val)
+            red_chi2 = "red_{0}".format(chi2_val)
 
             fig, axes = plt.subplots(nrows, ncols)
             fig.tight_layout()
@@ -227,7 +227,7 @@ def parabola_plots(table, params):
 
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt), "--")
-            plt.xlabel(r"${}$".format(par))
+            plt.xlabel(r"${0}$".format(par))
             plt.ylabel(r"$\chi^2$")
 
         plt.legend()
@@ -273,7 +273,7 @@ def chi2_parabola_plots(table, params):
             print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
-            plt.xlabel(r"${}$".format(par))
+            plt.xlabel(r"${0}$".format(par))
             plt.ylabel(r"$\Delta \chi^2_{red}$ from mimimum")
 
         plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
@@ -303,12 +303,12 @@ def smallest_chi2_values(table, params, num=10):
     print(df.head(n=num))
     # name = "{0}-{1}_{2}_test_smallest_chi2_{3}.pdf".format(
     # params["star"], params["obs_num"], params["chip"], params["suffix"])
-    name = "minimum_coaad_chi2_db_ouput_{}_{}_{}.csv".format(params["star"], params["obs_num"], params["suffix"])
+    name = "minimum_coaad_chi2_db_ouput_{0}_{1}_{2}.csv".format(params["star"], params["obs_num"], params["suffix"])
     from bin.check_result import main as visual_inspection
     df.to_csv(os.path.join(params["path"], name))
 
     plot_name = os.path.join(params["path"], "plots",
-                             "visual_inspection_min_chi2_coadd_{}_{}_{}".format(params["star"], params["obs_num"],
+                             "visual_inspection_min_chi2_coadd_{0}_{1}_{2}".format(params["star"], params["obs_num"],
                                                                                 params["suffix"]))
     visual_inspection(params["star"], params["obs_num"], float(df_min.teff_1), float(df_min.logg_1),
                       float(df_min.feh_1), float(df_min.teff_2), float(df_min.logg_2),
@@ -330,11 +330,11 @@ def fix_host_parameters_reduced_gamma(table, params):
     indices = np.arange(nrows * ncols).reshape(nrows, ncols)
 
     for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
-        red_chi2 = "red_{}".format(chi2_val)
+        red_chi2 = "red_{0}".format(chi2_val)
         if jj == 4:
             chi2legend = "coadd"
         else:
-            chi2legend = "det {}".format(jj + 1)
+            chi2legend = "det {0}".format(jj + 1)
 
         # Select lowest chi square gamma values.
         df = pd.read_sql(
@@ -386,11 +386,11 @@ def fix_host_parameters_reduced_gamma_individual(table, params):
     # indices = np.arange(nrows * ncols).reshape(nrows, ncols)
 
     for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
-        red_chi2 = "red_{}".format(chi2_val)
+        red_chi2 = "red_{0}".format(chi2_val)
         if jj == 4:
             chi2legend = "coadd"
         else:
-            chi2legend = "det {}".format(jj + 1)
+            chi2legend = "det {0}".format(jj + 1)
 
         # Select lowest chi square gamma values.
         df = pd.read_sql(

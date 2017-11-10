@@ -57,8 +57,8 @@ def get_continuum_points(wave, flux, splits=50, top=20):
     s_flux = np.array([ar1[s1] for ar1, s1 in zip(flux_shaped, s)])
     s_wave = np.array([ar1[s1] for ar1, s1 in zip(wave_shaped, s)])
 
-    wave_points = np.median(s_wave, axis=-1)
-    flux_points = np.median(s_flux, axis=-1)
+    wave_points = np.nanmedian(s_wave, axis=-1)
+    flux_points = np.nanmedian(s_flux, axis=-1)
     assert len(flux_points) == splits
 
     return wave_points, flux_points
