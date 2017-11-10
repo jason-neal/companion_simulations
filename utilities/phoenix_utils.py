@@ -99,6 +99,60 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area
     return spec
 
 
+def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_scale=False, flux_rescale=False):
+    """Load spectrum from hdf5 grid file.
+
+    Parameters
+    ----------
+    params: list
+        Model parameters [teff, logg, Z]
+    limits= List[float, float] default=None
+        Wavelength limits.
+    hdr: bool
+       Include the model header. Default False.
+    normalize: bool
+        Locally normalize the spectrum. Default False.
+    area_scale: bool
+        Multiply by stellar surface area pi*R**2 (towards Earth)
+    flux_rescale: bool
+        Convert from /cm to /nm by dividing by 1e7
+
+    Returns
+    -------
+    spec: Spectrum
+        The loaded spectrum as Spectrum object.
+    """
+    # Starfish.grid["btsettle_hdf5_path"], instrument, ranges=Starfish.grid["parrange"]
+    my_hdf5 = HDF5Interface(filename=simulators.grid["btsettle_hdf5_path"], key_name=simulators.grid["key_name"])
+    my_hdf5.wl = my_hdf5.wl / 10  # Turn into Nanometer
+
+    if hdr:
+        flux, myhdr = my_hdf5.load_flux_hdr(np.array(params))
+        spec = Spectrum(flux=flux, xaxis=my_hdf5.wl, header=myhdr)
+    else:
+        flux = my_hdf5.load_flux(np.array(params))
+        spec = Spectrum(flux=flux, xaxis=my_hdf5.wl)
+
+    if flux_rescale:
+        spec = spec * 1e-7  # convert flux unit from /cm to /nm
+
+    if area_scale:
+        if hdr:
+            spec = spec * phoenix_area(spec.header)
+        else:
+            raise ValueError("No header provided for stellar area scaling")
+    if normalize:
+        spec = spec_local_norm(spec, method="exponential")
+
+    if limits is not None:
+        if limits[0] > spec.xaxis[-1] or limits[-1] < spec.xaxis[0]:
+            print("Warning: The wavelength limits do not overlap the spectrum."
+                  "There is no spectrum left... Check your wavelength, or limits.")
+        spec.wav_select(*limits)
+
+    return spec
+
+
 def phoenix_area(header):
     """In units of Gigameters.
     Returns
