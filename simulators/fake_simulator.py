@@ -1,0 +1,280 @@
+import argparse
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+from astropy.io import fits
+from spectrum_overload import Spectrum
+
+import simulators
+from models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
+from simulators.iam_module import prepare_iam_model_spectra, continuum_alpha
+from utilities.norm import continuum
+from utilities.simulation_utilities import spec_max_delta
+
+
+def _parser():
+    """Take care of all the argparse stuff.
+
+    :returns: the args
+    """
+    parser = argparse.ArgumentParser(description='Fake observation simulator.')
+    parser.add_argument("star", help='Star name.', type=str)
+    parser.add_argument("sim_num", help='Star observation number.', type=str)
+    parser.add_argument('params1', help='Host parameters. "teff, logg, feh"', type=str)
+    parser.add_argument('params2', help='Companion parameters. "teff, logg, feh"', type=str)
+    parser.add_argument('gamma', help='RV of host.', type=float)
+    parser.add_argument('rv', help='RV of Companion.', type=float)
+    parser.add_argument("-i", "--independent", help='Independent rv value."', action="store_true")
+    parser.add_argument('-s', '--noise',
+                        help='SNR value. int or "sqrt"', default=None)
+    parser.add_argument('-r', '--replace',
+                        help='Replace old fake spectra.', action="store_true")
+    parser.add_argument('-n', '--noplots',
+                        help='Turn plots off.', action="store_true")
+    parser.add_argument('-t', '--test',
+                        help='Run testing only.', action="store_true")
+    parser.add_argument('--suffix', help='Suffix for file.', type=str)
+
+    return parser.parse_args()
+
+
+def fake_simulation(wav, params1, params2, gamma, rv, chip=None,
+                    limits=[2070, 2180], independent=False, noise=None, header=False):
+    """Make a fake spectrum with binary params and radial velocities."""
+    mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits)
+
+    # Estimated flux ratio from models
+    if chip is not None:
+        inherent_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
+        print("inherent flux ratio = {0}, chip={1}".format(inherent_alpha, chip))
+
+    # Combine model spectra with iam model
+    if independent:
+        iam_grid_func = independent_inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+                                                         rvs=rv, gammas=gamma)
+    else:
+        iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+                                             rvs=rv, gammas=gamma)
+    if wav is None:
+        delta = spec_max_delta(mod1_spec, rv, gamma)
+        assert np.all(np.isfinite(mod1_spec.xaxis))
+        mask = (mod1_spec.xaxis > mod1_spec.xaxis[0] + 2 * delta) * (mod1_spec.xaxis < mod1_spec.xaxis[-1] - 2 * delta)
+        wav = mod1_spec.xaxis[mask]
+
+    iam_grid_models = iam_grid_func(wav).squeeze()
+    print("iam_grid_func(wav).squeeze()", iam_grid_models)
+    print("number of nans", np.sum(~np.isfinite(iam_grid_models)))
+    # assert np.all(np.isfinite(iam_grid_models))
+    print(iam_grid_models)
+
+    if noise == "sqrt":
+        # Add noise with sigma = 1 / sqrt(N)
+        snr = np.sqrt(iam_grid_models)
+    elif isinstance(noise, (int, float)):
+        snr = noise
+    else:
+        snr = None
+
+    print("continuum normalizing")
+
+    # Continuum normalize all iam_gird_models
+    def axis_continuum(flux):
+        """Continuum to apply along axis with predefined variables parameters."""
+        print(wav, flux)
+        print("axis lengths", len(wav), len(flux))
+        return continuum(wav, flux, splits=50, method="exponential", top=5)
+
+    iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
+
+    iam_grid_models = iam_grid_models / iam_grid_continuum
+
+    # Add the noise
+    if snr is not None:
+        iam_grid_models += (1. / snr) * np.random.randn(*iam_grid_models.shape)
+
+    if header:
+        return wav, iam_grid_models.squeeze(), mod1_spec.header
+    else:
+        return wav, iam_grid_models.squeeze()
+
+
+def main(star, sim_num, params1, params2, gamma, rv,
+         independent=False, noise=None, suffix=None, test=False, replace=False, noplots=False):
+    star = star.upper()
+    params_1 = [float(par) for par in params1.split(",")]
+    params_2 = [float(par) for par in params2.split(",")]
+    if test:
+        testing_noise(star, sim_num, params_1, params_2, gamma, rv,
+                      independent=False)
+        testing_fake_spectrum(star, sim_num, params_1, params_2, gamma, rv,
+                              independent=False, noise=None)
+    else:
+        x_wav, y_wav, header = fake_simulation(None, params_1, params_2, gamma, rv, chip=1,
+                                               independent=independent, noise=noise, header=True)
+
+        fake_spec = Spectrum(xaxis=x_wav, flux=y_wav, header=header)
+
+        # save to file
+        save_fake_observation(fake_spec, star, sim_num, params1, params2, gamma, rv,
+                              independent=False, noise=None, replace=replace, noplots=noplots)
+
+
+def save_fake_observation(spectrum, star, sim_num, params1, params2, gamma, rv,
+                          independent=False, noise=None, suffix=None, replace=False, noplots=False):
+    # Detector limits
+    detector_limits = [(2112, 2123), (2127, 2137), (2141, 2151), (2155, 2165)]
+    npix = 1024
+
+    header = fits.Header.fromkeys({})
+    for ii, detector in enumerate(detector_limits):
+        spec = spectrum.copy()
+        spec.wav_select(*detector)
+        spec.interpolate1d_to(np.linspace(spec.xaxis[0], spec.xaxis[-1], npix))
+
+        if not noplots:
+            plt.plot(spec.xaxis, spec.flux)
+            plt.title("Fake spectrum {0} {1} detector {2}".format(star, sim_num, ii + 1))
+            plt.show()
+        name = "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, sim_num, ii + 1)
+        name = os.path.join(simulators.paths["spectra"], name)
+        # spec.save...
+        hdrkeys = ["OBJECT", "Id_sim", "num", "chip", "snr", "ind_rv", "c_gamma", "cor_rv", "host", "compan"]
+        hdrvals = [star, "Fake simulation data", sim_num, ii + 1, noise, independent, gamma, rv, params1, params2]
+        if os.path.exists(name) and not replace:
+            print(name, "Already exists")
+        else:
+            if os.path.exists(name):
+                print("Replacing {0}".format(name))
+                os.remove(name)
+            export_fits(name, spec.xaxis, spec.flux, header, hdrkeys, hdrvals)
+            print("Saved fits to {0}".format(name))
+
+
+def testing_noise(star, sim_num, params1, params2, gamma, rv,
+                  independent=False):
+    x_wav, y_wav = fake_simulation(None, params1, params2, gamma, rv, chip=1,
+                                   independent=independent, noise=None)
+
+    x_wav_1000, y_wav_1000 = fake_simulation(None, params1, params2, gamma, rv, chip=1,
+                                             independent=independent, noise=1000)
+
+    x_wav_200, y_wav_200 = fake_simulation(None, params1, params2, gamma, rv, chip=1,
+                                           independent=independent, noise=200)
+
+    fig, axis = plt.subplots(2, 1, sharex=True)
+    ax1 = axis[0]
+    ax1.plot(x_wav_200, y_wav_200, label="snr =200")
+    ax1.plot(x_wav_1000, y_wav_1000, label="snr =1000")
+    ax1.plot(x_wav, y_wav, label="None")
+    ax1.set_title("{0} simnum={1}, noise test\n host={2}, companion={3}".format(star, sim_num, params1, params2))
+    ax1.legend()
+
+    ax2 = axis[1]
+    ax2.plot(x_wav_200, y_wav_200 - y_wav, label="snr=200")
+    ax2.plot(x_wav_1000, y_wav_1000 - y_wav, label="snr=1000")
+    ax2.set_title("Difference from no noise model")
+    ax2.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+def testing_fake_spectrum(star, sim_num, params1, params2, gamma, rv,
+                          independent=False, noise=None):
+    x_wav, y_wav = fake_simulation(None, params1, params2, gamma, rv, chip=1,
+                                   independent=independent, noise=noise)
+
+    x_2k, y_2k = fake_simulation(np.linspace(2100, 2140, 2000), params1,
+                                 params2, gamma, rv, chip=1, independent=independent, noise=noise)
+
+    x_1k, y_1k = fake_simulation(np.linspace(2090, 2150, 1000), params1, params2, gamma, rv, chip=1,
+                                 independent=independent, noise=noise)
+
+    x_30k, y_30k = fake_simulation(np.linspace(2090, 2150, 30000), params1, params2, gamma, rv, chip=1,
+                                   independent=independent, noise=noise)
+
+    x_5k, y_5k = fake_simulation(np.linspace(2090, 2150, 5000), params1, params2, gamma, rv, chip=1,
+                                 independent=independent, noise=noise)
+
+    print("x", x_wav)
+    print("y", y_wav)
+    print("y_1k", y_1k)
+
+    plt.plot(x_wav, y_wav, "b*", label="org Fake simulation")
+    plt.plot(x_2k, y_2k, ".", label="2k")
+    plt.plot(x_1k, y_1k, "s", label="1k")
+    plt.plot(x_5k, y_5k, "o", label="5k")
+    plt.plot(x_30k, y_30k, "h", label="30k")
+
+    plt.xlim([2070, 2170])
+    plt.legend()
+    plt.title("{0} simnum={1}, noise={2}\n host={3}, companion={4}".format(star, sim_num, noise, params1, params2))
+    plt.legend()
+    plt.show()
+
+    # NEED to normalize at full wavelength and then re-sample
+    y_1k_reinterp = np.interp(x_2k, x_1k, y_1k)
+    y_wav_reinterp = np.interp(x_2k, x_wav, y_wav)
+    y_5k_reinterp = np.interp(x_2k, x_5k, y_5k)
+    y_30k_reinterp = np.interp(x_2k, x_30k, y_30k)
+
+    plt.plot(x_2k, y_2k, ".-", label="2k")
+    plt.plot(x_2k, y_wav_reinterp, ".-", label="org sampling.")
+    plt.plot(x_2k, y_5k_reinterp, ".-", label="5k")
+    plt.plot(x_2k, y_1k_reinterp, ".-", label="1k.")
+    plt.plot(x_2k, y_30k_reinterp, ".-", label="30k.")
+    plt.title("Accessing re-normalization (inter to 2k")
+    plt.legend()
+    plt.show()
+
+    plt.plot(y_wav_reinterp - y_2k, label="org diff")
+    plt.plot(y_1k_reinterp - y_2k, label="1k diff")
+    plt.plot(y_5k_reinterp - y_2k, label="5k diff")
+    plt.plot(y_30k_reinterp - y_2k, label="30k diff")
+    plt.title("Difference to 2k interp")
+    plt.legend()
+    plt.show()
+
+
+def export_fits(filename, wavelength, flux, hdr, hdrkeys, hdrvals):
+    """Write Telluric Corrected spectra to a fits table file."""
+    col1 = fits.Column(name="wavelength", format="E", array=wavelength)  # colums of data
+    col2 = fits.Column(name="flux", format="E", array=flux)
+    cols = fits.ColDefs([col1, col2])
+
+    tbhdu = fits.BinTableHDU.from_columns(cols)  # binary tbale hdu
+    prihdr = append_hdr(hdr, hdrkeys, hdrvals)
+    prihdu = fits.PrimaryHDU(header=prihdr)
+    thdulist = fits.HDUList([prihdu, tbhdu])
+
+    thdulist.writeto(filename, output_verify="silentfix")  # Fixing errors to work properly
+    return None
+
+
+def append_hdr(hdr, keys=None, values=None, item=0):
+    """Apend/change parameters to fits hdr.
+
+    Can take list or tuple as input of keywords
+    and values to change in the header
+    Defaults at changing the header in the 0th item
+    unless the number the index is givien,
+    If a key is not found it adds it to the header.
+    """
+    if keys is not None and values is not None:
+        if isinstance(keys, str):  # To handle single value
+            hdr[keys] = values
+        else:
+            assert len(keys) == len(values), 'Not the same number of keys as values'
+            for i, key in enumerate(keys):
+                hdr[key] = values[i]
+                # print(repr(hdr[-2:10]))
+    return hdr
+
+
+if __name__ == "__main__":
+    args = vars(_parser())
+    opts = {k: args[k] for k in args}
+
+    # with warnings.catch_warnings():
+    #    warnings.filterwarnings('error')
+    main(**opts)
