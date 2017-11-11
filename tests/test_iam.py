@@ -47,7 +47,7 @@ def test_iam_wrapper(host, comp):
 
     obs_spec = host.copy()
     obs_spec.flux += comp.flux
-
+    obs_spec.header.uppdate("OBJECT": "Test_object")
     result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
                          gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
                          save_only=True, chip=1, prefix="Testtestest")
