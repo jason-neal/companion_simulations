@@ -224,7 +224,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
             npix = obs_flux.shape[0]  # Number of pixels used
 
-            plot_iam_grid_slices(rvs, gammas, arb_norm, iam_grid_chisquare, star=obs_spec.header["OBJECT"],
+            plot_iam_grid_slices(rvs, gammas, arb_norm, iam_norm_grid_chisquare, star=obs_spec.header["OBJECT"],
                                  xlabel="rv", ylabel="gamma", zlabel="Arbitrary Normalization",
                                  suffix="iam_grid_chisquare")
 
@@ -321,31 +321,63 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
     if zlabel is None:
         zlabel = "z"
 
-    print("shape of x, y, z", x.shape, y.shape, z.shape)
-    print("shape of X, Y, Z", X.shape, Y.shape, Z.shape)
     for ii, y_val in enumerate(y):
-        plt.subplot(111)
-        cmap = plt.contour(X[:, ii, :], Z[:, ii, :], grid[:, ii, :])
-        plt.colorbar(cmap)
+        ax = plt.subplot(111)
+        try:
+            # print("index value", ii, "y_val ", y_val)
+            # print(X.shape)
+
+            xii = X[:, ii, :]
+            # print("xii.shape", xii.shape)
+            yii = Y[:, ii, :]
+            # print("yii.shape", yii.shape)
+            zii = Z[:, ii, :]
+            grid_ii = grid[:, ii, :]
+
+            plt.contourf(xii, zii, grid_ii)
+        except IndexError:
+            print("grid.shape", grid.shape)
+            print("shape of x, y, z", x.shape, y.shape, z.shape)
+            print("shape of X, Y, Z", X.shape, Y.shape, Z.shape)
+            print("index value", ii, "y_val ", y_val)
+            # print(xii.shape, yii.shape, zii.shape, grid_ii.shape)
+            # print(xii, yii, zii, grid_ii)
+            raise
+
+        #plt.colorbar()
         plt.xlabel(xlabel)
         plt.ylabel(zlabel)
         plt.title("Grid slice for {0}={1}".format(ylabel, y_val))
 
-        plt.show()
+        # plt.show()
         pltname = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
-                               "grid_slice_{0}_{1}_{2}.png".format(ylabel, ii, suffix))
+                               "grid_slice_{0}_{1}_{1}_{3}_{4}_{5}.png".format(ii, star, xlabel, ylabel, zlabel, suffix))
         plt.savefig(pltname)
+        plt.close(plt.gcf())
 
     for jj, z_val in enumerate(z):
-        plt.subplot(111)
+        ax = plt.subplot(111)
+        try:
+            xjj = X[:, :, jj]
+            yjj = Y[:, :, jj]
+            zjj = Z[:, :, jj]
+            grid_jj = grid[:, :, jj]
+            plt.contourf(xjj, yjj, grid_jj)
+        except IndexError:
+            print("shape of x, y, z", x.shape, y.shape, z.shape)
+            print("shape of X, Y, Z", X.shape, Y.shape, Z.shape)
+            print("index value", ii, "y_val ", y_val)
+            # print(xjj.shape, yjj.shape, zjj.shape, grid_jj.shape)
+            # print(xjj, yjj, zjj, grid_jj)
+            raise
 
-        cmap = plt.contour(X[:, :, jj], Z[:, :, jj], grid[:, :, jj])
-        plt.colorbar(cmap)
+        # plt.colorbar()
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
 
         plt.title("Grid slice for {0}={1}".format(zlabel, z_val))
-        plt.show()
+        #  plt.show()
         pltname = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
-                               "grid_slice_{0}_{1}_{2}.png".format(zlabel, ii, suffix))
+                               "grid_slice_{0}_{1}_{2}_{3}.png".format(zlabel, star, ii, suffix))
         plt.savefig(pltname)
+        plt.close(plt.gcf())

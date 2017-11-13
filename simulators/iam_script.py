@@ -135,7 +135,8 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
 
     ####
     # Print TODO
-    print("chi2_grid.shape", chi2_grid.shape)
+    if chi2_grids is not None:
+        print("chi2_grid.shape", chi2_grids.shape)
     print("TODO: Add joining of sql table here")
     # subprocess.call(make_chi2_bd.py)
     return 0
