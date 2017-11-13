@@ -69,13 +69,15 @@ def _parser():
                         action="store_true")
     parser.add_argument('-s', '--small', action="store_true",
                         help='Use smaller subset of parameters.')
+    parser.add_argument('-a', '--area_scale', action="store_true",
+                        help='Scale by models area. Default=False')
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
 
     return parser.parse_args()
 
 
 def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
-         suffix=None, error_off=False):
+         suffix=None, error_off=False, area_scale=False):
     """Main function."""
     if chip is None:
         chip = 4
@@ -123,16 +125,18 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
         chi2_grids = parallel_iam_analysis(obs_spec, model1_pars, model2_pars,
                                            rvs, gammas, verbose=verbose,
                                            norm=True, prefix=output_prefix,
-                                           save_only=True, errors=errors)
+                                           save_only=True, errors=errors,
+                                           area_scale=area_scale)
     else:
         chi2_grids = iam_analysis(obs_spec, model1_pars, model2_pars, rvs,
                                   gammas, verbose=verbose, norm=True,
-                                  prefix=output_prefix, errors=errors)
+                                  prefix=output_prefix, errors=errors,
+                                  area_scale=area_scale)
 
     ####
     # Print TODO
+    print("chi2_grid.shape", chi2_grid.shape)
     print("TODO: Add joining of sql table here")
-
     # subprocess.call(make_chi2_bd.py)
     return 0
 

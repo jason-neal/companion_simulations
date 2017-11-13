@@ -33,7 +33,7 @@ def iam_helper_function(star, obs_num, chip):
 
 def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
                  verbose=False, norm=False, save_only=True, chip=None,
-                 prefix=None, errors=None):
+                 prefix=None, errors=None, area_scale=False):
     """Run two component model over all model combinations."""
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
@@ -48,7 +48,8 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
 
     args = [model2_pars, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
-              "prefix": prefix, "verbose": verbose, "errors": errors}
+              "prefix": prefix, "verbose": verbose, "errors": errors,
+              "area_scale": area_scale}
 
     for ii, params1 in enumerate(tqdm(model1_pars)):
         iam_grid_chisqr_vals[ii] = iam_wrapper(ii, params1, *args, **kwargs)
@@ -62,7 +63,7 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
 def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
                           gammas=None, verbose=False, norm=False,
                           save_only=True, chip=None, prefix=None,
-                          errors=None):
+                          errors=None, area_scale=False):
     """Run two component model over all model combinations."""
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
@@ -76,7 +77,8 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
         """Fill in all extra parameters for parrallel wrapper."""
         return iam_wrapper(num, param, model2_pars, rvs, gammas,
                            obs_spec, norm=norm, save_only=save_only,
-                           chip=chip, prefix=prefix, verbose=verbose, errors=errors)
+                           chip=chip, prefix=prefix, verbose=verbose, errors=errors,
+                           area_scale=area_scale)
 
     print("Parallelized running\n\n\n ###################")
     # raise NotImplementedError("Need to fix this up")
@@ -93,7 +95,8 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
     prefix += "_parallel"
     args = [model2_pars, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
-              "prefix": prefix, "verbose": verbose, "errors": errors}
+              "prefix": prefix, "verbose": verbose, "errors": errors,
+              "area_scale": area_scale}
 
     iam_grid_chisqr_vals = Parallel(n_jobs=-2)(
         delayed(iam_wrapper)(ii, param, *args, **kwargs)
@@ -136,7 +139,8 @@ def continuum_alpha(model1, model2, chip=None):
 
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
-                verbose=True, save_only=True, chip=None, prefix=None, errors=None):
+                verbose=True, save_only=True, chip=None, prefix=None, errors=None,
+                area_scale=False):
     """Wrapper for iteration loop of iam. To use with parallelization."""
     if prefix is None:
         sf = os.path.join(
@@ -168,7 +172,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
             # Load phoenix models and scale by area and wavelength limit
             mod1_spec, mod2_spec = \
-                prepare_iam_model_spectra(params1, params2, limits=rv_limits)
+                prepare_iam_model_spectra(params1, params2, limits=rv_limits, area_scale=area_scale)
 
             # Estimated flux ratio from models
             inherent_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
@@ -244,13 +248,14 @@ def observation_rv_limits(obs_spec, rvs, gammas):
     return [obs_min - 1.1 * delta, obs_max + 1.1 * delta]
 
 
-def prepare_iam_model_spectra(params1, params2, limits):
+def prepare_iam_model_spectra(params1, params2, limits, area_scale=False):
     """Load spectra with same settings."""
+    warnings.warn("Using models spectra with area_scale={}".format(area_scale))
     mod1_spec = load_starfish_spectrum(params1, limits=limits,
-                                       hdr=True, normalize=False, area_scale=True,
+                                       hdr=True, normalize=False, area_scale=area_scale,
                                        flux_rescale=True)
     mod2_spec = load_starfish_spectrum(params2, limits=limits,
-                                       hdr=True, normalize=False, area_scale=True,
+                                       hdr=True, normalize=False, area_scale=area_scale,
                                        flux_rescale=True)
     assert len(mod1_spec.xaxis) > 0 and len(mod2_spec.xaxis) > 0
     assert np.all(mod1_spec.xaxis == mod2_spec.xaxis)
