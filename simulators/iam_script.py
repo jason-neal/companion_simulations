@@ -69,15 +69,15 @@ def _parser():
                         action="store_true")
     parser.add_argument('-s', '--small', action="store_true",
                         help='Use smaller subset of parameters.')
-    parser.add_argument('-a', '--area_scale', action="store_true",
-                        help='Scale by models area. Default=False')
+    parser.add_argument('-a', '--area_scale', action="store_false",
+                        help='Scaling by stellar area. (raise to disable)')
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
 
     return parser.parse_args()
 
 
 def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
-         suffix=None, error_off=False, area_scale=False):
+         suffix=None, error_off=False, area_scale=True):
     """Main function."""
     if chip is None:
         chip = 4

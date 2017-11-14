@@ -140,7 +140,7 @@ def continuum_alpha(model1, model2, chip=None):
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 verbose=True, save_only=True, chip=None, prefix=None, errors=None,
-                area_scale=False):
+                area_scale=True):
     """Wrapper for iteration loop of iam. To use with parallelization."""
     if prefix is None:
         sf = os.path.join(
@@ -248,9 +248,10 @@ def observation_rv_limits(obs_spec, rvs, gammas):
     return [obs_min - 1.1 * delta, obs_max + 1.1 * delta]
 
 
-def prepare_iam_model_spectra(params1, params2, limits, area_scale=False):
+def prepare_iam_model_spectra(params1, params2, limits, area_scale=True):
     """Load spectra with same settings."""
-    warnings.warn("Using models spectra with area_scale={}".format(area_scale))
+    if not area_scale:
+        warnings.warn("Not using area_scale. This is incorrect.")
     mod1_spec = load_starfish_spectrum(params1, limits=limits,
                                        hdr=True, normalize=False, area_scale=area_scale,
                                        flux_rescale=True)
