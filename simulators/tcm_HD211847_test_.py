@@ -19,20 +19,19 @@ import sys
 
 # import matplotlib.pyplot as plt
 import numpy as np
-
 # import pandas as pd
 import scipy as sp
-import simulators
-from astropy.io import fits
 from Chisqr_of_observation import load_spectrum  # , select_observation
-from models.broadcasted_models import two_comp_model
+from astropy.io import fits
 from tqdm import tqdm
 from two_component_model_HD211847 import save_full_chisqr, tcm_helper_function
+
+import simulators
+from mingle.models.broadcasted_models import two_comp_model
 from utilities.chisqr import chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import timeit2  # pv,
 from utilities.norm import chi2_model_norms  # , renormalize_observation
-from utilities.param_file import parse_paramfile
 from utilities.phoenix_utils import (closest_model_params,
                                      generate_close_params,
                                      load_starfish_spectrum)

@@ -8,9 +8,9 @@ from matplotlib import pyplot as plt
 from matplotlib import rc
 from scipy.optimize import curve_fit
 from scipy.stats import chi2
-
-from models.broadcasted_models import inherent_alpha_model
 from spectrum_overload import Spectrum
+
+from mingle.models.broadcasted_models import inherent_alpha_model
 from utilities.chisqr import reduced_chi_squared
 from utilities.crires_utilities import barycorr_crires_spectrum
 from utilities.debug_utils import timeit2

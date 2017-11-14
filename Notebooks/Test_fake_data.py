@@ -9,15 +9,13 @@
 # In[ ]:
 
 
-from spectrum_overload import Spectrum
-from utilities.phoenix_utils import load_starfish_spectrum
-
-from models.broadcasted_models import inherent_alpha_model
-
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
+from spectrum_overload import Spectrum
 
+from mingle.models.broadcasted_models import inherent_alpha_model
+from utilities.phoenix_utils import load_starfish_spectrum
 
 # In[ ]:
 

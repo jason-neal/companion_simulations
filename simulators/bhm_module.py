@@ -2,14 +2,12 @@ import copy
 import logging
 
 import numpy as np
-
 import pandas as pd
-import scipy as sp
-import simulators
 from matplotlib import pyplot as plt
-from models.broadcasted_models import one_comp_model
 from tqdm import tqdm
 
+import simulators
+from mingle.models.broadcasted_models import one_comp_model
 from utilities.chisqr import chi_squared
 from utilities.phoenix_utils import load_starfish_spectrum
 from utilities.xcorr import xcorr_peak

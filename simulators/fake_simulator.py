@@ -7,8 +7,8 @@ from astropy.io import fits
 from spectrum_overload import Spectrum
 
 import simulators
-from models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
 from simulators.iam_module import prepare_iam_model_spectra, continuum_alpha
+from mingle.models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
 from utilities.norm import continuum
 from utilities.simulation_utilities import spec_max_delta
 

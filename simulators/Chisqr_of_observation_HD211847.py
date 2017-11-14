@@ -8,18 +8,18 @@ from __future__ import division, print_function
 import logging
 import os
 import pickle
+from ajplanet import pl_rv_array
 from datetime import datetime as dt
-
-import numpy as np
 
 import ephem
 import matplotlib.pyplot as plt
 import multiprocess as mprocess
-from ajplanet import pl_rv_array
+import numpy as np
 from Chisqr_of_observation import plot_obs_with_model
-from models.alpha_model import alpha_model2
 from Planet_spectral_simulations import \
     load_PHOENIX_hd211847  # load_PHOENIX_hd30501,
+
+from mingle.models.alpha_model import alpha_model2
 from utilities.chisqr import parallel_chisqr
 from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)

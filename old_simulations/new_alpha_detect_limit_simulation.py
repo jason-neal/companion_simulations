@@ -7,16 +7,14 @@ from __future__ import division, print_function
 import copy
 import logging
 
-import numpy as np
-
 import matplotlib.pyplot as plt
-from models.alpha_model import alpha_model
+import numpy as np
 from Planet_spectral_simulations import load_PHOENIX_hd30501
-from spectrum_overload import Spectrum
-from utilities.chisqr import parallel_chisqr, spectrum_chisqr
+
+from mingle.models.alpha_model import alpha_model
+from utilities.chisqr import parallel_chisqr
+
 # self written modules
-from utilities.debug_utils import pv
-from utilities.simulation_utilities import combine_spectra, spectrum_plotter
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')

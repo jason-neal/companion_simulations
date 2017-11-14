@@ -8,28 +8,23 @@ from __future__ import division, print_function
 import logging
 import os
 import pickle
+from ajplanet import pl_rv_array
 from datetime import datetime as dt
-
-import numpy as np
 
 import ephem
 import matplotlib.pyplot as plt
 import multiprocess as mprocess
-from ajplanet import pl_rv_array
-from astropy.io import fits
+import numpy as np
 from Get_filenames import get_filenames
-from models.alpha_model import alpha_model2
-from Planet_spectral_simulations import (load_PHOENIX_hd30501,
-                                         load_PHOENIX_hd211847,
-                                         load_starfish_hd211847)
+from Planet_spectral_simulations import (load_starfish_hd211847)
+from astropy.io import fits
 from spectrum_overload import Spectrum
+
+from mingle.models.alpha_model import alpha_model2
 from utilities.chisqr import parallel_chisqr  # , alpha_model
 from utilities.crires_utilities import (barycorr_crires_spectrum,
                                         crires_resolution)
 from utilities.debug_utils import pv
-from utilities.model_convolution import apply_convolution, convolve_models
-from utilities.phoenix_utils import load_starfish_spectrum
-from utilities.simulation_utilities import combine_spectra
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')

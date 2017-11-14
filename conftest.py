@@ -1,6 +1,6 @@
 import pytest
 
-from models.broadcasted_models import two_comp_model
+from mingle.models.broadcasted_models import two_comp_model
 from utilities.phoenix_utils import load_starfish_spectrum
 
 

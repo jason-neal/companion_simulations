@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 "Create some fake observations to test recovery"
 
-from models.broadcasted_models import inherent_alpha_model
 from spectrum_overload import Spectrum
+
+from mingle.models.broadcasted_models import inherent_alpha_model
 from utilities.phoenix_utils import load_starfish_spectrum
 
 

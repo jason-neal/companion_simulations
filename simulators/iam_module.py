@@ -9,7 +9,7 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 
 import simulators
-from models.broadcasted_models import inherent_alpha_model
+from mingle.models.broadcasted_models import inherent_alpha_model
 from utilities.chisqr import chi_squared
 from utilities.norm import chi2_model_norms, continuum
 from utilities.param_file import parse_paramfile
