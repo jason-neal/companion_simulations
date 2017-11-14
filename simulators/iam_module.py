@@ -20,6 +20,7 @@ debug = logging.debug
 
 
 def iam_helper_function(star, obs_num, chip):
+    """Specifies parameter files and output directories given observation parameters."""
     param_file = os.path.join(simulators.paths["parameters"], "{0}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)
     obs_name = os.path.join(
@@ -74,7 +75,7 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
         debug("Number of close model_pars returned {0}".format(len(model2_pars)))
 
     def filled_iam_wrapper(num, param):
-        """Fill in all extra parameters for parrallel wrapper."""
+        """Fill in all extra parameters for parallel wrapper."""
         return iam_wrapper(num, param, model2_pars, rvs, gammas,
                            obs_spec, norm=norm, save_only=save_only,
                            chip=chip, prefix=prefix, verbose=verbose, errors=errors,
@@ -202,7 +203,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 raise NotImplementedError("Need to check this")
 
             plot_iam_grid_slices(obs_spec.xaxis, rvs, gammas, iam_grid_models, star=obs_spec.header["OBJECT"],
-                                 xlabel="wavelength", ylabel="rv", zlabel="gamma", suffix="iam_grid_models")
+                                 xlabel="wavelength", ylabel="rv", zlabel="gamma", suffix="iam_grid_models", chip=chip)
 
             # Arbitrary_normalization of observation
             arb_norm = np.arange(*simulators.sim_grid["arb_norm"])
@@ -226,7 +227,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
 
             plot_iam_grid_slices(rvs, gammas, arb_norm, iam_norm_grid_chisquare, star=obs_spec.header["OBJECT"],
                                  xlabel="rv", ylabel="gamma", zlabel="Arbitrary Normalization",
-                                 suffix="iam_grid_chisquare")
+                                 suffix="iam_grid_chisquare", chip=chip)
 
             if not save_only:
                 iam_grid_chisqr_vals[jj] = iam_grid_chisquare.ravel()[np.argmin(iam_grid_chisquare)]
@@ -259,7 +260,7 @@ def prepare_iam_model_spectra(params1, params2, limits, area_scale=True):
                                        hdr=True, normalize=False, area_scale=area_scale,
                                        flux_rescale=True)
     assert len(mod1_spec.xaxis) > 0 and len(mod2_spec.xaxis) > 0
-    assert np.all(mod1_spec.xaxis == mod2_spec.xaxis)
+    assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
 
     return mod1_spec, mod2_spec
 
@@ -267,12 +268,12 @@ def prepare_iam_model_spectra(params1, params2, limits, area_scale=True):
 def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
                          iam_grid_chisquare, arbitrary_norms, npix, verbose=False):
     """Save the iterations chisqr values to a cvs."""
-    R, G = np.meshgrid(rvs, gammas, indexing='ij')
-    # assert A.shape == R.shape
-    assert R.shape == G.shape
-    assert G.shape == iam_grid_chisquare.shape
+    rv_grid, g_grid = np.meshgrid(rvs, gammas, indexing='ij')
+    # assert A.shape == rv_grid.shape
+    assert rv_grid.shape == g_grid.shape
+    assert g_grid.shape == iam_grid_chisquare.shape
 
-    data = {"rv": R.ravel(), "gamma": G.ravel(),
+    data = {"rv": rv_grid.ravel(), "gamma": g_grid.ravel(),
             "chi2": iam_grid_chisquare.ravel(), "arbnorm": arbitrary_norms.ravel()}
 
     columns = ["rv", "gamma", "chi2", "arbnorm"]
@@ -310,10 +311,11 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
     return None
 
 
-def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, suffix=None, star=None):
+def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, suffix=None, star=None,
+                         chip=None):
     """Slice up 3d grid and plot slices."""
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "grid_plots"), exist_ok=True)
-    X, Y, Z = np.meshgrid(x, y, z, indexing="ij")
+    x_grid, y_grid, z_grid = np.meshgrid(x, y, z, indexing="ij")
 
     if xlabel is None:
         xlabel = "x"
@@ -323,62 +325,50 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
         zlabel = "z"
 
     for ii, y_val in enumerate(y):
-        ax = plt.subplot(111)
+        plt.subplot(111)
         try:
-            # print("index value", ii, "y_val ", y_val)
-            # print(X.shape)
-
-            xii = X[:, ii, :]
-            # print("xii.shape", xii.shape)
-            yii = Y[:, ii, :]
-            # print("yii.shape", yii.shape)
-            zii = Z[:, ii, :]
+            xii = x_grid[:, ii, :]
+            zii = z_grid[:, ii, :]
             grid_ii = grid[:, ii, :]
-
             plt.contourf(xii, zii, grid_ii)
         except IndexError:
             print("grid.shape", grid.shape)
             print("shape of x, y, z", x.shape, y.shape, z.shape)
-            print("shape of X, Y, Z", X.shape, Y.shape, Z.shape)
+            print("shape of x_grid, y_grid, z_grid", x_grid.shape, y_grid.shape, z_grid.shape)
             print("index value", ii, "y_val ", y_val)
-            # print(xii.shape, yii.shape, zii.shape, grid_ii.shape)
-            # print(xii, yii, zii, grid_ii)
             raise
 
-        #plt.colorbar()
         plt.xlabel(xlabel)
         plt.ylabel(zlabel)
         plt.title("Grid slice for {0}={1}".format(ylabel, y_val))
 
-        # plt.show()
-        pltname = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
-                               "grid_slice_{0}_{1}_{1}_{3}_{4}_{5}.png".format(ii, star, xlabel, ylabel, zlabel, suffix))
-        plt.savefig(pltname)
+        plot_name = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
+                                 "y_grid_slice_{0}_chip-{1}_{2}_{3}_{4}_{5}_{6}.png".format(star, chip, xlabel,
+                                                                                            ylabel, zlabel, ii,
+                                                                                            suffix))
+        plt.savefig(plot_name)
         plt.close(plt.gcf())
 
     for jj, z_val in enumerate(z):
-        ax = plt.subplot(111)
+        plt.subplot(111)
         try:
-            xjj = X[:, :, jj]
-            yjj = Y[:, :, jj]
-            zjj = Z[:, :, jj]
+            xjj = x_grid[:, :, jj]
+            yjj = y_grid[:, :, jj]
             grid_jj = grid[:, :, jj]
             plt.contourf(xjj, yjj, grid_jj)
         except IndexError:
             print("shape of x, y, z", x.shape, y.shape, z.shape)
-            print("shape of X, Y, Z", X.shape, Y.shape, Z.shape)
-            print("index value", ii, "y_val ", y_val)
-            # print(xjj.shape, yjj.shape, zjj.shape, grid_jj.shape)
-            # print(xjj, yjj, zjj, grid_jj)
+            print("shape of x_grid, y_grid, z_grid", x_grid.shape, y_grid.shape, z_grid.shape)
+            print("index value", jj, "y_val ", z_val)
             raise
 
-        # plt.colorbar()
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
 
         plt.title("Grid slice for {0}={1}".format(zlabel, z_val))
-        #  plt.show()
-        pltname = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
-                               "grid_slice_{0}_{1}_{2}_{3}.png".format(zlabel, star, ii, suffix))
-        plt.savefig(pltname)
+        plot_name = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
+                                 "z__grid_slice_{0}_chip-{1}_{2}_{3}_{4}_{5}_{6}.png".format(star, chip, xlabel,
+                                                                                             ylabel, zlabel, ii,
+                                                                                             suffix))
+        plt.savefig(plot_name)
         plt.close(plt.gcf())
