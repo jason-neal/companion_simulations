@@ -6,9 +6,10 @@
 
 from __future__ import division, print_function
 
+import logging
+
 import ephem
 from PyAstronomy import pyasl
-import logging
 from spectrum_overload import Spectrum
 
 

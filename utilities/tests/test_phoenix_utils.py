@@ -1,10 +1,12 @@
 """Testing phoenix utilities."""
 
+from types import GeneratorType
+
 import numpy as np
 import pytest
+from spectrum_overload import Spectrum
 
 import simulators
-from spectrum_overload import Spectrum
 # from utilities.crires_utilities import crires_resolution
 from utilities.phoenix_utils import (gen_new_param_values,
                                      generate_close_params_with_simulator,
@@ -28,7 +30,7 @@ def test_load_phoenix_spectra(limits, normalize):
     assert np.all(spec.xaxis < limits[-1])
 
 
-@pytest.mark.parametrize("teff,limits,normalize",
+@pytest.mark.parametrize("teff, limits, normalize",
                          [(2300, [2100, 2150], True), (2300, [2100, 2150], False), (5000, [2050, 2150], False)])
 def test_load_starfish_spectra(teff, limits, normalize):
     spec = load_starfish_spectrum([teff, 5, 0], limits=limits, normalize=normalize)
@@ -79,15 +81,15 @@ def test_phoenix_area():
         phoenix_area({"Not_PHXREFF": 42})
 
 
-def gen_new_param_values():
+def test_gen_new_param_values():
     x, y, z = gen_new_param_values(100, 1, 0, small=False)
+    print("X=", x)
+    assert np.all(x == [-400, -300, -200, -100, 0, 100, 200, 300, 400, 500, 600])
+    assert np.all(y == [0, 0.5, 1, 1.5, 2])
+    assert np.all(z == [-1, -0.5, 0, 0.5, 1])
 
-    assert x == [-400, 300, 200, 100, 0, 100, 200, 300, 400, 500, 600]
-    assert y == [-0, 0.5, 1, 1.5, 2]
-    assert z == [-1, -0.5, 0, 0.5, 1]
 
-
-def gen_new_param_values_with_host():
+def test_gen_new_param_values_with_host():
     x, y, z = gen_new_param_values(5000, 2, 1, small="host")
 
     assert np.all(x == np.array([4900, 5000, 5100]))
@@ -95,18 +97,20 @@ def gen_new_param_values_with_host():
     assert np.all(z == np.array([0.5, 1, 1.5]))
 
 
-# def test_generate_close_params():
-#    assert False
-
-
-def generate_close_params_with_simulator_single_return():
+def test_generate_close_params_with_simulator_single_return():
     start_params = [5000, 4.5, 0]
-    test_dict = {"teff_1": [0, 0, 1], "feh_1": [0, 0, 1], "logg_1": [0, 0, 1],
-                 "teff_2": [0, 0, 1], "feh_2": [0, 0, 1], "logg_2": [0, 0, 1]}
+    # start, stop, step of [0, 1, 1]  -> [0] while [0, 0, 1] -> []
+    test_dict = {"teff_1": [0, 1, 1], "feh_1": [0, 1, 1], "logg_1": [0, 1, 1],
+                 "teff_2": [0, 1, 1], "feh_2": [0, 1, 1], "logg_2": [0, 1, 1]}
     expected = [[5000, 4.5, 0]]
     simulators.sim_grid = test_dict
     host_params = generate_close_params_with_simulator(start_params, "host")
+    assert isinstance(host_params, GeneratorType)
+    host_params = list(host_params)
+    print("host_params", host_params)
     comp_params = generate_close_params_with_simulator(start_params, "companion")
-    assert list(host_params) == expected
-    assert list(comp_params) == expected
-    assert False
+    assert isinstance(comp_params, GeneratorType)
+    comp_params = list(comp_params)
+
+    assert host_params == expected
+    assert comp_params == expected

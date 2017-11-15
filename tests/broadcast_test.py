@@ -5,11 +5,11 @@ import numpy as np
 import pytest
 import scipy as sp
 
-# Test that the two componet model with alpha = [0] and rvs=[0] are equal!
+# Test that the two component model with alpha = [0] and rvs=[0] are equal!
 from mingle.models.broadcasted_models import (check_broadcastable,
-                 inherent_alpha_model, one_comp_model,
-                 two_comp_model,
-                 two_comp_model_with_transpose)
+                                              inherent_alpha_model, one_comp_model,
+                                              two_comp_model,
+                                              two_comp_model_with_transpose)
 from utilities.phoenix_utils import load_starfish_spectrum
 
 
@@ -22,7 +22,7 @@ def host():
 
 @pytest.fixture
 def comp():
-    """Noramlized Companion spectrum fixture."""
+    """Normalized Companion spectrum fixture."""
     mod_spec = load_starfish_spectrum([2600, 4.50, 0.0], limits=[2130, 2135], normalize=True)
     return mod_spec
 
@@ -54,18 +54,18 @@ def test_ocm_and_tcm_models_are_same_with_no_companion(host, gamma, rv):
 
 @pytest.mark.xfail()
 def test_tcm_with_transpose(host, comp):
-    """To compare models give equvalient ouptut.
+    """To compare models give equivalent output.
 
     If alpha= 0 and rvs = 0.
     s"""
     tcm = two_comp_model(host.xaxis, host.flux, comp.flux, 0, [0], [1, 2, 3])
-    tcm_T = two_comp_model_with_transpose(host.xaxis, host.flux, comp.flux, 0, [0], [1, 2, 3])
+    tcm_trans = two_comp_model_with_transpose(host.xaxis, host.flux, comp.flux, 0, [0], [1, 2, 3])
 
     tcm_eval = tcm(host.xaxis)
-    tcm_T_eval = tcm_T(host.xaxis)
+    tcm_trans_eval = tcm_trans(host.xaxis)
 
-    assert tcm_eval.shape == tcm_T_eval.shape
-    assert np.allclose(tcm_eval, tcm_T_eval)
+    assert tcm_eval.shape == tcm_trans_eval.shape
+    assert np.allclose(tcm_eval, tcm_trans_eval)
 
 
 def test_broadcasting_with_transpose():

@@ -1,11 +1,13 @@
+import os
+
 import numpy as np
 import pytest
-import os
+from spectrum_overload import Spectrum
+
 import simulators
 from simulators.iam_module import (continuum_alpha, iam_analysis,
                                    iam_helper_function, iam_wrapper,
                                    parallel_iam_analysis)
-from spectrum_overload import Spectrum
 
 
 @pytest.mark.parametrize("star, obs, chip", [
