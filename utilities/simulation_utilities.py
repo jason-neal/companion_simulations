@@ -8,8 +8,6 @@ import copy
 
 import numpy as np
 
-from matplotlib import pyplot as plt
-
 
 def add_noise(flux, snr):
     """Using the formulation mu/sigma from wikipedia.
@@ -22,23 +20,10 @@ def add_noise(flux, snr):
     return noisey_flux
 
 
-def spectrum_plotter(spectra, label=None, show=False):
-    """Plot a Spectrum object."""
-    plt.figure()
-    plt.plot(spectra.xaxis, spectra.flux, label=label)
-    plt.ylabel("Flux")
-    plt.xlabel("xaxis")
-    if label:
-        plt.legend(loc=0, bbox_to_anchor=(1.4, 0.9), ncol=1,
-                   fancybox=True, shadow=True)
-    if show:
-        plt.show()
-
-
 def combine_spectra(star, planet, alpha):
     """Combine the Spectrum objects "star" and "planet".
 
-    Strength ratio of aplha
+    Strength ratio of alpha
     spec = star + planet * alpha
 
     """
@@ -80,14 +65,6 @@ def max_delta(wavelength, rvs, gammas):
     delta = [lim * shift_max / 299792.458 for lim in obs_limits]
 
     return 2 * round(max(delta), 3)
-
-
-def plot_spectra(obs, model):
-    """Plot two spectra."""
-    plt.plot(obs.xaxis, obs.flux, label="obs")
-    plt.plot(model.xaxis, model.flux, label="model")
-    plt.legend()
-    plt.show()
 
 
 def check_inputs(var):
