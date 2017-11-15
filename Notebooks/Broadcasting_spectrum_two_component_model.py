@@ -39,7 +39,7 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
     for i, rv in enumerate(rvs):
         #nflux, wlprime = dopplerShift(wav, am2, rv)
         #am2rv[:, :, i] = nflux
-        wav_i = (1 - rv / c) * wav
+        wav_i = (1 + rv / c) * wav
         am2rv[:, :, i] = interp1d(wav_i, am2, axis=0, bounds_error=False)(wav)
     
     # Normalize by (1 / 1 + alpha)
@@ -50,7 +50,7 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
     
     am2rvm1g = np.empty(am2rvm1.shape + (len(gammas),))   # am2rvm1g = am2rvm1 with gamma doppler-shift
     for j, gamma in enumerate(gammas):
-        wav_j = (1 - gamma / 299792.458) * wav
+        wav_j = (1 + gamma / 299792.458) * wav
         am2rvm1g[:, :, :, j] = interp1d(wav_j, am2rvm1, axis=0, bounds_error=False)(wav)
     
     return interp1d(w, am2rvm1g, axis=0)    # pass it the wavelength values to return
@@ -97,7 +97,7 @@ answers = (s_alpha, s_rv, s_gamma)
 
 # COMPACT SIMULATION
 comp = interp1d((1 + s_rv / c_kms) * w, s_alpha * c, bounds_error=False)(w)
-Sim_func = interp1d((1 - s_gamma / c_kms) * w, (h + comp) / (1 + s_alpha), bounds_error=False, axis=0)
+Sim_func = interp1d((1 + s_gamma / c_kms) * w, (h + comp) / (1 + s_alpha), bounds_error=False, axis=0)
 sim_f_orgw = Sim_func(w)
 
 sim_w = np.linspace(2114, 2115, 1024)

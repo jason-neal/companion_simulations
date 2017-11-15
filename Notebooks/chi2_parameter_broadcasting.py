@@ -217,7 +217,7 @@ plt.show()
 
 
 c = 500
-vc = (1 - np.arange(10) / c)
+vc = (1 + np.arange(10) / c)
 print(wm.shape)
 print(vc.shape)
 doppler =  wm[:, np.newaxis] *  vc

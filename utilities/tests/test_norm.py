@@ -1,5 +1,3 @@
-import time
-
 import numpy as np
 import pytest
 
@@ -8,7 +6,7 @@ from utilities.norm import (chi2_model_norms, continuum,
                             local_normalization, spec_local_norm)
 
 
-@pytest.mark.parametrize("method1,method2", [
+@pytest.mark.parametrize("method1, method2", [
     ("scalar", "linear"),
     ("quadratic", "scalar"),
     ("quadratic", "exponential")])
@@ -63,7 +61,7 @@ def test_shortening_array(splits):
     assert np.allclose(x, z)
 
 
-@pytest.mark.parametrize("splits,top,size", [
+@pytest.mark.parametrize("splits, top, size", [
     (10, 5, (10,)),  # zero remainder
     (11, 4, (11,)),
     (51, 5, (51,)),

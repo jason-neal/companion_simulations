@@ -1,5 +1,6 @@
-from utilities.errors import get_snrinfo, spectrum_error
 import pytest
+
+from utilities.errors import get_snrinfo, spectrum_error
 
 
 @pytest.mark.parametrize("star, obsnum, chip", [

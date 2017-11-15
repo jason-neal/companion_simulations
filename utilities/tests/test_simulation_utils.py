@@ -1,14 +1,14 @@
 import numpy as np
 import pytest
-
 from spectrum_overload import Spectrum
+
 from utilities.simulation_utilities import (check_inputs, max_delta,
                                             spec_max_delta)
 
 c = 299792.458
 
 
-@pytest.mark.parametrize("xaxis,rv,gamma", [
+@pytest.mark.parametrize("xaxis, rv, gamma", [
     ([1, 2, 3, 4, 5], 3, 5),
     ([1.1, 1.2, 1.3, 1.4, 1.5], 0, -7.1)
 ])
@@ -41,7 +41,7 @@ def test_max_delta_with_empty_arrays(rv, gamma):
     assert 'Empty variable vector' in str(excinfo.value)
 
 
-@pytest.mark.parametrize("inputs,expected", [
+@pytest.mark.parametrize("inputs, expected", [
     (range(5), np.array([0, 1, 2, 3, 4])),
     ("None", np.ndarray([0])),
     (None, np.ndarray([0])),

@@ -1,5 +1,6 @@
-from utilities.masking import get_maskinfo, spectrum_masking
 import pytest
+
+from utilities.masking import get_maskinfo, spectrum_masking
 
 
 @pytest.mark.parametrize("star, obsnum, chip, expected", [

@@ -1,8 +1,10 @@
-import os
-import simulators
-import numpy as np
 import json
+import os
 import warnings
+
+import numpy as np
+
+import simulators
 
 """Calculate Errors on the Spectrum.
 
