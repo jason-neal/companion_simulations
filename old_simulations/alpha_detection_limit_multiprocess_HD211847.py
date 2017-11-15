@@ -35,7 +35,8 @@ from utilities.chisqr import chi_squared, parallel_chisqr
 from utilities.model_convolution import store_convolutions
 from utilities.simulate_obs import \
     generate_observations2 as generate_observations
-from utilities.simulation_utilities import combine_spectra, spectrum_plotter
+from utilities.simulation_utilities import combine_spectra
+from utilities.spectrum_utils import spectrum_plotter
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
