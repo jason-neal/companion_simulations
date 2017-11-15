@@ -5,7 +5,7 @@ from utilities.spectrum_utils import load_spectrum
 
 
 @pytest.mark.xfail
-def test_load_spectrum()
+def test_load_spectrum():
     load_spectrum()
     assert False
     assert isinstance(results, Spectrum)
@@ -31,3 +31,4 @@ def test_spectrum_plotter(spectra, label=None, show=False):
 def test_plot_spectra(obs, model):
     """Plot two spectra."""
     assert False
+
