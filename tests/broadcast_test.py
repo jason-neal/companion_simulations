@@ -27,43 +27,29 @@ def comp():
     return mod_spec
 
 
-def test_models_are_same_with_no_companion(host):
-    """To compare models give equvalient ouptut.
+@pytest.mark.parametrize("gamma, rv", [
+    ([0], [0]),
+    (0, [0]),
+    (0, [0]),
+    ([-1, -2, -3], 1),
+    ([0], [3]),
+    ([-1, 0, 1], [0])
+])
+def test_ocm_and_tcm_models_are_same_with_no_companion(host, gamma, rv):
+    """To compare models give equivalent output.
 
-    If alpha= 0 and rvs = 0.
+    If alpha=0 then there is no companion.
     """
-    ocm = one_comp_model(host.xaxis, host.flux, [1, 2, 3])
-    ocm_eval = ocm(host.xaxis)
-    tcm = two_comp_model(host.xaxis, host.flux, np.ones_like(host.flux), 0, [0], [1, 2, 3])
+    ocm = one_comp_model(host.xaxis, host.flux, gamma)
+    ocm_eval = ocm(host.xaxis).squeeze()
+    tcm = two_comp_model(host.xaxis, host.flux, np.ones_like(host.flux), 0, rv, gamma)
     tcm_eval = tcm(host.xaxis).squeeze()
 
     assert ocm_eval.shape == tcm_eval.shape
-    ocm_eval[np.isnan(ocm_eval)] = 0
-    tcm_eval[np.isnan(tcm_eval)] = 0
 
-    assert np.allclose(ocm_eval, tcm_eval)
-
-
-@pytest.mark.parametrize("alpha,equal", [
-    (0.1, False),
-    (0, True)
-])
-def test_no_tcm_companion(host, alpha, equal):
-    """To compare models give equvalient ouptut.
-
-    If alpha= 0 and rvs = 0.
-    s"""
-
-    tcm = two_comp_model(host.xaxis, host.flux, np.ones_like(host.flux), alpha, 0, [1, 2, 3])
-    tcm2 = two_comp_model(host.xaxis, host.flux, np.zeros_like(host.flux), alpha, 0, [1, 2, 3])
-    tcm_eval = tcm(host.xaxis).squeeze()
-    tcm2_eval = tcm2(host.xaxis).squeeze()
-
-    assert tcm_eval.shape == tcm2_eval.shape
-
-    tcm_eval[np.isnan(tcm_eval)] = 0
-    tcm2_eval[np.isnan(tcm2_eval)] = 0
-    assert np.allclose(tcm_eval, tcm2_eval) is equal
+    o_ravel = ocm_eval.ravel()
+    t_ravel = ocm_eval.ravel()
+    assert np.allclose(o_ravel[~np.isnan(o_ravel)], t_ravel[~np.isnan(t_ravel)])
 
 
 @pytest.mark.xfail()
