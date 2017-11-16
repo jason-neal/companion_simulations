@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from scipy.stats import chisquare
 
-from utilities.chisqr import chi_squared, reduced_chi_squared, spectrum_chisqr
+from mingle.utilities.chisqr import chi_squared, reduced_chi_squared, spectrum_chisqr
 
 
 @pytest.mark.parametrize("observed, expected", [

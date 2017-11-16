@@ -17,19 +17,19 @@ import os
 import sys
 from datetime import datetime as dt
 
-import numpy as np
-
 import matplotlib.pyplot as plt
-import simulators
+import numpy as np
 from astropy.io import fits
+
+import simulators
+from mingle.utilities.crires_utilities import barycorr_crires_spectrum
+from mingle.utilities.debug_utils import pv
+from mingle.utilities.param_file import parse_paramfile
+from mingle.utilities.phoenix_utils import (closest_model_params,
+                                            generate_close_params,
+                                            load_starfish_spectrum)
+from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.bhm_module import bhm_analysis
-from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.debug_utils import pv
-from utilities.param_file import parse_paramfile
-from utilities.phoenix_utils import (closest_model_params,
-                                     generate_close_params,
-                                     load_starfish_spectrum)
-from utilities.spectrum_utils import load_spectrum
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')

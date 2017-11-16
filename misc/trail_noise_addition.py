@@ -2,11 +2,11 @@
 # Test Noise Addition:
 import copy
 
-import numpy as np
-
 import matplotlib.pyplot as plt
+import numpy as np
 from spectrum_overload import Spectrum
-from utilities.simulate_utilities import add_noise
+
+from mingle.utilities.simulation_utilities import add_noise
 
 
 def main():

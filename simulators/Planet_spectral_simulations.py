@@ -10,18 +10,15 @@ from __future__ import division, print_function
 import copy
 import logging
 
-import numpy as np
-
 import matplotlib.pyplot as plt
+import numpy as np
 from astropy.io import fits
 from spectrum_overload import Spectrum
-from utilities.debug_utils import pv
-from utilities.phoenix_utils import load_starfish_spectrum, spec_local_norm
-# from todcor import todcor
-# from todcor import create_cross_correlations
-# from utilities.simulation_utilities import add_noise
-from utilities.simulation_utilities import combine_spectra
-from utilities.spectrum_utils import spectrum_plotter
+
+from mingle.utilities.simulation_utilities import combine_spectra
+from mingle.utilities.phoenix_utils import load_starfish_spectrum, spec_local_norm
+from mingle.utilities.spectrum_utils import spectrum_plotter
+from mingle.utilities.debug_utils import pv
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -156,7 +153,7 @@ def load_starfish_hd211847(limits=None, normalize=False, hdr=False):
 
 def main():
     """Main."""
-    # Load in the pheonix spectra
+    # Load in the phoenix spectra
     pathwave = os.path.join(simulators.starfish_grid["raw_path"], "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits")
     bd_model = "/home/jneal/Phd/data/phoenixmodels/" \
                "HD30501b-lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"

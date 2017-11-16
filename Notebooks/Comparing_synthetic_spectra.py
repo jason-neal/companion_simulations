@@ -42,9 +42,6 @@
 # In[15]:
 
 
-from utilities.phoenix_utils import load_starfish_spectrum
-
-
 # In[ ]:
 
 

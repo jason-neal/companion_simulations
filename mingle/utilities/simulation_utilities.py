@@ -16,8 +16,8 @@ def add_noise(flux, snr):
     """
     sigma = flux / snr
     # Add normal distributed noise at the snr level.
-    noisey_flux = flux + np.random.normal(0, sigma)
-    return noisey_flux
+    noisy_flux = flux + np.random.normal(0, sigma)
+    return noisy_flux
 
 
 def combine_spectra(star, planet, alpha):

@@ -1,7 +1,7 @@
 import pytest
 
 from mingle.models.broadcasted_models import two_comp_model
-from utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 
 @pytest.fixture

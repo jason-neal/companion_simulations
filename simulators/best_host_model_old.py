@@ -17,26 +17,24 @@ import os
 import sys
 from datetime import datetime as dt
 
-import numpy as np
-
 import matplotlib.pyplot as plt
-import simulators
+import numpy as np
 from astropy.io import fits
 from spectrum_overload import Spectrum
-from utilities.chisqr import chi_squared
-from utilities.crires_utilities import (barycorr_crires_spectrum,
-                                        crires_resolution)
-from utilities.debug_utils import pv
-from utilities.model_convolution import convolve_models
-from utilities.param_file import load_param_file
-from utilities.phoenix_utils import \
-    find_phoenix_model_names2 as find_phoenix_model_names
-from utilities.phoenix_utils import (load_phoenix_spectrum,
-                                     phoenix_name_from_params, spec_local_norm)
-from utilities.spectrum_utils import load_spectrum, select_observation
-from utilities.xcorr import xcorr_peak
 
-# sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
+import simulators
+from mingle.utilities.chisqr import chi_squared
+from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
+                                               crires_resolution)
+from mingle.utilities.debug_utils import pv
+from mingle.utilities.model_convolution import convolve_models
+from mingle.utilities.param_file import load_param_file
+from mingle.utilities.phoenix_utils import \
+    find_phoenix_model_names2 as find_phoenix_model_names
+from mingle.utilities.phoenix_utils import (load_phoenix_spectrum,
+                                            phoenix_name_from_params, spec_local_norm)
+from mingle.utilities.spectrum_utils import load_spectrum, select_observation
+from mingle.utilities.xcorr import xcorr_peak
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -63,7 +61,7 @@ def main():
     obs_resolution = crires_resolution(observed_spectra.header)
 
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
-    wav_model /= 10   # turn into nm
+    wav_model /= 10  # turn into nm
     debug("Phoenix wav_model = {}".format(wav_model))
 
     closest_model = phoenix_name_from_params(model_base_dir, host_parameters)
@@ -168,5 +166,6 @@ if __name__ == "__main__":
         print("Endded at: {}".format(end))
         print("Runtime: {}".format(end - start))
         return result
+
 
     sys.exit(time_func(main))

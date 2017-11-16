@@ -15,8 +15,8 @@ import numpy as np
 from spectrum_overload import Spectrum
 
 from mingle.models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
-from utilities.chisqr import chi_squared
-from utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.chisqr import chi_squared
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 # In[3]:
 

@@ -12,29 +12,26 @@ the same I would think unless the lines changed dramatically).
 """
 from __future__ import division, print_function
 
-# import itertools
 import logging
 import os
 import sys
 
-# import matplotlib.pyplot as plt
 import numpy as np
-# import pandas as pd
 import scipy as sp
-from Chisqr_of_observation import load_spectrum  # , select_observation
 from astropy.io import fits
 from tqdm import tqdm
-from two_component_model_HD211847 import save_full_chisqr, tcm_helper_function
 
 import simulators
 from mingle.models.broadcasted_models import two_comp_model
-from utilities.chisqr import chi_squared
-from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.debug_utils import timeit2  # pv,
-from utilities.norm import chi2_model_norms  # , renormalize_observation
-from utilities.phoenix_utils import (closest_model_params,
-                                     generate_close_params,
-                                     load_starfish_spectrum)
+from mingle.utilities.chisqr import chi_squared
+from mingle.utilities.crires_utilities import barycorr_crires_spectrum
+from mingle.utilities.debug_utils import timeit2  # pv,
+from mingle.utilities.norm import chi2_model_norms  # , renormalize_observation
+from mingle.utilities.phoenix_utils import (closest_model_params,
+                                            generate_close_params,
+                                            load_starfish_spectrum)
+from simulators.Chisqr_of_observation import load_spectrum  # , select_observation
+from simulators.tcm_module import save_full_chisqr, tcm_helper_function
 
 # from spectrum_overload import Spectrum
 

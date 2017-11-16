@@ -4,9 +4,9 @@ import os
 from collections import defaultdict
 
 from joblib import Memory
-from utilities.simulation_utilities import combine_spectra
 
-from .models.alpha_model import alpha_model
+from mingle.utilities.simulation_utilities import combine_spectra
+from mingle.models.alpha_model import alpha_model
 
 cachedir = "/home/jneal/.simulation_cache"
 if not os.path.exists(cachedir):
@@ -15,17 +15,17 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 
 def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
-    """Create an simulated obervation for combinations of resolution and snr.
+    """Create an simulated observation for combinations of resolution and snr.
 
     Parameters
     ---------
     model_1: Dict{resolution: Spectrum}
-        Host spectum model convolved to different resolutions.
+        Host spectrum model convolved to different resolutions.
     model_2: Dict{resolution: Spectrum}
-        Companion spectum model convolved to different resolutions.
+        Companion spectrum model convolved to different resolutions.
     rv: float
        Rv offset applied to model_2.
-    alpha: flaot
+    alpha: float
         Flux ratio I(model_2)/I(model_1).
     resolutions: list of int
         List of resolutions to simulate.
@@ -35,7 +35,7 @@ def generate_observations(model_1, model_2, rv, alpha, resolutions, snrs):
     Returns
     -------
     observations: dict{resolution: dict{snr: Spectrum}}
-        Simulated obserable spectra.
+        Simulated observable spectra.
 
     """
     observations = defaultdict(dict)

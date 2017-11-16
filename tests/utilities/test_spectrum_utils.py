@@ -1,7 +1,7 @@
 import pytest
 from spectrum_overload import Spectrum
 
-from utilities.spectrum_utils import load_spectrum
+from mingle.utilities.spectrum_utils import load_spectrum
 
 
 @pytest.mark.xfail

@@ -8,9 +8,9 @@ from tqdm import tqdm
 
 import simulators
 from mingle.models.broadcasted_models import one_comp_model
-from utilities.chisqr import chi_squared
-from utilities.phoenix_utils import load_starfish_spectrum
-from utilities.xcorr import xcorr_peak
+from mingle.utilities.chisqr import chi_squared
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.xcorr import xcorr_peak
 
 debug = logging.debug
 

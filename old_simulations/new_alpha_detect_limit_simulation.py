@@ -9,10 +9,10 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
-from Planet_spectral_simulations import load_PHOENIX_hd30501
+from simulators.Planet_spectral_simulations import load_PHOENIX_hd30501
 
 from mingle.models.alpha_model import alpha_model
-from utilities.chisqr import parallel_chisqr
+from mingle.utilities.chisqr import parallel_chisqr
 
 # self written modules
 

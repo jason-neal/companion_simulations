@@ -15,17 +15,14 @@ import ephem
 import matplotlib.pyplot as plt
 import multiprocess as mprocess
 import numpy as np
-from Planet_spectral_simulations import load_PHOENIX_hd30501
+from mingle.Planet_spectral_simulations import load_PHOENIX_hd30501
 
 from mingle.models.alpha_model import alpha_model2
-from utilities.chisqr import parallel_chisqr
-from utilities.crires_utilities import (barycorr_crires_spectrum,
-                                        crires_resolution)
-# from utilities.debug_utils import pv
-from utilities.model_convolution import convolve_models  # , apply_convolution
-from utilities.spectrum_utils import load_spectrum, select_observation
-
-# from utilities.simulation_utilities import combine_spectra
+from mingle.utilities.chisqr import parallel_chisqr
+from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
+                                               crires_resolution)
+from mingle.utilities.model_convolution import convolve_models  # , apply_convolution
+from mingle.utilities.spectrum_utils import load_spectrum, select_observation
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')

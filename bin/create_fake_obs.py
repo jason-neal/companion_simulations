@@ -4,7 +4,7 @@
 from spectrum_overload import Spectrum
 
 from mingle.models.broadcasted_models import inherent_alpha_model
-from utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 
 def _parser():

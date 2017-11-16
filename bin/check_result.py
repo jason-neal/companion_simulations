@@ -6,14 +6,14 @@ import sys
 
 import matplotlib.pyplot as plt
 from spectrum_overload import Spectrum
+from mingle.utilities.masking import spectrum_masking
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.spectrum_utils import load_spectrum
 
-from simulators.iam_module import iam_helper_function
 from mingle.models.broadcasted_models import (independent_inherent_alpha_model,
-                 inherent_alpha_model)
-from utilities.errors import spectrum_error
-from utilities.masking import spectrum_masking
-from utilities.phoenix_utils import load_starfish_spectrum
-from utilities.spectrum_utils import load_spectrum
+                                              inherent_alpha_model)
+from mingle.utilities.errors import spectrum_error
+from simulators.iam_module import iam_helper_function
 
 
 def _parser():

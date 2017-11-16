@@ -4,14 +4,14 @@ import os
 import lmfit
 import matplotlib.pyplot as plt
 import numpy as np
-from Planet_spectral_simulations import simple_normalization
 from astropy.io import fits
 from lmfit import Parameters, minimize
 from spectrum_overload import Spectrum
 
 import simulators
 from mingle.models.alpha_model import double_shifted_alpha_model
-from utilities.phoenix_utils import local_normalization, spec_local_norm
+from mingle.utilities.phoenix_utils import local_normalization, spec_local_norm
+from simulators.Planet_spectral_simulations import simple_normalization
 
 
 def alpha_model_residual(params, x, data, eps_data, host_models, companion_models):

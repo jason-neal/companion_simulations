@@ -14,23 +14,21 @@ import os
 import sys
 
 import numpy as np
-
-import simulators
 from astropy.io import fits
 from joblib import Parallel, delayed
+from mingle.utilities.crires_utilities import barycorr_crires_spectrum
+from mingle.utilities.masking import spectrum_masking
+from mingle.utilities.phoenix_utils import (closest_model_params,
+                                     generate_close_params_with_simulator)
+from mingle.utilities.simulation_utilities import check_inputs
+from mingle.utilities.spectrum_utils import load_spectrum
 
-from bin.coadd_chi2_db import main as coadd_db
+import simulators
 from bin.coadd_analysis_script import main as coadd_analysis
+from bin.coadd_chi2_db import main as coadd_db
+from mingle.utilities.errors import spectrum_error
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    parallel_iam_analysis)
-from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.errors import spectrum_error
-from utilities.masking import spectrum_masking
-from utilities.phoenix_utils import (closest_model_params,
-                                     generate_close_params,
-                                     generate_close_params_with_simulator)
-from utilities.simulation_utilities import check_inputs
-from utilities.spectrum_utils import load_spectrum
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')

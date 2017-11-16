@@ -10,14 +10,13 @@ import time
 from collections import defaultdict
 
 import numpy as np
-
 import scipy
 import tqdm
-from Planet_spectral_simulations import load_PHOENIX_hd30501
-# from utilities.simulation_utilities import add_noise
-from utilities.chisqr import chi_squared
-from utilities.model_convolution import apply_convolution, store_convolutions
-from utilities.simulate_obs import generate_noise_observations
+
+from mingle.utilities.chisqr import chi_squared
+from mingle.utilities.model_convolution import apply_convolution, store_convolutions
+from mingle.utilities.simulate_obs import generate_noise_observations
+from simulators.Planet_spectral_simulations import load_PHOENIX_hd30501
 
 
 def main():
@@ -35,7 +34,7 @@ def main():
     # org_bd_spec = Spectrum(xaxis=w_mod, flux=I_bdmod, calibrated=True)
 
     resolutions = [50000]
-    snrs = [100, 101, 110, 111]   # Signal to noise levels
+    snrs = [100, 101, 110, 111]  # Signal to noise levels
     # alphas = 10**np.linspace(-5, -0.2, 200)
     # RVs = np.arange(10, 30, 0.1)
 
@@ -86,20 +85,20 @@ def main():
         #    goal_planet = copy.copy(goal_planet_shifted)
         # else:
         #    ip_xaxis, ip_flux = IPconvolution(org_star_spec.xaxis,
-    #             org_star_spec.flux, chip_limits, resolution,
-    #            FWHM_lim=5.0, plot=False, verbose=True)
+        #             org_star_spec.flux, chip_limits, resolution,
+        #            FWHM_lim=5.0, plot=False, verbose=True)
 
-    #        star_spec = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
+        #        star_spec = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
         #                                 calibrated=True,
         #                                 header=org_star_spec.header)
 
-    #        ip_xaxis, ip_flux = IPconvolution(goal_planet_shifted.xaxis,
-    #            goal_planet_shifted.flux, chip_limits, resolution,
-    #            FWHM_lim=5.0, plot=False, verbose=False)
+        #        ip_xaxis, ip_flux = IPconvolution(goal_planet_shifted.xaxis,
+        #            goal_planet_shifted.flux, chip_limits, resolution,
+        #            FWHM_lim=5.0, plot=False, verbose=False)
 
-    #        goal_planet = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
-    #                                     calibrated=True,
-    #                                     header=goal_planet_shifted.header)
+        #        goal_planet = Spectrum(xaxis=ip_xaxis, flux=ip_flux,
+        #                                     calibrated=True,
+        #                                     header=goal_planet_shifted.header)
 
         print("Starting SNR loop for resolution value of {}".format(resolution))
         for snr in snrs:
@@ -171,15 +170,15 @@ def main():
 
             for key, val in chisqr_snr_dict.items():
                 np.save(os.path.join(path,
-                        "scipy_chisquare_data_snr_{0}_res{1}".format(key,
-                                                                     resolution
-                                                                     )
+                                     "scipy_chisquare_data_snr_{0}_res{1}".format(key,
+                                                                                  resolution
+                                                                                  )
                                      ), val)
             for key, val in error_chisqr_snr_dict.items():
                 np.save(os.path.join(path,
-                        "error_chisquare_data_snr_{0}_res{1}".format(key,
-                                                                     resolution
-                                                                     )
+                                     "error_chisquare_data_snr_{0}_res{1}".format(key,
+                                                                                  resolution
+                                                                                  )
                                      ), val)
             # Store in dictionary
             res_stored_chisquared[resolution] = chisqr_snr_dict

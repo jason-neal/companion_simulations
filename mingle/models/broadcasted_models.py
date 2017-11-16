@@ -1,11 +1,8 @@
 """Companion simulate models using Broadcasting."""
 import numpy as np
-
 from scipy.interpolate import interp1d
-from utilities.debug_utils import timeit2
 
 
-@timeit2
 def one_comp_model(wav, model1, gammas):
     """Make 1 component simulations, broadcasting over gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
@@ -32,7 +29,6 @@ def check_broadcastable(var):
     return var
 
 
-# @timeit2
 def two_comp_model(wav, model1, model2, alphas, rvs, gammas, kind="quadratic"):
     """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
@@ -59,7 +55,6 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas, kind="quadratic"):
     return interp1d(wav, am2rvm1g, kind=kind, bounds_error=False, axis=0)  # pass it the wavelength values to return
 
 
-# @timeit2
 def two_comp_model_with_transpose(wav, model1, model2, alphas, rvs, gammas):
     """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
@@ -86,7 +81,6 @@ def two_comp_model_with_transpose(wav, model1, model2, alphas, rvs, gammas):
     return interp1d(wav, am2rvm1g, axis=0)  # pass it the wavelength values to return
 
 
-# @timeit2
 def inherent_alpha_model(wav, model1, model2, rvs, gammas, kind="linear"):
     """Make 2 component simulations, broadcasting over, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)

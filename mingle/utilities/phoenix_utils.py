@@ -5,26 +5,21 @@ i.e. searching for models with certain parameters
 
 Jason Neal, January 2017
 """
-import copy
 import glob
 import itertools
 import logging
 import os
 
 import numpy as np
+from Starfish.grid_tools import HDF5Interface
+from astropy.io import fits
+from spectrum_overload import Spectrum
 
 # from typing import List
-import matplotlib.pyplot as plt
 import simulators
-from astropy.io import fits
-# from utilities.debug_utils import pv
-# from astropy.modeling import models, fitting
-from spectrum_overload import Spectrum
-# import Starfish
-from Starfish.grid_tools import HDF5Interface
-from utilities.norm import local_normalization, spec_local_norm
-from utilities.param_file import parse_paramfile
-from utilities.simulation_utilities import check_inputs
+from mingle.utilities.norm import spec_local_norm
+from mingle.utilities.param_file import parse_paramfile
+from mingle.utilities.simulation_utilities import check_inputs
 
 debug = logging.debug
 
@@ -165,7 +160,7 @@ def phoenix_area(header):
     # BUNIT 	'erg/s/cm^2/cm' 	Unit of flux
     # PHXREFF 	67354000000.0	[cm] Effective stellar radius
     radius = header["PHXREFF"] * 1e-11  # cm to Gm
-    surface_area = np.pi * radius ** 2  #  towards Earth
+    surface_area = np.pi * radius ** 2  # towards Earth
     return surface_area
 
 

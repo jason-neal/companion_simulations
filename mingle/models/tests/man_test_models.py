@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from mingle.models.alpha_model import alpha_model2
 from mingle.models.alpha_model import no_alpha
-from utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 """Try out the models and how they look.
 """

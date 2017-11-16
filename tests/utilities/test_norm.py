@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from utilities.norm import (chi2_model_norms, continuum,
-                            get_continuum_points,
-                            local_normalization, spec_local_norm)
+from mingle.utilities.norm import (chi2_model_norms, continuum,
+                              get_continuum_points,
+                              local_normalization, spec_local_norm)
 
 
 @pytest.mark.parametrize("method1, method2", [

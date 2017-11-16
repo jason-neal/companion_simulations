@@ -1,10 +1,8 @@
 """Normalization codes."""
 import copy
 
-import numpy as np
-
 import matplotlib.pyplot as plt
-from utilities.debug_utils import timeit2
+import numpy as np
 
 
 def spec_local_norm(spectrum, splits=50, method="quadratic", plot=False, top=20):

@@ -11,11 +11,11 @@ from scipy.stats import chi2
 from spectrum_overload import Spectrum
 
 from mingle.models.broadcasted_models import inherent_alpha_model
-from utilities.chisqr import reduced_chi_squared
-from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.debug_utils import timeit2
-from utilities.phoenix_utils import load_starfish_spectrum
-from utilities.spectrum_utils import load_spectrum
+from mingle.utilities.crires_utilities import barycorr_crires_spectrum
+from mingle.utilities.spectrum_utils import load_spectrum
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.chisqr import reduced_chi_squared
+from mingle.utilities.debug_utils import timeit2
 
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)

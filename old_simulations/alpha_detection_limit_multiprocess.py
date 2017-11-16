@@ -26,17 +26,17 @@ import matplotlib.pyplot as plt
 import multiprocess as mprocess
 import numpy as np
 import scipy.stats
-from Planet_spectral_simulations import load_PHOENIX_hd30501
 from joblib import Memory
 from tqdm import tqdm
 
 from mingle.models.alpha_model import alpha_model
-from utilities.chisqr import chi_squared, parallel_chisqr
-from utilities.model_convolution import store_convolutions
-from utilities.simulate_obs import \
+from mingle.utilities.chisqr import chi_squared, parallel_chisqr
+from mingle.utilities.model_convolution import store_convolutions
+from mingle.utilities.simulate_obs import \
     generate_observations2 as generate_observations
-from utilities.simulation_utilities import combine_spectra
-from utilities.spectrum_utils import spectrum_plotter
+from mingle.utilities.simulation_utilities import combine_spectra
+from mingle.utilities.spectrum_utils import spectrum_plotter
+from simulators.Planet_spectral_simulations import load_PHOENIX_hd30501
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
@@ -119,8 +119,8 @@ def main():
 
     # resolutions = [None, 50000]
     resolutions = [50000, 100000]
-    snrs = [50, 100, 1000]   # Signal to noise levels
-    alphas = 10**np.linspace(-5, -1, 1000)
+    snrs = [50, 100, 1000]  # Signal to noise levels
+    alphas = 10 ** np.linspace(-5, -1, 1000)
     rvs = np.arange(1, 35, 0.15)
     x, y = np.meshgrid(rvs, alphas, indexing="xy")
     # resolutions = [None, 1000, 10000, 50000, 100000, 150000, 200000]
@@ -140,7 +140,7 @@ def main():
                                                chip_limits=chip_limits)
     convolved_planet_models = store_convolutions(org_bd_spec, resolutions,
                                                  chip_limits=chip_limits)
-    print("Convolution of models took {} seconds". format(dt.now() - time_init))
+    print("Convolution of models took {} seconds".format(dt.now() - time_init))
 
     simulated_observations = generate_observations(convolved_star_models,
                                                    convolved_planet_models,
@@ -235,9 +235,9 @@ def main():
 
         """
         pickle.dump((resolutions, snrs, alphas, rvs, input_parameters,
-                    simulated_observations, convolved_star_models,
-                    convolved_planet_models, res_snr_chisqr_dict,
-                    error_res_snr_chisqr_dict), f)
+                     simulated_observations, convolved_star_models,
+                     convolved_planet_models, res_snr_chisqr_dict,
+                     error_res_snr_chisqr_dict), f)
 
         plot_after_running(resolutions, snrs, alphas, rvs, input_parameters,
                            simulated_observations, convolved_star_models,
@@ -249,7 +249,6 @@ def plot_after_running(resolutions, snrs, alphas, rvs, input_parameters,
                        simulated_observations, convolved_star_models,
                        convolved_planet_models, res_snr_chisqr_dict,
                        error_res_snr_chisqr_dict):
-
     x, y = np.meshgrid(rvs, alphas)
 
     for resolution in resolutions:

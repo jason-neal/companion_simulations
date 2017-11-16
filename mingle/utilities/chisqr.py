@@ -1,13 +1,9 @@
-"""Chisquared calculation."""
+"""Chi-squared calculation."""
 
 import numpy as np
 from joblib import Parallel, delayed
 
 
-# from numba import jit
-
-
-# @jit
 def chi_squared(observed, expected, error=None, axis=0):
     """Calculate chi squared.
 

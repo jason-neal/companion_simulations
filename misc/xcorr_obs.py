@@ -4,19 +4,19 @@ import itertools
 import os
 from collections import defaultdict
 
-import numpy as np
-
 import matplotlib.pyplot as plt
-import simulators
-from astropy.io import fits
+import numpy as np
 from Chisqr_of_observation import load_spectrum
+from astropy.io import fits
 from joblib import Memory
 from spectrum_overload import Spectrum
 from tqdm import tqdm
 from utilities.chisqr import spectrum_chisqr
 from utilities.crires_utilities import crires_resolution
-from utilities.model_convolution import apply_convolution
 from utilities.phoenix_utils import spec_local_norm
+
+import simulators
+from mingle.utilities.model_convolution import apply_convolution
 
 cachedir = simulators.paths["output_dir"]
 if not os.path.exists(cachedir):

@@ -13,7 +13,6 @@ the same I would think unless the lines changed dramatically).
 """
 from __future__ import division, print_function
 
-# import itertools
 import argparse
 import logging
 import os
@@ -23,14 +22,13 @@ import numpy as np
 from astropy.io import fits
 
 import simulators
+from mingle.utilities.crires_utilities import barycorr_crires_spectrum
+from mingle.utilities.errors import spectrum_error
+from mingle.utilities.masking import spectrum_masking
+from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
+from mingle.utilities.spectrum_utils import load_spectrum  # , select_observation
 from simulators.tcm_module import (parallel_tcm_analysis, tcm_analysis,
                                    tcm_helper_function)
-from utilities.chisqr import chi_squared
-from utilities.crires_utilities import barycorr_crires_spectrum
-from utilities.errors import spectrum_error
-from utilities.masking import spectrum_masking
-from utilities.phoenix_utils import closest_model_params, generate_close_params
-from utilities.spectrum_utils import load_spectrum  # , select_observation
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')

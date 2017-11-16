@@ -7,8 +7,6 @@ import scipy
 import sqlalchemy as sa
 from matplotlib import pyplot as plt
 
-from utilities.debug_utils import timeit2
-
 
 def alpha_rv_plot(engine, params, tb_name):
     df = pd.read_sql(sa.text('SELECT alpha, rv, chi2, teff_2 FROM {0}'.format(tb_name)), engine)
@@ -29,7 +27,6 @@ def alpha_rv_plot(engine, params, tb_name):
     # plt.show()
 
 
-@timeit2
 def fix_host_parameters(engine, params, tb_name):
     print("Fixed host analysis.")
     nrows, ncols = 3, 2
@@ -108,7 +105,6 @@ def parabola(x, a, b, c):
     return a * x ** 2 + b * x + c
 
 
-@timeit2
 def fix_host_parameters_reduced_gamma(engine, params, tb_name):
     print("Fixed host analysis.")
     d_gamma = 5

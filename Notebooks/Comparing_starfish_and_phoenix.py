@@ -8,12 +8,11 @@
 # In[1]:
 
 
-from spectrum_overload import Spectrum
-from utilities.phoenix_utils import load_starfish_spectrum
-
-from astropy.io import fits
 import matplotlib.pyplot as plt
+from astropy.io import fits
+from spectrum_overload import Spectrum
 
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 # In[2]:
 
@@ -61,7 +60,6 @@ for name, mod1_spec, mod2_spec in zip(["area scaled", "area unscaled"],
 
 
 # Manually load Phoenix spectra
-import simulators
 #phoenix_path = simulators...
 phoenix_path = "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
 
@@ -87,7 +85,7 @@ plt.show()
 # In[4]:
 
 
-from Convolution.IP_multi_Convolution import ip_convolution, convolve_spectrum
+from Convolution.IP_multi_Convolution import convolve_spectrum
 
 # Convolve to 50000
 conv1 = convolve_spectrum(spec1, [2100, 2150], 50000, numProcs=4)

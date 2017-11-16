@@ -10,7 +10,7 @@ from mingle.models.broadcasted_models import (check_broadcastable,
                                               inherent_alpha_model, one_comp_model,
                                               two_comp_model,
                                               two_comp_model_with_transpose)
-from utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 
 @pytest.fixture

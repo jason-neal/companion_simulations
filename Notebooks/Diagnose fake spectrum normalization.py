@@ -11,10 +11,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from simulators.iam_module import prepare_iam_model_spectra, continuum_alpha
 from mingle.models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
-from utilities.norm import continuum
-from utilities.simulation_utilities import spec_max_delta
+from mingle.utilities.norm import continuum
+from mingle.utilities.simulation_utilities import spec_max_delta
+from simulators.iam_module import prepare_iam_model_spectra, continuum_alpha
 
 
 # In[2]:

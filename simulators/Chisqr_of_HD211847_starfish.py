@@ -16,15 +16,15 @@ import matplotlib.pyplot as plt
 import multiprocess as mprocess
 import numpy as np
 from Get_filenames import get_filenames
-from Planet_spectral_simulations import (load_starfish_hd211847)
 from astropy.io import fits
 from spectrum_overload import Spectrum
 
 from mingle.models.alpha_model import alpha_model2
-from utilities.chisqr import parallel_chisqr  # , alpha_model
-from utilities.crires_utilities import (barycorr_crires_spectrum,
-                                        crires_resolution)
-from utilities.debug_utils import pv
+from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
+                              crires_resolution)
+from mingle.utilities.chisqr import parallel_chisqr
+from mingle.utilities.debug_utils import pv
+from simulators.Planet_spectral_simulations import (load_starfish_hd211847)
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -127,7 +127,7 @@ def main(star="HD211847", obs_num="2", chip=1):
         observed_spectra.wav_select(observed_spectra.xaxis[40], observed_spectra.xaxis[-1])
 
     # observed_spectra.flux = observed_spectra.flux / float(np.median(observed_spectra.flux[observed_spectra.flux > 1]))
-    observed_spectra.flux = observed_spectra.flux / 1.02   # This changes the flux ratio.
+    observed_spectra.flux = observed_spectra.flux / 1.02  # This changes the flux ratio.
     # Load models
     # host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd30501(limits=[2100, 2200], normalize=True)
     # host_spectrum_model, companion_spectrum_model = load_PHOENIX_hd211847(limits=[2100, 2200], normalize=True)
@@ -152,7 +152,7 @@ def main(star="HD211847", obs_num="2", chip=1):
         host_params = parameters[star]
     except:
         raise ValueError("Parameters for {} are not in parameters list. Improve this.".format(star))
-    host_params[1] = host_params[1] / 1000   # Convert K! to km/s
+    host_params[1] = host_params[1] / 1000  # Convert K! to km/s
     host_params[2] = np.deg2rad(host_params[2])  # Omega needs to be in radians for ajplanet
 
     obs_time = observed_spectra.header["DATE-OBS"]
@@ -168,13 +168,13 @@ def main(star="HD211847", obs_num="2", chip=1):
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum  (at the ends)
     berv_corrected_observed_spectra.wav_select(*berv_corrected_observed_spectra.xaxis[
-                                               np.isfinite(berv_corrected_observed_spectra.flux)][[0, -1]])
+        np.isfinite(berv_corrected_observed_spectra.flux)][[0, -1]])
 
     plot_obs_with_model(berv_corrected_observed_spectra, host_spectrum_model,
                         companion_spectrum_model, title="After BERV Correction")
 
     # Chisquared fitting
-    alphas = 10**np.linspace(-4, -0.35, 100)
+    alphas = 10 ** np.linspace(-4, -0.35, 100)
     # rvs = np.arange(-50, 50, 0.05)
     rvs = np.arange(-100, 100, 0.1)
 
@@ -252,7 +252,7 @@ def main(star="HD211847", obs_num="2", chip=1):
     with open(os.path.join(path, pickle_name), "wb") as f:
         """Pickle all the necessary parameters to store."""
         pickle.dump((rvs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,
-                    rv_solution, alpha_solution, min_chisqr, min_loc, solution_model), f)
+                     rv_solution, alpha_solution, min_chisqr, min_loc, solution_model), f)
 
 
 if __name__ == "__main__":
