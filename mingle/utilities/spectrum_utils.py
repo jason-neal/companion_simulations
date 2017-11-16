@@ -1,7 +1,7 @@
 import logging
 import os
 
-from Get_filenames import get_filenames
+from mingle.utilities.io import get_filenames
 from astropy.io import fits
 from matplotlib import pyplot as plt
 from spectrum_overload import Spectrum

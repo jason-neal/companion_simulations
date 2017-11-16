@@ -15,7 +15,7 @@ import ephem
 import matplotlib.pyplot as plt
 import multiprocess as mprocess
 import numpy as np
-from Get_filenames import get_filenames
+from mingle.utilities.io import get_filenames
 from astropy.io import fits
 from spectrum_overload import Spectrum
 
