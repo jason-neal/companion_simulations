@@ -1,20 +1,18 @@
 #!/usr/bin/env python
 """Run bhm analysis for HD211847."""
 import argparse
-import itertools
 import os
-import sys
 
 import numpy as np
 import pandas as pd
+
+import simulators
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
+from mingle.utilities.errors import spectrum_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
 from mingle.utilities.spectrum_utils import load_spectrum
-
-import simulators
-from mingle.utilities.errors import spectrum_error
 from simulators.bhm_module import bhm_analysis
 
 
@@ -44,10 +42,10 @@ def bhm_helper_function(star, obs_num, chip):
     obs_name = os.path.join(
         simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
 
-    output_name = os.path.join(
+    output_prefix = os.path.join(
         simulators.paths["output_dir"], star.upper(),
-        "{0}-{1}_{2}_bhm_chisqr_results.dat".format(star.upper(), obs_num, chip))
-    return obs_name, params, output_name
+        "{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obs_num, chip))
+    return obs_name, params, output_prefix
 
 
 def get_model_pars(params, method="close"):
@@ -58,10 +56,9 @@ def get_model_pars(params, method="close"):
         host_params = [params["temp"], params["logg"], params["fe_h"]]
         # comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
         closest_host_model = closest_model_params(*host_params)
-        print("Closest model params = ", closest_host_model)
+
         # Model parameters to try iterate over.
         model_pars = list(generate_close_params(closest_host_model))
-
     else:
         raise ValueError("The method '{0}' is not valid".format(method))
 
@@ -99,8 +96,10 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     gammas = np.arange(*simulators.sim_grid["gammas"])
     print("bhm gammas", gammas)
 
-    obs_name, params, output_name = bhm_helper_function(star, obs_num, chip)
+    obs_name, params, output_prefix = bhm_helper_function(star, obs_num, chip)
 
+    if suffix is not None:
+        output_prefix = output_prefix + str(suffix)
     print("The observation used is ", obs_name, "\n")
 
     # Host Model parameters to iterate over
@@ -118,8 +117,8 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     except KeyError as e:
         errors = None
 
-    print("before bhm_analysis")
-    chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False, wav_scale=wav_scale)
+    chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False,
+                              wav_scale=wav_scale, prefix=output_prefix)
     print("after bhm_analysis")
 
     (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
@@ -178,4 +177,4 @@ if __name__ == "__main__":
         for chip in chips:
             main(star, obs, chip, **opts)
 
-    # sys.exit(main(**opts))
+            # sys.exit(main(**opts))

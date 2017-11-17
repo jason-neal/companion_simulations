@@ -101,8 +101,6 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
         closest_host_model, "host", small="host", limits="phoenix"))
     model2_pars = list(generate_close_params_with_simulator(
         closest_comp_model, "companion", small=small, limits="phoenix"))
-    # model1_pars = list(generate_close_params(closest_host_model, small="host"))
-    # model2_pars = list(generate_close_params(closest_comp_model, small=small))
 
     # Load observation
     obs_spec = load_spectrum(obs_name)

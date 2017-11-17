@@ -1,5 +1,6 @@
 import copy
 import logging
+import os
 
 import numpy as np
 import pandas as pd
@@ -15,7 +16,8 @@ from mingle.utilities.xcorr import xcorr_peak
 debug = logging.debug
 
 
-def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, verbose=False, norm=False, wav_scale=True):
+def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, verbose=False, chip=None, norm=False,
+                 wav_scale=True):
     """Run one component model over all parameter combinations in model_pars."""
     # Gammas
     if gammas is None:
@@ -26,7 +28,6 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, verbose=False, 
     if isinstance(model_pars, list):
         debug("Number of close model_pars returned {}".format(len(model_pars)))
 
-    print(model_pars)
     # Solution Grids to return
     model_chisqr_vals = np.empty(len(model_pars))
     model_xcorr_vals = np.empty(len(model_pars))
@@ -38,12 +39,19 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, verbose=False, 
     normalization_limits = [2105, 2185]  # small as possible?
 
     for ii, params in enumerate(tqdm(model_pars)):
-        save_name = os.path.join(
-            simulators.paths["output_dir"], obs_spec.header["OBJECT"],
-            "bhm_{0}_{1}_part{2}.csv".format(
-                obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), ii))
+        if prefix is None:
+            save_name = os.path.join(
+                simulators.paths["output_dir"], obs_spec.header["OBJECT"],
+                "bhm_{0}_{1}_{3}_part{2}.csv".format(
+                    obs_spec.header["OBJECT"], obs_spec.header["MJD-OBS"], ii, chip))
+        else:
+            save_name = os.path.join(
+                simulators.paths["output_dir"], obs_spec.header["OBJECT"],
+                "{0}_part{1}.csv".format(prefix, ii))
+
         if verbose:
             print("Starting iteration with parameter:s\n{}".format(params))
+
         mod_spec = load_starfish_spectrum(params, limits=normalization_limits, hdr=True,
                                           normalize=True, wav_scale=wav_scale)
 

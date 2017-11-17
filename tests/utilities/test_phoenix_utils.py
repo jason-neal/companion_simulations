@@ -81,6 +81,7 @@ def test_phoenix_area():
 
 
 def test_gen_new_param_values():
+    # temp, logg, metal
     x, y, z = gen_new_param_values(100, 1, 0, small=False)
     print("X=", x)
     assert np.all(x == [-400, -300, -200, -100, 0, 100, 200, 300, 400, 500, 600])
@@ -89,6 +90,7 @@ def test_gen_new_param_values():
 
 
 def test_gen_new_param_values_with_host():
+    # temp, logg, metal
     x, y, z = gen_new_param_values(5000, 2, 1, small="host")
 
     assert np.all(x == np.array([4900, 5000, 5100]))
