@@ -41,7 +41,8 @@ def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
     return spec
 
 
-def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area_scale=False, flux_rescale=False):
+def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
+                           area_scale=False, flux_rescale=False, wav_scale=True):
     """Load spectrum from hdf5 grid file.
 
     Parameters
@@ -58,6 +59,8 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area
         Multiply by stellar surface area pi*R**2 (towards Earth)
     flux_rescale: bool
         Convert from /cm to /nm by dividing by 1e7
+    wav_scale: bool
+        Multiply by wavelength to turn into [erg/s/cm^2]
 
     Returns
     -------
@@ -82,6 +85,11 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False, area
             spec = spec * phoenix_area(spec.header)
         else:
             raise ValueError("No header provided for stellar area scaling")
+
+    if wav_scale:
+        # Convert into photon counts, (constants ignored)
+        spec = spec * spec.xaxis
+
     if normalize:
         spec = spec_local_norm(spec, method="exponential")
 

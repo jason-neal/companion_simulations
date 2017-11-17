@@ -69,14 +69,17 @@ def _parser():
                         help='Use smaller subset of parameters.')
     parser.add_argument('-a', '--area_scale', action="store_false",
                         help='Scaling by stellar area. (raise to disable)')
+    parser.add_argument('--disable_wav_scale', action="store_true",
+                        help='Disable scaling by wavelength'.'
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
 
     return parser.parse_args()
 
 
 def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
-         suffix=None, error_off=False, area_scale=True):
+         suffix=None, error_off=False, area_scale=True, disable_wav_scale=False):
     """Main function."""
+    wav_scale = not disable_wav_scale
     if chip is None:
         chip = 4
 
@@ -124,12 +127,12 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
                                            rvs, gammas, verbose=verbose,
                                            norm=True, prefix=output_prefix,
                                            save_only=True, errors=errors,
-                                           area_scale=area_scale)
+                                           area_scale=area_scale, wav_scale=wav_scale)
     else:
         chi2_grids = iam_analysis(obs_spec, model1_pars, model2_pars, rvs,
                                   gammas, verbose=verbose, norm=True,
                                   prefix=output_prefix, errors=errors,
-                                  area_scale=area_scale)
+                                  area_scale=area_scale, wav_scale=wav_scale)
 
     ####
     # Print TODO
