@@ -22,8 +22,8 @@ from bin.coadd_analysis_module import (chi2_parabola_plots, compare_spectra,
                                        get_column_limits, get_npix_values,
                                        parabola_plots, rv_plot,
                                        smallest_chi2_values, test_figure)
-from mingle.utilities.param_file import closest_model_params
-from mingle.utilities.phoenix_utils import get_host_params
+from mingle.utilities.phoenix_utils import closest_model_params
+from mingle.utilities.param_file import get_host_params
 
 
 def _parser():
