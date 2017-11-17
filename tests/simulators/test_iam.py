@@ -4,10 +4,10 @@ import numpy as np
 import pytest
 from spectrum_overload import Spectrum
 
-import tests.simulators
-from tests.simulators.iam_module import (continuum_alpha, iam_analysis,
-                                         iam_helper_function, iam_wrapper,
-                                         parallel_iam_analysis)
+import simulators
+from simulators.iam_module import (continuum_alpha, iam_analysis,
+                                   iam_helper_function, iam_wrapper,
+                                   parallel_iam_analysis)
 
 
 @pytest.mark.parametrize("star, obs, chip", [
@@ -51,7 +51,7 @@ def test_iam_wrapper(host, comp):
     obs_spec = host.copy()
     obs_spec.flux += comp.flux
     obs_spec.header.update({"OBJECT": "Test_object"})
-    os.makedirs(os.path.join(tests.simulators.paths["output_dir"], "Test_object", "grid_plots"), exist_ok=True)
+    os.makedirs(os.path.join(simulators.paths["output_dir"], "Test_object", "grid_plots"), exist_ok=True)
     result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
                          gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
                          save_only=True, chip=1, prefix="Testtestest")

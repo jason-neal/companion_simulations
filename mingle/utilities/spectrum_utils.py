@@ -50,21 +50,20 @@ def load_spectrum(name, corrected=True):
     return spectrum
 
 
-# I should already have these sorts of functions
 def select_observation(star, obs_num, chip):
     """Select the observation to load in.
 
-    inputs:
+    Inputs:
     star: name of host star target
     obs_num: observation number
-    chip: crires detector chip number
+    chip: Crires detector chip number
 
-    returns:
+    Returns:
     crires_name: name of file
     """
     if str(chip) not in "1234":
         print("The Chip is not correct. It needs to be 1,2,3 or 4")
-        raise Exception("Chip Error")
+        raise ValueError("Chip Error")
     else:
         # New reduction and calibration
         path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/2017/{}-"

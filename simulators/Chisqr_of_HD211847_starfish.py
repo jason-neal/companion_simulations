@@ -15,15 +15,15 @@ import ephem
 import matplotlib.pyplot as plt
 import multiprocess as mprocess
 import numpy as np
-from mingle.utilities.io import get_filenames
 from astropy.io import fits
 from spectrum_overload import Spectrum
 
 from mingle.models.alpha_model import alpha_model2
-from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
-                              crires_resolution)
 from mingle.utilities.chisqr import parallel_chisqr
+from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
+                                               crires_resolution)
 from mingle.utilities.debug_utils import pv
+from mingle.utilities.spectrum_utils import select_observation
 from simulators.Planet_spectral_simulations import (load_starfish_hd211847)
 
 logging.basicConfig(level=logging.DEBUG,
@@ -48,42 +48,6 @@ def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
         plt.title(title)
     if show:
         plt.show()
-
-
-# I should already have these sorts of functions
-def select_observation(star, obs_num, chip):
-    """Select the observation to load in.
-
-    inputs:
-    star: name of host star target
-    obs_num: observation number
-    chip: crires detetor chip number
-
-    returns:
-    crires_name: name of file
-    """
-    if str(chip) not in "1234":
-        print("The Chip is not correct. It needs to be 1,2,3 or 4")
-        raise Exception("Chip Error")
-    else:
-        # New reduction and calibration
-        path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/2017/{}-"
-                "{}/Combined_Nods".format(star, obs_num))
-        filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
-                                  "*_{}.nod.ms.*".format(chip))
-        debug("Filenames from 2017 reductions {}".format(filenames))
-        if len(filenames) is not 0:
-            crires_name = filenames[0]
-        else:
-            print("Trying non-2017 reductions.")
-            path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/{}-"
-                    "{}/Combined_Nods".format(star, obs_num))
-            print("Path =", path)
-            filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
-                                      "*_{}.nod.ms.*".format(chip))
-
-            crires_name = filenames[0]
-        return os.path.join(path, crires_name), path
 
 
 def load_spectrum(name, corrected=True):
