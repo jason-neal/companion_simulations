@@ -19,8 +19,8 @@ from bin.analysis_module import (alpha_rv_contour, alpha_rv_contour_old,
                                  fix_host_parameters_reduced_gamma,
                                  get_column_limits, parabola_plots,
                                  smallest_chi2_values, test_figure)
-from mingle.utilities.param_file import closest_model_params
-from mingle.utilities.phoenix_utils import get_host_params
+from mingle.utilities.phoenix_utils import closest_model_params
+from mingle.utilities.param_file import get_host_params
 
 
 def _parser():

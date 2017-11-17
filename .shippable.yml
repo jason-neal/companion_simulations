@@ -1,0 +1,59 @@
+language: python
+python:
+    - 3.5
+    - 3.6
+
+before_install:
+  # http://conda.pydata.org/docs/travis.html
+  - travis_retry sudo apt-get update
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+       travis_retry wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+       travis_retry wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda config --add channels conda-forge
+  - conda update -q conda
+  - conda info -a
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+install:
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION astropy ephem joblib llvmlite matplotlib multiprocess numba numpy scipy tqdm
+  - source activate test-environment
+
+  # Install Starfish
+  - cd $HOME
+  - travis_retry git clone https://github.com/iancze/Starfish.git
+  - cd Starfish
+  - travis_retry conda install --yes astropy cython emcee h5py matplotlib pytest pyyaml scikit-learn scipy
+  - travis_retry pip install -r requirements.txt
+  - python setup.py build_ext --inplace
+  - python setup.py develop
+
+  # Now install companion simulations
+  # Test requirements
+  - cd $SHIPPABLE_BUILD_DIR               # Return to original directory
+  - travis_retry pip install -r test_requirements.txt
+  - travis_retry pip install -r requirements.txt
+
+  # Clone spectrum_overload
+  - travis_retry pip install https://github.com/jason-neal/spectrum_overload/archive/develop.zip
+
+  - python setup.py install
+
+  - cp tests/config.yaml .
+
+script:
+    pytest --cov=. --cov-report term-missing
+
+after_success:
+  - coveralls -i
+  - codeclimate-test-reporter
+  - coverage xml -i
+  - python-codacy-coverage -r coverage.xml

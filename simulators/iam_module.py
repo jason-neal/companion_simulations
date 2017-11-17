@@ -10,11 +10,11 @@ from tqdm import tqdm
 
 import simulators
 from mingle.models.broadcasted_models import inherent_alpha_model
-from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
-from mingle.utilities.norm import chi2_model_norms, continuum
 from mingle.utilities.chisqr import chi_squared
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale, arbitrary_minimums
 from mingle.utilities.param_file import parse_paramfile
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 
 debug = logging.debug
 
@@ -206,22 +206,18 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                                  xlabel="wavelength", ylabel="rv", zlabel="gamma", suffix="iam_grid_models", chip=chip)
 
             # Arbitrary_normalization of observation
-            arb_norm = np.arange(*simulators.sim_grid["arb_norm"])
-
-            iam_grid_models = iam_grid_models[:, :, :, np.newaxis] * arb_norm
+            iam_grid_models, arb_norm = arbitrary_rescale(iam_grid_models, *simulators.sim_grid["arb_norm"])
             print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
 
             # Calculate Chi-squared
-            obs_flux = obs_flux[:, :, :, np.newaxis]
+            obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match rescale
             iam_norm_grid_chisquare = chi_squared(obs_flux, iam_grid_models, error=errors)
 
             print("Broadcast chi-squared values with arb norm", iam_norm_grid_chisquare.shape)
 
             # Take minimum chi-squared value along Arbitrary normalization axis
-            min_locations = np.argmin(iam_norm_grid_chisquare, axis=-1)
-            iam_grid_chisquare = np.min(iam_norm_grid_chisquare, axis=-1)
+            iam_grid_chisquare, arbitrary_norms = arbitrary_minimums(iam_norm_grid_chisquare, arb_norm)
             print("Broadcast chi-squared values ", iam_grid_chisquare.shape)
-            arbitrary_norms = arb_norm[min_locations]
 
             npix = obs_flux.shape[0]  # Number of pixels used
 
