@@ -105,6 +105,18 @@ def test_continuum_exponential(x1, x0):
 
 
 from mingle.utilities.norm import arbitrary_rescale
+def test_arbitrary_rescale():
+    model = np.arange(0, 12).reshape(3, 4)
+    print(model)
+    new_model, arb_norm = arbitrary_rescale(model, 1, 2.1, 0.5)
+
+    assert new_model.shape == (3, 4, 3)
+    assert np.allclose(arb_norm, np.asarray([1.0, 1.5, 2.0]))
+    assert np.allclose(new_model[:, :, 0], model)
+    assert np.allclose(new_model[:, :, 1], model * 1.5)
+    assert np.allclose(new_model[:, :, 2], model * 2)
+
+
 @pytest.mark.parametrize("start, stop, step", [
     (0.8, 1.2, 0.1),
     (1.5, 0.7, -0.05)])
