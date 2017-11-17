@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """Run bhm analysis for HD211847."""
-# import json
 import argparse
 import itertools
 import os
@@ -91,80 +90,86 @@ def deconstruct_array(array, values):
     return indx, gam, chi2
 
 
-def main(star, obs_nums, chips=None, verbose=False, suffix=None, mask=False, error_off=False, disable_wav_scale=False):
+def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error_off=False, disable_wav_scale=False):
     """Best Host modelling main function."""
     wav_scale = not disable_wav_scale
+    star = star.upper()
 
     # Define the broadcasted gamma grid
     gammas = np.arange(*simulators.sim_grid["gammas"])
+    print("bhm gammas", gammas)
 
-    iters = itertools.product(obs_nums, chips)
-    for obs_num, chip in iters:
-        obs_name, params, output_name = bhm_helper_function(star, obs_num, chip)
+    obs_name, params, output_name = bhm_helper_function(star, obs_num, chip)
 
-        print("The observation used is ", obs_name, "\n")
+    print("The observation used is ", obs_name, "\n")
 
-        model_pars = get_model_pars(params, method="close")
+    model_pars = get_model_pars(params, method="close")
 
-        # Load observation
-        obs_spec = load_spectrum(obs_name)
-        # Mask out bad portion of observed spectra
-        obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
-        # Barycentric correct spectrum
-        obs_spec = barycorr_crires_spectrum(obs_spec, -22)
-        # Determine Spectrum Errors
-        errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+    # Load observation
+    obs_spec = load_spectrum(obs_name)
+    # Mask out bad portion of observed spectra
+    obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
+    # Barycentric correct spectrum
+    obs_spec = barycorr_crires_spectrum(obs_spec, -22)
+    # Determine Spectrum Errors
+    errors = spectrum_error(star, obs_num, chip, error_off=error_off)
 
-        chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False, wav_scale=wav_scale)
+    chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False, wav_scale=wav_scale)
 
-        (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
-         broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids
+    (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
+     broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids
 
-        TEFF = np.array([par[0] for par in model_pars])
-        LOGG = np.array([par[1] for par in model_pars])
-        FEH = np.array([par[2] for par in model_pars])
+    TEFF = np.array([par[0] for par in model_pars])
+    LOGG = np.array([par[1] for par in model_pars])
+    FEH = np.array([par[2] for par in model_pars])
 
-        # testing shapes
-        print("model_chisqr_vals", model_chisqr_vals.shape)
-        print("model_xcorr_vals", model_xcorr_vals.shape)
-        print("model_xcorr_rv_vals", model_xcorr_rv_vals.shape)
-        print("broadcast_chisqr_vals", broadcast_chisqr_vals.shape)
-        print("broadcast_chisqr_vals", broadcast_chisqr_vals[:20])
-        print("broadcast_gamma", broadcast_gamma.shape)
-        print("broadcast_gamma", broadcast_gamma[:20])
-        print("broadcast_chi2_gamma", broadcast_chi2_gamma.shape)
-        print("broadcast_chi2_gamma", broadcast_chi2_gamma[:20])
+    # testing shapes
+    print("model_chisqr_vals", model_chisqr_vals.shape)
+    print("model_xcorr_vals", model_xcorr_vals.shape)
+    print("model_xcorr_rv_vals", model_xcorr_rv_vals.shape)
+    print("broadcast_chisqr_vals", broadcast_chisqr_vals.shape)
+    print("broadcast_chisqr_vals", broadcast_chisqr_vals[:20])
+    print("broadcast_gamma", broadcast_gamma.shape)
+    print("broadcast_gamma", broadcast_gamma[:20])
+    print("broadcast_chi2_gamma", broadcast_chi2_gamma.shape)
+    print("broadcast_chi2_gamma", broadcast_chi2_gamma[:20])
 
-        # indx, gam, chi2 = deconstruct_array(broadcast_chi2_gamma, gammas)
+    # indx, gam, chi2 = deconstruct_array(broadcast_chi2_gamma, gammas)
 
-        # # Save the result to a csv, in a single column
-        # save_results = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
-        #                 "model_chisqr": chi2_grids[0],
-        #                 "broadcast_chisqr": chi2_grids[3],
-        #                 "broadcast_gamma": chi2_grids[4]}
-        #
-        # # save_pd_cvs(output_name, data=save_results)
-        # cols = ["temp", "logg", "fe_h", "model_chisqr", "broadcast_chisqr", "broadcast_gamma"]
-        # df = pd.DataFrame(data=save_results)
-        # df.to_csv(output_name + ".tsv", sep='\t', index=False, columns=cols)
-        # print("Save the results to {}".format(output_name))
-        #
-        # # Save as astropy table, and all gamma values from broadcasting.
-        # save_results2 = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
-        #                  "broadcast_chisqr": chi2_grids[3],
-        #                  "broadcast_gamma": chi2_grids[4],
-        #                  "chi2_gamma": broadcast_chi2_gamma[5], "gammas": gammas}
-        #
-        # print("Save the results to {}".format(output_name))
+    # # Save the result to a csv, in a single column
+    # save_results = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
+    #                 "model_chisqr": chi2_grids[0],
+    #                 "broadcast_chisqr": chi2_grids[3],
+    #                 "broadcast_gamma": chi2_grids[4]}
+    #
+    # # save_pd_cvs(output_name, data=save_results)
+    # cols = ["temp", "logg", "fe_h", "model_chisqr", "broadcast_chisqr", "broadcast_gamma"]
+    # df = pd.DataFrame(data=save_results)
+    # df.to_csv(output_name + ".tsv", sep='\t', index=False, columns=cols)
+    # print("Save the results to {}".format(output_name))
+    #
+    # # Save as astropy table, and all gamma values from broadcasting.
+    # save_results2 = {"temp": TEFF, "logg": LOGG, "fe_h": FEH,
+    #                  "broadcast_chisqr": chi2_grids[3],
+    #                  "broadcast_gamma": chi2_grids[4],
+    #                  "chi2_gamma": broadcast_chi2_gamma[5], "gammas": gammas}
+    #
+    # print("Save the results to {}".format(output_name))
     print("Finished chi square generation")
 
 
 if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}
+    star = opts.pop("star")
+    obs_nums = opts.pop("obs_nums")
+    chips = opts.pop("chips")
 
-    # Do all chips
-    if opts["chips"] is None:
-        opts["chips"] = range(1, 5)
+    if chips is None:
+        chips = range(1, 5)
 
-    sys.exit(main(**opts))
+    for obs in obs_nums:
+        for chip in chips:
+            main(star, obs, chip, **opts)
+
+    # sys.exit(main(**opts))

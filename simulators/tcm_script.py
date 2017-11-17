@@ -66,7 +66,7 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
 
     star = "HD211847"
     obs_num = 2
-
+    star = star.upper()
     if chip is None:
         chip = 4
 
