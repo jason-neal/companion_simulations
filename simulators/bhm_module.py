@@ -59,12 +59,6 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         mod_spec.wav_select(np.min(obs_spec.xaxis) - 5,
                             np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
 
-        # Find cross correlation RV
-        # Should run though all models and find best rv to apply uniformly
-        rvoffset, cc_max = xcorr_peak(obs_spec, mod_spec, plot=False)
-        if verbose:
-            print("Cross correlation RV = {}".format(rvoffset))
-            print("Cross correlation max = {}".format(cc_max))
 
         obs_spec = obs_spec.remove_nans()
 
@@ -90,15 +84,26 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         model_chi_val = chi_squared(obs_spec.flux, mod_spec.flux)
 
         model_chisqr_vals[ii] = model_chi_val
-        model_xcorr_vals[ii] = cc_max
-        model_xcorr_rv_vals[ii] = rvoffset
 
         print("bhm_grid_chisquare.shape", bhm_grid_chisquare.shape)
+
 
         # New parameters to explore
         bhm_grid_chisqr_vals[ii] = bhm_grid_chisquare[np.argmin(bhm_grid_chisquare)]
         bhm_grid_gamma[ii] = gammas[np.argmin(bhm_grid_chisquare)]
         full_bhm_grid_chisquare[ii, :] = bhm_grid_chisquare
+
+        ################
+        #  Find cross correlation RV
+        # Should run though all models and find best rv to apply uniformly
+        rvoffset, cc_max = xcorr_peak(obs_spec, mod_spec, plot=False)
+        if verbose:
+            print("Cross correlation RV = {}".format(rvoffset))
+            print("Cross correlation max = {}".format(cc_max))
+
+        model_xcorr_vals[ii] = cc_max
+        model_xcorr_rv_vals[ii] = rvoffset
+        ###################
 
         npix = obs_flux.shape[0]
         save_bhm_chisqr(save_name, params, gammas, bhm_grid_chisquare, npix)
