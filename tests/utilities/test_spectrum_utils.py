@@ -20,6 +20,11 @@ def test_load_spectrum_with_failure():
 def test_select_observation():
     assert False
 
+from mingle.utilities.spectrum_utils import select_observation
+@pytest.mark.parametrize("chip", [0, None, 5, 42])
+def test_select_observation_with_bad_chip(chip):
+    with pytest.raises(ValueError):
+        select_observation("HD30501", "1", chip)
 
 @pytest.mark.xfail
 def test_spectrum_plotter(spectra, label=None, show=False):
