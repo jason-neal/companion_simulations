@@ -210,7 +210,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
 
             # Calculate Chi-squared
-            obs_flux = obs_flux[:, :, :, np.newaxis]
+            obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match rescale
             iam_norm_grid_chisquare = chi_squared(obs_flux, iam_grid_models, error=errors)
 
             print("Broadcast chi-squared values with arb norm", iam_norm_grid_chisquare.shape)
