@@ -103,6 +103,7 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
 
     print("The observation used is ", obs_name, "\n")
 
+    # Host Model parameters to iterate over
     model_pars = get_model_pars(params, method="close")
 
     # Load observation
@@ -112,9 +113,14 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec, -22)
     # Determine Spectrum Errors
-    errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+    try:
+        errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+    except KeyError as e:
+        errors = None
 
+    print("before bhm_analysis")
     chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False, wav_scale=wav_scale)
+    print("after bhm_analysis")
 
     (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
      broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids
@@ -123,7 +129,7 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     LOGG = np.array([par[1] for par in model_pars])
     FEH = np.array([par[2] for par in model_pars])
 
-    # testing shapes
+    # Testing shapes
     print("model_chisqr_vals", model_chisqr_vals.shape)
     print("model_xcorr_vals", model_xcorr_vals.shape)
     print("model_xcorr_rv_vals", model_xcorr_rv_vals.shape)

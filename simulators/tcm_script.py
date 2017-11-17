@@ -91,7 +91,10 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec)
     # Determine Spectrum Errors
-    errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+    try:
+        errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+    except KeyError as e:
+        errors = None
 
     param_iter = len(alphas) * len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
     print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
