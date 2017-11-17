@@ -70,7 +70,7 @@ def _parser():
     parser.add_argument('-a', '--area_scale', action="store_false",
                         help='Scaling by stellar area. (raise to disable)')
     parser.add_argument('--disable_wav_scale', action="store_true",
-                        help='Disable scaling by wavelength'.'
+                        help='Disable scaling by wavelength.')
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
 
     return parser.parse_args()
