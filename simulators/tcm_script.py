@@ -55,11 +55,14 @@ def _parser():
     parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
     parser.add_argument("--error_off", help="Turn snr value errors off.",
                         action="store_true", type=bool)
+    parser.add_argument('--disable_wav_scale', action="store_true",
+                        help='Disable scaling by wavelength.')
     return parser.parse_args()
 
 
-def main(chip=None, parallel=True, small=True, verbose=False, error_off=False):
+def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, disable_wav_scale=False):
     """Main function."""
+    wav_scale = not disable_wav_scale
 
     star = "HD211847"
     obs_num = 2
@@ -97,10 +100,10 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False):
     ####
     if parallel:
         chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
-                                           verbose=verbose, norm=True, prefix=output_prefix, save_only=True)
+                                           verbose=verbose, norm=True, prefix=output_prefix, save_only=True, wav_scale=wav_scale)
     else:
         chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
-                                  verbose=verbose, norm=True, prefix=output_prefix)
+                                  verbose=verbose, norm=True, prefix=output_prefix, wav_scale=wav_scale)
 
     # Print TODO
     print("TODO: Add joining of sql table here")

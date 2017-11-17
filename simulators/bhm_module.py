@@ -15,7 +15,7 @@ from mingle.utilities.xcorr import xcorr_peak
 debug = logging.debug
 
 
-def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, verbose=False, norm=False):
+def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, verbose=False, norm=False, wav_scale=True):
     """Run one component model over all parameter combinations in model_pars."""
     # Gammas
     if gammas is None:
@@ -44,7 +44,8 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, verbose=False, 
                 obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), ii))
         if verbose:
             print("Starting iteration with parameter:s\n{}".format(params))
-        mod_spec = load_starfish_spectrum(params, limits=normalization_limits, hdr=True, normalize=True)
+        mod_spec = load_starfish_spectrum(params, limits=normalization_limits, hdr=True,
+                                          normalize=True, wav_scale=wav_scale)
 
         # Wavelength selection
         mod_spec.wav_select(np.min(obs_spec.xaxis) - 5,

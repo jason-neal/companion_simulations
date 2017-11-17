@@ -34,6 +34,8 @@ def _parser():
                         help='Extra name identifier.')
     parser.add_argument("--error_off", action="store_true",
                         help="Turn snr value errors off.")
+    parser.add_argument('--disable_wav_scale', action="store_true",
+                        help='Disable scaling by wavelength.')
     return parser.parse_args()
 
 
@@ -89,8 +91,9 @@ def deconstruct_array(array, values):
     return indx, gam, chi2
 
 
-def main(star, obs_nums, chips=None, verbose=False, suffix=None, mask=False, error_off=False):
+def main(star, obs_nums, chips=None, verbose=False, suffix=None, mask=False, error_off=False, disable_wav_scale=False):
     """Best Host modelling main function."""
+    wav_scale = not disable_wav_scale
 
     # Define the broadcasted gamma grid
     gammas = np.arange(*simulators.sim_grid["gammas"])
@@ -112,7 +115,7 @@ def main(star, obs_nums, chips=None, verbose=False, suffix=None, mask=False, err
         # Determine Spectrum Errors
         errors = spectrum_error(star, obs_num, chip, error_off=error_off)
 
-        chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False)
+        chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False, wav_scale=wav_scale)
 
         (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
          broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids

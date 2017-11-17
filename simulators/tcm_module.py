@@ -31,8 +31,8 @@ def tcm_helper_function(star, obs_num, chip):
 
 def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
                  gammas=None, errors=None, verbose=False, norm=False, save_only=True,
-                 chip=None, prefix=None):
-    """Run two component model over all parameter cobinations in model1_pars and model2_pars."""
+                 chip=None, prefix=None, wav_scale=True):
+    """Run two component model over all parameter combinations in model1_pars and model2_pars."""
     alphas = check_inputs(alphas)
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
@@ -44,7 +44,8 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
 
     args = [model2_pars, alphas, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
-              "prefix": prefix, "verbose": verbose, "errors": errors}
+              "prefix": prefix, "verbose": verbose, "errors": errors,
+              "wav_scale": wav_scale}
 
     broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
 
@@ -59,7 +60,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
 
 def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
                           rvs=None, gammas=None, errors=None, verbose=False, norm=False, save_only=True, chip=None,
-                          prefix=None):
+                          prefix=None, wav_scale=True):
     """Run two component model over all parameter combinations in model1_pars and model2_pars."""
     alphas = check_inputs(alphas)
     rvs = check_inputs(rvs)
@@ -92,7 +93,7 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
 
     args = [model2_pars, alphas, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
-              "prefix": prefix, "verbose": verbose, "errors": errors}
+              "prefix": prefix, "verbose": verbose, "errors": errors, "wav_scale": wav_scale}
 
     broadcast_chisqr_vals = Parallel(n_jobs=-2)(
         delayed(tcm_wrapper)(ii, param, *args, **kwargs)
@@ -106,7 +107,7 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
 
 def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
                 errors=None, norm=True, verbose=True, save_only=True,
-                chip=None, prefix=None):
+                chip=None, prefix=None, wav_scale=True):
     """Wrapper for iteration loop of tcm. To use with parallelization."""
     normalization_limits = [2105, 2185]  # small as possible?
 
@@ -130,8 +131,10 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
             if verbose:
                 print("Starting iteration with parameters:\n {0}={1},{2}={3}".format(num, params1, jj, params2))
 
-            mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=True)
-            mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=True)
+            mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True,
+                                               normalize=True, wav_scale=wav_scale)
+            mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True,
+                                               normalize=True, wav_scale=wav_scale)
 
             # Wavelength selection
             delta = spec_max_delta(obs_spec, rvs, gammas)
