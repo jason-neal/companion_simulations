@@ -302,7 +302,7 @@ def generate_close_params(params, small=True, limits="phoenix"):
     """teff, logg, Z."""
     temp, logg, metals = params[0], params[1], params[2]
 
-    new_temps, new_metals, new_loggs = gen_new_param_values(temp, logg, metals, small=small)
+    new_temps, new_loggs, new_metals = gen_new_param_values(temp, logg, metals, small=small)
 
     if limits == "phoenix":
         new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
@@ -366,7 +366,7 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
         yield [t, l, m]
 
 
-def gen_new_param_values(temp, metals, logg, small=True):
+def gen_new_param_values(temp, logg, metals, small=True):
     if small == "host":
         # only include error bounds.
         new_temps = np.array([-100, 0, 100]) + temp
@@ -376,14 +376,11 @@ def gen_new_param_values(temp, metals, logg, small=True):
         new_temps = np.arange(-600, 1001, 100) + temp
         new_metals = np.array([-0.5, 0.0, 0.5]) + metals
         new_loggs = np.array([-0.5, 0.0, 0.5]) + logg
-        # new_temps = np.arange(-600, 601, 100) + temp
-        # new_metals = np.arange(1) + metals
-        # new_loggs = np.arange(1) + logg
     else:
         new_temps = np.arange(-500, 501, 100) + temp
         new_metals = np.arange(-1, 1.1, 0.5) + metals
         new_loggs = np.arange(-1, 1.1, 0.5) + logg
-    return new_temps, new_metals, new_loggs
+    return new_temps, new_loggs, new_metals
 
 
 def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
