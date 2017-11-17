@@ -178,8 +178,10 @@ if __name__ == "__main__":
 
 def arbitrary_minimums(model_grid, last_axis):
     """Find the minimum value along the last dimension."""
-
     min_locations = np.argmin(model_grid, axis=-1)
+
     new_model_grid = np.min(model_grid, axis=-1)
-    axis_values = last_axis[min_locations]
+
+    axis_values = np.asarray(last_axis)[min_locations]
+
     return new_model_grid, axis_values

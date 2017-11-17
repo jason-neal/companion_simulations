@@ -1,9 +1,11 @@
 import numpy as np
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
-from mingle.utilities.norm import (chi2_model_norms, continuum,
-                              get_continuum_points,
-                              local_normalization, spec_local_norm)
+from mingle.utilities.norm import (arbitrary_minimums, chi2_model_norms,
+                                   continuum, get_continuum_points,
+                                   local_normalization, spec_local_norm)
 
 
 @pytest.mark.parametrize("method1, method2", [
@@ -105,6 +107,8 @@ def test_continuum_exponential(x1, x0):
 
 
 from mingle.utilities.norm import arbitrary_rescale
+
+
 def test_arbitrary_rescale():
     model = np.arange(0, 12).reshape(3, 4)
     print(model)
@@ -150,3 +154,38 @@ def test_arbitrary_rescale_on_different_size_models(shape):
     model = np.random.random(shape)
     new_model, arb_norm = arbitrary_rescale(model, 0.8, 1.2, 0.05)
     assert new_model.shape == (*model.shape, len(arb_norm))
+
+
+@given(st.lists(st.integers(min_value=2, max_value=5), min_size=0, max_size=3), st.floats(min_value=-1, max_value=5))
+def test_arbitrary_minimums_with_single_last_axis(dims, last_axis_value):
+    model = np.random.random((*dims, 1))
+    new_model, minimums = arbitrary_minimums(model, [last_axis_value])
+
+    assert np.allclose(new_model, model.squeeze())
+    assert new_model.shape == model.squeeze().shape
+    assert np.allclose(minimums, last_axis_value * np.ones_like(new_model))
+    assert new_model.shape == minimums.shape
+
+
+def test_arbitrary_minimums():
+    grid = np.asarray([[4, 3, 2, 1.5, 2, 3, 4],
+                       [6, 5, 4, 3, 2, 1, 2],
+                       [6, 1.2, 4, 3, 2, 4, 2]])
+    last_axis = range(7)
+    min_grid, last_values = arbitrary_minimums(grid, last_axis)
+
+    assert np.allclose(min_grid, [1.5, 1, 1.2])
+    assert np.allclose(last_values, [3, 5, 1])
+
+
+def test_arbitrary_minimums2():
+    grid = np.asarray([[[1, 2, 3, 5], [2, 4, 6, 9]],
+                       [[2, 4, 6, 7], [3, 2, 1, 8]],
+                       [[3, 0.5, 1, 11], [7, 3, 5, 1]]])
+    last_axis = [0.6, 0.7, 0.8, 0.9]
+    min_grid, last_values = arbitrary_minimums(grid, last_axis)
+    assert np.allclose(min_grid, np.array([[1., 2.],
+                                           [2., 1.],
+                                           [0.5, 1.]])
+                       )
+    assert np.allclose(last_values, [0.6, 0.6], [0.6, 0.8], [0.7, 0.9])
