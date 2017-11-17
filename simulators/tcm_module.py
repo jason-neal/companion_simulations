@@ -12,7 +12,7 @@ from mingle.utilities.norm import chi2_model_norms
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
-
+from mingle.utilities.chisqr import chi_squared
 debug = logging.debug
 
 
