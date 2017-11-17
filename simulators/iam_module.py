@@ -10,11 +10,11 @@ from tqdm import tqdm
 
 import simulators
 from mingle.models.broadcasted_models import inherent_alpha_model
-from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
-from mingle.utilities.norm import chi2_model_norms, continuum
 from mingle.utilities.chisqr import chi_squared
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale
 from mingle.utilities.param_file import parse_paramfile
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 
 debug = logging.debug
 
@@ -206,9 +206,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                                  xlabel="wavelength", ylabel="rv", zlabel="gamma", suffix="iam_grid_models", chip=chip)
 
             # Arbitrary_normalization of observation
-            arb_norm = np.arange(*simulators.sim_grid["arb_norm"])
-
-            iam_grid_models = iam_grid_models[:, :, :, np.newaxis] * arb_norm
+            iam_grid_models, arb_norm = arbitrary_rescale(iam_grid_models, *simulators.sim_grid["arb_norm"])
             print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
 
             # Calculate Chi-squared

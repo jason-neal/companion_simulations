@@ -2,6 +2,7 @@
 import copy
 
 import matplotlib.pyplot as plt
+import numpy
 import numpy as np
 
 
@@ -139,6 +140,26 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
     return (obs.T * norm_fraction.T).T
 
 
+def arbitrary_rescale(model_grid, start, stop, step):
+    """Arbitrarily rescale the flux of the grid to adjust continuum level.
+
+    Returns
+    -------
+    new_models: np.ndarray
+        Model grids extended by a new axis, an scaled by the values of arb_norm.
+    arb_norm: np.ndarray
+        Vector of values used for scaling.
+    """
+
+    arb_norm = np.arange(start, stop, step)
+    # Equivalent to [:, :, :, np.newaxis] if shape was 3d but works for any shape.
+    new_models = np.expand_dims(model_grid, -1)  # add newaxis to position -1
+    new_models = new_models * arb_norm
+    assert new_models.shape == (*model_grid.shape, len(arb_norm))
+
+    return new_models, arb_norm
+
+
 if __name__ == "__main__":
     w = np.arange(500)
     f = np.sort(np.random.rand(500))  # .sort()
@@ -153,3 +174,4 @@ if __name__ == "__main__":
     print(models.shape)
     print(res.shape)
     plt.show()
+
