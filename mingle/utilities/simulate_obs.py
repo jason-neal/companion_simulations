@@ -7,8 +7,9 @@ from joblib import Memory
 
 from mingle.utilities.simulation_utilities import combine_spectra
 from mingle.models.alpha_model import alpha_model
+import simulators
 
-cachedir = "/home/jneal/.simulation_cache"
+cachedir = os.path.join(simulators.paths["output_dir"], ".simulation_cache")
 if not os.path.exists(cachedir):
     os.makedirs(cachedir)
 memory = Memory(cachedir=cachedir, verbose=0)
