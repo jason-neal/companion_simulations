@@ -82,7 +82,9 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
 
     if area_scale:
         if hdr:
-            spec = spec * phoenix_area(spec.header)
+            emitting_area = phoenix_area(spec.header)
+            spec = spec * emitting_area
+            spec.header["emit_area"] = (emitting_area, "pi*r^2")
         else:
             raise ValueError("No header provided for stellar area scaling")
 
@@ -141,7 +143,9 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
 
     if area_scale:
         if hdr:
-            spec = spec * phoenix_area(spec.header)
+            emitting_area = phoenix_area(spec.header)
+            spec = spec * emitting_area
+            spec.header["emit_area"] = (emitting_area, "pi*r^2")
         else:
             raise ValueError("No header provided for stellar area scaling")
     if normalize:
