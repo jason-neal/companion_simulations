@@ -17,7 +17,7 @@ def load_spectrum(name, corrected=True):
     name: str
         Filename of spectrum.
     corrected: bool
-        Use telluric corrected spectra. (deprectiated).
+        Use telluric corrected spectra. (depreciated).
 
     Returns
     -------
@@ -63,7 +63,8 @@ def select_observation(star, obs_num, chip):
     """
     if str(chip) not in "1234":
         print("The Chip is not correct. It needs to be 1,2,3 or 4")
-        raise ValueError("Chip Error")
+        raise ValueError("Chip not in 1-4.")
+
     else:
         # New reduction and calibration
         path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/2017/{}-"

@@ -7,6 +7,7 @@ import pytest
 from spectrum_overload import Spectrum
 
 import simulators
+from mingle.utilities.phoenix_utils import closest_model_params
 from mingle.utilities.phoenix_utils import (gen_new_param_values,
                                             generate_close_params_with_simulator,
                                             load_phoenix_spectrum,
@@ -115,3 +116,51 @@ def test_generate_close_params_with_simulator_single_return():
 
     assert host_params == expected
     assert comp_params == expected
+
+
+def test_load_starfish_with_header():
+    params = [2300, 5, 0]
+    limits = [2100, 2200]
+    spec_no_header = load_starfish_spectrum(params, hdr=False, limits=limits)
+    assert spec_no_header.header == {}
+
+    # Test some values from phoenix header
+    spec_with_header = load_starfish_spectrum(params, hdr=True, limits=limits)
+    print(spec_with_header.header)
+    assert spec_with_header.header["air"] == False
+    assert spec_with_header.header["PHXEOS"] == "ACES"
+
+
+def test_load_starfish_header_with_area_scale():
+    spec_no_scale = load_starfish_spectrum([2300, 5, 0], hdr=True, area_scale=False)
+    assert spec_no_scale.header.get("emit_area") is None  # Change spec header when scaling
+    spec = load_starfish_spectrum([2300, 5, 0], hdr=True, area_scale=True)
+    print("header", spec.header)
+
+    assert spec.header["emit_area"] is not None  # Change spec header when scaling
+
+
+def test_load_starfish_no_header_with_area_scale():
+    with pytest.raises(ValueError):
+        load_starfish_spectrum([2300, 5, 0], hdr=False, area_scale=True)
+
+
+def test_load_starfish_flux_rescale():
+    params = [2300, 5, 0]
+    limits = [2100, 2200]
+    spec = load_starfish_spectrum(params, hdr=False, limits=limits, flux_rescale=False)
+    spec_rescaled = load_starfish_spectrum(params, hdr=False, limits=limits, flux_rescale=True)
+    rescale_value = 1e7
+    spec /= rescale_value
+    assert np.allclose(spec.xaxis, spec_rescaled.xaxis)
+    assert np.allclose(spec.flux, spec_rescaled.flux)
+
+
+@pytest.mark.parametrize("input, expected", [
+    ([2535, 4.53, -0.21], [2500, 4.5, 0.0]),
+    ([7887, 2.91, -1.21], [7900, 3.0, -1.0]),
+    ([10187, 0.51, -2.76], [7900, 0.5, -3.0])
+])
+def closest_model_params(input, expected):
+    assert closest_model_params(*input) == expected
+

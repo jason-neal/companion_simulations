@@ -21,7 +21,7 @@ def test_iam_helper_function(star, obs, chip):
     assert str(star) in obs_name
     assert str(obs) in obs_name
     assert str(chip) in obs_name
-    assert "{0}/{0}".format(star) in output_prefix
+    assert os.path.join(star, star) in output_prefix
     assert "iam_chisqr" in output_prefix
     assert params["name"] == star.lower()
 

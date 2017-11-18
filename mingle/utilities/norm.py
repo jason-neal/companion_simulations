@@ -160,6 +160,15 @@ def arbitrary_rescale(model_grid, start, stop, step):
     return new_models, arb_norm
 
 
+def arbitrary_minimums(model_grid, last_axis):
+    """Find the minimum value along the last dimension."""
+    min_locations = np.argmin(model_grid, axis=-1)
+    new_model_grid = np.min(model_grid, axis=-1)
+    axis_values = np.asarray(last_axis)[min_locations]
+
+    return new_model_grid, axis_values
+
+
 if __name__ == "__main__":
     w = np.arange(500)
     f = np.sort(np.random.rand(500))  # .sort()
@@ -174,14 +183,3 @@ if __name__ == "__main__":
     print(models.shape)
     print(res.shape)
     plt.show()
-
-
-def arbitrary_minimums(model_grid, last_axis):
-    """Find the minimum value along the last dimension."""
-    min_locations = np.argmin(model_grid, axis=-1)
-
-    new_model_grid = np.min(model_grid, axis=-1)
-
-    axis_values = np.asarray(last_axis)[min_locations]
-
-    return new_model_grid, axis_values
