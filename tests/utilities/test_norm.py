@@ -42,12 +42,26 @@ def test_manual_normalization():
 def test_chi2_model_norms(host, tcm_model, norm_method):
     host.wav_select(2110.5, 2114.5)  # cut to avoid Nans from doppler shifts
     wave = host.xaxis
-    obs = host.xaxis
+    obs = host.flux
     models = tcm_model(wave)
 
     chi2norm = chi2_model_norms(wave, obs, models, method=norm_method, splits=15, top=10)
 
     assert False
+
+
+def test_chi2_model_norms_with_nan_in_model(host, tcm_model, norm_method):
+    host.wav_select(2110.5, 2114.5)  # cut to avoid Nans from doppler shifts
+    wave = host.xaxis
+    obs = host.flux
+    models = tcm_model(wave)
+    # add a nan value to models
+    # assert not np.any(np.isnan(models))
+    models[0, 0] = np.nan   # add a nan value incase models get cleaned up.
+    assert np.any(np.isnan(models))
+
+    with pytest.raises(ValueError):
+       chi2_model_norms(wave, obs, models, method=norm_method, splits=15, top=10)
 
 
 @pytest.mark.parametrize("splits", [13, 27, 50])

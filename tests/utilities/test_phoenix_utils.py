@@ -170,13 +170,16 @@ def closest_model_params(input, expected):
 
 from mingle.utilities.phoenix_utils import (phoenix_name_from_params)
 
-def test_phoenix_name():
 
-    print(phoenix_name(2000, 2.5, 0.5))
-    print(os.path.join("Z+0.5", ("lte02000-2.50+0.5."
-                        "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits")))
-    assert phoenix_name(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5", ("lte02000-2.50+0.5."
-                        "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"))
+def test_find_closest_phoenix_name():
+    data_dir = os.path.join("tests", "testdata")
+    name = find_closest_phoenix_name(data_dir, 2305, 4.89, 0.01, alpha=None)
+    assert name == []
+
+    # z dir False
+    name = find_closest_phoenix_name(data_dir, 2305, 4.89, 0.01, alpha=None, Z=False)
+    assert "lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits" in name[0]
+
 
 
 def test_find_phoenix_model_names():
@@ -188,8 +191,6 @@ def test_find_phoenix_model_names():
     assert len(found) == 1  # because only have one file suitable file in testdata atm.
 
 
-assert phoenix_name(5700, 6.0, -1.5, Z=False) == ("lte05700-6.00-1.5."
-                        "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits")
 
 def test_phoenix_name():
     tail = "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
