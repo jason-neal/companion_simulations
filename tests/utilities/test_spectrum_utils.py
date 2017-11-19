@@ -31,13 +31,13 @@ def test_select_observation_with_bad_chip(chip):
         select_observation("HD30501", "1", chip)
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail()
 def test_spectrum_plotter(spectra, label=None, show=False):
     """Plot a Spectrum object."""
     assert False
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail()
 def test_plot_spectra(obs, model):
     """Plot two spectra."""
     assert False

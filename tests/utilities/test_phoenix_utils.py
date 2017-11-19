@@ -57,12 +57,14 @@ def test_phoenix_and_starfish_load_differently_without_limits():
     assert isinstance(spec2, Spectrum)
 
 
-@pytest.mark.xfail()  # Starfish does resampling
+@pytest.mark.xfail(strict=True)  # Starfish does resampling
 @pytest.mark.parametrize("limits", [[2090, 2135], [2450, 2570]])
 def test_phoenix_and_starfish_load_equally_with_limits(limits):
     test_spectrum = "tests/testdata/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     spec1 = load_phoenix_spectrum(test_spectrum, limits=limits)
     spec2 = load_starfish_spectrum([2300, 5, 0], limits=limits)
+
+    spec2 = spec2.interpolate1d_to(spec1) # resamle to same axis
     assert spec1.xaxis[0] == spec2.xaxis[0]
     assert spec1.xaxis[-1] == spec2.xaxis[-1]
 

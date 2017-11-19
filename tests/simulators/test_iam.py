@@ -27,11 +27,6 @@ def test_iam_helper_function(star, obs, chip):
 
 
 @pytest.mark.xfail()
-def test_iam_check_inputs():
-    assert 0
-
-
-@pytest.mark.xfail()
 def test_save_full_iam_chisqr():
     assert 0
 
