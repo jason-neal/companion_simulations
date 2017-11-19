@@ -175,8 +175,24 @@ def test_phoenix_name():
     assert phoenix_name(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5", ("lte02000-2.50+0.5."
                         "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"))
 
+def test_find_phoenix_model_names2():
+    base_dir = os.path.join("tests", "testdata")
+    original_model = "lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    found = find_phoenix_model_names2(base_dir, original_model)
+    print("found models", found)
+    assert "lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits" in found[0]
+    assert len(found) == 1  # because only have one file suitable file in testdata atm.
+
+
 assert phoenix_name(5700, 6.0, -1.5, Z=False) == ("lte05700-6.00-1.5."
                         "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits")
+
+def test_phoenix_name():
+    tail = "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    assert phoenix_name(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5",
+                                                                "lte02000-2.50+0.5.{}".format(tail))
+
+    assert phoenix_name(5700, 6.0, -1.5, Z=False) == "lte05700-6.00-1.5.{}".format(tail)
 
 
 def test_phoenix_name_alpha_notimplemented():
@@ -185,8 +201,6 @@ def test_phoenix_name_alpha_notimplemented():
 
 
 def test_phoenix_regex():
-    print(phoenix_regex(2000, 2.5, 0.5))
-    print( os.path.join("Z+0.5","*02000-2.50+0.5.PHOENIX*.fits"))
-    assert phoenix_regex(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5","*02000-2.50+0.5.PHOENIX*.fits")
+    assert phoenix_regex(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5", "*02000-2.50+0.5.PHOENIX*.fits")
 
     assert phoenix_regex(12000, 3, 0, Z=False) == "*12000-3.00-0.0.PHOENIX*.fits"

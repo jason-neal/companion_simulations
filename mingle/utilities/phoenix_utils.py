@@ -469,6 +469,7 @@ def find_phoenix_model_names2(base_dir, original_model):
 
     """
     # "lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    z_dir = "Z" in original_model
     try:
         model_name = os.path.split(original_model)[-1]
     except Exception:
@@ -479,22 +480,12 @@ def find_phoenix_model_names2(base_dir, original_model):
     logg = float(model_name[9:13])
     metals = float(model_name[13:17])
 
-    new_temps = np.arange(-500, 501, 100) + temp
-    new_metals = np.arange(-1, 1.1, 0.5) + metals
-    new_loggs = np.arange(-1, 1.1, 0.5) + logg
+    new_temps, new_loggs, new_metals = gen_new_param_values(temp, logg, metals, small=False)
 
     close_models = []
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
-        if "Z" in original_model:
-            name = os.path.join(base_dir,
-                                "Z{0:+1.10}".format(m),
-                                "lte{0:05d}-{1:1.02f}{2:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
-        else:
-            name = os.path.join(base_dir,
-                                "lte{0:05d}-{1:1.02f}{2:+1.10}.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(t, l, m))
-
-        if "+0.0" in name:  # Positive zero is not allowed in naming
-            name = name.replace("+0.0", "-0.0")
+        name = phoenix_name(t, l, m, Z=z_dir)
+        name = os.path.join(base_dir, name)
 
         if os.path.isfile(name):
             close_models.append(name)
@@ -524,3 +515,4 @@ def phoenix_regex(teff, logg, feh, alpha=None, Z=False):
     if "+0.0" in regex:  # Positive zero is not allowed in naming
         regex = regex.replace("+0.0", "-0.0")
     return regex
+
