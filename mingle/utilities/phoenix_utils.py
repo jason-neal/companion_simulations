@@ -321,42 +321,35 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
     """teff, logg, Z.
 
     "Target" is required to make sure this is used correctly..."""
-    temp, logg, metals = params[0], params[1], params[2]
-    new_temps, new_loggs, new_metals = gen_new_param_values(temp, logg, metals, small=small)
-
-    if target == "host":
-        if simulators.sim_grid["teff_1"] is None:
-            pass
-        else:
-            new_temps = np.arange(*simulators.sim_grid["teff_1"]) + temp
-        if simulators.sim_grid["feh_1"] is None:
-            pass
-        else:
-            new_metals = np.arange(*simulators.sim_grid["feh_1"]) + metals
-        if simulators.sim_grid["logg_1"] is None:
-            pass
-        else:
-            new_loggs = np.arange(*simulators.sim_grid["logg_1"]) + logg
-
-    elif target == "companion":
-        if simulators.sim_grid["teff_2"] is None:
-            pass
-        else:
-            new_temps = np.arange(*simulators.sim_grid["teff_2"]) + temp
-        if simulators.sim_grid["feh_2"] is None:
-            pass
-        else:
-            new_metals = np.arange(*simulators.sim_grid["feh_2"]) + metals
-        if simulators.sim_grid["logg_2"] is None:
-            pass
-        else:
-            new_loggs = np.arange(*simulators.sim_grid["logg_2"]) + logg
-
-    else:
+    if target not in ["host", "companion"]:
         raise ValueError("Target must be 'host' or 'companion', not '{}'".format(target))
 
-    # print("simulator new params")
-    # print("new_temps", new_temps, "\nnew_loggs", new_loggs, "\nnew_metals", new_metals)
+    temp, logg, metals = params[0], params[1], params[2]
+    # This is the backup if not specified in config file.
+    bk_temps, bk_loggs, bk_metals = gen_new_param_values(temp, logg, metals, small=small)
+    print("params", params, target, small, limits)
+
+    teff_key = "teff_1" if target == "host" else "teff_2"
+    logg_key = "logg_1" if target == "host" else "logg_2"
+    feh_key = "feh_1" if target == "host" else "feh_2"
+
+    teff_values = simulators.sim_grid.get(teff_key)
+    logg_values = simulators.sim_grid.get(logg_key)
+    feh_values = simulators.sim_grid.get(feh_key)
+
+    if teff_values is None:
+        new_temps = bk_temps
+    else:
+        new_temps = np.arange(*teff_values) + temp
+
+    if feh_values is None:
+         new_metals = bk_metals
+    else:
+        new_metals = np.arange(*feh_values) + metals
+    if logg_values is None:
+        new_loggs = bk_loggs
+    else:
+        new_loggs = np.arange(*logg_values) + logg
 
     if limits == "phoenix":
         new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]

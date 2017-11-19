@@ -13,7 +13,7 @@ def host():
 
 @pytest.fixture
 def comp():
-    """Noramlized Companion spectrum fixture."""
+    """Normalized Companion spectrum fixture."""
     mod_spec = load_starfish_spectrum([2600, 4.50, 0.0], limits=[2110, 2165], normalize=True)
     return mod_spec
 

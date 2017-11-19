@@ -1,5 +1,6 @@
 """Testing phoenix utilities."""
 
+import itertools
 import os
 from types import GeneratorType
 
@@ -64,7 +65,7 @@ def test_phoenix_and_starfish_load_equally_with_limits(limits):
     spec1 = load_phoenix_spectrum(test_spectrum, limits=limits)
     spec2 = load_starfish_spectrum([2300, 5, 0], limits=limits)
 
-    spec2 = spec2.interpolate1d_to(spec1) # resamle to same axis
+    spec2 = spec2.interpolate1d_to(spec1)  # resamle to same axis
     assert spec1.xaxis[0] == spec2.xaxis[0]
     assert spec1.xaxis[-1] == spec2.xaxis[-1]
 
@@ -114,7 +115,6 @@ def test_generate_close_params_with_simulator_single_return():
     host_params = generate_close_params_with_simulator(start_params, "host")
     assert isinstance(host_params, GeneratorType)
     host_params = list(host_params)
-    print("host_params", host_params)
     comp_params = generate_close_params_with_simulator(start_params, "companion")
     assert isinstance(comp_params, GeneratorType)
     comp_params = list(comp_params)
@@ -192,6 +192,62 @@ def test_find_phoenix_model_names():
     assert "lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits" in found[0]
     assert len(found) == 1  # because only have one file suitable file in testdata atm.
 
+
+@pytest.mark.parametrize("target", ["not_host", "", 7])
+def test_gen_close_params_with_simulator_invalid_target(target):
+    with pytest.raises(ValueError):
+        generator = generate_close_params_with_simulator([5000, 4.5, 0.5], target=target)
+        generator.__next__()  # Need to act on it to make code work (and fail)
+
+
+@pytest.mark.parametrize("teff, logg, feh, expected_num", [
+    ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 27),
+    ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
+    ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 33)])
+def test_gen_close_params_with_simulator_gets_comp_set_to_sims(teff, logg, feh, expected_num):
+    simulators.sim_grid["teff_2"] = teff
+    simulators.sim_grid["logg_2"] = logg
+    simulators.sim_grid["feh_2"] = feh
+
+    result = generate_close_params_with_simulator([5000, 4.5, 0.5], target="companion")
+    assert isinstance(result, GeneratorType)
+    result = list(result)
+    print(result)
+    assert len(list(result)) == expected_num
+
+
+@pytest.mark.parametrize("teff, logg, feh, expected_num", [
+    ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 27),
+    ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
+    ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 33)])
+def test_gen_close_params_with_simulator_gets_host_set_to_sims(teff, logg, feh, expected_num):
+    simulators.sim_grid["teff_1"] = teff
+    simulators.sim_grid["logg_1"] = logg
+    simulators.sim_grid["feh_1"] = feh
+    result = generate_close_params_with_simulator([5000, 4.5, 0.5], target="host")
+    assert isinstance(result, GeneratorType)
+    result = list(result)
+    assert len(result) == expected_num
+
+
+@pytest.mark.parametrize("teff, logg, feh", [
+    (2900, 4.5, 0.0),
+    (5600, 2.5, 0.5),
+    (7200, 1.5, -1.5)
+])
+def test_gen_close_params_simulators_with_none_configured(teff, logg, feh):
+    for key in ["teff_1", "teff_2", "logg_1", "logg_2", "feh_1", "feh_2"]:
+        simulators.sim_grid[key] = None
+    gen_params = list(gen_new_param_values(teff, logg, feh, small=True))
+    host_close_none = list(generate_close_params_with_simulator([teff, logg, feh],
+                                                                target="host"))
+    comp_close_none = list(generate_close_params_with_simulator([teff, logg, feh],
+                                                                target="companion"))
+    par_result = []
+    for t, l, m in itertools.product(*gen_params):
+        par_result.append([t, l, m])
+    assert par_result == host_close_none
+    assert par_result == comp_close_none
 
 
 def test_phoenix_name():
