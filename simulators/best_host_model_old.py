@@ -28,8 +28,7 @@ from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
 from mingle.utilities.debug_utils import pv
 from mingle.utilities.model_convolution import convolve_models
 from mingle.utilities.param_file import load_param_file
-from mingle.utilities.phoenix_utils import \
-    find_phoenix_model_names2 as find_phoenix_model_names
+from mingle.utilities.phoenix_utils import find_phoenix_model_names
 from mingle.utilities.phoenix_utils import (load_phoenix_spectrum,
                                             phoenix_name_from_params, spec_local_norm)
 from mingle.utilities.spectrum_utils import load_spectrum, select_observation

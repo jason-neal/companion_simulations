@@ -387,82 +387,8 @@ def gen_new_param_values(temp, logg, metals, small=True):
     return new_temps, new_loggs, new_metals
 
 
-def find_phoenix_model_names(base_dir, ref_model, mode="temp"):
-    """Find other phoenix models with similar temp and metallicities.
-
-    Parameters
-    ----------
-    base_dir: str
-        Path to phoenix modes HiResFITS folder.
-    ref_model:
-       Model to start from and search around.
-    mode: str
-        Mode to find models, "temp" means all metallicity and logg but
-        just limit temperature to +/- 400 K, "small" - smaller range of
-        +/- 1 logg and metallicity. "all" search all.
-        "closest", find the closest matches the given parameters.
-
-    Returns
-    -------
-    phoenix_models: list[str]
-       List of filenames for phoenix models that match mode criteria.
-
-    Notes
-    -----
-    # Phoenix parameters
-    # Parameter   	Range	 Step size
-    # Teff [K]	 2300 - 7000	100
-    # 	        7000 - 12000	200
-    # log(g)	   0.0 - 6.0	0.5
-    # [Fe/H]	 -4.0 - -2.0	1.0
-    # 	         -2.0 - +1.0	0.5
-    # [α/M]	     -0.2 - +1.2	0.2
-
-    """
-    t_range = 400  # K
-    l_range = 1
-    f_range = 1
-    teffs = np.concatenate((np.arange(2300, 7000, 100),
-                            np.arange(7000, 12100, 200)))
-    loggs = np.arange(0, 6.1, 0.5)
-    fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.1, 0.5)))
-    # alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if necessary
-
-    ref_model = ref_model.split("/")[-1]  # In case has folders in name
-    ref_temp = int(ref_model[4:8])
-    ref_logg = float(ref_model[9:13])
-    ref_feh = float(ref_model[14:17])
-
-    if mode == "all":
-        glob_temps = teffs
-        glob_loggs = loggs
-        glob_fehs = fehs
-    elif mode == "temp":
-        glob_temps = teffs[((teffs > (ref_temp - t_range)) & (teffs < (ref_temp + t_range)))]
-        glob_loggs = loggs
-        glob_fehs = fehs
-    elif mode == "small":
-        glob_temps = teffs[((teffs > (ref_temp - t_range)) & (teffs < (ref_temp + t_range)))]
-        glob_loggs = loggs[((loggs > (ref_logg - l_range)) & (loggs < (ref_logg + l_range)))]
-        glob_fehs = fehs[((fehs > (ref_feh - f_range)) & (fehs < (ref_feh + f_range)))]
-
-    file_list = []
-    for t_, logg_, feh_ in itertools.product(glob_temps, glob_loggs, glob_fehs):
-        phoenix_glob = ("/Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
-                        "").format(t_, logg_, feh_)
-        logging.debug("Phoenix glob = {0}".format(phoenix_glob))
-        model_to_find = base_dir + phoenix_glob
-        files = glob.glob(model_to_find)
-        file_list += files
-    logging.debug("file list = {0}".format(file_list))
-    phoenix_models = file_list
-    # folder_file = ["/".join(f.split("/")[-2:]) for f in phoenix_models]
-
-    return phoenix_models
-
-
-# def find_phoenix_model_names2(base_dir: str, original_model: str) -> List[str]:    # mypy
-def find_phoenix_model_names2(base_dir, original_model):
+# def find_phoenix_model_names(base_dir: str, original_model: str) -> List[str]:    # mypy
+def find_phoenix_model_names(base_dir, original_model):
     """Find other phoenix models with similar temp and metallicities.
 
     Returns list of model name strings.

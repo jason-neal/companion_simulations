@@ -1,7 +1,7 @@
 """best_host_mode_HD211847l.py.
 
 Jason Neal
-2nd Janurary 2017
+Started 2nd January 2017
 
 Compare observed spectra to many different phoenix-aces spectral models to find which matches one is best fit by itself.
 

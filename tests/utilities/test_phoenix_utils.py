@@ -175,10 +175,11 @@ def test_phoenix_name():
     assert phoenix_name(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5", ("lte02000-2.50+0.5."
                         "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"))
 
-def test_find_phoenix_model_names2():
+
+def test_find_phoenix_model_names():
     base_dir = os.path.join("tests", "testdata")
     original_model = "lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-    found = find_phoenix_model_names2(base_dir, original_model)
+    found = find_phoenix_model_names(base_dir, original_model)
     print("found models", found)
     assert "lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits" in found[0]
     assert len(found) == 1  # because only have one file suitable file in testdata atm.
