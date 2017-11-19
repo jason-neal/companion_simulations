@@ -1,10 +1,13 @@
 """Testing utilities."""
 
+import os
+
 import pytest
 
 import simulators
 from mingle.utilities import param_file
 from mingle.utilities.crires_utilities import crires_resolution
+from mingle.utilities.io import get_filenames
 
 
 def test_crires_resolution():
@@ -71,3 +74,22 @@ def test_load_paramfile_returns_parse_paramfile():
 
     assert params == params2
     assert isinstance(params2, dict)
+
+
+def test_get_filenames_with_one_regex():
+    print("cwd", os.getcwd())
+    results = get_filenames("tests/testdata/handy_spectra", "detect*")
+
+    assert "detector_masks.json" in results
+    assert "detector_snrs.json" in results
+    assert len(results) == 2
+
+
+def test_get_filenames_with_two_regex():
+    results = get_filenames("tests/utilities", "test_*", "*_util*")
+
+    assert "test_phoenix_utils.py" in results
+    assert "test_simulation_utils.py" in results
+    assert "test_spectrum_utils.py" in results
+    assert "test_utilities.py" in results
+    assert len(results) == 4
