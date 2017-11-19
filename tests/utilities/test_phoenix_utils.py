@@ -1,5 +1,6 @@
 """Testing phoenix utilities."""
 
+import os
 from types import GeneratorType
 
 import numpy as np
@@ -12,6 +13,8 @@ from mingle.utilities.phoenix_utils import (gen_new_param_values,
                                             generate_close_params_with_simulator,
                                             load_phoenix_spectrum,
                                             load_starfish_spectrum, phoenix_area)
+from mingle.utilities.phoenix_utils import phoenix_name, phoenix_regex, \
+    find_closest_phoenix_name, find_phoenix_model_names
 
 
 @pytest.mark.parametrize("limits, normalize", [([2100, 2150], True), ([2050, 2150], False)])
@@ -165,8 +168,8 @@ def closest_model_params(input, expected):
     assert closest_model_params(*input) == expected
 
 
+from mingle.utilities.phoenix_utils import (phoenix_name_from_params)
 
-from mingle.utilities.phoenix_utils import phoenix_name, phoenix_regex
 def test_phoenix_name():
 
     print(phoenix_name(2000, 2.5, 0.5))
