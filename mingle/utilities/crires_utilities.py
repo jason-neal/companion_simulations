@@ -4,7 +4,6 @@
 # A script/module to barycentric correct a crires observation
 # Barycentric correction of CRIRES spectrum given the header information
 
-from __future__ import division, print_function
 
 import logging
 

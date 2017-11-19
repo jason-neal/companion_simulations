@@ -12,7 +12,6 @@
 # for complete simulations.
 
 # Create the test spectra.
-from __future__ import division, print_function
 
 import logging
 import os

@@ -2,7 +2,6 @@
 # New Version of alpha_detection using Parallel and
 # methodolgy from grid_chisquare.
 
-from __future__ import division, print_function
 
 import copy
 import logging

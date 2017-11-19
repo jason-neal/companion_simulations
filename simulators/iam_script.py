@@ -6,7 +6,6 @@ Jason Neal
 
 Using the flux ratio of the spectra themselves.
 """
-from __future__ import division, print_function
 
 import argparse
 import logging

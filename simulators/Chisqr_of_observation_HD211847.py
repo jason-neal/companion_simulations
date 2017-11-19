@@ -3,7 +3,6 @@
 
 Jason Neal November 2016.
 """
-from __future__ import division, print_function
 
 import logging
 import os

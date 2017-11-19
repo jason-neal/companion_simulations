@@ -5,7 +5,6 @@
 To determine the recovery of planetary spectra.
 """
 
-from __future__ import division, print_function
 
 import copy
 import logging

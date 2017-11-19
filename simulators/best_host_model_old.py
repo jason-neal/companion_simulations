@@ -10,7 +10,6 @@ Possibly bu sampling a few and then taking average value (they should be all
 the same I would think unless the lines changed dramatically).
 
 """
-from __future__ import division, print_function
 
 import logging
 import os
