@@ -499,3 +499,28 @@ def find_phoenix_model_names2(base_dir, original_model):
         if os.path.isfile(name):
             close_models.append(name)
     return close_models
+
+
+def phoenix_name(teff, logg, feh, alpha=None, Z=False):
+    if alpha is not None:
+        raise NotImplementedError("Need to add alpha to phoenix name.")
+    name = os.path.join("lte{0:05d}-{1:1.02f}{2:+1.10}."
+                        "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits".format(teff, logg, feh))
+    if Z:
+        name = os.path.join("Z{0:+1.10}".format(feh), name)
+
+    if "+0.0" in name:  # Positive zero is not allowed in naming
+       name = name.replace("+0.0", "-0.0")
+    return name
+
+
+def phoenix_regex(teff, logg, feh, alpha=None, Z=False):
+    if alpha is not None:
+        raise NotImplementedError("Need to add alpha to phoenix name.")
+    regex = ("*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
+                    "").format(teff, logg, feh)
+    if Z:
+        regex = os.path.join("Z{0:+1.10}".format(feh), regex)
+    if "+0.0" in regex:  # Positive zero is not allowed in naming
+        regex = regex.replace("+0.0", "-0.0")
+    return regex

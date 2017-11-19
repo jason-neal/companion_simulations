@@ -164,3 +164,29 @@ def test_load_starfish_flux_rescale():
 def closest_model_params(input, expected):
     assert closest_model_params(*input) == expected
 
+
+
+from mingle.utilities.phoenix_utils import phoenix_name, phoenix_regex
+def test_phoenix_name():
+
+    print(phoenix_name(2000, 2.5, 0.5))
+    print(os.path.join("Z+0.5", ("lte02000-2.50+0.5."
+                        "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits")))
+    assert phoenix_name(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5", ("lte02000-2.50+0.5."
+                        "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"))
+
+assert phoenix_name(5700, 6.0, -1.5, Z=False) == ("lte05700-6.00-1.5."
+                        "PHOENIX-ACES-AGSS-COND-2011-HiRes.fits")
+
+
+def test_phoenix_name_alpha_notimplemented():
+    with pytest.raises(NotImplementedError):
+        phoenix_name(5000, 1.5, 0.0, alpha=0.2)
+
+
+def test_phoenix_regex():
+    print(phoenix_regex(2000, 2.5, 0.5))
+    print( os.path.join("Z+0.5","*02000-2.50+0.5.PHOENIX*.fits"))
+    assert phoenix_regex(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5","*02000-2.50+0.5.PHOENIX*.fits")
+
+    assert phoenix_regex(12000, 3, 0, Z=False) == "*12000-3.00-0.0.PHOENIX*.fits"
