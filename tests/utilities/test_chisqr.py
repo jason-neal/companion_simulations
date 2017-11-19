@@ -44,10 +44,12 @@ def test_reduced_chi_squared_without_erros_equals_scipy(chi2, n, p, expected):
     assert np.all(reduced_chi_squared(chi2, n, p) == expected)
 
 
-@pytest.mark.xfail()
 def test_spectrum_chi_squared(host):
-    pass
-    assert False
+    host2 = host.copy()
+    host2.flux *= 2
+    spec_chi2 = spectrum_chisqr(host, host2)
+    chi2 = chi_squared(host.flux, host2.flux)
+    assert np.allclose(spec_chi2, chi2)
 
 
 def test_spectrum_chi_squared_model_equal_observed_gives_zero(host):
