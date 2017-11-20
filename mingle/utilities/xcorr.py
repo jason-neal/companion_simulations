@@ -1,28 +1,31 @@
 """Cross-correlation of spectrum."""
 
-import numpy as np
-
 import matplotlib.pyplot as plt
+import numpy as np
+from spectrum_overload import Spectrum
 
 
 def xcorr_peak(spectrum, model, plot=False):
-    """Find RV offset between a spectrum and a model using pyastronomy.
+    """Find RV offset between a spectrum and a model using PyAstronomy.
 
     Parameters
     ----------
     spectrum: Spectrum
        Target Spectrum object.
     model: Spectrum
-        Template Specturm object.
+        Template Spectrum object.
     plot:bool
         Turn on plots.
     Returns
     -------
     rv_max: float
-        Radial velocity vlaue corresponding to maximum correlation.
+        Radial velocity value corresponding to maximum correlation.
     cc_max: float
         Cross-correlation value corresponding to maximum correlation.
     """
+    assert isinstance(spectrum, Spectrum)
+    assert isinstance(model, Spectrum)
+
     rv, cc = spectrum.crosscorrRV(model, rvmin=-60., rvmax=60.0, drv=0.1,
                                   mode='doppler', skipedge=50)  # Specturm method
 
