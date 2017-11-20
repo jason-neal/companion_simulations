@@ -23,8 +23,7 @@ def make_dirs(old_path, new_path):
         folder = os.path.split(d)[-1]
         new_dir = os.path.join(new_path, folder)
 
-        if not os.path.exists(new_dir):
-            os.makedirs(new_dir)
+        os.makedirs(new_dir, exist_ok=True)
     return 0
 
 
