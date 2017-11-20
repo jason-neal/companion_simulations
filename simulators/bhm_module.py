@@ -106,13 +106,13 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         ###################
 
         npix = obs_flux.shape[0]
-        save_bhm_chisqr(save_name, params, gammas, bhm_grid_chisquare, npix)
+        save_full_bhm_chisqr(save_name, params, gammas, bhm_grid_chisquare, npix)
 
     return (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
             bhm_grid_chisqr_vals, bhm_grid_gamma, full_bhm_grid_chisquare)
 
 
-def save_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare, npix):
+def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare, npix):
     """Save the bhm chisqr values to a cvs."""
     assert gammas.shape == bhm_grid_chisquare.shape
 

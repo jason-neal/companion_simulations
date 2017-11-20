@@ -171,7 +171,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
 
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
             npix = obs_flux.shape[0]
-            save_full_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix,
+            save_full_tcm_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix,
                              verbose=verbose)
 
         if save_only:
@@ -180,7 +180,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
             return broadcast_chisqr_vals
 
 
-def save_full_chisqr(filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix, verbose=False):
+def save_full_tcm_chisqr(filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix, verbose=False):
     """Save the iterations chisqr values to a cvs."""
     a_grid, r_grid, g_grid = np.meshgrid(alphas, rvs, gammas, indexing='ij')
     assert a_grid.shape == r_grid.shape
