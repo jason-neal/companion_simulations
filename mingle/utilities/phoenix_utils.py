@@ -213,7 +213,7 @@ def closest_model_params(teff, logg, feh, alpha=None):
 
 
 # find_closest_phoenix_name   # Should change to this
-def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None):
+def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None, Z=True):
     """Find the closest PHOENIX-ACES model to the stellar parameters given.
 
     alpha parameter is  not implemented yet.
@@ -246,9 +246,12 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None):
                         "").format(closest_teff, closest_logg, closest_feh,
                                    closest_alpha)
     else:
-        phoenix_glob = ("Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
+        if Z:
+            phoenix_glob = ("Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                         "").format(closest_teff, closest_logg, closest_feh)
-    logging.debug("Old Phoenix_glob {}".format(phoenix_glob))
+        else:
+            phoenix_glob = ("*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
+                            "").format(closest_teff, closest_logg, closest_feh)
     phoenix_glob = phoenix_glob.replace("+0.0", "-0.0")  # Replace positive 0 metallicity with negative 0
     logging.debug("New Phoenix_glob {}".format(phoenix_glob))
     joint_glob = os.path.join(data_dir, phoenix_glob)
