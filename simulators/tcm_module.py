@@ -24,7 +24,7 @@ def tcm_helper_function(star, obs_num, chip):
 
     output_prefix = os.path.join(
         simulators.paths["output_dir"], star.upper(),
-        "{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obs_num, chip))
+        "{0}-{1}_{2}_tcm_chisqr_results".format(star.upper(), obs_num, chip))
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper()), exist_ok=True)
     return obs_name, params, output_prefix
 
