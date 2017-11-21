@@ -16,6 +16,14 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model
 from mingle.utilities.xcorr import xcorr_peak
 
 
+
+def setup_bhm_dirs(star):
+    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm"), exist_ok=True)
+    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "plots"), exist_ok=True)
+    # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "grid_plots"), exist_ok=True)
+    # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "fudgeplots"), exist_ok=True)
+    return None
+
 def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, verbose=False, chip=None, norm=False,
                  wav_scale=True):
     """Run one component model over all parameter combinations in model_pars."""

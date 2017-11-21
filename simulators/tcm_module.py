@@ -8,11 +8,20 @@ from tqdm import tqdm
 
 import simulators
 from mingle.models.broadcasted_models import two_comp_model
+from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.norm import chi2_model_norms
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
-from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
-from mingle.utilities.chisqr import chi_squared
+from mingle.utilities.simulation_utilities import check_inputs
+from simulators.iam_module import observation_rv_limits
+
+
+def setup_tcm_dirs(star):
+    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm"), exist_ok=True)
+    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "plots"), exist_ok=True)
+    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "grid_plots"), exist_ok=True)
+    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "fudgeplots"), exist_ok=True)
+    return None
 
 
 def tcm_helper_function(star, obs_num, chip):
@@ -135,11 +144,10 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
                                                normalize=True, wav_scale=wav_scale)
 
             # Wavelength selection
-            delta = spec_max_delta(obs_spec, rvs, gammas)
-            obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
+            rv_limits = observation_rv_limits(obs_spec, rvs, gammas)
+            mod1_spec.wav_select(*rv_limits)
+            mod2_spec.wav_select(*rv_limits)
 
-            mod1_spec.wav_select(obs_min - delta, obs_max + delta)
-            mod2_spec.wav_select(obs_min - delta, obs_max + delta)
             obs_spec = obs_spec.remove_nans()
 
             # One component model with broadcasting over gammas
@@ -170,7 +178,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
             npix = obs_flux.shape[0]
             save_full_tcm_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix,
-                             verbose=verbose)
+                                 verbose=verbose)
 
         if save_only:
             return None

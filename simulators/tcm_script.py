@@ -26,9 +26,8 @@ from mingle.utilities.errors import spectrum_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
 from mingle.utilities.spectrum_utils import load_spectrum  # , select_observation
-from simulators.iam_module import setup_dirs
 from simulators.tcm_module import (parallel_tcm_analysis, tcm_analysis,
-                                   tcm_helper_function)
+                                   tcm_helper_function, setup_tcm_dirs)
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -66,7 +65,7 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
     star = "HD211847"
     obs_num = 2
     star = star.upper()
-    setup_dirs(star)
+    setup_tcm_dirs(star)
     if chip is None:
         chip = 4
 

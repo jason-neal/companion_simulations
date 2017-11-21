@@ -9,8 +9,8 @@ from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.spectrum_utils import load_spectrum
-from simulators.bhm_module import bhm_analysis
-from simulators.iam_module import setup_dirs
+from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_model_pars
+from simulators.bhm_module import setup_bhm_dirs
 
 
 def _parser():
@@ -37,7 +37,7 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     """Best Host modelling main function."""
     wav_scale = not disable_wav_scale
     star = star.upper()
-    setup_dirs(star)
+    setup_bhm_dirs(star)
     # Define the broadcasted gamma grid
     gammas = np.arange(*simulators.sim_grid["gammas"])
     print("bhm gammas", gammas)

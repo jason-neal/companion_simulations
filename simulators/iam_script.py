@@ -27,7 +27,7 @@ from mingle.utilities.phoenix_utils import (closest_model_params,
 from mingle.utilities.simulation_utilities import check_inputs
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import (iam_analysis, iam_helper_function,
-                                   parallel_iam_analysis, setup_dirs)
+                                   parallel_iam_analysis, setup_iam_dirs)
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -84,7 +84,7 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
         chip = 4
 
     star = star.upper()
-    setup_dirs(star)
+    setup_iam_dirs(star)
     obs_name, params, output_prefix = iam_helper_function(star, obs_num, chip)
     if suffix is not None:
         output_prefix = output_prefix + str(suffix)

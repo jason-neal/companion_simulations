@@ -31,7 +31,7 @@ def iam_helper_function(star, obs_num, chip):
     return obs_name, params, output_prefix
 
 
-def setup_dirs(star):
+def setup_iam_dirs(star):
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper()), exist_ok=True)
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "plots"), exist_ok=True)
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "grid_plots"), exist_ok=True)
