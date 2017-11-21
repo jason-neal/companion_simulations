@@ -303,7 +303,7 @@ def smallest_chi2_values(table, params, num=10):
     print(df.head(n=num))
     # name = "{0}-{1}_{2}_test_smallest_chi2_{3}.pdf".format(
     # params["star"], params["obs_num"], params["chip"], params["suffix"])
-    name = "minimum_coaad_chi2_db_ouput_{0}_{1}_{2}.csv".format(params["star"], params["obs_num"], params["suffix"])
+    name = "minimum_coadd_chi2_db_output_{0}_{1}_{2}.csv".format(params["star"], params["obs_num"], params["suffix"])
     from bin.check_result import main as visual_inspection
     df.to_csv(os.path.join(params["path"], name))
 

@@ -16,13 +16,13 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model
 from mingle.utilities.xcorr import xcorr_peak
 
 
-
 def setup_bhm_dirs(star):
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm"), exist_ok=True)
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "plots"), exist_ok=True)
     # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "grid_plots"), exist_ok=True)
     # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "fudgeplots"), exist_ok=True)
     return None
+
 
 def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, verbose=False, chip=None, norm=False,
                  wav_scale=True):
@@ -87,9 +87,9 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
 
         # Interpolate to obs
         mod_spec.spline_interpolate_to(obs_spec)
-        model_chi_val = chi_squared(obs_spec.flux, mod_spec.flux)
+        org_model_chi_val = chi_squared(obs_spec.flux, mod_spec.flux)
 
-        model_chisqr_vals[ii] = model_chi_val
+        model_chisqr_vals[ii] = org_model_chi_val   # This is gamma = 0 version
 
         print("bhm_grid_chisquare.shape", bhm_grid_chisquare.shape)
 
