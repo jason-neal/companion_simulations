@@ -17,8 +17,6 @@ from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 
-debug = logging.debug
-
 
 def iam_helper_function(star, obs_num, chip):
     """Specifies parameter files and output directories given observation parameters."""
@@ -44,9 +42,9 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
     gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
-        debug("Number of close model_pars returned {0}".format(len(model1_pars)))
+        logging.debug("Number of close model_pars returned {0}".format(len(model1_pars)))
     if isinstance(model2_pars, list):
-        debug("Number of close model_pars returned {0}".format(len(model2_pars)))
+        logging.debug("Number of close model_pars returned {0}".format(len(model2_pars)))
 
     # Solution Grids to return
     iam_grid_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
@@ -74,9 +72,9 @@ def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
     gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
-        debug("Number of close model_pars returned {0}".format(len(model1_pars)))
+        logging.debug("Number of close model_pars returned {0}".format(len(model1_pars)))
     if isinstance(model2_pars, list):
-        debug("Number of close model_pars returned {0}".format(len(model2_pars)))
+        logging.debug("Number of close model_pars returned {0}".format(len(model2_pars)))
 
     def filled_iam_wrapper(num, param):
         """Fill in all extra parameters for parallel wrapper."""

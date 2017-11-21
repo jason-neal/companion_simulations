@@ -13,7 +13,6 @@ from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 from mingle.utilities.chisqr import chi_squared
-debug = logging.debug
 
 
 def tcm_helper_function(star, obs_num, chip):
@@ -38,9 +37,9 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
     gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model1_pars)))
+        logging.debug("Number of close model_pars returned {}".format(len(model1_pars)))
     if isinstance(model2_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model2_pars)))
+        logging.debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
     args = [model2_pars, alphas, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
@@ -67,9 +66,9 @@ def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
     gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model1_pars)))
+        logging.debug("Number of close model_pars returned {}".format(len(model1_pars)))
     if isinstance(model2_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model2_pars)))
+        logging.debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
     # def filled_tcm_wrapper(num, param):
     #     """Fill in all extra parameters for parallel wrapper."""

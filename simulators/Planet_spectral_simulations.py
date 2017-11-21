@@ -21,7 +21,6 @@ from mingle.utilities.debug_utils import pv
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
-debug = logging.debug
 
 
 def RV_shift():
@@ -78,7 +77,7 @@ def load_model_spec(pathwave, specpath, limits=None, normalize=False):
     hdr = fits.getheader(specpath)
     spec = Spectrum(xaxis=w_mod, flux=flux, header=hdr)
 
-    debug(pv("spec.xaxis"))
+    logging.debug(pv("spec.xaxis"))
     if limits is not None:
         """Apply wavelength limits with slicing."""
         spec.wav_select(*limits)

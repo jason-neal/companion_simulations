@@ -13,8 +13,6 @@ from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.xcorr import xcorr_peak
 
-debug = logging.debug
-
 
 def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, verbose=False, chip=None, norm=False,
                  wav_scale=True):
@@ -26,7 +24,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         gammas = np.asarray(gammas, dtype=np.float32)
 
     if isinstance(model_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model_pars)))
+        logging.debug("Number of close model_pars returned {}".format(len(model_pars)))
 
     # Solution Grids to return
     model_chisqr_vals = np.empty(len(model_pars))
@@ -59,7 +57,6 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         mod_spec.wav_select(np.min(obs_spec.xaxis) - 5,
                             np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
 
-
         obs_spec = obs_spec.remove_nans()
 
         # One component model with broadcasting over gammas
@@ -86,7 +83,6 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         model_chisqr_vals[ii] = model_chi_val
 
         print("bhm_grid_chisquare.shape", bhm_grid_chisquare.shape)
-
 
         # New parameters to explore
         bhm_grid_chisqr_vals[ii] = bhm_grid_chisquare[np.argmin(bhm_grid_chisquare)]

@@ -6,7 +6,6 @@ from astropy.io import fits
 from matplotlib import pyplot as plt
 from spectrum_overload import Spectrum
 
-debug = logging.debug
 
 
 def load_spectrum(name, corrected=True):
@@ -71,7 +70,7 @@ def select_observation(star, obs_num, chip):
                 "{}/Combined_Nods".format(star, obs_num))
         filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
                                   "*_{}.nod.ms.*".format(chip))
-        debug("Filenames from 2017 reductions {}".format(filenames))
+        logging.debug("Filenames from 2017 reductions {}".format(filenames))
         if len(filenames) is not 0:
             crires_name = filenames[0]
         else:

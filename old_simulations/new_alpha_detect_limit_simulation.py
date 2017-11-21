@@ -17,7 +17,6 @@ from mingle.utilities.chisqr import parallel_chisqr
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
-debug = logging.debug
 
 
 def main():

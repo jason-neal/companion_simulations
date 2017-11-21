@@ -47,7 +47,6 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
-debug = logging.debug
 
 
 def parallel_chisquared(i, j, alpha, rv, res, snr, observation, host_models,

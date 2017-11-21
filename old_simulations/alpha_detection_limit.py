@@ -31,7 +31,6 @@ from simulators.Planet_spectral_simulations import combine_spectra, load_PHOENIX
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
-debug = logging.debug
 
 
 def main():

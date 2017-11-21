@@ -183,7 +183,6 @@ def test_find_closest_phoenix_name():
     assert "lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits" in name[0]
 
 
-
 def test_find_phoenix_model_names():
     base_dir = os.path.join("tests", "testdata")
     original_model = "lte02500-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"

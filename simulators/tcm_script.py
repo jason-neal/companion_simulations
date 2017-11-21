@@ -31,7 +31,6 @@ from simulators.tcm_module import (parallel_tcm_analysis, tcm_analysis,
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
-debug = logging.debug
 
 wav_dir = simulators.starfish_grid["raw_path"]
 

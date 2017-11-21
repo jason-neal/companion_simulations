@@ -32,7 +32,7 @@ from simulators.bhm_module import bhm_analysis
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
-debug = logging.debug
+
 
 wav_dir = simulators.starfish_grid["raw_path"]
 
@@ -59,9 +59,9 @@ def main():
     # closest_comp_model = closest_model_params(*comp_params)
 
     # original_model = "Z-0.0/lte05700-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-    # debug(pv("closest_host_model"))
-    # debug(pv("closest_comp_model"))
-    # debug(pv("original_model"))
+    # logging.debug(pv("closest_host_model"))
+    # logging.debug(pv("closest_comp_model"))
+    # logging.debug(pv("original_model"))
 
     # Function to find the good models I need
     # models = find_phoenix_model_names(model_base_dir, original_model)
@@ -148,8 +148,8 @@ def main():
                 print("broadcast val", broadcast_chisqr_vals[mask],
                       "\norg val", model_chisqr_vals[mask])
 
-    # debug(pv("model_chisqr_vals"))
-    # debug(pv("model_xcorr_vals"))
+    # logging.debug(pv("model_chisqr_vals"))
+    # logging.debug(pv("model_xcorr_vals"))
     chisqr_argmin_indx = np.argmin(model_chisqr_vals)
     xcorr_argmax_indx = np.argmax(model_xcorr_vals)
 
@@ -160,7 +160,7 @@ def main():
     print("Maximum Xcorr value =", model_xcorr_vals[xcorr_argmax_indx])  # , max(model_xcorr_vals)
     print("Xcorr at min Chiqsr", model_xcorr_vals[chisqr_argmin_indx])
 
-    # debug(pv("model_xcorr_rv_vals"))
+    # logging.debug(pv("model_xcorr_rv_vals"))
     print("RV at max xcorr =", model_xcorr_rv_vals[xcorr_argmax_indx])
     # print("Meadian RV val =", np.median(model_xcorr_rv_vals))
     print(pv("model_xcorr_rv_vals[chisqr_argmin_indx]"))
@@ -189,7 +189,7 @@ def main():
     plt.xlim(*limits)
     plt.show()
 
-    debug("After plot")
+    logging.debug("After plot")
 
 
 if __name__ == "__main__":

@@ -28,7 +28,6 @@ from mingle.utilities.spectrum_utils import load_spectrum, select_observation
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
-debug = logging.debug
 
 
 def main():
@@ -80,7 +79,7 @@ def main():
     print("host_rv", host_rv, "km/s")
 
     offset = -host_rv  # -22
-    debug(pv("offset"))
+    logging.debug(pv("offset"))
     # offset = 0  # -22
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum

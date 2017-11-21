@@ -25,7 +25,6 @@ from mingle.utilities.spectrum_utils import load_spectrum, select_observation
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
-debug = logging.debug
 
 
 # First plot the observation with the model

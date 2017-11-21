@@ -36,7 +36,7 @@ from mingle.utilities.xcorr import xcorr_peak
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
-debug = logging.debug
+
 
 model_base_dir = (simulators.starfish_grid["raw_path"])
 wav_dir = simulators.starfish_grid["raw_path"]
@@ -60,17 +60,17 @@ def main():
 
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
     wav_model /= 10  # turn into nm
-    debug("Phoenix wav_model = {}".format(wav_model))
+    logging.debug("Phoenix wav_model = {}".format(wav_model))
 
     closest_model = phoenix_name_from_params(model_base_dir, host_parameters)
     original_model = "Z-0.0/lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-    debug("closest_model {}".format(closest_model))
-    debug("original_model {}".format(original_model))
+    logging.debug("closest_model {}".format(closest_model))
+    logging.debug("original_model {}".format(original_model))
 
     # Function to find the good models I need
     models = find_phoenix_model_names(model_base_dir, original_model)
     if isinstance(models, list):
-        debug("Number of close models returned {}".format(len(models)))
+        logging.debug("Number of close models returned {}".format(len(models)))
 
     model_chisqr_vals = np.empty_like(models)
     model_xcorr_vals = np.empty_like(models)
@@ -93,7 +93,7 @@ def main():
 
         # Convolve to resolution of instrument
         conv_mod_spectrum = convolve_models([norm_mod_spectrum], obs_resolution, chip_limits=None)[0]
-        # debug(conv_mod_spectrum)
+        # logging.debug(conv_mod_spectrum)
         # Find crosscorrelation RV
         # # Should run though all models and find best rv to apply uniformly
         rvoffset, cc_max = xcorr_peak(observed_spectra, conv_mod_spectrum, plot=False)
@@ -108,15 +108,15 @@ def main():
         model_xcorr_vals[ii] = cc_max
         model_xcorr_rv_vals[ii] = rvoffset
 
-    debug(pv("model_chisqr_vals"))
-    debug(pv("model_xcorr_vals"))
+    logging.debug(pv("model_chisqr_vals"))
+    logging.debug(pv("model_xcorr_vals"))
     chisqr_argmin_indx = np.argmin(model_chisqr_vals)
     xcorr_argmax_indx = np.argmax(model_xcorr_vals)
 
-    debug(pv("chisqr_argmin_indx"))
-    debug(pv("xcorr_argmax_indx"))
+    logging.debug(pv("chisqr_argmin_indx"))
+    logging.debug(pv("xcorr_argmax_indx"))
 
-    debug(pv("model_chisqr_vals"))
+    logging.debug(pv("model_chisqr_vals"))
     print("Minimum  Chisqr value =", model_chisqr_vals[chisqr_argmin_indx])  # , min(model_chisqr_vals)
     print("Chisqr at max correlation value", model_chisqr_vals[chisqr_argmin_indx])
 
@@ -124,7 +124,7 @@ def main():
     print("Maximum Xcorr value =", model_xcorr_vals[xcorr_argmax_indx])  # , max(model_xcorr_vals)
     print("Xcorr at min Chiqsr", model_xcorr_vals[chisqr_argmin_indx])
 
-    debug(pv("model_xcorr_rv_vals"))
+    logging.debug(pv("model_xcorr_rv_vals"))
     print("RV at max xcorr =", model_xcorr_rv_vals[xcorr_argmax_indx])
     # print("Meadian RV val =", np.median(model_xcorr_rv_vals))
     print(pv("model_xcorr_rv_vals[chisqr_argmin_indx]"))

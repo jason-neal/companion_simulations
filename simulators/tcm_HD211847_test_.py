@@ -37,7 +37,7 @@ from simulators.tcm_module import save_full_chisqr, tcm_helper_function
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
-debug = logging.debug
+
 
 model_base_dir = (simulators["raw_path"])
 wav_dir = simulators["raw_path"]
@@ -141,9 +141,9 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
         gammas = np.asarray(gammas, dtype=np.float32)
 
     if isinstance(model1_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model1_pars)))
+        logging.debug("Number of close model_pars returned {}".format(len(model1_pars)))
     if isinstance(model2_pars, list):
-        debug("Number of close model_pars returned {}".format(len(model2_pars)))
+        logging.debug("Number of close model_pars returned {}".format(len(model2_pars)))
 
     print("host params", model1_pars)
     print("companion params", model2_pars)
