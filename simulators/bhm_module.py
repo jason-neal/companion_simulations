@@ -49,13 +49,11 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
     for ii, params in enumerate(tqdm(model_pars)):
         if prefix is None:
             save_name = os.path.join(
-                simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper(),
+                simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper(), "bhm",
                 "bhm_{0}_{1}_{3}_part{2}.csv".format(
                     obs_spec.header["OBJECT"].upper(), obs_spec.header["MJD-OBS"], ii, chip))
         else:
-            save_name = os.path.join(
-                simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper(),
-                "{0}_part{1}.csv".format(prefix, ii))
+            save_name = os.path.join("{0}_part{1}.csv".format(prefix, ii))
 
         if verbose:
             print("Starting iteration with parameter:s\n{}".format(params))
@@ -65,7 +63,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
 
         # Wavelength selection
         mod_spec.wav_select(np.min(obs_spec.xaxis) - 5,
-                            np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs for convolution
+                            np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs
 
         obs_spec = obs_spec.remove_nans()
 
@@ -141,7 +139,7 @@ def bhm_helper_function(star, obs_num, chip):
         simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
 
     output_prefix = os.path.join(
-        simulators.paths["output_dir"], star.upper(),
+        simulators.paths["output_dir"], star.upper(), "bhm",
         "{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obs_num, chip))
     return obs_name, params, output_prefix
 
