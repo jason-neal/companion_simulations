@@ -187,6 +187,20 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             inherent_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
 
             # Combine model spectra with iam model
+            mod1_spec.plot(label=params1)
+            mod2_spec.plot(label=params2)
+            fudge_factor = 1.3
+            mod2_spec.flux *= fudge_factor   # fudge factor
+            mod2_spec.plot(label="fudged {0}".format(params2))
+            plt.title("fudges models")
+            plt.legend()
+            fname = os.path.join(simulators.paths["output_dir"],
+                                 obs_spec.header["OBJECT"].upper(), "fudgeplots",
+                                 "fudged_model_spectra_factor={0}_now={1}.png".format(fudge_factor,
+                                                                                      datetime.datetime.now()))
+            plt.savefig(fname)
+            warnings.warn("Using a fudge factor")
+
             iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
                                                  rvs=rvs, gammas=gammas)
             iam_grid_models = iam_grid_func(obs_spec.xaxis)
