@@ -24,7 +24,7 @@ def test_tcm_helper_function(star, obs, chip):
     assert params["name"] == star.lower()
 
 
-def test_setup_dirs_creates_dirs(tmpdir):
+def test_setup_tcm_dirs_creates_dirs(tmpdir):
     simulators.paths["output_dir"] = tmpdir
     star = "TestStar"
     assert not os.path.exists(os.path.join(tmpdir, star.upper()))

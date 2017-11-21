@@ -41,7 +41,7 @@ def test_bhm_helper_function(star, obs, chip):
     assert params["name"] == star.lower()
 
 
-def test_setup_dirs_creates_dirs(tmpdir):
+def test_setup_bhm_dirs_creates_dirs(tmpdir):
     simulators.paths["output_dir"] = tmpdir
     star = "TestStar"
     assert not os.path.exists(os.path.join(tmpdir, star.upper()))
@@ -55,3 +55,4 @@ def test_setup_dirs_creates_dirs(tmpdir):
     # assert os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "grid_plots"))
     # assert os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "fudgeplots"))
     assert result is None
+

@@ -39,7 +39,6 @@ def test_save_full_ima_chisqr(tmpdir):
     assert np.all(df.chi2 == df.gamma * df.rv)
 
 
-@pytest.mark.xfail()
 def test_save_full_bhm_chisqr(tmpdir):
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
@@ -70,7 +69,6 @@ def test_save_full_bhm_chisqr(tmpdir):
     assert np.all(df.chi2 == df.gamma * df.rv)
 
 
-@pytest.mark.xfail()
 def test_save_full_tcm_chisqr(tmpdir):
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
