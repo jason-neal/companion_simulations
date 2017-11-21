@@ -41,7 +41,7 @@ maxind = np.argmax(cc)
 print("Cross-correlation function is maximized at dRV = ", rv[maxind], " km/s")
 
 # Test xcorr in spectrum
-rv2, cc2 = obs_spectrum.crosscorrRV(template_spectrum, rvmin=-60., rvmax=60.0, drv=0.1, mode='doppler', skipedge=2000)
+rv2, cc2 = obs_spectrum.crosscorr_rv(template_spectrum, rvmin=-60., rvmax=60.0, drv=0.1, mode='doppler', skipedge=2000)
 maxind2 = np.argmax(cc2)
 print("Spectrum Cross-correlation function is maximized at dRV = ", rv2[maxind2], " km/s")
 
@@ -68,7 +68,7 @@ obs_spectrum2 = obs_spectrum
 obs_spectrum2.doppler_shift(-rv2[maxind2])
 
 
-rv3, cc3 = obs_spectrum2.crosscorrRV(template_spectrum, rvmin=-60., rvmax=60.0, drv=0.1, mode='doppler', skipedge=2000)
+rv3, cc3 = obs_spectrum2.crosscorr_rv(template_spectrum, rvmin=-60., rvmax=60.0, drv=0.1, mode='doppler', skipedge=2000)
 maxind3 = np.argmax(cc3)
 print("Spectrum Cross-correlation function is maximized at dRV = ", rv3[maxind3], " km/s")
 wlcorr2 = wlcorr * (1. - rv[maxind] / 299792.)

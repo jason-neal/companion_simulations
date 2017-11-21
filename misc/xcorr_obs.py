@@ -82,7 +82,7 @@ for chip, obs_num in itertools.product(chips, obs_nums):
         phoenix_spectrum.wav_select(*wl_limits)
         phoenix_spectrum = spec_local_norm(phoenix_spectrum)
         phoenix_spectrum = apply_convolution(phoenix_spectrum, R=obs_resolution, chip_limits=wl_limits)
-        rv, cc = observed_spectra.crosscorrRV(phoenix_spectrum, rvmin=-100., rvmax=100.0, drv=0.1,
+        rv, cc = observed_spectra.crosscorr_rv(phoenix_spectrum, rvmin=-100., rvmax=100.0, drv=0.1,
                                               mode='doppler', skipedge=50)
 
         maxind = np.argmax(cc)

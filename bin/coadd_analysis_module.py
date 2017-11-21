@@ -435,7 +435,7 @@ def fix_host_parameters_reduced_gamma_individual(table, params):
 
 def get_column_limits(table, params):
     print("Database Column Value Ranges")
-    for col in ["teff_1", "teff_2", "logg_1", "logg_2", "gamma", "rv",
+    for col in ["teff_1", "teff_2", "logg_1", "logg_2", "feh_1", "feh_2", "gamma", "rv",
                 "chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2", "alpha_1",
                 "alpha_2", "alpha_3", "alpha_4", "arbnorm_1", "arbnorm_2",
                 "arbnorm_3", "arbnorm_4"]:

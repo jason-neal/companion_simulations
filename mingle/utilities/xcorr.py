@@ -26,7 +26,7 @@ def xcorr_peak(spectrum, model, plot=False):
     assert isinstance(spectrum, Spectrum)
     assert isinstance(model, Spectrum)
 
-    rv, cc = spectrum.crosscorrRV(model, rvmin=-60., rvmax=60.0, drv=0.1,
+    rv, cc = spectrum.crosscorr_rv(model, rvmin=-60., rvmax=60.0, drv=0.1,
                                   mode='doppler', skipedge=50)  # Specturm method
 
     maxind = np.argmax(cc)
