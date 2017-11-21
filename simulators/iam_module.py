@@ -222,7 +222,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                                             iam_grid_models, method="scalar")
             else:
                 warnings.warn("Not Scalar Re-normalizing to observations!")
-                obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
+                obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis]
 
 
             plot_iam_grid_slices(obs_spec.xaxis, rvs, gammas, iam_grid_models,
