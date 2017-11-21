@@ -19,8 +19,8 @@ from simulators.iam_module import observation_rv_limits
 def setup_tcm_dirs(star):
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm"), exist_ok=True)
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "plots"), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "grid_plots"), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "fudgeplots"), exist_ok=True)
+    # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "grid_plots"), exist_ok=True)
+    # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "fudgeplots"), exist_ok=True)
     return None
 
 
@@ -31,7 +31,7 @@ def tcm_helper_function(star, obs_num, chip):
         simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
 
     output_prefix = os.path.join(
-        simulators.paths["output_dir"], star.upper(),
+        simulators.paths["output_dir"], star.upper(), "tcm",
         "{0}-{1}_{2}_tcm_chisqr_results".format(star.upper(), obs_num, chip))
     return obs_name, params, output_prefix
 

@@ -5,7 +5,7 @@ import pytest
 
 import simulators
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
-from simulators.bhm_module import (bhm_helper_function, get_model_pars, save_full_bhm_chisqr)
+from simulators.bhm_module import (bhm_helper_function, get_model_pars, save_full_bhm_chisqr, setup_bhm_dirs)
 
 
 def test_get_model_pars_close_method_returns_close_params():
@@ -36,8 +36,22 @@ def test_bhm_helper_function(star, obs, chip):
     assert str(star) in obs_name
     assert str(obs) in obs_name
     assert str(chip) in obs_name
-    assert os.path.join(star, star) in output_prefix
+    assert os.path.join(star, "bhm", star) in output_prefix
     assert "bhm_chisqr_results" in output_prefix
     assert params["name"] == star.lower()
 
 
+def test_setup_dirs_creates_dirs(tmpdir):
+    simulators.paths["output_dir"] = tmpdir
+    star = "TestStar"
+    assert not os.path.exists(os.path.join(tmpdir, star.upper()))
+    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "plots"))
+    # assert not os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "grid_plots"))
+    # assert not os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "fudgeplots"))
+    result = setup_bhm_dirs(star)
+
+    assert os.path.exists(os.path.join(tmpdir, star.upper()))
+    assert os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "plots"))
+    # assert os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "grid_plots"))
+    # assert os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "fudgeplots"))
+    assert result is None

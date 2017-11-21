@@ -7,7 +7,7 @@ from spectrum_overload import Spectrum
 import simulators
 from simulators.iam_module import (continuum_alpha, iam_analysis,
                                    iam_helper_function, iam_wrapper,
-                                   parallel_iam_analysis, setup_dirs)
+                                   parallel_iam_analysis, setup_iam_dirs)
 
 
 @pytest.mark.parametrize("star, obs, chip", [
@@ -47,7 +47,7 @@ def test_iam_wrapper(host, comp, tmpdir):
     obs_spec = host.copy()
     obs_spec.flux += comp.flux
     obs_spec.header.update({"OBJECT": "Test_object"})
-    setup_dirs("Test_object")
+    setup_iam_dirs("Test_object")
 
     result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
                          gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
@@ -72,7 +72,7 @@ def test_setup_dirs_creates_dirs(tmpdir):
     assert not os.path.exists(os.path.join(tmpdir, star.upper(), "plots"))
     assert not os.path.exists(os.path.join(tmpdir, star.upper(), "grid_plots"))
     assert not os.path.exists(os.path.join(tmpdir, star.upper(), "fudgeplots"))
-    result = setup_dirs(star)
+    result = setup_iam_dirs(star)
 
     assert os.path.exists(os.path.join(tmpdir, star.upper()))
     assert os.path.exists(os.path.join(tmpdir, star.upper(), "plots"))

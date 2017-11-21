@@ -3,7 +3,7 @@ import os
 import pytest
 
 import simulators
-from simulators.tcm_module import (tcm_helper_function, save_full_tcm_chisqr)
+from simulators.tcm_module import (tcm_helper_function, save_full_tcm_chisqr, setup_tcm_dirs)
 
 
 @pytest.mark.parametrize("star, obs, chip", [
@@ -19,7 +19,22 @@ def test_tcm_helper_function(star, obs, chip):
     assert str(star) in obs_name
     assert str(obs) in obs_name
     assert str(chip) in obs_name
-    assert os.path.join(star, star) in output_prefix
+    assert os.path.join(star, "tcm", star) in output_prefix
     assert "tcm_chisqr_results" in output_prefix
     assert params["name"] == star.lower()
 
+
+def test_setup_dirs_creates_dirs(tmpdir):
+    simulators.paths["output_dir"] = tmpdir
+    star = "TestStar"
+    assert not os.path.exists(os.path.join(tmpdir, star.upper()))
+    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "plots"))
+    # assert not os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "grid_plots"))
+    # assert not os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "fudgeplots"))
+    result = setup_tcm_dirs(star)
+
+    assert os.path.exists(os.path.join(tmpdir, star.upper()))
+    assert os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "plots"))
+    # assert os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "grid_plots"))
+    # assert os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "fudgeplots"))
+    assert result is None
