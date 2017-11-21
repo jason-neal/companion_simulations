@@ -14,7 +14,7 @@ from mingle.models.broadcasted_models import (independent_inherent_alpha_model,
                                               inherent_alpha_model)
 from mingle.utilities.errors import spectrum_error
 from simulators.iam_module import iam_helper_function
-
+import numpy as np
 
 def _parser():
     """Take care of all the argparse stuff.
@@ -71,11 +71,15 @@ def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv,
         # Create model with given parameters
         host = load_starfish_spectrum([teff_1, logg_1, feh_1],
                                       limits=[2110, 2165], area_scale=True, hdr=True)
-        companion = load_starfish_spectrum([teff_2, logg_2, feh_2],
+        if teff_2 is None:
+            assert (logg_2 is None) and (feh_2 is None) and (rv == 0), "All must be None for bhm case."
+            companion = Spectrum(xaxis=host.xaxis, flux=np.zeros_like(host.flux))
+        else:
+            companion = load_starfish_spectrum([teff_2, logg_2, feh_2],
                                            limits=[2110, 2165], area_scale=True, hdr=True)
 
         if independent:
-            joint_model = independent_inherent_alpha_model(host.wav, host.flux,
+            joint_model = independent_inherent_alpha_model(host.xaxis, host.flux,
                                                            companion.flux, gamma,
                                                            rv)
         else:
