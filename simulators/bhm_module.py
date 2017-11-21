@@ -11,6 +11,7 @@ import simulators
 from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities import parse_paramfile
 from mingle.utilities.chisqr import chi_squared
+from mingle.utilities.norm import chi2_model_norms
 from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model_params, generate_close_params
 from mingle.utilities.xcorr import xcorr_peak
 
@@ -68,9 +69,11 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
 
         # ### NORMALIZATION NEEDED HERE
         if norm:
-            return NotImplemented
-            obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis],
-                                                       obs_spec.flux[:, np.newaxis], bhm_grid_values)
+            # return NotImplemented
+            # obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis],
+            #                                            obs_spec.flux[:, np.newaxis], bhm_grid_values)
+            obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, bhm_grid_values)
+
         else:
             obs_flux = obs_spec.flux[:, np.newaxis]
         #####
@@ -124,95 +127,6 @@ def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare, npix):
     return None
 
 
-# Doesn't work yet
-def broadcast_normalize_observation(wav, obs_flux, broadcast_flux, splits=10):
-    """Re-normalize obs_spec to the linear continuum fit along."""
-    # Get median values of 10 highest points in the 0.5nm sections of flux
-
-    obs_norm = broadcast_continuum_fit(wav, obs_flux, splits=splits, method="linear", plot=True)
-    broad_norm = broadcast_continuum_fit(wav, broadcast_flux, splits=splits, method="linear", plot=True)
-
-    return obs_flux * (broad_norm / obs_norm)
-
-
-# Doesn't work yet
-def broadcast_continuum_fit(wave, flux, splits=50, method="linear", plot=True):
-    r"""Continuum fit the N-D - flux array.
-
-    Split spectra into many chunks and get the average of top 5\% in each bin.
-
-    Fit to those points and normalize by that.
-    """
-    org_flux = copy.copy(flux)
-    org_wave = copy.copy(wave)
-
-    while len(wave) % splits != 0:
-        # Shorten array until it can be evenly split up.
-        wave = wave[:-1]
-        flux = flux[:-1]
-        print(wave.shape)
-        print(flux.shape)
-    if flux.ndim > wave.ndim:
-        wave = wave * np.ones_like(flux)  # Broadcast it out
-
-    wav_split = np.vsplit(wave, splits)
-    flux_split = np.vsplit(flux, splits)  # split along axis=0
-    print(type(wav_split), type(flux_split))
-    print("wav shape", wave.shape)
-    print("wav split shape", len(wav_split))
-    print("flux shape", flux.shape)
-    print("flux split shape", len(flux_split))
-    print("wav split[0] shape", wav_split[0].shape)
-    print("flux split[0] shape", flux_split[0].shape)
-
-    # TODO!
-    flux_split_medians = []
-    wave_split_medians = []
-    wav_points = np.empty_like(splits)
-    print(wav_points.shape)
-    flux_points = np.empty(splits)
-    f = flux_split
-    print("argsort", np.argsort(f[0], axis=0))
-    print("f[argsort]", f[np.argsort(f[0], axis=0)])
-    print(np.median(f[np.argsort(f[0], axis=0)]))
-    for i, (w, f) in enumerate(zip(wav_split, flux_split)):
-        # Take the median of the wavelength values of max values.
-        wav_points[i] = np.median(w[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)
-        flux_points[i,] = np.median(f[np.argsort(f, axis=0)[-5:]], axis=0, keepdims=True)
-
-    print("flux_points", flux_points)
-    print("flux_points.shape", flux_points.shape)
-    print("flux_points[0].shape", flux_points[0].shape)
-
-    if method == "scalar":
-        norm_flux = np.median(flux_split) * np.ones_like(org_wave)
-    elif method == "linear":
-        z = np.polyfit(wav_points, flux_points, 1)
-        p = np.poly1d(z)
-        norm_flux = p(org_wave)
-    elif method == "quadratic":
-        z = np.polyfit(wav_points, flux_points, 2)
-        p = np.poly1d(z)
-        norm_flux = p(org_wave)
-    elif method == "exponential":
-        z = np.polyfit(wav_points, np.log(flux_points), deg=1, w=np.sqrt(flux_points))
-        p = np.poly1d(z)
-        norm_flux = np.exp(p(org_wave))  # Un-log the y values.
-
-    if plot:
-        plt.subplot(211)
-        plt.plot(wave, flux)
-        plt.plot(wav_points, flux_points, "x-", label="points")
-        plt.plot(org_wave, norm_flux, label='norm_flux')
-        plt.legend()
-        plt.subplot(212)
-        plt.plot(org_wave, org_flux / norm_flux)
-        plt.title("Normalization")
-        plt.show()
-
-    return org_flux / norm_flux
-
-
 def bhm_helper_function(star, obs_num, chip):
     param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)
@@ -240,25 +154,3 @@ def get_model_pars(params, method="close"):
         raise ValueError("The method '{0}' is not valid".format(method))
 
     return model_pars
-
-
-def save_pd_cvs(name, data):
-    # Take dict of data to save to csv called name
-    df = pd.DataFrame(data=data)
-    df.to_csv(name, sep=',', index=False)
-    return 0
-
-
-def deconstruct_array(array, values):
-    """Index of other arrays to apply these values to."""
-    print("array shape", array.shape)
-    print("array[:5]", array[:5])
-    print("values.shape", values.shape)
-    values2 = values * np.ones_like(array)
-    print("values2.shape", values2.shape)
-    print("values2.shape", values2[:5])
-    for i in enumerate(array):
-        indx = [0]
-    gam = [0]
-    chi2 = [0]
-    return indx, gam, chi2
