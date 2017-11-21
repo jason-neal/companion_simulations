@@ -146,7 +146,7 @@ def continuum_alpha(model1, model2, chip=None):
     return alpha_ratio
 
 
-def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
+def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 verbose=True, save_only=True, chip=None, prefix=None, errors=None,
                 area_scale=True, wav_scale=True):
     """Wrapper for iteration loop of iam. To use with parallelization."""
@@ -203,12 +203,13 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             # ### RE-NORMALIZATION to observations?
             print("Shape of iam_grid_models before renormalization", iam_grid_models.shape)
             if norm:
-                warnings.warn("Scalar Re-normalizing to observations!")
+                warnings.warn("Scalar Re-normalizing to observations! Try this off!")
                 obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux,
                                             iam_grid_models, method="scalar")
             else:
+                warnings.warn("Not Scalar Re-normalizing to observations!")
                 obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
-                raise NotImplementedError("Need to check this")
+
 
             plot_iam_grid_slices(obs_spec.xaxis, rvs, gammas, iam_grid_models,
                                  star=obs_spec.header["OBJECT"].upper(),

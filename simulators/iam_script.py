@@ -59,8 +59,10 @@ def _parser():
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
     parser.add_argument('-p', '--parallel', help='Use parallelization.',
                         action="store_true")
-    parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs",
+    parser.add_argument("-j", "--n_jobs", help="Number of parallel Jobs",
                         default=1, type=int)
+    parser.add_argument("-n", "--renormalize", help="Scalar re-normalize flux to models. Default=False",
+                        action="store_true")
     parser.add_argument("--error_off", help="Turn snr value errors off.",
                         action="store_true")
     parser.add_argument('-s', '--small', action="store_true",
@@ -75,7 +77,7 @@ def _parser():
 
 
 def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
-         suffix=None, error_off=False, area_scale=True, disable_wav_scale=False):
+         suffix=None, error_off=False, area_scale=True, disable_wav_scale=False, renormalize=False):
     """Main function."""
     wav_scale = not disable_wav_scale
     if chip is None:
@@ -122,12 +124,12 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
     if parallel:
         chi2_grids = parallel_iam_analysis(obs_spec, model1_pars, model2_pars,
                                            rvs, gammas, verbose=verbose,
-                                           norm=True, prefix=output_prefix,
+                                           norm=renormalize, prefix=output_prefix,
                                            save_only=True, errors=errors,
                                            area_scale=area_scale, wav_scale=wav_scale)
     else:
         chi2_grids = iam_analysis(obs_spec, model1_pars, model2_pars, rvs,
-                                  gammas, verbose=verbose, norm=True,
+                                  gammas, verbose=verbose, norm=renormalize,
                                   prefix=output_prefix, errors=errors,
                                   area_scale=area_scale, wav_scale=wav_scale)
 
