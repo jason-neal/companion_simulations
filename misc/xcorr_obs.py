@@ -19,8 +19,7 @@ import simulators
 from mingle.utilities.model_convolution import apply_convolution
 
 cachedir = simulators.paths["output_dir"]
-if not os.path.exists(cachedir):
-    os.makedirs(cachedir)
+os.makedirs(cachedir, exist_ok=True)
 memory = Memory(cachedir=cachedir, verbose=0)
 
 

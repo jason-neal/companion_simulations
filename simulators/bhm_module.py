@@ -9,8 +9,9 @@ from tqdm import tqdm
 
 import simulators
 from mingle.models.broadcasted_models import one_comp_model
+from mingle.utilities import parse_paramfile
 from mingle.utilities.chisqr import chi_squared
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model_params, generate_close_params
 from mingle.utilities.xcorr import xcorr_peak
 
 
@@ -210,3 +211,54 @@ def broadcast_continuum_fit(wave, flux, splits=50, method="linear", plot=True):
         plt.show()
 
     return org_flux / norm_flux
+
+
+def bhm_helper_function(star, obs_num, chip):
+    param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
+    params = parse_paramfile(param_file, path=None)
+    obs_name = os.path.join(
+        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
+
+    output_prefix = os.path.join(
+        simulators.paths["output_dir"], star.upper(),
+        "{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obs_num, chip))
+    return obs_name, params, output_prefix
+
+
+def get_model_pars(params, method="close"):
+    method = method.lower()
+    if method == "all":
+        raise NotImplementedError("Cant yet choose all parameters.")
+    elif method == "close":
+        host_params = [params["temp"], params["logg"], params["fe_h"]]
+        # comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
+        closest_host_model = closest_model_params(*host_params)
+
+        # Model parameters to try iterate over.
+        model_pars = list(generate_close_params(closest_host_model))
+    else:
+        raise ValueError("The method '{0}' is not valid".format(method))
+
+    return model_pars
+
+
+def save_pd_cvs(name, data):
+    # Take dict of data to save to csv called name
+    df = pd.DataFrame(data=data)
+    df.to_csv(name, sep=',', index=False)
+    return 0
+
+
+def deconstruct_array(array, values):
+    """Index of other arrays to apply these values to."""
+    print("array shape", array.shape)
+    print("array[:5]", array[:5])
+    print("values.shape", values.shape)
+    values2 = values * np.ones_like(array)
+    print("values2.shape", values2.shape)
+    print("values2.shape", values2[:5])
+    for i in enumerate(array):
+        indx = [0]
+    gam = [0]
+    chi2 = [0]
+    return indx, gam, chi2

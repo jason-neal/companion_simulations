@@ -10,8 +10,7 @@ from mingle.models.alpha_model import alpha_model
 import simulators
 
 cachedir = os.path.join(simulators.paths["output_dir"], ".simulation_cache")
-if not os.path.exists(cachedir):
-    os.makedirs(cachedir)
+os.makedirs(cachedir, exist_ok=True)
 memory = Memory(cachedir=cachedir, verbose=0)
 
 
