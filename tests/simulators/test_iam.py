@@ -36,7 +36,8 @@ def test_iam_analysis_same_as_parallel():
     assert parallel_iam_analysis() == iam_analysis()
 
 
-def test_iam_wrapper(host, comp):
+def test_iam_wrapper(host, comp, tmpdir):
+    simulators.paths["output_dir"] = tmpdir
     host_params = [5600, 4.5, 0.0]
     comp_params = [[2300, 4.5, 0.0], [2400, 4.5, 0.0]]
 
@@ -50,7 +51,7 @@ def test_iam_wrapper(host, comp):
 
     result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
                          gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
-                         save_only=True, chip=1, prefix="Testtestest")
+                         save_only=True, chip=1, prefix="Test_file")
     assert result is None
 
 
@@ -71,9 +72,10 @@ def test_setup_dirs_creates_dirs(tmpdir):
     assert not os.path.exists(os.path.join(tmpdir, star.upper(), "plots"))
     assert not os.path.exists(os.path.join(tmpdir, star.upper(), "grid_plots"))
     assert not os.path.exists(os.path.join(tmpdir, star.upper(), "fudgeplots"))
-    setup_dirs(star)
+    result = setup_dirs(star)
 
     assert os.path.exists(os.path.join(tmpdir, star.upper()))
     assert os.path.exists(os.path.join(tmpdir, star.upper(), "plots"))
     assert os.path.exists(os.path.join(tmpdir, star.upper(), "grid_plots"))
     assert os.path.exists(os.path.join(tmpdir, star.upper(), "fudgeplots"))
+    assert result is None

@@ -39,12 +39,12 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
     for ii, params in enumerate(tqdm(model_pars)):
         if prefix is None:
             save_name = os.path.join(
-                simulators.paths["output_dir"], obs_spec.header["OBJECT"],
+                simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper(),
                 "bhm_{0}_{1}_{3}_part{2}.csv".format(
-                    obs_spec.header["OBJECT"], obs_spec.header["MJD-OBS"], ii, chip))
+                    obs_spec.header["OBJECT"].upper(), obs_spec.header["MJD-OBS"], ii, chip))
         else:
             save_name = os.path.join(
-                simulators.paths["output_dir"], obs_spec.header["OBJECT"],
+                simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper(),
                 "{0}_part{1}.csv".format(prefix, ii))
 
         if verbose:

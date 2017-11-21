@@ -12,7 +12,7 @@ def test_load_spectrum(fname):
     fname = os.path.join("tests", "testdata", "handy_spectra", fname)
     results = load_spectrum(fname)
     assert isinstance(results, Spectrum)
-    assert results.header["OBJECT"] == "HD30501"
+    assert results.header["OBJECT"].upper() == "HD30501"
     assert np.all(results.xaxis > 2110)  # nm
     assert np.all(results.xaxis < 2130)  # nm
     assert np.all(results.flux < 2)

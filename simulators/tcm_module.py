@@ -110,9 +110,9 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
     normalization_limits = [2105, 2185]  # small as possible?
 
     if prefix is None:
-        sf = os.path.join(simulators.paths["output_dir"], obs_spec.header["OBJECT"],
+        sf = os.path.join(simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper(),
                           "tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}].csv".format(
-                              obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), chip,
+                              obs_spec.header["OBJECT"].upper(), int(obs_spec.header["MJD-OBS"]), chip,
                               params1[0], params1[1], params1[2], num))
     else:
         sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(

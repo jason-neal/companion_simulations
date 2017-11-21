@@ -161,7 +161,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
     for ii, params1 in enumerate(tqdm(model1_pars)):
         if prefix is None:
             sf = ("Analysis/{0}/tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}]_par"
-                  ".csv").format(obs_spec.header["OBJECT"],
+                  ".csv").format(obs_spec.header["OBJECT"].upper(),
                                  int(obs_spec.header["MJD-OBS"]), chip,
                                  params1[0], params1[1], params1[2], ii)
 

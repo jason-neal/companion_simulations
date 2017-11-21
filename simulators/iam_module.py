@@ -152,9 +152,9 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
     """Wrapper for iteration loop of iam. To use with parallelization."""
     if prefix is None:
         sf = os.path.join(
-            simulators.paths["output_dir"], obs_spec.header["OBJECT"],
+            simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper(),
             "tc_{0}_{1}-{2}_part{6}_host_pars_[{3}_{4}_{5}].csv".format(
-                obs_spec.header["OBJECT"], int(obs_spec.header["MJD-OBS"]), chip,
+                obs_spec.header["OBJECT"].upper(), int(obs_spec.header["MJD-OBS"]), chip,
                 params1[0], params1[1], params1[2], num))
     else:
         sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(
@@ -211,7 +211,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
                 raise NotImplementedError("Need to check this")
 
             plot_iam_grid_slices(obs_spec.xaxis, rvs, gammas, iam_grid_models,
-                                 star=obs_spec.header["OBJECT"],
+                                 star=obs_spec.header["OBJECT"].upper(),
                                  xlabel="wavelength", ylabel="rv", zlabel="gamma",
                                  suffix="iam_grid_models", chip=chip)
 
@@ -233,7 +233,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=True,
             npix = obs_flux.shape[0]  # Number of pixels used
 
             plot_iam_grid_slices(rvs, gammas, arb_norm, iam_norm_grid_chisquare,
-                                 star=obs_spec.header["OBJECT"],
+                                 star=obs_spec.header["OBJECT"].upper(),
                                  xlabel="rv", ylabel="gamma", zlabel="Arbitrary Normalization",
                                  suffix="iam_grid_chisquare", chip=chip)
 
