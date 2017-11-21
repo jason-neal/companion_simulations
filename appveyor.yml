@@ -13,16 +13,16 @@ install:
   - "%PYTHON%\\python.exe -m pip install wheel"
 
   # Installing Starfish
-  - "cd c:\projects"
+  - "cd c:\\projects"
   - "git clone https://github.com/jason-neal/Starfish.git"
-  - "cd c:\projects\Starfish"
+  - "cd c:\\projects\\Starfish"
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
   - "git checkout windows"
   - "%PYTHON%\\python.exe setup.py develop"
 
 
   # Installing companion sims now
-  - "c:\projects\sims"
+  - "cd c:\\projects\\sims"
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
   - "%PYTHON%\\python.exe -m pip install -r test_requirements.txt"
   - "%PYTHON%\\python.exe setup.py install"
