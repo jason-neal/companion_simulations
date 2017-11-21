@@ -1,5 +1,5 @@
 environment:
-
+  clone_folder: c:\projects\sims
   matrix:
     # For Python versions available on Appveyor, see
     # http://www.appveyor.com/docs/installed-software#python
@@ -12,10 +12,19 @@ install:
   # We need wheel installed to build wheels
   - "%PYTHON%\\python.exe -m pip install wheel"
 
-  - "git clone https://github.com/iancze/Starfish.git"
+  # Installing Starfish
+  - "cd c:\projects"
+  - "git clone https://github.com/jason-neal/Starfish.git"
+  - "cd c:\projects\Starfish"
+  - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
+  - "git checkout windows"
+  - "%PYTHON%\\python.exe setup.py develop"
+
+
+  # Installing companion sims now
+  - "c:\projects\sims"
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
   - "%PYTHON%\\python.exe -m pip install -r test_requirements.txt"
-
   - "%PYTHON%\\python.exe setup.py install"
 
 build: off
