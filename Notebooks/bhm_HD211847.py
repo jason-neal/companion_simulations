@@ -20,7 +20,7 @@ sys.path.append("/home/jneal/Phd/Codes/companion_simulations/utilities/")
 sys.path.append("../../")
 sys.path.append("../")
 import param_file
-# from utilities.param_file import parse_paramfile
+# from mingle.utilities.param_file import parse_paramfile
 #from best_host_model_HD211847 import main
 
 from param_file import parse_paramfile

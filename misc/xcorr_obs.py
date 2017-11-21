@@ -1,4 +1,4 @@
-# from utilities.phoenix_utils import find_closest_phoenix
+# from mingle.utilities.phoenix_utils import find_closest_phoenix
 import glob
 import itertools
 import os
@@ -11,9 +11,9 @@ from astropy.io import fits
 from joblib import Memory
 from spectrum_overload import Spectrum
 from tqdm import tqdm
-from utilities.chisqr import spectrum_chisqr
-from utilities.crires_utilities import crires_resolution
-from utilities.phoenix_utils import spec_local_norm
+from mingle.utilities.chisqr import spectrum_chisqr
+from mingle.utilities.crires_utilities import crires_resolution
+from mingle.utilities.phoenix_utils import spec_local_norm
 
 import simulators
 from mingle.utilities.model_convolution import apply_convolution
