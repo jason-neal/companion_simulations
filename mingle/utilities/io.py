@@ -5,13 +5,6 @@ from typing import List
 import pandas as pd
 
 
-def save_pd_cvs(name, data):
-    # Take dict of data to save to csv called name
-    df = pd.DataFrame(data=data)
-    df.to_csv(name + ".csv", sep=',', index=False)
-    return 0
-
-
 def get_filenames(path, regexp, regexp2=None):
     # type: (str, str, str) -> List[str]
     """Regexp must be a regular expression as a string.

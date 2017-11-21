@@ -1,11 +1,10 @@
-import pytest
 import os
-from simulators.tcm_module import (tcm_helper_function)
-import simulators
 
-@pytest.mark.xfail()
-def test_save_pd_cvs(tmpdir):
-    assert 0
+import pytest
+
+import simulators
+from simulators.tcm_module import (tcm_helper_function, save_full_tcm_chisqr)
+
 
 @pytest.mark.parametrize("star, obs, chip", [
     ("HD30501", 1, 1),

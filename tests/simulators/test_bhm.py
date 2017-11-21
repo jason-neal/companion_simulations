@@ -1,17 +1,16 @@
-import pytest
 import os
-from simulators.bhm_module import (bhm_helper_function, deconstruct_array, get_model_pars)
-from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
-import simulators
 
-@pytest.mark.xfail()
-def test_save_pd_cvs(tmpdir):
-    assert 0
+import pandas as pd
+import pytest
+
+import simulators
+from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
+from simulators.bhm_module import (bhm_helper_function, get_model_pars, save_full_bhm_chisqr)
 
 
 def test_get_model_pars_close_method_returns_close_params():
     pars = get_model_pars({"temp": 5200, "logg": 4.5, "fe_h": 0.0}, method="close")
-    assert pars == list(generate_close_params(closest_model_params(5200,  4.5, 0.0)))
+    assert pars == list(generate_close_params(closest_model_params(5200, 4.5, 0.0)))
 
 
 def test_get_model_pars_all_notimplemented():
@@ -42,20 +41,3 @@ def test_bhm_helper_function(star, obs, chip):
     assert params["name"] == star.lower()
 
 
-def test_deconstruct_array():
-        deconstruct_array()
-        assert False
-
-        def deconstruct_array_a(array, values):
-            """Index of other arrays to apply these values to."""
-            print("array shape", array.shape)
-            print("array[:5]", array[:5])
-            print("values.shape", values.shape)
-            values2 = values * np.ones_like(array)
-            print("values2.shape", values2.shape)
-            print("values2.shape", values2[:5])
-            for i in enumerate(array):
-                indx = [0]
-            gam = [0]
-            chi2 = [0]
-            return indx, gam, chi2

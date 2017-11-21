@@ -83,9 +83,9 @@ def test_save_full_tcm_chisqr(tmpdir):
     alpha = 5  # ratio between par1 and par2
 
     savename = os.path.join(tmpdir, "saving_test_iam_filename.csv")
-    save_full_tcm_chisqr(savename, params_1, params_2,
+    res = save_full_tcm_chisqr(savename, params_1, params_2,
                          alpha, rvs, gammas, results, norms, npix)
-
+    assert res is None
     ### Now reload and probe
     df = pd.read_csv(savename)
     print(df.head())
@@ -99,6 +99,4 @@ def test_save_full_tcm_chisqr(tmpdir):
     assert np.all(df.logg_2 == params_2[1])
     assert np.all(df.feh_2 == params_2[2])
     assert np.all(df.chi2 == df.gamma * df.rv)
-
-
 
