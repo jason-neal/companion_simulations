@@ -349,31 +349,32 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
     if zlabel is None:
         zlabel = "z"
 
-    for ii, y_val in enumerate(y):
-        plt.subplot(111)
-        try:
-            xii = x_grid[:, ii, :]
-            zii = z_grid[:, ii, :]
-            grid_ii = grid[:, ii, :]
-            plt.contourf(xii, zii, grid_ii)
-        except IndexError:
-            print("grid.shape", grid.shape)
-            print("shape of x, y, z", x.shape, y.shape, z.shape)
-            print("shape of x_grid, y_grid, z_grid", x_grid.shape, y_grid.shape, z_grid.shape)
-            print("index value", ii, "y_val ", y_val)
-            raise
+    if len(z) > 1:
+        for ii, y_val in enumerate(y):
+            plt.subplot(111)
+            try:
+                xii = x_grid[:, ii, :]
+                zii = z_grid[:, ii, :]
+                grid_ii = grid[:, ii, :]
+                plt.contourf(xii, zii, grid_ii)
+            except IndexError:
+                print("grid.shape", grid.shape)
+                print("shape of x, y, z", x.shape, y.shape, z.shape)
+                print("shape of x_grid, y_grid, z_grid", x_grid.shape, y_grid.shape, z_grid.shape)
+                print("index value", ii, "y_val ", y_val)
+                raise
 
-        plt.xlabel(xlabel)
-        plt.ylabel(zlabel)
-        plt.title("Grid slice for {0}={1}".format(ylabel, y_val))
+            plt.xlabel(xlabel)
+            plt.ylabel(zlabel)
+            plt.title("Grid slice for {0}={1}".format(ylabel, y_val))
 
-        plot_name = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
+            plot_name = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
                                  "y_grid_slice_{0}_chip-{1}_{2}_{3}_{4}_{5}_{6}_{7}.png".format(star, chip, xlabel,
                                                                                                 ylabel, zlabel, ii,
                                                                                                 suffix,
                                                                                                 datetime.datetime.now()))
-        plt.savefig(plot_name)
-        plt.close(plt.gcf())
+            plt.savefig(plot_name)
+            plt.close(plt.gcf())
 
     for jj, z_val in enumerate(z):
         plt.subplot(111)
