@@ -308,7 +308,7 @@ def smallest_chi2_values(table, params, num=10):
     df.to_csv(os.path.join(params["path"], name))
 
     plot_name = os.path.join(params["path"], "plots",
-                             "visual_inspection_min_chi2_coadd_{0}_{1}_{2}".format(params["star"], params["obs_num"],
+                             "visual_inspection_min_chi2_coadd_{0}_{1}_{2}.png".format(params["star"], params["obs_num"],
                                                                                 params["suffix"]))
     visual_inspection(params["star"], params["obs_num"], float(df_min.teff_1), float(df_min.logg_1),
                       float(df_min.feh_1), float(df_min.teff_2), float(df_min.logg_2),
@@ -606,7 +606,7 @@ def compare_spectra(table, params):
         plt.legend()
 
         fig.tight_layout()
-        name = "{0}-{1}_{2}_min_chi2_spectrum_comparison_{4}.pdf".format(
+        name = "{0}-{1}_{2}_min_chi2_spectrum_comparison_{4}.png".format(
             params["star"], params["obs_num"], params["chip"], chi2_val, params["suffix"])
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.close()

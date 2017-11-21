@@ -99,6 +99,8 @@ def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv,
     if plot_name is None:
         fig.show()
     else:
+        if not (plot_name.endswith(".png") or plot_name.endswith(".pdf")):
+            raise ValueError("plot_name does not end with .pdf or .png")
         fig.savefig(plot_name)
 
     return 0
