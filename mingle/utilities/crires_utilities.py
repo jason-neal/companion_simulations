@@ -18,26 +18,23 @@ from spectrum_overload import Spectrum
 
 
 def barycorr_crires_spectrum(spectrum, extra_offset=None):
-    """Wrapper to apply barycorr for crires spectra if given a Spectrum object."""
-    nflux, _ = barycorr_crires(spectrum.xaxis, spectrum.flux,
+    """Wrapper to apply barycorr for CRIRES spectra if given a Spectrum object."""
+    _, nflux = barycorr_crires(spectrum.xaxis, spectrum.flux,
                                spectrum.header, extra_offset=extra_offset)
     new_spectrum = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
     return new_spectrum
 
 
 def barycorr_crires(wavelength, flux, header, extra_offset=None):
-    """Calculate Heliocenteric correction values and apply to spectrum.
+    """Calculate Heliocentric correction values and apply to spectrum.
 
-    # SHOULD test again with bary and see what the  difference is.
+    # SHOULD test again with bary and see what the difference is.
     """
     if (not header) or (header is None):
-        logging.warning("No barycorrection done as no header information")
+        logging.warning("No bary correction done as no header information")
+        header = {}
         if extra_offset is None:
             return wavelength, flux
-        else:
-            # TODO ? # This can but I have not added the code (do I need it)
-            # return None
-            raise ValueError("Extra offset can not yet be applied when no header information given.")
     try:
         longitude = float(header["HIERARCH ESO TEL GEOLON"])
         latitude = float(header["HIERARCH ESO TEL GEOLAT"])
@@ -46,31 +43,37 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
         ra = header["RA"]  # CRIRES RA already in degrees
         dec = header["DEC"]  # CRIRES hdr DEC already in degrees
 
-        # Pyastronomy helcorr needs the time of observation in julian Days
-        # #############################################
         time = header["DATE-OBS"]  # Observing date  '2012-08-02T08:47:30.8425'
+
+        # Convert easily to julian date with ephem
+        jd = ephem.julian_date(time.replace("T", " ").split(".")[0])
+
+        # Calculate Helocentric velocity
+        helcorr = pyasl.helcorr(longitude, latitude, altitude, ra, dec, jd,
+                                debug=False)
+        helcorr = helcorr[0]
     except KeyError as e:
-        logging.warning("Not a valid header so not doing bary correction")
-        return wavelength, flux
+        logging.warning("Not a valid header so can't do automatic correction.")
 
-    # Convert easily to julian date with ephem
-    jd = ephem.julian_date(time.replace("T", " ").split(".")[0])
+        helcorr = 0.0
 
-    # Calculate helocentric velocity
-    helcorr = pyasl.helcorr(longitude, latitude, altitude, ra, dec, jd,
-                            debug=False)
-
-    if extra_offset:
-        print("Warning!!!! have included a manual offset for testing")
-        helcorr_val = helcorr[0] + extra_offset
+    if extra_offset is not None:
+        logging.warning("Warning!!!! have included a manual offset for testing")
     else:
-        helcorr_val = helcorr[0]
-    # Apply dooplershift to the target spectra with helcorr correction velocity
-    nflux, wlprime = pyasl.dopplerShift(wavelength, flux, helcorr_val,
-                                        edgeHandling=None, fillValue=None)
+        extra_offset = 0.0
 
-    print(" RV size of heliocenter correction for spectra", helcorr_val)
-    return nflux, wlprime
+    helcorr_val = helcorr + extra_offset
+
+    if helcorr_val == 0:
+        logging.debug("helcorr value was zero")
+        return wavelength, flux
+    else:
+        # Apply Doppler shift to the target spectra with helcorr correction velocity
+        nflux, wlprime = pyasl.dopplerShift(wavelength, flux, helcorr_val,
+                                            edgeHandling=None, fillValue=None)
+
+        print("RV Size of heliocenter correction for spectra", helcorr_val)
+        return wlprime, nflux
 
 
 def crires_resolution(header):
