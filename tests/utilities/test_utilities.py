@@ -92,4 +92,4 @@ def test_get_filenames_with_two_regex():
     assert "test_simulation_utils.py" in results
     assert "test_spectrum_utils.py" in results
     assert "test_utilities.py" in results
-    assert len(results) == 4
+    assert len(results) == 5

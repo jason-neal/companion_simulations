@@ -10,17 +10,17 @@ from simulators.tcm_module import save_full_tcm_chisqr
 
 
 def test_save_full_ima_chisqr(tmpdir):
+    savename = os.path.join(tmpdir, "saving_test_iam_filename.csv")
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
-    rvs = range(7, 10)
-    gammas = range(-2, 4)
+    rvs = np.arange(7, 10)
+    gammas = np.arange(-2, 4)
     R, G = np.meshgrid(rvs, gammas, indexing="ij")
     results = R * G
     norms = results / 100
     npix = 1000
     alpha = 5  # ratio between par1 and par2
 
-    savename = os.path.join(tmpdir, "saving_test_iam_filename.csv")
     save_full_iam_chisqr(savename, params_1, params_2,
                          alpha, rvs, gammas, results, norms, npix)
 
@@ -40,61 +40,53 @@ def test_save_full_ima_chisqr(tmpdir):
 
 
 def test_save_full_bhm_chisqr(tmpdir):
+    savename = os.path.join(tmpdir, "saving_test_bhm_filename.csv")
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
-    rvs = range(7, 10)
-    gammas = range(-2, 4)
-    R, G = np.meshgrid(rvs, gammas, indexing="ij")
-    results = R * G
-    norms = results / 100
-    npix = 1000
-    alpha = 5  # ratio between par1 and par2
+    gammas = np.arange(-2, 4)
+    G = np.meshgrid(gammas, indexing="ij")
+    results = G
+    npix = 780
 
-    savename = os.path.join(tmpdir, "saving_test_iam_filename.csv")
-    save_full_bhm_chisqr(savename, params_1, params_2,
-                         alpha, rvs, gammas, results, norms, npix)
+    save_full_bhm_chisqr(savename, params_1, gammas, results, npix)
 
     ### Now reload and probe
     df = pd.read_csv(savename)
     print(df.head())
 
-    assert np.all(df.npix == npix)
-    assert np.all(df.alpha == alpha)
+    assert np.all(df.npix.values == npix)
     assert np.all(df.teff_1 == params_1[0])
     assert np.all(df.logg_1 == params_1[1])
     assert np.all(df.feh_1 == params_1[2])
-    assert np.all(df.teff_2 == params_2[0])
-    assert np.all(df.logg_2 == params_2[1])
-    assert np.all(df.feh_2 == params_2[2])
     assert np.all(df.chi2 == df.gamma * df.rv)
+    assert np.all(gammas == df.gamma.values)
 
 
 def test_save_full_tcm_chisqr(tmpdir):
+    savename = os.path.join(tmpdir, "saving_test_tcm_filename.csv")
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
-    rvs = range(7, 10)
-    gammas = range(-2, 4)
-    R, G = np.meshgrid(rvs, gammas, indexing="ij")
-    results = R * G
-    norms = results / 100
+    alphas = np.arange(0.5, 1.1, 0.1)
+    rvs = np.arange(7, 10)
+    gammas = np.arange(-2, 4)
+    A, R, G = np.meshgrid(alphas, rvs, gammas, indexing="ij")
+    result_grid = R * G
+    print(type(result_grid))
     npix = 1000
-    alpha = 5  # ratio between par1 and par2
 
-    savename = os.path.join(tmpdir, "saving_test_iam_filename.csv")
     res = save_full_tcm_chisqr(savename, params_1, params_2,
-                         alpha, rvs, gammas, results, norms, npix)
+                         alphas, rvs, gammas, result_grid, npix)
     assert res is None
     ### Now reload and probe
     df = pd.read_csv(savename)
     print(df.head())
 
-    assert np.all(df.npix == npix)
-    assert np.all(df.alpha == alpha)
-    assert np.all(df.teff_1 == params_1[0])
-    assert np.all(df.logg_1 == params_1[1])
-    assert np.all(df.feh_1 == params_1[2])
-    assert np.all(df.teff_2 == params_2[0])
-    assert np.all(df.logg_2 == params_2[1])
-    assert np.all(df.feh_2 == params_2[2])
-    assert np.all(df.chi2 == df.gamma * df.rv)
-
+    assert np.all(df.npix.values == npix)
+    assert np.all(df.alpha.values == alphas)
+    assert np.all(df.teff_1.values == params_1[0])
+    assert np.all(df.logg_1.values == params_1[1])
+    assert np.all(df.feh_1.values == params_1[2])
+    assert np.all(df.teff_2.values == params_2[0])
+    assert np.all(df.logg_2.values == params_2[1])
+    assert np.all(df.feh_2.values == params_2[2])
+    assert np.all(df.chi2.values == df.gamma * df.rv)
