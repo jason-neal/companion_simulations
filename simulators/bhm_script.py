@@ -14,7 +14,7 @@ from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.bhm_module import bhm_analysis
-
+from simulators.iam_module import setup_dirs
 
 def _parser():
     """Take care of all the argparse stuff.
@@ -91,7 +91,7 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     """Best Host modelling main function."""
     wav_scale = not disable_wav_scale
     star = star.upper()
-
+    setup_dirs(star)
     # Define the broadcasted gamma grid
     gammas = np.arange(*simulators.sim_grid["gammas"])
     print("bhm gammas", gammas)

@@ -27,7 +27,7 @@ from bin.coadd_analysis_script import main as coadd_analysis
 from bin.coadd_chi2_db import main as coadd_db
 from mingle.utilities.errors import spectrum_error
 from simulators.iam_module import (iam_analysis, iam_helper_function,
-                                   parallel_iam_analysis)
+                                   parallel_iam_analysis, setup_dirs)
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -82,6 +82,7 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
         chip = 4
 
     star = star.upper()
+    setup_dirs(star)
     obs_name, params, output_prefix = iam_helper_function(star, obs_num, chip)
     if suffix is not None:
         output_prefix = output_prefix + str(suffix)

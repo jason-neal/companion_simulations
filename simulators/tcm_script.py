@@ -26,6 +26,7 @@ from mingle.utilities.errors import spectrum_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
 from mingle.utilities.spectrum_utils import load_spectrum  # , select_observation
+from simulators.iam_module import setup_dirs
 from simulators.tcm_module import (parallel_tcm_analysis, tcm_analysis,
                                    tcm_helper_function)
 
@@ -65,6 +66,7 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
     star = "HD211847"
     obs_num = 2
     star = star.upper()
+    setup_dirs(star)
     if chip is None:
         chip = 4
 
@@ -101,7 +103,8 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
     ####
     if parallel:
         chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
-                                           verbose=verbose, norm=True, prefix=output_prefix, save_only=True, wav_scale=wav_scale)
+                                           verbose=verbose, norm=True, prefix=output_prefix, save_only=True,
+                                           wav_scale=wav_scale)
     else:
         chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
                                   verbose=verbose, norm=True, prefix=output_prefix, wav_scale=wav_scale)

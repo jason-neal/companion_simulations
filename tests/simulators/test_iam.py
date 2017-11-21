@@ -7,7 +7,7 @@ from spectrum_overload import Spectrum
 import simulators
 from simulators.iam_module import (continuum_alpha, iam_analysis,
                                    iam_helper_function, iam_wrapper,
-                                   parallel_iam_analysis)
+                                   parallel_iam_analysis, setup_dirs)
 
 
 @pytest.mark.parametrize("star, obs, chip", [
@@ -46,7 +46,8 @@ def test_iam_wrapper(host, comp):
     obs_spec = host.copy()
     obs_spec.flux += comp.flux
     obs_spec.header.update({"OBJECT": "Test_object"})
-    os.makedirs(os.path.join(simulators.paths["output_dir"], "Test_object", "grid_plots"), exist_ok=True)
+    setup_dirs("Test_object")
+
     result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
                          gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
                          save_only=True, chip=1, prefix="Testtestest")
@@ -61,3 +62,18 @@ def test_continuum_alpha(chip):
     alpha = continuum_alpha(model1, model2, chip)
 
     assert np.allclose(alpha, [2])
+
+
+def test_setup_dirs_creates_dirs(tmpdir):
+    simulators.paths["output_dir"] = tmpdir
+    star = "TestStar"
+    assert not os.path.exists(os.path.join(tmpdir, star.upper()))
+    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "plots"))
+    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "grid_plots"))
+    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "fudgeplots"))
+    setup_dirs(star)
+
+    assert os.path.exists(os.path.join(tmpdir, star.upper()))
+    assert os.path.exists(os.path.join(tmpdir, star.upper(), "plots"))
+    assert os.path.exists(os.path.join(tmpdir, star.upper(), "grid_plots"))
+    assert os.path.exists(os.path.join(tmpdir, star.upper(), "fudgeplots"))
