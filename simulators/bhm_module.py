@@ -73,7 +73,6 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
             # obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis],
             #                                            obs_spec.flux[:, np.newaxis], bhm_grid_values)
             obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, bhm_grid_values)
-
         else:
             obs_flux = obs_spec.flux[:, np.newaxis]
         #####
