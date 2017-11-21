@@ -194,10 +194,12 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             mod2_spec.plot(label="fudged {0}".format(params2))
             plt.title("fudges models")
             plt.legend()
+
+            fudge_prefix = os.path.basename(os.path.normpath(prefix))
             fname = os.path.join(simulators.paths["output_dir"],
                                  obs_spec.header["OBJECT"].upper(), "fudgeplots",
-                                 "fudged_model_spectra_factor={0}_{1}_now={2}.png".format(fudge_factor, prefix,
-                                                                                      datetime.datetime.now()))
+                                 "{1}_fudged_model_spectra_factor={0}_now={2}.png".format(fudge_factor, fudge_prefix,
+                                                                                          datetime.datetime.now()))
             plt.savefig(fname)
             warnings.warn("Using a fudge factor")
 
