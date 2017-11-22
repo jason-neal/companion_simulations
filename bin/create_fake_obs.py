@@ -20,10 +20,12 @@ def _parser():
                         help="Noise to add")
     parser.add_argument('-p', '--plot', action="store_true",
                         help='Plot resulting spectrum.')
+    parser.add_argument("-m", "--mode", help="Combination mode", choices=["tcm", "bhm", "iam"],
+                        default="iam")
     return parser.parse_args()
 
 
-def fake_obs(simnum, snr=200, suffix=None, plot=False):
+def fake_obs(simnum, snr=200, suffix=None, plot=False, mode="iam"):
     snr = 200
 
     params1 = [5300, 4.5, 0.0]
