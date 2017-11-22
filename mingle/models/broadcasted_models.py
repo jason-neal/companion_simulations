@@ -3,7 +3,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 
-def one_comp_model(wav, model1, gammas):
+def one_comp_model(wav, model1, *, gammas=None):
     """Make 1 component simulations, broadcasting over gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
     gammas = check_broadcastable(gammas).squeeze(axis=1)
@@ -29,7 +29,7 @@ def check_broadcastable(var):
     return var
 
 
-def two_comp_model(wav, model1, model2, alphas, rvs, gammas, kind="quadratic"):
+def two_comp_model(wav, model1, model2, *, alphas=None, rvs=None, gammas=None, kind="quadratic"):
     """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
     alphas = check_broadcastable(alphas).squeeze(axis=1)
@@ -55,7 +55,7 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas, kind="quadratic"):
     return interp1d(wav, am2rvm1g, kind=kind, bounds_error=False, axis=0)  # pass it the wavelength values to return
 
 
-def two_comp_model_with_transpose(wav, model1, model2, alphas, rvs, gammas):
+def two_comp_model_with_transpose(wav, model1, model2, alphas, *, rvs=None, gammas=None):
     """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
     alphas = check_broadcastable(alphas)
@@ -81,7 +81,7 @@ def two_comp_model_with_transpose(wav, model1, model2, alphas, rvs, gammas):
     return interp1d(wav, am2rvm1g, axis=0)  # pass it the wavelength values to return
 
 
-def inherent_alpha_model(wav, model1, model2, rvs, gammas, kind="linear"):
+def inherent_alpha_model(wav, model1, model2, *, rvs=None, gammas=None, kind="linear"):
     """Make 2 component simulations, broadcasting over, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
     # alphas = check_broadcastable(alphas)
@@ -111,7 +111,7 @@ def inherent_alpha_model(wav, model1, model2, rvs, gammas, kind="linear"):
     return interp1d(wav, m2rvm1g, kind=kind, axis=0, bounds_error=False)  # pass it the wavelength values to return   # return interp1d(wav, m2rvm1g, axis=0)  # pass it the wavelength values to return   #
 
 
-def independent_inherent_alpha_model(wav, model1, model2, rvs, gammas, kind="quadratic"):
+def independent_inherent_alpha_model(wav, model1, model2, *, rvs=None, gammas=None, kind="quadratic"):
     """Make 2 component simulations, broadcasting over, rv, gamma values.
 
     Independent RV and Gamma variables.

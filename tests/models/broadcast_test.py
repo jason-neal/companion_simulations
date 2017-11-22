@@ -39,9 +39,9 @@ def test_ocm_and_tcm_models_are_same_with_no_companion(host, gamma, rv):
 
     If alpha=0 then there is no companion.
     """
-    ocm = one_comp_model(host.xaxis, host.flux, gamma)
+    ocm = one_comp_model(host.xaxis, host.flux, gammas=gamma)
     ocm_eval = ocm(host.xaxis).squeeze()
-    tcm = two_comp_model(host.xaxis, host.flux, np.ones_like(host.flux), 0, rv, gamma)
+    tcm = two_comp_model(host.xaxis, host.flux, np.ones_like(host.flux), alphas=0, rvs=rv, gammas=gamma)
     tcm_eval = tcm(host.xaxis).squeeze()
 
     assert ocm_eval.shape == tcm_eval.shape
@@ -57,8 +57,8 @@ def test_tcm_with_transpose(host, comp):
 
     If alpha= 0 and rvs = 0.
     s"""
-    tcm = two_comp_model(host.xaxis, host.flux, comp.flux, 0, [0], [1, 2, 3])
-    tcm_trans = two_comp_model_with_transpose(host.xaxis, host.flux, comp.flux, 0, [0], [1, 2, 3])
+    tcm = two_comp_model(host.xaxis, host.flux, comp.flux, alphas=0, rvs=[0], gammas=[1, 2, 3])
+    tcm_trans = two_comp_model_with_transpose(host.xaxis, host.flux, comp.flux, alphas=0, rvs=[0], gammas=[1, 2, 3])
 
     tcm_eval = tcm(host.xaxis)
     tcm_trans_eval = tcm_trans(host.xaxis)
@@ -83,7 +83,7 @@ def test_shape_of_tcm(host, comp):
     rvs = np.arange(3)
     alphas = np.arange(4) / 16
 
-    tcm = two_comp_model(host.xaxis, host.flux, comp.flux, alphas, rvs, gammas)
+    tcm = two_comp_model(host.xaxis, host.flux, comp.flux, alphas=alphas, rvs=rvs, gammas=gammas)
     assert isinstance(tcm, sp.interpolate.interp1d)
 
     tcm_eval = tcm(host.xaxis)  # Evaluate at host.xaxis
@@ -93,7 +93,7 @@ def test_shape_of_tcm(host, comp):
 def test_shape_of_ocm(host):
     gammas = np.arange(2)
 
-    ocm = one_comp_model(host.xaxis, host.flux, gammas)
+    ocm = one_comp_model(host.xaxis, host.flux, gammas=gammas)
     assert isinstance(ocm, sp.interpolate.interp1d)
 
     ocm_eval = ocm(host.xaxis)  # Evaluate at host.xaxis
@@ -110,8 +110,8 @@ def test_check_broadcastable():
 
 
 def test_inherinent_model_same_as_alpha_0(host, comp):
-    tcm = two_comp_model(host.xaxis, host.flux, comp.flux, 0, [0, 2, 4], [1, 2, 3])
-    iam = inherent_alpha_model(host.xaxis, host.flux, comp.flux, [0, 2, 4], [1, 2, 3])
+    tcm = two_comp_model(host.xaxis, host.flux, comp.flux, alphas=0, rvs=[0, 2, 4], gammas=[1, 2, 3])
+    iam = inherent_alpha_model(host.xaxis, host.flux, comp.flux, rvs=[0, 2, 4], gammas=[1, 2, 3])
 
     host.wav_select(2100.5, 2104.5)  # cut to avoid Nans from doppler shifts
     tcm_value = tcm(host.xaxis)

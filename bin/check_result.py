@@ -80,11 +80,11 @@ def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv,
 
         if independent:
             joint_model = independent_inherent_alpha_model(host.xaxis, host.flux,
-                                                           companion.flux, gamma,
-                                                           rv)
+                                                           companion.flux, gammas=gamma,
+                                                           rvs=rv)
         else:
             joint_model = inherent_alpha_model(host.xaxis, host.flux,
-                                               companion.flux, gamma, rv)
+                                               companion.flux, gammas=gamma, rvs=rv)
 
         model_spec = Spectrum(xaxis=host.xaxis, flux=joint_model(host.xaxis).squeeze())
         model_spec = model_spec.remove_nans()
