@@ -53,7 +53,7 @@ script:
     pytest --cov=. --cov-report term-missing
 
 after_success:
-  - coveralls -i
-  - codeclimate-test-reporter
-  - coverage xml -i
-  - python-codacy-coverage -r coverage.xml
+  #- coveralls -i
+  #- codeclimate-test-reporter
+  #- coverage xml -i
+  #- python-codacy-coverage -r coverage.xml
