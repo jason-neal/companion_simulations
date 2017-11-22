@@ -53,8 +53,11 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
+    from spectrum_overload import Spectrum
+    assert isinstance(obs_spec, Spectrum)
     # Mask out bad portion of observed spectra
     obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
+
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
 
@@ -79,12 +82,12 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     print("model_chisqr_vals", model_chisqr_vals.shape)
     print("model_xcorr_vals", model_xcorr_vals.shape)
     print("model_xcorr_rv_vals", model_xcorr_rv_vals.shape)
-    print("broadcast_chisqr_vals", broadcast_chisqr_vals.shape)
-    print("broadcast_chisqr_vals", broadcast_chisqr_vals[:20])
-    print("broadcast_gamma", broadcast_gamma.shape)
-    print("broadcast_gamma", broadcast_gamma[:20])
-    print("broadcast_chi2_gamma", broadcast_chi2_gamma.shape)
-    print("broadcast_chi2_gamma", broadcast_chi2_gamma[:20])
+    print("broadcast_chisqr_vals shape", broadcast_chisqr_vals.shape)
+    print("broadcast_chisqr_vals (first 5)", broadcast_chisqr_vals[:5])
+    print("broadcast_gamma shape", broadcast_gamma.shape)
+    print("broadcast_gamma (first 5)", broadcast_gamma[:5])
+    print("broadcast_chi2_gamma shape", broadcast_chi2_gamma.shape)
+    print("broadcast_chi2_gamma (first 5)", broadcast_chi2_gamma[:5])
 
     print("Finished chi square generation")
 

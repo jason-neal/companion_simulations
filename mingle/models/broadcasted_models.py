@@ -94,19 +94,19 @@ def inherent_alpha_model(wav, model1, model2, *, rvs=None, gammas=None, kind="li
     for i, rv in enumerate(rvs):
         wav_i = (1 + rv / 299792.458) * wav
         m2rv[:, i] = interp1d(wav_i, model2, axis=0, kind=kind, bounds_error=False)(wav)
-    print("num not finite", np.sum(~np.isfinite(m2rv)))
-    print("shape", m2rv.shape)
-    print("locations not finite", np.where(~np.isfinite(m2rv)))
-    #assert np.all(np.isfinite(m2rv))
+    print("number of values not finite after doppler shift 1", np.sum(~np.isfinite(m2rv)))
+    print("m2rv shape", m2rv.shape)
+    # print("locations not finite", np.where(~np.isfinite(m2rv)))
+    # assert np.all(np.isfinite(m2rv))
     m2rvm1 = (model1.T + m2rv.T).T  # m2rvm1 = am2rv + model_1
     m2rvm1g = np.empty(m2rvm1.shape + (len(gammas),))  # m2rvm1g = m2rvm1 with gamma doppler-shift
     for j, gamma in enumerate(gammas):
         wav_j = (1 + gamma / 299792.458) * wav
         m2rvm1g[:, :, j] = interp1d(wav_j, m2rvm1, axis=0, kind=kind, bounds_error=False)(wav)
-    #assert np.all(np.isfinite(m2rvm1g))
-    print("num not finite", np.sum(~np.isfinite(m2rvm1g)))
-    print("shape", m2rvm1g.shape)
-    print("locations not finite", np.where(~np.isfinite(m2rv)))
+    # assert np.all(np.isfinite(m2rvm1g))
+    print("number of values not finite after doppler shift 2", np.sum(~np.isfinite(m2rvm1g)))
+    print("m2rvm1g shape", m2rvm1g.shape)
+    # print("locations not finite", np.where(~np.isfinite(m2rv)))
     assert m2rvm1g.shape == (len(model1), len(rvs), len(gammas)), "Dimensions of broadcast not correct"
     return interp1d(wav, m2rvm1g, kind=kind, axis=0, bounds_error=False)  # pass it the wavelength values to return   # return interp1d(wav, m2rvm1g, axis=0)  # pass it the wavelength values to return   #
 

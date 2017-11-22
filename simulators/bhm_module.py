@@ -91,8 +91,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
 
         model_chisqr_vals[ii] = org_model_chi_val   # This is gamma = 0 version
 
-        print("bhm_grid_chisquare.shape", bhm_grid_chisquare.shape)
-
+        # print("bhm_grid_chisquare.shape", bhm_grid_chisquare.shape)
         # New parameters to explore
         bhm_grid_chisqr_vals[ii] = bhm_grid_chisquare[np.argmin(bhm_grid_chisquare)]
         bhm_grid_gamma[ii] = gammas[np.argmin(bhm_grid_chisquare)]
@@ -111,6 +110,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         ###################
 
         npix = obs_flux.shape[0]
+        # print("bhm shape", bhm_grid_chisquare.shape)
         save_full_bhm_chisqr(save_name, params, gammas, bhm_grid_chisquare, npix)
 
     return (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
