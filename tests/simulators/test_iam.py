@@ -51,9 +51,27 @@ def test_iam_wrapper(host, comp, tmpdir):
 
     result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
                          gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
-                         save_only=True, chip=1, prefix="Test_file")
+                         save_only=True, chip=1, prefix=tmpdir.join("TEST_file"))
     assert result is None
 
+
+def test_iam_wrapper_without_prefix(host, comp, tmpdir):
+    simulators.paths["output_dir"] = tmpdir
+    host_params = [5600, 4.5, 0.0]
+    comp_params = [[2300, 4.5, 0.0], [2400, 4.5, 0.0]]
+
+    host.wav_select(2110, 2115)
+    comp.wav_select(2110, 2115)
+
+    obs_spec = host.copy()
+    obs_spec.flux += comp.flux
+    obs_spec.header.update({"OBJECT": "Test_object","MJD-OBS": 56114.31674297})
+    setup_iam_dirs("Test_object")
+
+    result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
+                         gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
+                         save_only=True, chip=1)
+    assert result is None
 
 @pytest.mark.parametrize("chip", [None, 1, 2, 3, 4])
 def test_continuum_alpha(chip):
@@ -68,14 +86,14 @@ def test_continuum_alpha(chip):
 def test_setup_dirs_creates_dirs(tmpdir):
     simulators.paths["output_dir"] = tmpdir
     star = "TestStar"
-    assert not os.path.exists(os.path.join(tmpdir, star.upper()))
-    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "plots"))
-    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "grid_plots"))
-    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "fudgeplots"))
+    assert not os.path.exists(tmpdir.join(star.upper()))
+    assert not os.path.exists(tmpdir.join(star.upper(), "plots"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "grid_plots"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "fudgeplots"))
     result = setup_iam_dirs(star)
 
-    assert os.path.exists(os.path.join(tmpdir, star.upper()))
-    assert os.path.exists(os.path.join(tmpdir, star.upper(), "plots"))
-    assert os.path.exists(os.path.join(tmpdir, star.upper(), "grid_plots"))
-    assert os.path.exists(os.path.join(tmpdir, star.upper(), "fudgeplots"))
+    assert os.path.exists(tmpdir.join(star.upper()))
+    assert os.path.exists(tmpdir.join(star.upper(), "plots"))
+    assert os.path.exists(tmpdir.join(star.upper(), "grid_plots"))
+    assert os.path.exists(tmpdir.join(star.upper(), "fudgeplots"))
     assert result is None
