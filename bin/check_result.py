@@ -62,7 +62,7 @@ def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv,
         obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
 
         # Barycentric correct spectrum
-        # obs_spec = barycorr_crires_spectrum(obs_spec)
+        # obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
 
         error_off = False
         # Determine Spectrum Errors

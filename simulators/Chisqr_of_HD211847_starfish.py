@@ -125,7 +125,7 @@ def main(star="HD211847", obs_num="2", chip=1):
     print("host_rv", host_rv, "km/s")
 
     offset = -host_rv  # -To shift to host star reference.
-    logging.debug("Host rv " + pv("offset"))
+    logging.debug("Host rv offset" + pv("offset"))
 
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum  (at the ends)

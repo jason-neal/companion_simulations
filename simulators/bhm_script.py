@@ -56,7 +56,7 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     # Mask out bad portion of observed spectra
     obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
     # Barycentric correct spectrum
-    obs_spec = barycorr_crires_spectrum(obs_spec, -22)
+    obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
 
     # Determine Spectrum Errors
     try:

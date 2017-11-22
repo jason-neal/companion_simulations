@@ -49,7 +49,7 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
         # Convert easily to julian date with ephem
         jd = ephem.julian_date(time.replace("T", " ").split(".")[0])
 
-        # Calculate Helocentric velocity
+        # Calculate Heliocentric velocity
         helcorr = pyasl.helcorr(longitude, latitude, altitude, ra, dec, jd,
                                 debug=False)
         helcorr = helcorr[0]
@@ -80,7 +80,7 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
 def crires_resolution(header):
     """Set CRIRES resolution based on rule of thumb equation from the manual.
 
-    Warning! The use of adpative optics is not checked for!!
+    Warning! The use of adaptive optics is not checked for!!
     # This code has been copied from tapas xml request script.
     """
     instrument = header["INSTRUME"]
@@ -88,10 +88,10 @@ def crires_resolution(header):
     slit_width = header["HIERARCH ESO INS SLIT1 WID"]
     if "CRIRES" in instrument:
         # print("Resolving Power\nUsing the rule of thumb equation from the
-        # CRIRES manual. \nWarning! The use of adpative optics is not
+        # CRIRES manual. \nWarning! The use of adaptive optics is not
         # checked for!!")
-        R = 100000 * 0.2 / slit_width
-        resolving_power = int(R)
+        resolving_power = 100000 * 0.2 / slit_width
+        resolving_power = int(resolving_power)
         # print("Slit width was {0} inches.\n
         # Therefore the resolving_power is set = {1}".format(slit_width,
         # resolving_power))

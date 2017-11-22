@@ -11,13 +11,13 @@ from mingle.utilities.crires_utilities import barycorr_crires, barycorr_crires_s
 
 @pytest.mark.xfail
 def test_barycorr_crires_spectrum(host):
-    barycorr_crires_spectrum(host, )
+    barycorr_crires_spectrum(host, extra_offset=None)
     assert False
 
 
 @pytest.mark.xfail
 def test_barycorr_crires_spectrum_with_obs_spec(host):
-    new_spec = barycorr_crires_spectrum(host)
+    new_spec = barycorr_crires_spectrum(host, extra_offset=None)
     assert False
 
 

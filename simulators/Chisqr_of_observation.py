@@ -89,8 +89,8 @@ def main():
     host_rv = pl_rv_array(jd, *host_params[0:6])[0]
     print("host_rv", host_rv, "km/s")
 
-    offset = -host_rv  # -22
-    # offset = 0  # -22
+    offset = -host_rv
+    # offset = 0
     berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum
     berv_corrected_observed_spectra.wav_select(*berv_corrected_observed_spectra.xaxis[

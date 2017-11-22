@@ -57,7 +57,7 @@ print(obs_name_new)
 # Load observation
 uncorrected_spectra = load_spectrum(obs_name)
 observed_spectra = load_spectrum(obs_name)
-observed_spectra = barycorr_crires_spectrum(observed_spectra, -22)
+observed_spectra = barycorr_crires_spectrum(observed_spectra, extra_offset=None)
 observed_spectra.flux /= 1.02
 
 
