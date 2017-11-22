@@ -53,7 +53,7 @@ def _parser():
 
 
 def decompose_database_name(database):
-    """Database names of form */Star_obsnum_chip...db."""
+    """Database names of form */Star-obsnum_chip...db."""
     os.path.split(database)
     path, name = os.path.split(database)
     name_split = name.split("_")
@@ -102,7 +102,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
 
     path, dbstar, db_obsnum, chip = decompose_database_name(database)
     assert dbstar == star
-    assert db_obsnum == obsnum
+    assert str(db_obsnum) == str(obsnum)
     assert chip == "coadd"
 
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)  # make dir for plots
