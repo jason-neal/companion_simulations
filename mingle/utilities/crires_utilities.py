@@ -30,11 +30,12 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
 
     # SHOULD test again with bary and see what the difference is.
     """
-    if (not header) or (header is None):
-        logging.warning("No bary correction done as no header information")
+    if header is None:
+        logging.warning("No header information to calculate heliocentric correction.")
         header = {}
-        if extra_offset is None:
+        if (extra_offset is None) or (extra_offset == 0):
             return wavelength, flux
+
     try:
         longitude = float(header["HIERARCH ESO TEL GEOLON"])
         latitude = float(header["HIERARCH ESO TEL GEOLAT"])
@@ -65,14 +66,14 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
     helcorr_val = helcorr + extra_offset
 
     if helcorr_val == 0:
-        logging.debug("helcorr value was zero")
+        logging.warning("Helcorr value was zero")
         return wavelength, flux
     else:
         # Apply Doppler shift to the target spectra with helcorr correction velocity
         nflux, wlprime = pyasl.dopplerShift(wavelength, flux, helcorr_val,
                                             edgeHandling=None, fillValue=None)
 
-        print("RV Size of heliocenter correction for spectra", helcorr_val)
+        print("RV Size of Heliocenter correction for spectra", helcorr_val)
         return wlprime, nflux
 
 
