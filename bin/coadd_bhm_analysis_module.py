@@ -603,7 +603,7 @@ def compare_spectra(table, params):
         print(f"Recomputed chi^2 = {chisqr}")
         print(f"Database chi^2 = {df[chi2_val]}")
         fig, ax = plt.subplots(1, 1)
-        plt.plot(obs_spec.xaxis, obs_spec.flux/2000/1.08, label="Observation, {}".format(obs_name))
+        plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation, {}".format(obs_name))
         plt.plot(model_spec.xaxis, model_spec.flux, label="Minimum \chi^2 model")
         plt.plot(model_spec_full.xaxis, model_spec_full.flux, "--", label="Model_full_res")
         plt.plot(bhm_lower_gamma.xaxis, bhm_lower_gamma.flux, "-.", label="gamma={}".format(extreme_gammas[0]))
