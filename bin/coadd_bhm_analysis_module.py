@@ -109,6 +109,47 @@ def display_arbitary_norm_values(table, params):
     fig.suptitle("Arbitrary normalization used, \n slight shift with detetor")
     name = "{0}-{1}_{2}_plot_arbnormalization_{3}.pdf".format(
         params["star"], params["obs_num"], params["chip"], params["suffix"])
+
+
+def display_bhm_xcorr_values(table, params):
+    fig, axarr = plt.subplots(3)
+    for ii, xcorr in enumerate([r"xcorr_1", r"xcorr_2", r"xcorr_3", r"xcorr_4"]):
+        df = pd.read_sql(
+            sa.select([table.c.gamma, table.c[xcorr],
+                       table.c.teff_1]), table.metadata.bind)
+
+        c = axarr[0].scatter(xshift(df["gamma"], ii), df[xcorr],
+                             c=df[r"teff_1"].values, alpha=0.9, label=xcorr)
+
+        axarr[0].set_xlabel(r'host rv offset', fontsize=12)
+        axarr[0].set_ylabel(r'Arbitary norm', fontsize=12)
+        axarr[0].set_title(r'Arbitary normalization.')
+
+        d = axarr[1].scatter(xshift(df[r"gamma"], ii), df[xcorr],
+                             c=df[r"teff_1"].values, alpha=0.9, label=xcorr)
+        axarr[1].set_xlabel(r'$\gamma$ offset', fontsize=12)
+        axarr[1].set_ylabel(r'Arbitary norm', fontsize=12)
+        axarr[1].set_title(r'$\gamma$.')
+
+        e = axarr[2].scatter(xshift(df[r"teff_1"], ii), df[xcorr],
+                             c=df[r"gamma"].values, alpha=0.9, label=xcorr)
+        axarr[2].set_xlabel(r'Companion temperature', fontsize=15)
+        axarr[2].set_ylabel(r'Arbitary norm ', fontsize=15)
+        axarr[2].set_title(r'Companion Temperature')
+    axarr[0].grid(True)
+    axarr[1].grid(True)
+    axarr[2].grid(True)
+
+    cbar0 = plt.colorbar(c)
+    cbar0.ax.set_ylabel(r" teff_1")
+    cbar1 = plt.colorbar(d)
+    cbar1.ax.set_ylabel(r" teff_1")
+    cbar2 = plt.colorbar(e)
+    cbar1.ax.set_ylabel(r"$\gamma$")
+    fig.tight_layout()
+    fig.suptitle("Arbitrary normalization used, \n slight shift with detetor")
+    name = "{0}-{1}_{2}_plot_xcorr_value_{3}.pdf".format(
+        params["star"], params["obsnum"], params["chip"], params["suffix"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
     plt.close()

@@ -15,15 +15,18 @@ import sys
 import sqlalchemy as sa
 
 import simulators
-from bin.coadd_bhm_analysis_module import (chi2_parabola_plots, compare_spectra,
-                                       contours, display_arbitary_norm_values,
-                                       fix_host_parameters,
-                                       fix_host_parameters_reduced_gamma,
-                                       get_column_limits, get_npix_values,
-                                       parabola_plots, rv_plot,
-                                       smallest_chi2_values, test_figure, contrast_bhm_results)
-from mingle.utilities.phoenix_utils import closest_model_params
+from bin.coadd_bhm_analysis_module import (chi2_parabola_plots,
+                                           compare_spectra, contours,
+                                           contrast_bhm_results,
+                                           display_arbitary_norm_values,
+                                           display_bhm_xcorr_values,
+                                           gamma_plot, get_column_limits,
+                                           get_npix_values, host_parameters,
+                                           host_parameters_reduced_gamma,
+                                           parabola_plots,
+                                           smallest_chi2_values, test_figure)
 from mingle.utilities.param_file import get_host_params
+from mingle.utilities.phoenix_utils import closest_model_params
 
 
 def parse_args(args):
@@ -34,7 +37,7 @@ def parse_args(args):
     parser = argparse.ArgumentParser(description='Chisquare analysis.')
     parser.add_argument('star', help='Star Name')
     parser.add_argument('obsnum', help="Observation label")
-    parser.add_argument('--suffix', default=None,
+    parser.add_argument('-s', '--suffix', default=None,
                         help='Suffix to add to database name.')
     parser.add_argument("-e", "--echo", action="store_true",
                         help="Echo the SQL queries")
@@ -46,7 +49,8 @@ def parse_args(args):
                         help="Analysis mode to choose",
                         choices=["parabola", "fixed_host_params", "param_limits",
                                  "smallest_chi2", "test", "contour", "arbnorm",
-                                 "all", "rvplot", "chi2_parabola", "compare_spectra", "contrast"])
+                                 "all", "rvplot", "chi2_parabola", "compare_spectra",
+                                 "contrast", "xcorr"])
     return parser.parse_args(args)
 
 
@@ -117,8 +121,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     print("Mode =", mode)
 
     if mode == "fixed_host_params":
-        fix_host_parameters_reduced_gamma(db_table, params)
-        fix_host_parameters(db_table, params)
+        host_parameters_reduced_gamma(db_table, params)
+        host_parameters(db_table, params)
     elif mode == "param_limits":
         get_column_limits(db_table, params)
     elif mode == "parabola":
@@ -130,9 +134,11 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     elif mode == "test":
         test_figure(db_table, params)
     elif mode == "rvplot":
-        rv_plot(db_table, params)
+        gamma_plot(db_table, params)
     elif mode == "arbnorm":
         display_arbitary_norm_values(db_table, params)
+    elif mode == "xcorr":
+        display_bhm_xcorr_values(db_table, params)
     elif mode == "chi2_parabola":
         chi2_parabola_plots(db_table, params)
     elif mode == "compare_spectra":
@@ -140,17 +146,19 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     elif mode == "contrast":
         contrast_bhm_results(db_table, params)
     elif mode == "all":
-        fix_host_parameters_reduced_gamma(db_table, params)
+        host_parameters_reduced_gamma(db_table, params)
         get_column_limits(db_table, params)
-        fix_host_parameters(db_table, params)
+        host_parameters(db_table, params)
         display_arbitary_norm_values(db_table, params)
         smallest_chi2_values(db_table, params)
+        gamma_plot(db_table, params)
         parabola_plots(db_table, params)
         contours(db_table, params)
         test_figure(db_table, params)
         chi2_parabola_plots(db_table, params)
         compare_spectra(db_table, params)
         contrast_bhm_results(db_table, params)
+        display_bhm_xcorr_values(db_table, params)
     print("Done")
     return 0
 
