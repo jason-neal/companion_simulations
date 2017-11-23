@@ -21,7 +21,7 @@ from bin.coadd_bhm_analysis_module import (chi2_parabola_plots, compare_spectra,
                                        fix_host_parameters_reduced_gamma,
                                        get_column_limits, get_npix_values,
                                        parabola_plots, rv_plot,
-                                       smallest_chi2_values, test_figure)
+                                       smallest_chi2_values, test_figure, contrast_bhm_results)
 from mingle.utilities.phoenix_utils import closest_model_params
 from mingle.utilities.param_file import get_host_params
 
@@ -46,7 +46,7 @@ def _parser():
                         help="Analysis mode to choose",
                         choices=["parabola", "fixed_host_params", "param_limits",
                                  "smallest_chi2", "test", "contour", "arbnorm",
-                                 "all", "rvplot", "chi2_parabola", "compare_spectra"])
+                                 "all", "rvplot", "chi2_parabola", "compare_spectra", "contrast"])
     parser.add_argument('-n', '--norm', action="store_true",
                         help='Normalized chi2 (min(chi**2) == 1).')
     return parser.parse_args()
@@ -139,6 +139,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         chi2_parabola_plots(db_table, params)
     elif mode == "compare_spectra":
         compare_spectra(db_table, params)
+    elif mode == "contrast":
+        contrast_bhm_results(db_table, params)
     elif mode == "all":
         fix_host_parameters_reduced_gamma(db_table, params)
         get_column_limits(db_table, params)
@@ -150,6 +152,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         test_figure(db_table, params)
         chi2_parabola_plots(db_table, params)
         compare_spectra(db_table, params)
+        contrast_bhm_results(db_table, params)
     print("Done")
     return 0
 

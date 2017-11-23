@@ -619,3 +619,22 @@ def compare_spectra(table, params):
 
         plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation")
         plt.show()
+
+
+from simulators.bhm_module import bhm_helper_function
+
+
+def contrast_bhm_results(table, params):
+    star_name = params["star"]
+    obs_num = params["obs_num"]
+    __, host_params, __ = bhm_helper_function(star_name, obs_num, 1)
+    h_temp, h_logg, h_feh = host_params['temp'], host_params['logg'], host_params["fe_h"]
+
+    print(f"Expected Parameters = teff={h_temp}, logg={h_logg}, feh={h_feh}, gamma= ")
+
+    for ii, chi2_val in enumerate(chi2_names):
+        df = pd.read_sql_query(sa.select([table.c.teff_1, table.c.logg_1, table.c.feh_1,
+                                          table.c.gamma,
+                                          table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
+                               table.metadata.bind)
+        print(f"{chi2_val} bhm solution: teff={df.teff_1.values}, logg={df.logg_1.values} feh={df.feh_1.values}, gamma=={df.gamma.values}")
