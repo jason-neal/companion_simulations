@@ -16,7 +16,7 @@ from mingle.utilities.errors import spectrum_error
 from simulators.iam_module import iam_helper_function
 import numpy as np
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -44,7 +44,7 @@ def _parser():
                         help="Independent rv of companion")
     parser.add_argument("-p", "--plot_name", type=str,
                         help="Name of save figure.")
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, independent=False,
@@ -111,7 +111,7 @@ def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv,
 
 
 if __name__ == "__main__":
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
 
     sys.exit(main(**opts))

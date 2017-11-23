@@ -48,7 +48,7 @@ check_inputs(gammas)
 # alphas = np.arange(0.01, 0.2, 0.02)
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -73,7 +73,7 @@ def _parser():
                         help='Disable scaling by wavelength.')
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
@@ -143,7 +143,7 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
 
 
 if __name__ == "__main__":
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
     n_jobs = opts.pop("n_jobs", 1)
 

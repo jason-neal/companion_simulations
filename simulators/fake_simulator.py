@@ -13,7 +13,7 @@ from mingle.utilities.simulation_utilities import spec_max_delta
 from simulators.iam_module import prepare_iam_model_spectra, continuum_alpha
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -38,7 +38,7 @@ def _parser():
     parser.add_argument("-m", "--mode", help="Combination mode", choices=["tcm", "bhm", "iam"],
                         default="iam")
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def fake_iam_simulation(wav, params1, params2, gamma, rv, chip=None,
@@ -333,7 +333,7 @@ def append_hdr(hdr, keys=None, values=None, item=0):
 
 
 if __name__ == "__main__":
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
 
     # with warnings.catch_warnings():

@@ -23,7 +23,7 @@ from mingle.utilities.phoenix_utils import closest_model_params
 from mingle.utilities.param_file import get_host_params
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -36,7 +36,7 @@ def _parser():
     parser.add_argument("-m", "--mode", help="Analysis mode to choose", default="parabola",
                         choices=["parabola", "fixed_host_params", "param_limits", "smallest_chi2", "test", "contour",
                                  "contour_old"])
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def decompose_database_name(database):
@@ -119,7 +119,7 @@ def main(database, echo=False, mode="parabola"):
 
 
 if __name__ == '__main__':
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
 
     sys.exit(main(**opts))

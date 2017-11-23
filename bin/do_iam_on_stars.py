@@ -11,7 +11,7 @@ from joblib import Parallel, delayed
 from simulators.iam_script import main
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -20,11 +20,11 @@ def _parser():
     parser.add_argument('-s', '--stars', help='Star names', nargs="+", default=None)
     parser.add_argument('--suffix', help='Suffix to add to the file names.', default="")
     parser.add_argument("-n", "--n_jobs", help="Number of parallel Jobs", default=1, type=int)
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 if __name__ == "__main__":
-    args = _parser()
+    args = parse_args(sys.argv[1:])
     stars = args.stars
     n_jobs = args.pop("n_jobs", 1)
     if stars is None:

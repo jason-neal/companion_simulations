@@ -7,7 +7,7 @@ from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -22,7 +22,7 @@ def _parser():
                         help='Plot resulting spectrum.')
     parser.add_argument("-m", "--mode", help="Combination mode", choices=["tcm", "bhm", "iam"],
                         default="iam")
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def fake_obs(simnum, snr=200, suffix=None, plot=False, mode="iam"):
@@ -75,7 +75,7 @@ def fake_obs(simnum, snr=200, suffix=None, plot=False, mode="iam"):
 
 
 if __name__ == "__main__":
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
 
     sys.exit(fake_obs(**opts))

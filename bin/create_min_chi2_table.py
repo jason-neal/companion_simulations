@@ -20,7 +20,7 @@ from mingle.utilities.param_file import get_host_params
 from mingle.utilities.scatter_corner import scatter_corner
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -28,7 +28,7 @@ def _parser():
     parser = argparse.ArgumentParser(description='Minimum chi-squared table.')
     parser.add_argument('-s', '--stars', help='Star names', nargs="+", default=None)
     parser.add_argument('--suffix', help='Suffix to add to the file names.', default="")
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(star, obs_num, chip, suffix="", echo=False):
@@ -142,7 +142,7 @@ def min_chi2_corner_plot(star, filename):
 
 # TODO common function to determine observations and chips for different stars  (like here)
 if __name__ == "__main__":
-    args = _parser()
+    args = parse_args(sys.argv[1:])
     stars = args.stars
     if stars is None:
         stars = ["HD30501", "HD211847", "HD4747"]
