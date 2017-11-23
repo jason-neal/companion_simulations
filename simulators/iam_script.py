@@ -159,13 +159,17 @@ if __name__ == "__main__":
     if opts["chip"] is None:
         res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
                                       for chip in range(1, 5))
+        print("Finished parallel loops")
         if not sum(res):
+
             print("\nDoing analysis after simulations!\n")
             coadd_db(opts["star"], opts["obsnum"], opts["suffix"], replace=True,
-                     verbose=True, chunksize=10000, move=True)
+                     verbose=True, move=True)
 
             coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
                            echo=False, mode="all", verbose=False, norm=False, npars=3)
+
+            print("\nFinished the db analysis after iam_script simulations!\n")
             sys.exit(0)
         else:
             sys.exit(sum(res))
