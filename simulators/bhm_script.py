@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Run bhm analysis for HD211847."""
 import argparse
+import sys
 
 import numpy as np
 
@@ -13,7 +14,7 @@ from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_model_p
 from simulators.bhm_module import setup_bhm_dirs
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -30,7 +31,7 @@ def _parser():
                         help="Turn snr value errors off.")
     parser.add_argument('--disable_wav_scale', action="store_true",
                         help='Disable scaling by wavelength.')
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(star, obsnum, chip=None, verbose=False, suffix=None, mask=False, error_off=False, disable_wav_scale=False):
@@ -94,7 +95,7 @@ def main(star, obsnum, chip=None, verbose=False, suffix=None, mask=False, error_
 
 
 if __name__ == "__main__":
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
     star = opts.pop("star")
     obsnums = opts.pop("obsnums")

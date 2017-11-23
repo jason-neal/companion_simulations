@@ -18,9 +18,9 @@ from bin.analysis_iam_chi2 import decompose_database_name
 from mingle.utilities.phoenix_utils import closest_model_params
 from mingle.utilities.param_file import get_host_params
 from mingle.utilities.scatter_corner import scatter_corner
+import sys
 
-
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -28,7 +28,7 @@ def _parser():
     parser = argparse.ArgumentParser(description='Minimum chi-squared table.')
     parser.add_argument('star', help='Star name')
     parser.add_argument('--suffix', help='Suffix to add to the file names.', default="")
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(star, obsnum, chip, suffix="", echo=False):
@@ -142,10 +142,10 @@ def min_chi2_corner_plot(star, filename):
 
 # TODO common function to determine observations and chips for different stars  (like here)
 if __name__ == "__main__":
-    args = _parser()
+    args = parse_args(sys.argv[1:])
     star = args.star
-    obsnums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"],
-     "HDSIM": ["1", "2", "3"], "HDSIM2": ["1", "2", "3"], "HDSIM3": ["1", "2", "3"],}
+    obs_nums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"],
+                "HDSIM": ["1", "2", "3"], "HDSIM2": ["1", "2", "3"], "HDSIM3": ["1", "2", "3"]}
     chips = range(1, 5)
 
 

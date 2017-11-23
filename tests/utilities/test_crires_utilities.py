@@ -61,7 +61,7 @@ def test_barycorr_crires_on_None_or_zero_returns_unchanged(host, extra):
 
 
 @pytest.mark.parametrize("extra", [-20, -5, 0, 6, 12, 35])
-def test_barycorr_extra_offset_is_reversable(host, extra):
+def test_barycorr_extra_offset_is_reversible(host, extra):
     wav, flux = barycorr_crires(host.xaxis, host.flux, {}, extra_offset=extra)
     wav2, flux2 = barycorr_crires(wav, flux, {}, extra_offset=-extra)
 

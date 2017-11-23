@@ -13,7 +13,7 @@ import sqlalchemy as sa
 logging.warning("This is obsolute you may be looking for coadd_chi2.py")
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -27,7 +27,7 @@ def _parser():
                         help='Move original files after joining (default=False).')
     parser.add_argument("-r", '--remove', action="store_true",
                         help='Delete original files after joining (default=False).')
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def sql_join(pattern, suffix=None, verbose=True, move=False, remove=False):
@@ -107,7 +107,7 @@ def sql_join(pattern, suffix=None, verbose=True, move=False, remove=False):
 
 
 if __name__ == '__main__':
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
 
     sys.exit(sql_join(**opts))

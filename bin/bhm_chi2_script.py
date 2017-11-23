@@ -9,7 +9,7 @@ import simulators
 from simulators.bhm_module import bhm_analysis
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -26,8 +26,7 @@ def _parser():
     parser.add_argument('-m', '--mode', choices=["chi2", "plot"],
                         help='Calculate chi2 or plot results.')
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args(args)
 
 
 alphas = np.arange(*simulators.sim_grid["alphas"])
@@ -66,7 +65,7 @@ def main(star, obsnum, detector, output=None, model="tcm", mode="plot"):
 
 
 if __name__ == '__main__':
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
 
     sys.exit(main(**opts))

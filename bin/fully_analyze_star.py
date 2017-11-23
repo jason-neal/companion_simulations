@@ -11,7 +11,7 @@ star_observations = {"HD30501": ["1", "2a", "2b", "3"],
                      "HD4747": ["1"]}
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -21,7 +21,7 @@ def _parser():
     parser.add_argument('--full_chi_calculation', action="store_true",
                         help='Do all chi2 steps (slow).')
     parser.add_argument('--suffix', help='Suffix to add to filenames.', default="")
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 script_name = "inherint_alpha_model_HD21184.py"
@@ -81,6 +81,6 @@ def main(star, full_chi_calculation=False, suffix=""):
 
 
 if __name__ == "__main__":
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
     sys.exit(main(**opts))

@@ -42,7 +42,7 @@ rvs = np.arange(*simulators.sim_grid["rvs"])
 alphas = np.arange(*simulators.sim_grid["alphas"])
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -55,7 +55,7 @@ def _parser():
                         action="store_true", type=bool)
     parser.add_argument('--disable_wav_scale', action="store_true",
                         help='Disable scaling by wavelength.')
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, disable_wav_scale=False):
@@ -115,7 +115,7 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
 
 
 if __name__ == "__main__":
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
 
     # Iterate over chips

@@ -15,14 +15,14 @@ chips = range(1, 5)
 # TODO common function to determine observatiosn and chips for different stars
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
     """
     parser = argparse.ArgumentParser(description='HD30501 Analysis.')
     parser.add_argument('--full_chi_calculation', help='Do all chi2 steps (slow).', action="store_true")
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(full_chi_calculation=False):
@@ -55,6 +55,6 @@ def main(full_chi_calculation=False):
                 subprocess.call("python bin/analysis_iam_chi2.py {0}".format(db_name), shell=True)
 
 if __name__ == "__main__":
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
     sys.exit(main(**opts))

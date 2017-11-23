@@ -7,6 +7,7 @@ import argparse
 import glob
 import os
 import subprocess
+import sys
 
 import numpy as np
 import pandas as pd
@@ -15,7 +16,7 @@ import sqlalchemy as sa
 import simulators
 
 
-def _parser():
+def parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -34,7 +35,7 @@ def _parser():
     parser.add_argument("-m", '--move', action="store_true",
                         help='Move original files after joining (default=False).')
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move=False):
@@ -151,7 +152,8 @@ def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move
 
 
 if __name__ == "__main__":
-    args = vars(_parser())
+    args = vars(parse_args(sys.argv[1:]))
+
     opts = {k: args[k] for k in args}
     main(**opts)
     print("\nNow use coadd_analysis.py")
