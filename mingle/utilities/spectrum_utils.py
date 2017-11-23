@@ -49,12 +49,12 @@ def load_spectrum(name, corrected=True):
     return spectrum
 
 
-def select_observation(star, obs_num, chip):
+def select_observation(star, obsnum, chip):
     """Select the observation to load in.
 
     Inputs:
     star: name of host star target
-    obs_num: observation number
+    obsnum: observation number
     chip: Crires detector chip number
 
     Returns:
@@ -67,7 +67,7 @@ def select_observation(star, obs_num, chip):
     else:
         # New reduction and calibration
         path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/2017/{}-"
-                "{}/Combined_Nods".format(star, obs_num))
+                "{}/Combined_Nods".format(star, obsnum))
         filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
                                   "*_{}.nod.ms.*".format(chip))
         logging.debug("Filenames from 2017 reductions {}".format(filenames))
@@ -75,7 +75,7 @@ def select_observation(star, obs_num, chip):
             crires_name = filenames[0]
         else:
             path = ("/home/jneal/Phd/data/Crires/BDs-DRACS/{}-"
-                    "{}/Combined_Nods".format(star, obs_num))
+                    "{}/Combined_Nods".format(star, obsnum))
             print("Path =", path)
             filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
                                       "*_{}.nod.ms.*".format(chip))

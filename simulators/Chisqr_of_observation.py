@@ -47,9 +47,9 @@ def plot_obs_with_model(obs, model1, model2=None, show=True, title=None):
 def main():
     """Main."""
     star = "HD30501"
-    obs_num = "1"
+    obsnum = "1"
     chip = 1
-    obs_name = select_observation(star, obs_num, chip)
+    obs_name = select_observation(star, obsnum, chip)
 
     # Load observation
     observed_spectra = load_spectrum(obs_name)
@@ -166,7 +166,7 @@ def main():
 
     # Dump the results into a pickle file
     pickle_path = "/home/jneal/.chisqrpickles/"
-    pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obs_num, chip)
+    pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obsnum, chip)
     with open(os.path.join(pickle_path, pickle_name), "wb") as f:
         # Pickle all the necessary parameters to store.
         pickle.dump((rvs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,

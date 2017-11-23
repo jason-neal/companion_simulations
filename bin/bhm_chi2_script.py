@@ -17,7 +17,7 @@ def _parser():
     # parser = GooeyParser(description='Wavelength Calibrate CRIRES Spectra')
     parser = argparse.ArgumentParser(description='Perform bhm computations.')
     parser.add_argument('star', help='Star name file')
-    parser.add_argument('-n', '--obs_num', help='Observation number')
+    parser.add_argument('-n', '--obsnum', help='Observation number')
     parser.add_argument('-d', '--detector', default=None,
                         help='detector number, All if not provided.')
     parser.add_argument('-o', '--output', default=False, help='Output Filename')
@@ -35,10 +35,10 @@ gammas = np.arange(*simulators.sim_grid["gammas"])
 rvs = np.arange(*simulators.sim_grid["rvs"])
 
 
-def main(star, obs_num, detector, output=None, model="tcm", mode="plot"):
+def main(star, obsnum, detector, output=None, model="tcm", mode="plot"):
     if output is None:
         output = "Analysis-{0}-{1}_{2}-{}_chisqr_results.dat".format(
-            star, obs_num, detector, model)
+            star, obsnum, detector, model)
 
     if mode == "plot":
         # Load chi2 and dot he plotting

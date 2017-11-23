@@ -21,7 +21,7 @@ def alpha_rv_plot(engine, params, tb_name):
     ax.grid(True)
     fig.tight_layout()
     name = "{0}-{1}_{2}_test_alpha_rv.pdf".format(
-        params["star"], params["obs_num"], params["chip"])
+        params["star"], params["obsnum"], params["chip"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
     # plt.show()
@@ -50,8 +50,8 @@ def fix_host_parameters(engine, params, tb_name):
         df.plot(x=col, y="chi2", kind="scatter", ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma", colorbar=True)
 
     name = "{0}-{1}_{2}_fixed_host_params_full_gamma.png".format(
-        params["star"], params["obs_num"], params["chip"])
-    plt.suptitle("Chi**2 Results (Fixed host): {0}-{1}_{2}".format(params["star"], params["obs_num"], params["chip"]))
+        params["star"], params["obsnum"], params["chip"])
+    plt.suptitle("Chi**2 Results (Fixed host): {0}-{1}_{2}".format(params["star"], params["obsnum"], params["chip"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
 
@@ -80,7 +80,7 @@ def parabola_plots(table, params):
         plt.xlabel("{}".format(par))
         plt.ylabel("Chi2")
         filename = "Parabola_fit_{0}-{1}_{2}_param_{3}.png".format(
-            params["star"], params["obs_num"], params["chip"], par)
+            params["star"], params["obsnum"], params["chip"], par)
 
         plt.savefig(os.path.join(params["path"], "plots", filename))
         plt.close()
@@ -95,7 +95,7 @@ def smallest_chi2_values(engine, params, tb_name):
     print("Samllest Chi2 values in the database.")
     print(df.head(n=15))
     name = "{0}-{1}_{2}_test_smallest_chi2.pdf".format(
-        params["star"], params["obs_num"], params["chip"])
+        params["star"], params["obsnum"], params["chip"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
     # plt.show()
@@ -155,8 +155,8 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
                     ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma", colorbar=True)
 
     name = "{0}-{1}_{2}_fixed_host_params.png".format(
-        params["star"], params["obs_num"], params["chip"], col)
-    plt.suptitle("Chi**2 Results: {0}-{1}_{2}".format(params["star"], params["obs_num"], params["chip"]))
+        params["star"], params["obsnum"], params["chip"], col)
+    plt.suptitle("Chi**2 Results: {0}-{1}_{2}".format(params["star"], params["obsnum"], params["chip"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
 
@@ -234,7 +234,7 @@ def alpha_rv_contour(engine, params, tb_name):
     ax.grid(True)
     fig.tight_layout()
     name = "{0}-{1}_{2}_test_alpha_rv_contour1.pdf".format(
-        params["star"], params["obs_num"], params["chip"])
+        params["star"], params["obsnum"], params["chip"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     # plt.close()
     plt.show()
@@ -255,7 +255,7 @@ def alpha_rv_contour_old(engine, params, tb_name):
     ax.grid(True)
     fig.tight_layout()
     name = "{0}-{1}_{2}_test_alpha_rv_contour2.pdf".format(
-        params["star"], params["obs_num"], params["chip"])
+        params["star"], params["obsnum"], params["chip"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
     # plt.show()
@@ -274,7 +274,7 @@ def test_figure(engine, params, tb_name):
     ax.grid(True)
     fig.tight_layout()
     name = "{0}-{1}_{2}_test_test_figure1.pdf".format(
-        params["star"], params["obs_num"], params["chip"])
+        params["star"], params["obsnum"], params["chip"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     # plt.show()
 

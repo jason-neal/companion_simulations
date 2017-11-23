@@ -55,7 +55,7 @@ def _parser():
     """
     parser = argparse.ArgumentParser(description='Inherint alpha modelling.')
     parser.add_argument("star", help='Star name.', type=str)
-    parser.add_argument("obs_num", help='Star observation number.', type=str)
+    parser.add_argument("obsnum", help='Star observation number.', type=str)
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
     parser.add_argument('-p', '--parallel', help='Use parallelization.',
                         action="store_true")
@@ -76,7 +76,7 @@ def _parser():
     return parser.parse_args()
 
 
-def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
+def main(star, obsnum, chip=None, parallel=True, small=True, verbose=False,
          suffix=None, error_off=False, area_scale=True, disable_wav_scale=False, renormalize=False):
     """Main function."""
     wav_scale = not disable_wav_scale
@@ -85,7 +85,7 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
 
     star = star.upper()
     setup_iam_dirs(star)
-    obs_name, params, output_prefix = iam_helper_function(star, obs_num, chip)
+    obs_name, params, output_prefix = iam_helper_function(star, obsnum, chip)
     if suffix is not None:
         output_prefix = output_prefix + str(suffix)
 
@@ -106,12 +106,12 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
     # Load observation
     obs_spec = load_spectrum(obs_name)
     # Mask out bad portion of observed spectra
-    obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
+    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
     # Determine Spectrum Errors
     try:
-        errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+        errors = spectrum_error(star, obsnum, chip, error_off=error_off)
     except KeyError as e:
         errors = None
 
@@ -161,10 +161,10 @@ if __name__ == "__main__":
                                       for chip in range(1, 5))
         if not sum(res):
             print("\nDoing analysis after simulations!\n")
-            coadd_db(opts["star"], opts["obs_num"], opts["suffix"], replace=True,
+            coadd_db(opts["star"], opts["obsnum"], opts["suffix"], replace=True,
                      verbose=True, chunksize=10000, move=True)
 
-            coadd_analysis(opts["star"], opts["obs_num"], suffix=opts["suffix"],
+            coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
                            echo=False, mode="all", verbose=False, norm=False, npars=3)
             sys.exit(0)
         else:

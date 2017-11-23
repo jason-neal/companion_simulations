@@ -63,10 +63,10 @@ else:
 def main():
     """Main function."""
     star = "HD211847"
-    obs_num = 2
+    obsnum = 2
     chip = 4
 
-    obs_name, params, output_prefix = tcm_helper_function(star, obs_num, chip)
+    obs_name, params, output_prefix = tcm_helper_function(star, obsnum, chip)
 
     print("The observation used is ", obs_name, "\n")
 
@@ -91,7 +91,7 @@ def main():
     # Load observation
     obs_spec = load_spectrum(obs_name)
     # Mask out bad portion of observed spectra
-    obs_spec = spectrum_masking(spec, star, obs_num, chip)
+    obs_spec = spectrum_masking(spec, star, obsnum, chip)
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
     # Determine Spectrum Errors

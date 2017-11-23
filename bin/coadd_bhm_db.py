@@ -36,7 +36,7 @@ def _parser():
     return parser.parse_args()
 
 
-def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, move=False):
+def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move=False):
     """"""
     star = star.upper()
     if suffix is None:
@@ -44,23 +44,23 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
 
     patterns = [os.path.join(
         simulators.paths["output_dir"], star, "bhm",
-        "{0}-{1}_{2}_bhm_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))
+        "{0}-{1}_{2}_bhm_chisqr_results{3}*.csv".format(star, obsnum, chip, suffix))
         for chip in range(1, 5)]
 
     if (sum(1 for _ in glob.iglob(patterns[0]))) == 0:
         patterns = [os.path.join(
             simulators.paths["output_dir"], star, "bhm", "processed_csv",
-            "{0}-{1}_{2}_bhm_chisqr_results{3}*.csv".format(star, obs_num, chip, suffix))
+            "{0}-{1}_{2}_bhm_chisqr_results{3}*.csv".format(star, obsnum, chip, suffix))
             for chip in range(1, 5)]
 
     print("new Patterns", patterns)
     if sum(sum(1 for _ in glob.iglob(pattern)) for pattern in patterns) == 0:
-        raise ValueError("Issue with patterns finding for {0} obs {1}".format(star, obs_num))
+        raise ValueError("Issue with patterns finding for {0} obs {1}".format(star, obsnum))
 
     # Start up database
     coadd_database = os.path.join(
         simulators.paths["output_dir"], star, "bhm",
-        "{0}-{1}_coadd_bhm_chisqr_results{2}.db".format(star, obs_num, suffix))
+        "{0}-{1}_coadd_bhm_chisqr_results{2}.db".format(star, obsnum, suffix))
 
     print("Replace", replace)
     print("os.path.isfile(coadd_database)", os.path.isfile(coadd_database))

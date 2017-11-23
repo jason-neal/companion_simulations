@@ -31,15 +31,15 @@ def _parser():
     return parser.parse_args()
 
 
-def main(star, obs_num, chip, suffix="", echo=False):
+def main(star, obsnum, chip, suffix="", echo=False):
     database = os.path.join(simulators.paths["output_dir"], star,
-                            "{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obs_num, chip, suffix))
-    path, star, obs_num, chip = decompose_database_name(database)
+                            "{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obsnum, chip, suffix))
+    path, star, obsnum, chip = decompose_database_name(database)
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)
     save_name = os.path.join(path, "{0}_iam_all_observation_min_chi2{1}.tsv".format(star, suffix))
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
-    params = {"path": path, "star": star, "obs_num": obs_num, "chip": chip,
+    params = {"path": path, "star": star, "obsnum": obsnum, "chip": chip,
               "teff": teff, "logg": logg, "fe_h": fe_h}
 
     # Hack to run from editor
@@ -63,9 +63,9 @@ def main(star, obs_num, chip, suffix="", echo=False):
                """.format(tb_name, params["teff"], params["logg"], params["fe_h"])
     df = pd.read_sql(sa.text(query), engine)
 
-    df["obs_num"] = obs_num
+    df["obsnum"] = obsnum
     df["chip"] = chip
-    columns = ["obs_num", "chip", "teff_1", "logg_1", "feh_1", "teff_2",
+    columns = ["obsnum", "chip", "teff_1", "logg_1", "feh_1", "teff_2",
                "logg_2", "feh_2", "alpha", "rv", "gamma", "chi2"]
 
     if os.path.exists(save_name):
@@ -144,7 +144,7 @@ def min_chi2_corner_plot(star, filename):
 if __name__ == "__main__":
     args = _parser()
     star = args.star
-    obs_nums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"],
+    obsnums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"],
      "HDSIM": ["1", "2", "3"], "HDSIM2": ["1", "2", "3"], "HDSIM3": ["1", "2", "3"],}
     chips = range(1, 5)
 
@@ -153,10 +153,10 @@ if __name__ == "__main__":
 
         for chip in chips:
                 try:
-                    save_name = main(star, obs_num, chip, suffix=args.suffix)
+                    save_name = main(star, obsnum, chip, suffix=args.suffix)
                 except Exception as e:
                     print(e)
-                    print("Table creation failed for {0}-{1}_{2}".format(star, obs_num, chip))
+                    print("Table creation failed for {0}-{1}_{2}".format(star, obsnum, chip))
                     continue
         try:
             scatter_plots(star, save_name)
@@ -170,5 +170,5 @@ if __name__ == "__main__":
 
 
     # Run in parallel
-    star_obs_nums = obs_nums[star]
-    Parallel(n_jobs=-1)(delayed(paralleled_main)(star, obsnum) for obsnum in star_obs_nums)
+    star_obsnums = obsnums[star]
+    Parallel(n_jobs=-1)(delayed(paralleled_main)(star, obsnum) for obsnum in star_obsnums)

@@ -24,7 +24,7 @@ def _parser():
     """
     parser = argparse.ArgumentParser(description='Produce spectrum of results.')
     parser.add_argument('star', help='Star Name', type=str)
-    parser.add_argument('obs_num', help="Observation label")
+    parser.add_argument('obsnum', help="Observation label")
     parser.add_argument('teff_1', type=int,
                         help='Host Temperature')
     parser.add_argument('logg_1', type=float,
@@ -48,26 +48,26 @@ def _parser():
     return parser.parse_args()
 
 
-def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, independent=False,
+def main(star, obsnum, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, independent=False,
          plot_name=None):
     fig, axis = plt.subplots(2, 2, figsize=(15, 8), squeeze=False)
 
     for chip, ax in zip(range(1, 5), axis.flatten()):
         # Get observation data
-        obs_name, params, output_prefix = iam_helper_function(star, obs_num, chip)
+        obs_name, params, output_prefix = iam_helper_function(star, obsnum, chip)
 
         # Load observed spectrum
         obs_spec = load_spectrum(obs_name)
 
         # Mask out bad portion of observed spectra
-        obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
+        obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
 
         # Barycentric correct spectrum
         # obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
 
         error_off = False
         # Determine Spectrum Errors
-        errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+        errors = spectrum_error(star, obsnum, chip, error_off=error_off)
 
         # Create model with given parameters
         host = load_starfish_spectrum([teff_1, logg_1, feh_1],
@@ -92,12 +92,12 @@ def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv,
         model_spec = model_spec.normalize("exponential")
 
         # plot
-        obs_spec.plot(axis=ax, label="{}-{}".format(star, obs_num))
+        obs_spec.plot(axis=ax, label="{}-{}".format(star, obsnum))
         model_spec.plot(axis=ax, linestyle="--", label="Chi-squared model")
         # ax.plot(model_spec.xaxis, model_spec.flux, label="Mixed model")
         ax.set_xlim([obs_spec.xmin() - 0.5, obs_spec.xmax() + 0.5])
 
-        ax.set_title("{} obs {} chip {}".format(star, obs_num, chip))
+        ax.set_title("{} obs {} chip {}".format(star, obsnum, chip))
         ax.legend()
     plt.tight_layout()
 
@@ -116,5 +116,5 @@ if __name__ == "__main__":
     opts = {k: args[k] for k in args}
 
     sys.exit(main(**opts))
-    sys.exit(main(star, obs_num, teff_1, logg_1, feh_1, teff_2,
+    sys.exit(main(star, obsnum, teff_1, logg_1, feh_1, teff_2,
                   logg_2, feh_2, gamma, rv, **opts))

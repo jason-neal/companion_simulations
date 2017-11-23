@@ -12,20 +12,20 @@ import simulators
 """
 
 
-def get_snrinfo(star, obs_num, chip):
+def get_snrinfo(star, obsnum, chip):
     """Load SNR info from json file."""
     snr_file = os.path.join(simulators.paths["spectra"], "detector_snrs.json")
     with open(snr_file, "r") as f:
         snr_data = json.load(f)
     try:
-        return snr_data[str(star)][str(obs_num)][str(chip)]
+        return snr_data[str(star)][str(obsnum)][str(chip)]
     except KeyError as e:
         warnings.warn("No snr data present for {0}-{1}_{2}. "
-                      "Setting error to None instead".format(star, obs_num, chip))
+                      "Setting error to None instead".format(star, obsnum, chip))
         return None
 
 
-def spectrum_error(star, obs_num, chip, error_off=False):
+def spectrum_error(star, obsnum, chip, error_off=False):
     """Return the spectrum error.
 
     errors = None will perform a normal chi**2 statistic.
@@ -33,7 +33,7 @@ def spectrum_error(star, obs_num, chip, error_off=False):
     if error_off:
         errors = None
     else:
-        snr = get_snrinfo(star, obs_num, chip)
+        snr = get_snrinfo(star, obsnum, chip)
         if snr is None:
             errors = None
         elif len(snr) == 1:

@@ -20,7 +20,7 @@ def _parser():
     """
     parser = argparse.ArgumentParser(description='Best host modelling.')
     parser.add_argument("star", help='Star name.', type=str)
-    parser.add_argument("obs_nums", help='Star observation number.', nargs="+")
+    parser.add_argument("obsnums", help='Star observation number.', nargs="+")
     parser.add_argument('-c', '--chips', help='Chip Number.', default=None, nargs="+")
     parser.add_argument('-m', '--mask', action="store_true",
                         help='Apply wavelength mask.')
@@ -33,7 +33,7 @@ def _parser():
     return parser.parse_args()
 
 
-def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error_off=False, disable_wav_scale=False):
+def main(star, obsnum, chip=None, verbose=False, suffix=None, mask=False, error_off=False, disable_wav_scale=False):
     """Best Host modelling main function."""
     wav_scale = not disable_wav_scale
     star = star.upper()
@@ -42,7 +42,7 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     gammas = np.arange(*simulators.sim_grid["gammas"])
     print("bhm gammas", gammas)
 
-    obs_name, params, output_prefix = bhm_helper_function(star, obs_num, chip)
+    obs_name, params, output_prefix = bhm_helper_function(star, obsnum, chip)
 
     if suffix is not None:
         output_prefix = output_prefix + str(suffix)
@@ -56,14 +56,14 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     from spectrum_overload import Spectrum
     assert isinstance(obs_spec, Spectrum)
     # Mask out bad portion of observed spectra
-    obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
+    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
 
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
 
     # Determine Spectrum Errors
     try:
-        errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+        errors = spectrum_error(star, obsnum, chip, error_off=error_off)
     except KeyError as e:
         errors = None
 
@@ -97,12 +97,12 @@ if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}
     star = opts.pop("star")
-    obs_nums = opts.pop("obs_nums")
+    obsnums = opts.pop("obsnums")
     chips = opts.pop("chips")
 
     if chips is None:
         chips = range(1, 5)
 
-    for obs in obs_nums:
+    for obs in obsnums:
         for chip in chips:
             main(star, obs, chip, **opts)

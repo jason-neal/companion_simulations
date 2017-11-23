@@ -37,31 +37,31 @@ def main(star, full_chi_calculation=False, suffix=""):
         raise RuntimeError("The cwd is not correct. Check where you are running cwd={}".format(cwd))
 
     observations = star_observations[star]
-    for obs_num in observations:
+    for obsnum in observations:
         for chip in chips:
-            db_name = "{0}/{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obs_num, chip, suffix)
+            db_name = "{0}/{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obsnum, chip, suffix)
             db_name = os.path.join(prefix_dir, db_name)
 
             # Run single component models
             if full_chi_calculation:
                 if os.getcwd().endswith("Analysis"):
                     subprocess.call(
-                        "python ../{3} {0} {1} -c {2} -s".format(star, obs_num, chip, script_name),
+                        "python ../{3} {0} {1} -c {2} -s".format(star, obsnum, chip, script_name),
                         shell=True)
                     # subprocess.call("python ../iam_chi2_calculator.py {0} {1} -c {2} -s".format(
-                    # star, obs_num, chip), shell=True)
+                    # star, obsnum, chip), shell=True)
                     fname = '{0}/{0}-{1}_{2}_iam_chisqr_results_part*{3}.csv'.format(
-                        star, obs_num, chip, suffix)
+                        star, obsnum, chip, suffix)
                     subprocess.call(
                         "python make_chi2_db.py  -m ", shell=True)
                 else:
                     subprocess.call(
-                        "python {3} {0} {1} -c {2} -s".format(star, obs_num, chip, script_name),
+                        "python {3} {0} {1} -c {2} -s".format(star, obsnum, chip, script_name),
                         shell=True)
                     # subprocess.call("python iam_chi2_calculator.py {0} {1} -c {2} -s".format(
-                    # star, obs_num, chip), shell=True)
+                    # star, obsnum, chip), shell=True)
                     fname = 'Analysis/{0}/{0}-{1}_{2}_iam_chisqr_results_part*{3}.csv'.format(
-                        star, obs_num, chip, suffix)
+                        star, obsnum, chip, suffix)
                     subprocess.call(
                         "python make_chi2_db.py {0} -m ".format(fname), shell=True)
 

@@ -132,15 +132,15 @@ def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare, npix):
     return None
 
 
-def bhm_helper_function(star, obs_num, chip):
+def bhm_helper_function(star, obsnum, chip):
     param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)
     obs_name = os.path.join(
-        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
+        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obsnum, chip))
 
     output_prefix = os.path.join(
         simulators.paths["output_dir"], star.upper(), "bhm",
-        "{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obs_num, chip))
+        "{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obsnum, chip))
     return obs_name, params, output_prefix
 
 

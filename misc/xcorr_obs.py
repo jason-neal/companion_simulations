@@ -45,20 +45,20 @@ def generate_phoenix_files(data_dir, logg=4.5, feh=-0):
 
 star = "HD30501"
 chips = range(1, 5)
-obs_nums = ("1", "2a", "2b", "3")
+obsnums = ("1", "2a", "2b", "3")
 wl_limits = [2080, 2220]
 target_rv = defaultdict(dict)
 target_cc = defaultdict(dict)
 target_chi2 = defaultdict(dict)
 
-for chip, obs_num in itertools.product(chips, obs_nums):
+for chip, obsnum in itertools.product(chips, obsnums):
     phoenix_names = generate_phoenix_files(phoenix_path)
 
-    # obs_num = 3
+    # obsnum = 3
     # chip = 1
-    # obs_name = select_observation(star, obs_num, chip)
+    # obs_name = select_observation(star, obsnum, chip)
     obs_name = glob.glob("/home/jneal/Phd/data/Crires/BDs-DRACS/{}-"
-                         "{}/Combined_Nods/CRIRE.*_{}.nod.ms.*wavecal.tellcorr.fits".format(star, obs_num, chip))[0]
+                         "{}/Combined_Nods/CRIRE.*_{}.nod.ms.*wavecal.tellcorr.fits".format(star, obsnum, chip))[0]
 
     print("obs_name", obs_name)
 
@@ -95,17 +95,17 @@ for chip, obs_num in itertools.product(chips, obs_nums):
         chi2_store.append(spectrum_chisqr(observed_spectra, phoenix_spectrum))
 
     plt.subplot(311)
-    plt.plot(temp_store, rv_store, label="{} {}".format(chip, obs_num))
+    plt.plot(temp_store, rv_store, label="{} {}".format(chip, obsnum))
     plt.title("RV value.")
     plt.xlabel("Temperature")
     plt.subplot(312)
-    plt.plot(temp_store, cc_store, label="{} {}".format(chip, obs_num))
+    plt.plot(temp_store, cc_store, label="{} {}".format(chip, obsnum))
     plt.title("Cross-correlation value.")
     plt.xlabel("Temperature")
     plt.ylabel("Cross-Correlation value")
     plt.legend()
     plt.subplot(313)
-    plt.plot(temp_store, chi2_store, label="{} {}".format(chip, obs_num))
+    plt.plot(temp_store, chi2_store, label="{} {}".format(chip, obsnum))
     plt.title("Chi2 value.")
     plt.xlabel("Temperature")
     plt.ylabel("Chi2")
@@ -113,8 +113,8 @@ for chip, obs_num in itertools.product(chips, obs_nums):
     plt.suptitle("{}".format(obs_name))
 
     # Store results
-    target_rv[obs_num][chip] = [rv_store]
-    target_cc[obs_num][chip] = [cc_store]
-    target_cc[obs_num][chip] = [chi2_store]
+    target_rv[obsnum][chip] = [rv_store]
+    target_cc[obsnum][chip] = [cc_store]
+    target_cc[obsnum][chip] = [chi2_store]
 
 plt.show()

@@ -72,11 +72,11 @@ def load_sql_table(database, name="chi2_table", echo=False):
 
 
 def main(database, echo=False, mode="parabola"):
-    path, star, obs_num, chip = decompose_database_name(database)
+    path, star, obsnum, chip = decompose_database_name(database)
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)  # make dir for plots
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
-    params = {"path": path, "star": star, "obs_num": obs_num, "chip": chip, "teff": teff, "logg": logg, "fe_h": fe_h}
+    params = {"path": path, "star": star, "obsnum": obsnum, "chip": chip, "teff": teff, "logg": logg, "fe_h": fe_h}
 
     sqlite_db = 'sqlite:///{}'.format(database)
 

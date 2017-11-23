@@ -77,9 +77,9 @@ def load_spectrum(name, corrected=True):
     return spectrum
 
 
-def main(star="HD211847", obs_num="2", chip=1):
+def main(star="HD211847", obsnum="2", chip=1):
     """Main."""
-    obs_name, path = select_observation(star, obs_num, chip)
+    obs_name, path = select_observation(star, obsnum, chip)
 
     # Load observation
     observed_spectra = load_spectrum(obs_name)
@@ -210,7 +210,7 @@ def main(star="HD211847", obs_num="2", chip=1):
     plt.show()
 
     # Dump the results into a pickle file
-    pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obs_num, chip)
+    pickle_name = "Chisqr_results_{0}_{1}_chip_{2}.pickle".format(star, obsnum, chip)
     with open(os.path.join(path, pickle_name), "wb") as f:
         """Pickle all the necessary parameters to store."""
         pickle.dump((rvs, alphas, berv_corrected_observed_spectra, host_spectrum_model, companion_spectrum_model,
@@ -219,6 +219,6 @@ def main(star="HD211847", obs_num="2", chip=1):
 
 if __name__ == "__main__":
     star = "HD211847"
-    obs_num = "2"
+    obsnum = "2"
     chip = 1
-    main(star, obs_num, chip)
+    main(star, obsnum, chip)

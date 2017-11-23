@@ -58,8 +58,8 @@ def rv_plot(table, params):
 
         ax.grid(True)
         fig.tight_layout()
-        name = "{0}-{1}_{2}_scatter_rv_{3}_{4}.pdf".format(
-            params["star"], params["obs_num"], params["chip"], chi2_val, params["suffix"])
+        name = "{0}-{1}_{2}_temp_gamma_plot_{3}_{4}.pdf".format(
+            params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
@@ -146,10 +146,10 @@ def fix_host_parameters(table, params):
             df.plot(x=col, y=red_chi2, kind="scatter",
                     ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)  # , c="gamma", colorbar=True)
 
-        plt.suptitle("Co-add Chi**2 Results (Fixed host): {0}-{1}".format(
-            params["star"], params["obs_num"]))
-        name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}_{3}.png".format(
-            params["star"], params["obs_num"], params["suffix"], chi2_val)
+        plt.suptitle("Co-add Chi**2 Results (fixed_logg_feh): {0}-{1}".format(
+            params["star"], params["obsnum"]))
+        name = "{0}-{1}_coadd_fixed_logg_feh_params_full_gamma_{2}_{3}.png".format(
+            params["star"], params["obsnum"], params["suffix"], chi2_val)
         fig.savefig(os.path.join(params["path"], "plots", name))
         fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
@@ -188,10 +188,10 @@ def fix_host_parameters_individual(table, params):
             df.plot(x=col, y=red_chi2, kind="scatter",
                     ax=axes, label=chi2legend)  # , c="gamma", colorbar=True)
 
-            name = "{0}-{1}_coadd_fixed_host_params_full_gamma_{2}_{3}_individual_{4}.png".format(
-                params["star"], params["obs_num"], params["suffix"], chi2_val, col)
-            plt.suptitle("Co-add {2}-Chi**2 Results (Fixed host): {0}-{1}".format(
-                params["star"], params["obs_num"], chi2_val, col))
+            name = "{0}-{1}_coadd_fixed_logg_feh_params_full_gamma_{2}_{3}_individual_{4}.png".format(
+                params["star"], params["obsnum"], params["suffix"], chi2_val, col)
+            plt.suptitle("Co-add {2}-Chi**2 Results (fixed_logg_feh): {0}-{1}".format(
+                params["star"], params["obsnum"], chi2_val, col))
             fig.savefig(os.path.join(params["path"], "plots", name))
             fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
             plt.close()
@@ -233,7 +233,7 @@ def parabola_plots(table, params):
 
         plt.legend()
         filename = "Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
-            params["star"], params["obs_num"], params["chip"], par, params["suffix"])
+            params["star"], params["obsnum"], params["chip"], par, params["suffix"])
 
         plt.savefig(os.path.join(params["path"], "plots", filename))
         plt.close()
@@ -283,7 +283,7 @@ def chi2_parabola_plots(table, params):
 
         plt.legend()
         filename = "red_Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
-            params["star"], params["obs_num"], params["chip"], par, params["suffix"])
+            params["star"], params["obsnum"], params["chip"], par, params["suffix"])
 
         plt.savefig(os.path.join(params["path"], "plots", filename))
         plt.close()
@@ -303,16 +303,16 @@ def smallest_chi2_values(table, params, num=10):
     print("Smallest Co-add reduced Chi2 values in the database.")
     print(df.head(n=num))
     # name = "{0}-{1}_{2}_test_smallest_chi2_{3}.pdf".format(
-    # params["star"], params["obs_num"], params["chip"], params["suffix"])
-    name = "minimum_coadd_chi2_db_output_{0}_{1}_{2}.csv".format(params["star"], params["obs_num"], params["suffix"])
+    # params["star"], params["obsnum"], params["chip"], params["suffix"])
+    name = "minimum_coadd_chi2_db_output_{0}_{1}_{2}.csv".format(params["star"], params["obsnum"], params["suffix"])
     from bin.check_result import main as visual_inspection
     df.to_csv(os.path.join(params["path"], name))
 
     plot_name = os.path.join(params["path"], "plots",
                              "visual_inspection_min_chi2_coadd_{0}_{1}_{2}.png".format(params["star"],
-                                                                                       params["obs_num"],
+                                                                                       params["obsnum"],
                                                                                        params["suffix"]))
-    visual_inspection(params["star"], params["obs_num"], float(df_min.teff_1), float(df_min.logg_1),
+    visual_inspection(params["star"], params["obsnum"], float(df_min.teff_1), float(df_min.logg_1),
                       float(df_min.feh_1), None, None,
                       None, gamma=float(df_min.gamma), rv=0.0, plot_name=plot_name)
 
@@ -369,9 +369,9 @@ def fix_host_parameters_reduced_gamma(table, params):
             df.plot(x=col, y=red_chi2, kind="scatter",
                     ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)
 
-    plt.suptitle("Coadd reduced Chi**2 Results: {0}-{1}".format(params["star"], params["obs_num"]))
+    plt.suptitle("Coadd reduced Chi**2 Results: {0}-{1}".format(params["star"], params["obsnum"]))
     name = "{0}-{1}_coadd_fixed_host_params_{2}_{3}.png".format(
-        params["star"], params["obs_num"], params["suffix"], chi2_val)
+        params["star"], params["obsnum"], params["suffix"], chi2_val)
     fig.savefig(os.path.join(params["path"], "plots", name))
     fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
     plt.close()
@@ -426,9 +426,9 @@ def fix_host_parameters_reduced_gamma_individual(table, params):
             df.plot(x=col, y=red_chi2, kind="scatter",
                     ax=axes, label=chi2legend)
 
-            plt.suptitle("Coadd {2}-reduced Chi**2 Results: {0}-{1}".format(params["star"], params["obs_num"], col))
+            plt.suptitle("Coadd {2}-reduced Chi**2 Results: {0}-{1}".format(params["star"], params["obsnum"], col))
             name = "{0}-{1}_coadd_fixed_host_params_{2}_{3}_individual_{4}.png".format(
-                params["star"], params["obs_num"], params["suffix"], chi2_val, col)
+                params["star"], params["obsnum"], params["suffix"], chi2_val, col)
             fig.savefig(os.path.join(params["path"], "plots", name))
             fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
             plt.close()
@@ -518,7 +518,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
     ax.grid(True)
     fig.tight_layout()
     name = "{0}-{1}_{2}_{3}_{4}_{5}_contour_{6}.pdf".format(
-        params["star"], params["obs_num"], params["chip"], xcol, ycol, zcol, params["suffix"])
+        params["star"], params["obsnum"], params["chip"], xcol, ycol, zcol, params["suffix"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
     plt.close()
@@ -538,7 +538,7 @@ def test_figure(table, params):
     ax.grid(True)
     fig.tight_layout()
     name = "{0}-{1}_{2}_red_test_figure_{3}_{4}.pdf".format(
-        params["star"], params["obs_num"], params["chip"], chi2_val, params["suffix"])
+        params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
     plt.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
 
@@ -560,12 +560,12 @@ def compare_spectra(table, params):
         gamma = df["gamma"].values
 
         from simulators.bhm_module import bhm_helper_function
-        obs_name, obs_params, output_prefix = bhm_helper_function(params["star"], params["obs_num"], ii + 1)
+        obs_name, obs_params, output_prefix = bhm_helper_function(params["star"], params["obsnum"], ii + 1)
         print(obs_name)
         obs_spec = load_spectrum(obs_name)
 
         # Mask out bad portion of observed spectra
-        # obs_spec = spectrum_masking(obs_spec, params["star"], params["obs_num"], ii + 1)
+        # obs_spec = spectrum_masking(obs_spec, params["star"], params["obsnum"], ii + 1)
 
         # Barycentric correct spectrum
         obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
@@ -614,7 +614,7 @@ def compare_spectra(table, params):
 
         fig.tight_layout()
         name = "{0}-{1}_{2}_{3}_bhm_min_chi2_spectrum_comparison_{4}.png".format(
-            params["star"], params["obs_num"], params["chip"], chi2_val, params["suffix"])
+            params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.close()
 
@@ -624,8 +624,8 @@ def compare_spectra(table, params):
 
 def contrast_bhm_results(table, params):
     star_name = params["star"]
-    obs_num = params["obs_num"]
-    __, host_params, __ = bhm_helper_function(star_name, obs_num, 1)
+    obsnum = params["obsnum"]
+    __, host_params, __ = bhm_helper_function(star_name, obsnum, 1)
     h_temp, h_logg, h_feh = host_params['temp'], host_params['logg'], host_params["fe_h"]
 
     print(f"Expected Parameters\n---------------------\nteff={h_temp}\tlogg={h_logg}\tfeh={h_feh}")

@@ -34,16 +34,16 @@ def main(full_chi_calculation=False):
     else:
         raise RuntimeError("The cwd is not correct. Check where you are running cwd={}".format(cwd))
 
-    for obs_num in observations:
+    for obsnum in observations:
         for chip in chips:
-            db_name = "{0}/{0}-{1}_{2}_iam_chisqr_results.db".format(star, obs_num, chip)
+            db_name = "{0}/{0}-{1}_{2}_iam_chisqr_results.db".format(star, obsnum, chip)
             db_name = os.path.join(prefix_dir, db_name)
 
             # Run single componet models
 
             # run db creator
             if full_chi_calculation:
-                subprocess.call("python ../iam_chi2_calculator.py {0} {1} -c {2} -s".format(star, obs_num, chip), shell=True)
+                subprocess.call("python ../iam_chi2_calculator.py {0} {1} -c {2} -s".format(star, obsnum, chip), shell=True)
 
                 # make database
 

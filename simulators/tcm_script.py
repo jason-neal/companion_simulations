@@ -63,13 +63,13 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
     wav_scale = not disable_wav_scale
 
     star = "HD211847"
-    obs_num = 2
+    obsnum = 2
     star = star.upper()
     setup_tcm_dirs(star)
     if chip is None:
         chip = 4
 
-    obs_name, params, output_prefix = tcm_helper_function(star, obs_num, chip)
+    obs_name, params, output_prefix = tcm_helper_function(star, obsnum, chip)
 
     print("The observation used is ", obs_name, "\n")
 
@@ -86,12 +86,12 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
     # Load observation
     obs_spec = load_spectrum(obs_name)
     # Mask out bad portion of observed spectra
-    obs_spec = spectrum_masking(obs_spec, star, obs_num, chip)
+    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
     # Barycentric correct spectrum
     obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
     # Determine Spectrum Errors
     try:
-        errors = spectrum_error(star, obs_num, chip, error_off=error_off)
+        errors = spectrum_error(star, obsnum, chip, error_off=error_off)
     except KeyError as e:
         errors = None
 

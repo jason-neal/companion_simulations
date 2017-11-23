@@ -43,9 +43,9 @@ star = "HD211847"
 comp = ""   # set to b or c if needed
 param_file = "/home/jneal/Phd/data/parameter_files/{}{}_params.dat".format(star, comp)
 host_parameters = parse_paramfile(param_file, path=None)
-obs_num = 1
+obsnum = 1
 chip = 1
-obs_name_org = select_observation(star, obs_num, chip)
+obs_name_org = select_observation(star, obsnum, chip)
 obs_name_new = handy_path(star, chip)
 print(obs_name_org)
 print(obs_name_new)

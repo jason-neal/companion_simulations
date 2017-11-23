@@ -18,15 +18,15 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 
 
-def iam_helper_function(star, obs_num, chip):
+def iam_helper_function(star, obsnum, chip):
     """Specifies parameter files and output directories given observation parameters."""
     param_file = os.path.join(simulators.paths["parameters"], "{0}_params.dat".format(star))
     params = parse_paramfile(param_file, path=None)
     obs_name = os.path.join(
-        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obs_num, chip))
+        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obsnum, chip))
     output_prefix = os.path.join(
         simulators.paths["output_dir"], star.upper(), "{0}-{1}_{2}_iam_chisqr_results".format(
-            star.upper(), obs_num, chip))
+            star.upper(), obsnum, chip))
 
     return obs_name, params, output_prefix
 

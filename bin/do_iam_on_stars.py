@@ -29,7 +29,7 @@ if __name__ == "__main__":
     n_jobs = args.pop("n_jobs", 1)
 
     print("Performing simulations on", star)
-    obs_nums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"]}
+    obsnums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"]}
 
 
     def parallelized_main(opts, chip):
@@ -41,8 +41,8 @@ if __name__ == "__main__":
     iam_opts = {"parallel": False, "more_id": args.suffix, "small": True, }
 
     iam_opts["star"] = star
-    for obs in obs_nums[star]:
-        iam_opts["obs_num"] = obs
+    for obs in obsnums[star]:
+        iam_opts["obsnum"] = obs
 
         res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(iam_opts, chip)
                                           for chip in range(1, 5))

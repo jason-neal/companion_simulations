@@ -46,9 +46,9 @@ def main():
     """Main function."""
     star = "HD30501"
     host_parameters = load_param_file(star)
-    obs_num = 1
+    obsnum = 1
     chip = 1
-    obs_name = select_observation(star, obs_num, chip)
+    obs_name = select_observation(star, obsnum, chip)
 
     # Load observation
     # uncorrected_spectra = load_spectrum(obs_name)
