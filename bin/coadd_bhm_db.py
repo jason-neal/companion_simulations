@@ -109,7 +109,9 @@ def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move
             pd_joint["coadd_chi2"] = pd_joint["chi2_1"] + pd_joint["chi2_2"] + pd_joint["chi2_3"] + pd_joint["chi2_4"]
             pd_joint["coadd_npix"] = pd_joint["npix_1"] + pd_joint["npix_2"] + pd_joint["npix_3"] + pd_joint["npix_4"]
 
-            assert not pd_joint.isnull().values.any(), "There are nans in the joint DataFrame!!!"
+            if pd_joint.isnull().values.any():
+                print(pd_joint)
+                assert not pd_joint.isnull().values.any(), "There are nans in the joint DataFrame!!!"
 
             # Adding host parameters
             pd_joint = pd_joint.rename(columns={c: c.replace(' ', '').lower() for c in pd_joint.columns})
