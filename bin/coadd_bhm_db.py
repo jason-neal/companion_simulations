@@ -138,3 +138,5 @@ if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}
     main(**opts)
+
+    print("\nNow use coadd_bhm_analysis.py next")

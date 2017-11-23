@@ -143,7 +143,7 @@ def fake_bhm_simulation(wav, params, gamma, chip=None,
 
 
 def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
-         independent=False, noise=None, suffix=None, test=False, replace=False, noplots=False, mode="iam"):
+         independent=False, noise=None, test=False, replace=False, noplots=False, mode="iam"):
     star = star.upper()
 
     if params1 is not None:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""inherint_alpha_model.py.
+"""inherent_alpha_model.py.
 
 Jason Neal
 24 August 2017
@@ -139,6 +139,8 @@ def main(star, obs_num, chip=None, parallel=True, small=True, verbose=False,
         print("chi2_grid.shape", chi2_grids.shape)
     print("TODO: Add joining of sql table here")
     # subprocess.call(make_chi2_bd.py)
+
+    print( "\nNow use bin/coadd_chi2_db.py")
     return 0
 
 

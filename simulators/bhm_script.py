@@ -90,6 +90,7 @@ def main(star, obs_num, chip=None, verbose=False, suffix=None, mask=False, error
     print("broadcast_chi2_gamma (first 5)", broadcast_chi2_gamma[:5])
 
     print("Finished chi square generation")
+    print("\nNow use bin/coadd_bhm_db.py")
 
 
 if __name__ == "__main__":
