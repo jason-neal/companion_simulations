@@ -46,8 +46,10 @@ def test_save_full_bhm_chisqr(tmpdir):
     G, = np.meshgrid(gammas, indexing="ij")
     results = G ** 2
     npix = 780
-    norms = range(len(G))
-    res = save_full_bhm_chisqr(savename, params_1, gammas, results, arbitrary_norms=norms, npix=npix)
+    norms = np.arange(len(G))
+    xcorr = 7
+    res = save_full_bhm_chisqr(savename, params_1, gammas, results,
+                               arbitrary_norms=norms, npix=npix, xcorr_value=xcorr)
     assert res is None
 
     ### Now reload and probe
@@ -60,7 +62,33 @@ def test_save_full_bhm_chisqr(tmpdir):
     assert np.all(df.chi2 == df.gamma ** 2)
     assert np.all(gammas == df.gamma.values)
     assert np.all(norms == df.arbnorm.values)
-    assert np.all(df.xcorr.vales == None)
+    assert np.all(df.xcorr.values == xcorr)
+
+
+def test_save_full_bhm_chisqr_with_xcorr_None(tmpdir):
+    savename = os.path.join(tmpdir, "saving_test_bhm_filename.csv")
+    params_1 = [5000, 4.5, 0.0]
+    params_2 = [3000, 3.0, 0.0]
+    gammas = np.arange(-2, 4)
+    G, = np.meshgrid(gammas, indexing="ij")
+    results = G ** 2
+    npix = 780
+    norms = np.arange(len(G))
+    res = save_full_bhm_chisqr(savename, params_1, gammas, results,
+                               arbitrary_norms=norms, npix=npix, xcorr_value=None)
+    assert res is None
+
+    ### Now reload and probe
+    df = pd.read_csv(savename)
+
+    assert np.all(df.npix.values == npix)
+    assert np.all(df.teff_1 == params_1[0])
+    assert np.all(df.logg_1 == params_1[1])
+    assert np.all(df.feh_1 == params_1[2])
+    assert np.all(df.chi2 == df.gamma ** 2)
+    assert np.all(gammas == df.gamma.values)
+    assert np.all(norms == df.arbnorm.values)
+    assert np.all(df.xcorr.values == -9999999)
 
 
 def test_save_full_tcm_chisqr(tmpdir):

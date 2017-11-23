@@ -148,6 +148,8 @@ def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
     df["logg_1"] = params1[1]
     df["feh_1"] = params1[2]
     df["npix"] = npix
+    if xcorr_value is None:
+        xcorr_value = -9999999
     df["xcorr"] = xcorr_value
     columns = ["teff_1", "logg_1", "feh_1", "gamma", "npix", "chi2", "arbnorm", "xcorr"]
     df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
