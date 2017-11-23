@@ -11,11 +11,12 @@ from scipy.stats import chi2
 from spectrum_overload import Spectrum
 
 from mingle.models.broadcasted_models import one_comp_model
-from mingle.utilities.crires_utilities import barycorr_crires_spectrum
-from mingle.utilities.spectrum_utils import load_spectrum
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.chisqr import reduced_chi_squared
+from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.debug_utils import timeit2
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.spectrum_utils import load_spectrum
+from simulators.bhm_module import bhm_helper_function
 
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
@@ -308,8 +309,9 @@ def smallest_chi2_values(table, params, num=10):
     df.to_csv(os.path.join(params["path"], name))
 
     plot_name = os.path.join(params["path"], "plots",
-                             "visual_inspection_min_chi2_coadd_{0}_{1}_{2}.png".format(params["star"], params["obs_num"],
-                                                                                params["suffix"]))
+                             "visual_inspection_min_chi2_coadd_{0}_{1}_{2}.png".format(params["star"],
+                                                                                       params["obs_num"],
+                                                                                       params["suffix"]))
     visual_inspection(params["star"], params["obs_num"], float(df_min.teff_1), float(df_min.logg_1),
                       float(df_min.feh_1), None, None,
                       None, gamma=float(df_min.gamma), rv=0.0, plot_name=plot_name)
@@ -555,7 +557,6 @@ def compare_spectra(table, params):
 
         params1 = [float(param1) for param1 in params1]
 
-
         gamma = df["gamma"].values
 
         from simulators.bhm_module import bhm_helper_function
@@ -582,7 +583,7 @@ def compare_spectra(table, params):
         bhm_grid_model = bhm_grid_func(obs_spec.xaxis).squeeze()
         bhm_grid_model_full = bhm_grid_func(mod1.xaxis).squeeze()
         bhm_upper_gamma = bhm_upper_gamma(obs_spec.xaxis).squeeze()
-        bhm_lower_gamma = bhm_lower_gamma (obs_spec.xaxis).squeeze()
+        bhm_lower_gamma = bhm_lower_gamma(obs_spec.xaxis).squeeze()
 
         model_spec_full = Spectrum(flux=bhm_grid_model_full, xaxis=mod1.xaxis)
         model_spec = Spectrum(flux=bhm_grid_model, xaxis=obs_spec.xaxis)
@@ -602,8 +603,8 @@ def compare_spectra(table, params):
         chisqr = chi_squared(obs_spec.flux, model_spec.flux)
         print(f"Recomputed chi^2 = {chisqr}")
         print(f"Database chi^2 = {df[chi2_val]}")
-        fig, ax = plt.subplots(1, 1)
-        plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation, {}".format(obs_name))
+        fig, ax = plt.subplots(1, 1, figsize=(15, 8))
+        plt.plot(obs_spec.xaxis, obs_spec.flux + 0.01, label="0.05 + Observation, {}".format(obs_name))
         plt.plot(model_spec.xaxis, model_spec.flux, label="Minimum \chi^2 model")
         plt.plot(model_spec_full.xaxis, model_spec_full.flux, "--", label="Model_full_res")
         plt.plot(bhm_lower_gamma.xaxis, bhm_lower_gamma.flux, "-.", label="gamma={}".format(extreme_gammas[0]))
@@ -621,20 +622,18 @@ def compare_spectra(table, params):
         plt.show()
 
 
-from simulators.bhm_module import bhm_helper_function
-
-
 def contrast_bhm_results(table, params):
     star_name = params["star"]
     obs_num = params["obs_num"]
     __, host_params, __ = bhm_helper_function(star_name, obs_num, 1)
     h_temp, h_logg, h_feh = host_params['temp'], host_params['logg'], host_params["fe_h"]
 
-    print(f"Expected Parameters = teff={h_temp}, logg={h_logg}, feh={h_feh}, gamma= ")
-
+    print(f"Expected Parameters\n---------------------\nteff={h_temp}\tlogg={h_logg}\tfeh={h_feh}")
+    print("BHM SOLUTIONS\n---------------------")
     for ii, chi2_val in enumerate(chi2_names):
         df = pd.read_sql_query(sa.select([table.c.teff_1, table.c.logg_1, table.c.feh_1,
                                           table.c.gamma,
                                           table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
                                table.metadata.bind)
-        print(f"{chi2_val} bhm solution: teff={df.teff_1.values}, logg={df.logg_1.values} feh={df.feh_1.values}, gamma=={df.gamma.values}")
+        print(f"{chi2_val}: teff={df.teff_1.values[0]}\tlogg={df.logg_1.values[0]}\t"
+              f" feh={df.feh_1.values[0]}\tgamma=={df.gamma.values[0]}")

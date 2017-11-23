@@ -11,11 +11,12 @@ from scipy.stats import chi2
 from spectrum_overload import Spectrum
 
 from mingle.models.broadcasted_models import inherent_alpha_model
-from mingle.utilities.crires_utilities import barycorr_crires_spectrum
-from mingle.utilities.spectrum_utils import load_spectrum
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.chisqr import reduced_chi_squared
+from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.debug_utils import timeit2
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.spectrum_utils import load_spectrum
+from simulators.iam_module import iam_helper_function
 
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
@@ -308,8 +309,9 @@ def smallest_chi2_values(table, params, num=10):
     df.to_csv(os.path.join(params["path"], name))
 
     plot_name = os.path.join(params["path"], "plots",
-                             "visual_inspection_min_chi2_coadd_{0}_{1}_{2}.png".format(params["star"], params["obs_num"],
-                                                                                params["suffix"]))
+                             "visual_inspection_min_chi2_coadd_{0}_{1}_{2}.png".format(params["star"],
+                                                                                       params["obs_num"],
+                                                                                       params["suffix"]))
     visual_inspection(params["star"], params["obs_num"], float(df_min.teff_1), float(df_min.logg_1),
                       float(df_min.feh_1), float(df_min.teff_2), float(df_min.logg_2),
                       float(df_min.feh_2), float(df_min.gamma), float(df_min.rv), plot_name=plot_name)
@@ -585,7 +587,7 @@ def compare_spectra(table, params):
                                       flux_rescale=True)
 
         iam_grid_func = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
-                                               rvs=rv, gammas=gamma)
+                                             rvs=rv, gammas=gamma)
 
         iam_grid_model = iam_grid_func(obs_spec.xaxis).squeeze()
         iam_grid_model_full = iam_grid_func(mod1.xaxis).squeeze()
@@ -613,3 +615,24 @@ def compare_spectra(table, params):
 
         plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation")
         plt.show()
+
+
+def contrast_iam_results(table, params):
+    star_name = params["star"]
+    obs_num = params["obs_num"]
+    __, host_params, __ = iam_helper_function(star_name, obs_num, 1)
+    h_temp, h_logg, h_feh = host_params['temp'], host_params['logg'], host_params["fe_h"]
+    c_temp = host_params.get("comp_temp")
+
+    print(
+        f"Expected Parameters\n---------------------\nteff={h_temp}\tlogg={h_logg}\tfeh={h_feh}\tcompanion_temp={c_temp} ")
+    print("IAM SOLUTIONS\n---------------------")
+    for ii, chi2_val in enumerate(chi2_names):
+        df = pd.read_sql_query(sa.select([table.c.teff_1, table.c.logg_1, table.c.feh_1,
+                                          table.c.teff_2, table.c.logg_2, table.c.feh_2,
+                                          table.c.gamma, table.c.rv,
+                                          table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
+                               table.metadata.bind)
+        print(f"{chi2_val} solution: Companion:teff2={df.teff_2.values[0]}\tlogg2={df.logg_2.values[0]}\t"
+              f"feh2={df.feh_2.values[0]}\tgamma=={df.gamma.values[0]}\trv=={df.rv.values[0]}\t"
+              f"Host: teff={df.teff_1.values[0]}\tlogg={df.logg_1.values[0]}\tfeh={df.feh_1.values[0]}\t")
