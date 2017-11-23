@@ -303,7 +303,7 @@ def export_fits(filename, wavelength, flux, hdr, hdrkeys, hdrvals):
     col2 = fits.Column(name="flux", format="E", array=flux)
     cols = fits.ColDefs([col1, col2])
 
-    tbhdu = fits.BinTableHDU.from_columns(cols)  # binary tbale hdu
+    tbhdu = fits.BinTableHDU.from_columns(cols)  # binary table hdu
     prihdr = append_hdr(hdr, hdrkeys, hdrvals)
     prihdu = fits.PrimaryHDU(header=prihdr)
     thdulist = fits.HDUList([prihdu, tbhdu])

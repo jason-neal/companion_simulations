@@ -199,8 +199,6 @@ def fix_host_parameters_individual(table, params):
 
 
 def parabola_plots(table, params):
-    norm = params["norm"]
-
     parabola_list = ["teff_2", "gamma", "rv"]
     for par in parabola_list:
         df = pd.read_sql(sa.select([table.c[par]]), table.metadata.bind)
@@ -219,9 +217,6 @@ def parabola_plots(table, params):
 
             min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
 
-            if norm:
-                mc2 = min(min_chi2)
-                min_chi2 = [c2 / mc2 for c2 in min_chi2]
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
             popt, pcov = curve_fit(parabola, unique_par, min_chi2)

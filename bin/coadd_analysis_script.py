@@ -47,8 +47,6 @@ def _parser():
                         choices=["parabola", "fixed_host_params", "param_limits",
                                  "smallest_chi2", "test", "contour", "arbnorm",
                                  "all", "rvplot", "chi2_parabola", "compare_spectra"])
-    parser.add_argument('-n', '--norm', action="store_true",
-                        help='Normalized chi2 (min(chi**2) == 1).')
     return parser.parse_args()
 
 
@@ -86,7 +84,7 @@ def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
 
 
 def main(star, obsnum, suffix=None, echo=False, mode="parabola",
-         verbose=False, norm=False, npars=3):
+         verbose=False, npars=3):
     star = star.upper()
     suffix = "" if suffix is None else suffix
     database = os.path.join(
@@ -108,7 +106,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
 
     teff, logg, fe_h = closest_model_params(*get_host_params(star))
     params = {"path": path, "star": star, "obsnum": obsnum, "chip": chip, "suffix": suffix,
-              "teff": int(teff), "logg": float(logg), "fe_h": float(fe_h), "npars": npars, "norm": norm}
+              "teff": int(teff), "logg": float(logg), "fe_h": float(fe_h), "npars": npars}
 
     db_table = load_sql_table(database, verbose=verbose, echo=echo)
 

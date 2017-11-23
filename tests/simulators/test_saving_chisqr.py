@@ -46,8 +46,8 @@ def test_save_full_bhm_chisqr(tmpdir):
     G, = np.meshgrid(gammas, indexing="ij")
     results = G ** 2
     npix = 780
-
-    res = save_full_bhm_chisqr(savename, params_1, gammas, results, npix)
+    norms = range(len(G))
+    res = save_full_bhm_chisqr(savename, params_1, gammas, results, arbitrary_norms=norms, npix=npix)
     assert res is None
 
     ### Now reload and probe
@@ -59,6 +59,8 @@ def test_save_full_bhm_chisqr(tmpdir):
     assert np.all(df.feh_1 == params_1[2])
     assert np.all(df.chi2 == df.gamma ** 2)
     assert np.all(gammas == df.gamma.values)
+    assert np.all(norms == df.arbnorm.values)
+    assert np.all(df.xcorr.vales == None)
 
 
 def test_save_full_tcm_chisqr(tmpdir):
