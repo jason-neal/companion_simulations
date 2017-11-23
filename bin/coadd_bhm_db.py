@@ -8,7 +8,6 @@ import glob
 import os
 import subprocess
 
-import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 
@@ -21,10 +20,8 @@ def _parser():
     :returns: the args
     """
     parser = argparse.ArgumentParser(description='Create Co-added Chi-squared db.')
-    parser.add_argument('-s', '--stars', nargs="+", default=None,
-                        help='Star names')
-    parser.add_argument("-o", "--obsnum", nargs="+", default=None,
-                        help="Observation number")
+    parser.add_argument('star', help='Star name')
+    parser.add_argument("obsnum", help="Observation number")
     parser.add_argument('--suffix', default="",
                         help='Suffix to add to the file names.')
     parser.add_argument('-v', '--verbose', action="store_true",
@@ -89,7 +86,6 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
         assert len(files) == 4
         f_0 = files[0]
 
-
         # Initalize iterators:
         iterators = [pd.read_csv(f, iterator=True, chunksize=chunksize) for f in files]
 
@@ -140,10 +136,5 @@ def main(star, obs_num, suffix, replace=False, verbose=True, chunksize=1000, mov
 
 if __name__ == "__main__":
     args = vars(_parser())
-    stars = args.pop('stars')
-    obsnums = args.pop('obsnum')
     opts = {k: args[k] for k in args}
-
-    assert len(stars) == len(obsnums), "Number of stars and observation numbers need to be the same number."
-    for star_, obs in zip(stars, obsnums):
-        main(star_, obs, **opts)
+    main(**opts)

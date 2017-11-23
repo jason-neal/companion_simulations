@@ -26,7 +26,7 @@ def _parser():
     :returns: the args
     """
     parser = argparse.ArgumentParser(description='Minimum chi-squared table.')
-    parser.add_argument('-s', '--stars', help='Star names', nargs="+", default=None)
+    parser.add_argument('star', help='Star name')
     parser.add_argument('--suffix', help='Suffix to add to the file names.', default="")
     return parser.parse_args()
 
@@ -143,19 +143,15 @@ def min_chi2_corner_plot(star, filename):
 # TODO common function to determine observations and chips for different stars  (like here)
 if __name__ == "__main__":
     args = _parser()
-    stars = args.stars
-    if stars is None:
-        stars = ["HD30501", "HD211847", "HD4747"]
-    print("Stars", stars)
+    star = args.star
     obs_nums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"],
      "HDSIM": ["1", "2", "3"], "HDSIM2": ["1", "2", "3"], "HDSIM3": ["1", "2", "3"],}
     chips = range(1, 5)
 
 
-    def paralleled_main(star):
-        star_obs_nums = obs_nums[star]
-        for obs_num in star_obs_nums:
-            for chip in chips:
+    def paralleled_main(star, obsnum):
+
+        for chip in chips:
                 try:
                     save_name = main(star, obs_num, chip, suffix=args.suffix)
                 except Exception as e:
@@ -174,4 +170,5 @@ if __name__ == "__main__":
 
 
     # Run in parallel
-    Parallel(n_jobs=-1)(delayed(paralleled_main)(star) for star in stars)
+    star_obs_nums = obs_nums[star]
+    Parallel(n_jobs=-1)(delayed(paralleled_main)(star, obsnum) for obsnum in star_obs_nums)
