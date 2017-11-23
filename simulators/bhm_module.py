@@ -23,6 +23,7 @@ def setup_bhm_dirs(star):
     # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "fudgeplots"), exist_ok=True)
     return None
 
+from simulators.iam_module import arbitrary_minimums, arbitrary_rescale
 
 def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, verbose=False, chip=None, norm=False,
                  wav_scale=True):
@@ -82,8 +83,26 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         else:
             obs_flux = obs_spec.flux[:, np.newaxis]
         #####
+        # Simple chi2
+        bhm_grid_chisquare_old = chi_squared(obs_flux, bhm_grid_values, error=errors)
 
-        bhm_grid_chisquare = chi_squared(obs_flux, bhm_grid_values, error=errors)
+        ### Applying arbitrary scalar normalization to continuum
+        bhm_norm_grid_values, arb_norm = arbitrary_rescale(bhm_grid_values,
+                                                      *simulators.sim_grid["arb_norm"])
+       # print("Arbitrary Normalized bhm_grid_values shape.", bhm_norm_grid_values.shape)
+
+        # Calculate Chi-squared
+        obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match rescale
+        bhm_norm_grid_chisquare = chi_squared(obs_flux, bhm_norm_grid_values, error=errors)
+
+        #print("Broadcast chi-squared values with arb norm", bhm_norm_grid_chisquare.shape)
+
+        # Take minimum chi-squared value along Arbitrary normalization axis
+        bhm_grid_chisquare, arbitrary_norms = arbitrary_minimums(bhm_norm_grid_chisquare, arb_norm)
+        #print("Broadcast chi-squared values ", bhm_grid_chisquare.shape)
+
+
+        assert np.all(bhm_grid_chisquare_old >= bhm_grid_chisquare), "All chi2 values are not better or same with arbitary scaling"
 
         # Interpolate to obs
         mod_spec.spline_interpolate_to(obs_spec)
@@ -91,11 +110,11 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
 
         model_chisqr_vals[ii] = org_model_chi_val   # This is gamma = 0 version
 
-        # print("bhm_grid_chisquare.shape", bhm_grid_chisquare.shape)
         # New parameters to explore
         bhm_grid_chisqr_vals[ii] = bhm_grid_chisquare[np.argmin(bhm_grid_chisquare)]
         bhm_grid_gamma[ii] = gammas[np.argmin(bhm_grid_chisquare)]
         full_bhm_grid_chisquare[ii, :] = bhm_grid_chisquare
+
 
         ################
         #  Find cross correlation RV
@@ -111,23 +130,26 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
 
         npix = obs_flux.shape[0]
         # print("bhm shape", bhm_grid_chisquare.shape)
-        save_full_bhm_chisqr(save_name, params, gammas, bhm_grid_chisquare, npix)
+        save_full_bhm_chisqr(save_name, params, gammas, bhm_grid_chisquare, arbitrary_norms,
+                             npix, rvoffset)
 
     return (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
             bhm_grid_chisqr_vals, bhm_grid_gamma, full_bhm_grid_chisquare)
 
 
-def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare, npix):
+def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
+                         arbitrary_norms, npix, xcorr_value=None):
     """Save the bhm chisqr values to a cvs."""
     assert gammas.shape == bhm_grid_chisquare.shape
 
-    data = {"gamma": gammas, "chi2": bhm_grid_chisquare.ravel()}
+    data = {"gamma": gammas, "chi2": bhm_grid_chisquare.ravel(), "arbnorm": arbitrary_norms.ravel()}
     df = pd.DataFrame(data=data)
     df["teff_1"] = params1[0]
     df["logg_1"] = params1[1]
     df["feh_1"] = params1[2]
     df["npix"] = npix
-    columns = ["teff_1", "logg_1", "feh_1", "gamma", "npix", "chi2"]
+    df["xcorr"] = xcorr_value
+    columns = ["teff_1", "logg_1", "feh_1", "gamma", "npix", "chi2", "arbnorm", "xcorr"]
     df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
     return None
 
