@@ -10,7 +10,7 @@ import simulators
 from mingle.models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
 from mingle.utilities.norm import continuum
 from mingle.utilities.simulation_utilities import spec_max_delta
-from simulators.iam_module import prepare_iam_model_spectra, continuum_alpha
+from simulators.iam_module import prepare_iam_model_spectra
 
 
 def parse_args(args):
@@ -41,15 +41,10 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def fake_iam_simulation(wav, params1, params2, gamma, rv, chip=None,
-                        limits=[2070, 2180], independent=False, noise=None, header=False):
+def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
+                        independent=False, noise=None, header=False):
     """Make a fake spectrum with binary params and radial velocities."""
     mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits)
-
-    # Estimated flux ratio from models
-    if chip is not None:
-        inherent_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
-        print("inherent flux ratio = {0}, chip={1}".format(inherent_alpha, chip))
 
     # Combine model spectra with iam model
     if independent:
@@ -105,8 +100,7 @@ from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 
-def fake_bhm_simulation(wav, params, gamma, chip=None,
-                        limits=[2070, 2180], noise=None, header=False):
+def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, header=False):
     """Make a fake spectrum with binary params and radial velocities."""
 
     mod_spec = load_starfish_spectrum(params, limits=limits, hdr=True,
@@ -162,7 +156,7 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
                                   independent=False, noise=None)
         else:
             # chip = None gives full range
-            x_wav, y_wav, header = fake_iam_simulation(None, params_1, params_2, gamma, rv, chip=None,
+            x_wav, y_wav, header = fake_iam_simulation(None, params_1, params_2, gamma, rv,
                                                        independent=independent, noise=noise, header=True)
             fake_spec = Spectrum(xaxis=x_wav, flux=y_wav, header=header)
 
@@ -171,8 +165,7 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
                                   independent=False, noise=None, replace=replace, noplots=noplots)
     elif mode == "bhm":
         # Do a bhm simulation
-        x_wav, y_wav, header = fake_bhm_simulation(None, params_1, gamma, chip=None,
-                                                   noise=noise, header=True)
+        x_wav, y_wav, header = fake_bhm_simulation(None, params_1, gamma, noise=noise, header=True)
 
         fake_spec = Spectrum(xaxis=x_wav, flux=y_wav, header=header)
 
