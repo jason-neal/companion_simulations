@@ -5,16 +5,17 @@ import argparse
 import sys
 
 import matplotlib.pyplot as plt
+import numpy as np
 from spectrum_overload import Spectrum
-from mingle.utilities.masking import spectrum_masking
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
-from mingle.utilities.spectrum_utils import load_spectrum
 
 from mingle.models.broadcasted_models import (independent_inherent_alpha_model,
                                               inherent_alpha_model)
 from mingle.utilities.errors import spectrum_error
+from mingle.utilities.masking import spectrum_masking
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import iam_helper_function
-import numpy as np
+
 
 def _parser():
     """Take care of all the argparse stuff.
@@ -76,7 +77,7 @@ def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv,
             companion = Spectrum(xaxis=host.xaxis, flux=np.zeros_like(host.flux))
         else:
             companion = load_starfish_spectrum([teff_2, logg_2, feh_2],
-                                           limits=[2110, 2165], area_scale=True, hdr=True)
+                                               limits=[2110, 2165], area_scale=True, hdr=True)
 
         if independent:
             joint_model = independent_inherent_alpha_model(host.xaxis, host.flux,
@@ -92,7 +93,7 @@ def main(star, obs_num, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv,
 
         # plot
         obs_spec.plot(axis=ax, label="{}-{}".format(star, obs_num))
-        model_spec.plot(axis=ax, label="Chi-squared model")
+        model_spec.plot(axis=ax, linestyle="--", label="Chi-squared model")
         # ax.plot(model_spec.xaxis, model_spec.flux, label="Mixed model")
         ax.set_xlim([obs_spec.xmin() - 0.5, obs_spec.xmax() + 0.5])
 
