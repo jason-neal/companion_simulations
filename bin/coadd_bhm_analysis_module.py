@@ -38,23 +38,22 @@ def get_npix_values(table):
     return npix_values
 
 
-def rv_plot(table, params):
+def gamma_plot(table, params):
     for chi2_val, npix_val in zip(chi2_names, npix_names):
         red_chi2 = "red_{0}".format(chi2_val)
-        # df = pd.read_sql(sa.text('SELECT alpha, rv, {1}, teff_2 FROM {0}'.format(tb_name, chi2)), engine)
         df = pd.read_sql(
-            sa.select([table.c["rv"], table.c[chi2_val], table.c["teff_2"]]),
+            sa.select([table.c["gamma"], table.c[chi2_val], table.c["teff_1"]]),
             table.metadata.bind)
         df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
         fig, ax = plt.subplots()
-        c = ax.scatter(df["rv"], df[red_chi2], c=df["teff_2"], alpha=0.8)
+        c = ax.scatter(df["gamma"], df[red_chi2], c=df["teff_1"], alpha=0.8)
 
         cbar = plt.colorbar(c)
-        cbar.ax.set_ylabel(r"teff_2")
+        cbar.ax.set_ylabel(r"teff_1")
 
-        ax.set_xlabel(r'RV offset', fontsize=12)
+        ax.set_xlabel(r'Host RV offset', fontsize=12)
         ax.set_ylabel(r"${0}$".format(red_chi2), fontsize=12)
-        ax.set_title(r'$teff_2$ (color) and companion temperature.')
+        ax.set_title(r'$teff_1$ (color) and companion temperature.')
 
         ax.grid(True)
         fig.tight_layout()
@@ -75,22 +74,22 @@ def display_arbitary_norm_values(table, params):
     for ii, arbnorm in enumerate([r"arbnorm_1", r"arbnorm_2", r"arbnorm_3", r"arbnorm_4"]):
         df = pd.read_sql(
             sa.select([table.c.gamma, table.c[arbnorm],
-                       table.c.rv, table.c.teff_2]), table.metadata.bind)
+                       table.c.teff_1]), table.metadata.bind)
 
-        c = axarr[0].scatter(xshift(df["rv"], ii), df[arbnorm],
-                             c=df[r"teff_2"].values, alpha=0.9, label=arbnorm)
+        c = axarr[0].scatter(xshift(df["gamma"], ii), df[arbnorm],
+                             c=df[r"teff_1"].values, alpha=0.9, label=arbnorm)
 
-        axarr[0].set_xlabel(r'rv offset', fontsize=12)
+        axarr[0].set_xlabel(r'host rv offset', fontsize=12)
         axarr[0].set_ylabel(r'Arbitary norm', fontsize=12)
         axarr[0].set_title(r'Arbitary normalization.')
 
         d = axarr[1].scatter(xshift(df[r"gamma"], ii), df[arbnorm],
-                             c=df[r"teff_2"].values, alpha=0.9, label=arbnorm)
+                             c=df[r"teff_1"].values, alpha=0.9, label=arbnorm)
         axarr[1].set_xlabel(r'$\gamma$ offset', fontsize=12)
         axarr[1].set_ylabel(r'Arbitary norm', fontsize=12)
         axarr[1].set_title(r'$\gamma$.')
 
-        e = axarr[2].scatter(xshift(df[r"teff_2"], ii), df[arbnorm],
+        e = axarr[2].scatter(xshift(df[r"teff_1"], ii), df[arbnorm],
                              c=df[r"gamma"].values, alpha=0.9, label=arbnorm)
         axarr[2].set_xlabel(r'Companion temperature', fontsize=15)
         axarr[2].set_ylabel(r'Arbitary norm ', fontsize=15)
@@ -100,15 +99,18 @@ def display_arbitary_norm_values(table, params):
     axarr[2].grid(True)
 
     cbar0 = plt.colorbar(c)
-    cbar0.ax.set_ylabel(r" teff_2")
+    cbar0.ax.set_ylabel(r" teff_1")
     cbar1 = plt.colorbar(d)
-    cbar1.ax.set_ylabel(r" teff_2")
+    cbar1.ax.set_ylabel(r" teff_1")
     cbar2 = plt.colorbar(e)
     cbar1.ax.set_ylabel(r"$\gamma$")
     fig.tight_layout()
     fig.suptitle("Arbitrary normalization used, \n slight shift with detetor")
     name = "{0}-{1}_{2}_plot_arbnormalization_{3}.pdf".format(
-        params["star"], params["obs_num"], params["chip"], params["suffix"])
+        params["star"], params["obsnum"], params["chip"], params["suffix"])
+    plt.savefig(os.path.join(params["path"], "plots", name))
+    plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+    plt.close()
 
 
 def display_bhm_xcorr_values(table, params):
@@ -156,10 +158,10 @@ def display_bhm_xcorr_values(table, params):
 
 
 @timeit2
-def fix_host_parameters(table, params):
+def host_parameters(table, params):
     print("Fixed host analysis.")
     nrows, ncols = 3, 2
-    columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
+    columns = ["teff_1", "logg_1", "feh_1", "gamma"]
     assert len(columns) <= (nrows * ncols)
 
     for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
@@ -177,8 +179,7 @@ def fix_host_parameters(table, params):
         for ii, col in enumerate(columns):
             df = pd.read_sql(
                 sa.select([table.c[col], table.c[chi2_val]]).where(
-                    sa.and_(table.c["teff_1"] == params["teff"],
-                            table.c["logg_1"] == params["logg"],
+                    sa.and_(table.c["logg_1"] == params["logg"],
                             table.c["feh_1"] == params["fe_h"])
                 ), table.metadata.bind)
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
@@ -195,16 +196,16 @@ def fix_host_parameters(table, params):
         fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
 
-    fix_host_parameters_individual(table, params)
+    host_parameters_individual(table, params)
 
 
-def fix_host_parameters_individual(table, params):
+def host_parameters_individual(table, params):
     nrows, ncols = 1, 1
     # fig, axes = plt.subplots(nrows, ncols)
     # fig.tight_layout()
     # indices = np.arange(nrows * ncols).reshape(nrows, ncols)
 
-    columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
+    columns = ["teff_1", "logg_1", "feh_1", "gamma"]
     # assert len(columns) <= (nrows * ncols)
 
     for ii, col in enumerate(columns):
@@ -220,8 +221,7 @@ def fix_host_parameters_individual(table, params):
             fig.tight_layout()
             df = pd.read_sql(
                 sa.select([table.c[col], table.c[chi2_val]]).where(
-                    sa.and_(table.c["teff_1"] == params["teff"],
-                            table.c["logg_1"] == params["logg"],
+                    sa.and_(table.c["logg_1"] == params["logg"],
                             table.c["feh_1"] == params["fe_h"])
                 ), table.metadata.bind)
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
@@ -240,9 +240,7 @@ def fix_host_parameters_individual(table, params):
 
 
 def parabola_plots(table, params):
-    norm = params["norm"]
-
-    parabola_list = ["teff_2", "gamma", "rv"]
+    parabola_list = ["teff_1", "logg_1", "feh_1", "gamma"]
     for par in parabola_list:
         df = pd.read_sql(sa.select([table.c[par]]), table.metadata.bind)
         unique_par = list(set(df[par].values))
@@ -260,9 +258,6 @@ def parabola_plots(table, params):
 
             min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
 
-            if norm:
-                mc2 = min(min_chi2)
-                min_chi2 = [c2 / mc2 for c2 in min_chi2]
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
             popt, pcov = curve_fit(parabola, unique_par, min_chi2)
@@ -289,7 +284,7 @@ def chi2_at_sigma(df, sigma):
 
 
 def chi2_parabola_plots(table, params):
-    parabola_list = ["teff_2", "gamma", "rv"]
+    parabola_list = ["teff_1", "logg_1", "feh_1", "gamma"]
     for par in parabola_list:
         df = pd.read_sql(sa.select([table.c[par]]), table.metadata.bind)
         unique_par = list(set(df[par].values))
@@ -363,7 +358,7 @@ def parabola(x, a, b, c):
 
 
 @timeit2
-def fix_host_parameters_reduced_gamma(table, params):
+def host_parameters_reduced_gamma(table, params):
     print("Fixed host analysis with reduced gamma.")
     d_gamma = 5
 
@@ -388,16 +383,15 @@ def fix_host_parameters_reduced_gamma(table, params):
         min_chi2_gamma = df.loc[0, "gamma"]
         upper_lim = min_chi2_gamma + d_gamma
         lower_lim = min_chi2_gamma - d_gamma
-        print("Reduced gamma_limits", lower_lim, upper_lim)
+        # print("Reduced gamma_limits", lower_lim, upper_lim)
 
-        columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
+        columns = ["teff_1", "logg_1", "feh_1", "gamma", ]
         assert len(columns) <= (nrows * ncols)
 
         for ii, col in enumerate(columns):
             df = pd.read_sql(
                 sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
-                    sa.and_(table.c["teff_1"] == int(params["teff"]),
-                            table.c["logg_1"] == float(params["logg"]),
+                    sa.and_(table.c["logg_1"] == float(params["logg"]),
                             table.c["feh_1"] == float(params["fe_h"]),
                             table.c.gamma > float(lower_lim),
                             table.c.gamma < float(upper_lim)
@@ -417,10 +411,10 @@ def fix_host_parameters_reduced_gamma(table, params):
     fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
     plt.close()
 
-    fix_host_parameters_reduced_gamma_individual(table, params)
+    host_parameters_reduced_gamma_individual(table, params)
 
 
-def fix_host_parameters_reduced_gamma_individual(table, params):
+def host_parameters_reduced_gamma_individual(table, params):
     print("Fixed host analysis with reduced gamma individual plots.")
     d_gamma = 5
 
@@ -444,16 +438,15 @@ def fix_host_parameters_reduced_gamma_individual(table, params):
         min_chi2_gamma = df.loc[0, "gamma"]
         upper_lim = min_chi2_gamma + d_gamma
         lower_lim = min_chi2_gamma - d_gamma
-        print("Reduced gamma_limits", lower_lim, upper_lim)
+        # print("Reduced gamma_limits", lower_lim, upper_lim)
 
-        columns = ["teff_2", "logg_2", "feh_2", "gamma", "rv"]
+        columns = ["teff_1", "logg_1", "feh_1", "gamma"]
         # assert len(columns) <= (nrows * ncols)
 
         for ii, col in enumerate(columns):
             df = pd.read_sql(
                 sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
-                    sa.and_(table.c["teff_1"] == int(params["teff"]),
-                            table.c["logg_1"] == float(params["logg"]),
+                    sa.and_(table.c["logg_1"] == float(params["logg"]),
                             table.c["feh_1"] == float(params["fe_h"]),
                             table.c.gamma > float(lower_lim),
                             table.c.gamma < float(upper_lim)
@@ -461,7 +454,6 @@ def fix_host_parameters_reduced_gamma_individual(table, params):
                 ), table.metadata.bind)
 
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
-            # axis_pos = [int(x) for x in np.where(indices == ii)]
             fig, axes = plt.subplots(nrows, ncols)
             fig.tight_layout()
             df.plot(x=col, y=red_chi2, kind="scatter",
@@ -478,10 +470,10 @@ def fix_host_parameters_reduced_gamma_individual(table, params):
 
 def get_column_limits(table, params):
     print("Database Column Value Ranges")
-    for col in ["teff_1", "logg_1", "feh_1", "gamma", "rv",
-                "chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2", "alpha_1",
-                "alpha_2", "alpha_3", "alpha_4", "arbnorm_1", "arbnorm_2",
-                "arbnorm_3", "arbnorm_4"]:
+    for col in ["teff_1", "logg_1", "feh_1", "gamma",
+                "chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2", "arbnorm_1", "arbnorm_2",
+                "arbnorm_3", "arbnorm_4", "xcorr_1", "xcorr_2",
+                "xcorr_3", "xcorr_4"]:
         min_df = pd.read_sql(
             sa.select([table.c[col]]).order_by(table.c[col].asc()).limit(1),
             table.metadata.bind)
@@ -492,7 +484,7 @@ def get_column_limits(table, params):
 
 
 def contours(table, params):
-    for par_limit, contour_param in zip(["gamma", "rv"], ["rv", "gamma"]):
+    for par_limit, contour_param in zip(["gamma", "teff_1"], ["teff_1", "gamma"]):
         for chi2_val, npix_val in zip(chi2_names, npix_names):
             red_chi2 = "red_{0}".format(chi2_val)
             df_min_chi2 = pd.read_sql(
@@ -503,13 +495,9 @@ def contours(table, params):
             print("contour db columns", df_min_chi2.columns)
 
             df = pd.read_sql(
-                sa.select([table.c["teff_2"], table.c["rv"], table.c["gamma"], table.c[chi2_val]]).where(
+                sa.select([table.c["teff_1"], table.c["logg_1"], table.c["gamma"], table.c[chi2_val]]).where(
                     sa.and_(table.c[par_limit] == float(df_min_chi2[par_limit][0]),
-                            table.c.teff_1 == int(params["teff"]),
-                            table.c.logg_1 == float(params["logg"]),
-                            table.c.feh_1 == float(params["fe_h"]),
-                            table.c.logg_2 == float(params["logg"]),  # Fix companion logg
-                            table.c.feh_2 == float(params["fe_h"]))),  # Fix companion fe_h
+                            table.c.feh_1 == float(params["fe_h"]))),  # Fix companion fe_h
                 table.metadata.bind)
 
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
@@ -518,7 +506,7 @@ def contours(table, params):
             params["this_npix"] = params["npix"][npix_val]
             params["par_limit"] = par_limit
 
-            pars = [contour_param, "teff_2", red_chi2]
+            pars = [contour_param, "teff_1", red_chi2]
             dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
             # pars = ["gamma", "rv", red_chi2]
             # dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
@@ -673,8 +661,8 @@ def contrast_bhm_results(table, params):
     print("BHM SOLUTIONS\n---------------------")
     for ii, chi2_val in enumerate(chi2_names):
         df = pd.read_sql_query(sa.select([table.c.teff_1, table.c.logg_1, table.c.feh_1,
-                                          table.c.gamma,
+                                          table.c.gamma, table.c.xcorr_1,
                                           table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
                                table.metadata.bind)
         print(f"{chi2_val}: teff={df.teff_1.values[0]}\tlogg={df.logg_1.values[0]}\t"
-              f" feh={df.feh_1.values[0]}\tgamma=={df.gamma.values[0]}")
+              f" feh={df.feh_1.values[0]}\tgamma=={df.gamma.values[0]}, xcorr={df.xcorr_1.values[0]}")
