@@ -10,7 +10,7 @@ import sys
 import pandas as pd
 import sqlalchemy as sa
 
-logging.warning("This is obsolute you may be looking for coadd_chi2.py")
+logging.warning("This is obsolete you may be looking for coadd_chi2.py")
 
 
 def parse_args(args):

@@ -5,6 +5,7 @@ Create Table of minimum Chi_2 values and save to a table.
 """
 import argparse
 import os
+import sys
 
 import corner
 import matplotlib.pyplot as plt
@@ -14,11 +15,11 @@ from joblib import Parallel, delayed
 from pandas.plotting import scatter_matrix
 
 import simulators
-from bin.analysis_iam_chi2 import decompose_database_name
-from mingle.utilities.phoenix_utils import closest_model_params
+from bin.obsolete.analysis_iam_chi2 import decompose_database_name
 from mingle.utilities.param_file import get_host_params
+from mingle.utilities.phoenix_utils import closest_model_params
 from mingle.utilities.scatter_corner import scatter_corner
-import sys
+
 
 def parse_args(args):
     """Take care of all the argparse stuff.
