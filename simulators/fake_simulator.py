@@ -38,7 +38,6 @@ def parse_args(args):
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
     parser.add_argument("-m", "--mode", help="Combination mode", choices=["tcm", "bhm", "iam"],
                         default="iam")
-
     return parser.parse_args(args)
 
 

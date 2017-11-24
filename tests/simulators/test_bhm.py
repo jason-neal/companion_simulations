@@ -1,11 +1,11 @@
 import os
 
-import pandas as pd
 import pytest
 
 import simulators
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
-from simulators.bhm_module import (bhm_helper_function, get_model_pars, save_full_bhm_chisqr, setup_bhm_dirs)
+from simulators.bhm_module import (bhm_helper_function, get_model_pars, setup_bhm_dirs)
+from simulators.bhm_script import parse_args
 
 
 def test_get_model_pars_close_method_returns_close_params():
@@ -56,3 +56,25 @@ def test_setup_bhm_dirs_creates_dirs(tmpdir):
     # assert os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "fudgeplots"))
     assert result is None
 
+
+def test_bhm_script_parser():
+    parsed = parse_args(["HD30501", "01"])
+    assert parsed.star == "HD30501"
+    assert parsed.obsnums == ["01"]
+    assert parsed.chips is None
+    assert parsed.suffix is ""
+    assert parsed.mask is False
+    assert parsed.error_off is False
+    assert parsed.disable_wav_scale is False
+
+
+def test_bhm_script_parser_toggle():
+    parsed = parse_args(["HDswitches", "1a", "2", "-c", "1", "2", "4", "--suffix", "_test",
+                         "-m", "--disable_wav_scale", "--error_off"])
+    assert parsed.star == "HDswitches"
+    assert parsed.obsnums == ["1a", "2"]
+    assert parsed.chips == ["1", "2", "4"]
+    assert parsed.suffix is "_test"
+    assert parsed.mask is True
+    assert parsed.error_off is True
+    assert parsed.disable_wav_scale is True

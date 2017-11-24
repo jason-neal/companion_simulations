@@ -51,8 +51,7 @@ def parse_args(args):
     parser.add_argument('--chip', help='Chip Number.', default=None)
     parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
     parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
-    parser.add_argument("--error_off", help="Turn snr value errors off.",
-                        action="store_true", type=bool)
+    parser.add_argument("--error_off", help="Turn snr value errors off.", action="store_true")
     parser.add_argument('--disable_wav_scale', action="store_true",
                         help='Disable scaling by wavelength.')
     return parser.parse_args(args)

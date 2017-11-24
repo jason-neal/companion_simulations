@@ -3,7 +3,8 @@ import os
 import pytest
 
 import simulators
-from simulators.tcm_module import (tcm_helper_function, save_full_tcm_chisqr, setup_tcm_dirs)
+from simulators.tcm_module import (tcm_helper_function, setup_tcm_dirs)
+from simulators.tcm_script import parse_args
 
 
 @pytest.mark.parametrize("star, obs, chip", [
@@ -38,3 +39,25 @@ def test_setup_tcm_dirs_creates_dirs(tmpdir):
     # assert os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "grid_plots"))
     # assert os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "fudgeplots"))
     assert result is None
+
+
+def test_tcm_script_parser():
+    parsed = parse_args([])
+    # assert parsed.star == "HD30501"
+    # assert parsed.obsnum == "01"
+    assert parsed.chip is None
+    assert parsed.small is False
+    assert parsed.error_off is False
+    assert parsed.disable_wav_scale is False
+    assert parsed.parallel is False
+
+
+def test_tcm_script_parser_toggle():
+    parsed = parse_args(["--chip", "2", "-p", "-s", "--error_off", "--disable_wav_scale"])
+    # assert parsed.star == "HD30501"
+    # assert parsed.obsnum == "01"
+    assert parsed.chip is "2"
+    assert parsed.small is True
+    assert parsed.error_off is True
+    assert parsed.disable_wav_scale is True
+    assert parsed.parallel is True

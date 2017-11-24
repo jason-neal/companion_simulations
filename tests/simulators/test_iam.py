@@ -97,3 +97,36 @@ def test_setup_dirs_creates_dirs(tmpdir):
     assert os.path.exists(tmpdir.join(star.upper(), "grid_plots"))
     assert os.path.exists(tmpdir.join(star.upper(), "fudgeplots"))
     assert result is None
+
+
+from simulators.iam_script import parse_args
+
+
+def test_iam_script_parser():
+    parsed = parse_args(["HD30501", "01"])
+    assert parsed.star == "HD30501"
+    assert parsed.obsnum == "01"
+    assert parsed.suffix is None
+    assert parsed.small is False
+    assert parsed.n_jobs == 1
+    assert parsed.error_off is False
+    assert parsed.area_scale is True
+    assert parsed.renormalize is False
+    assert parsed.disable_wav_scale is False
+    assert parsed.parallel is False
+
+
+def test_iam_script_parser_toggle():
+    parsed = parse_args(["HDswitches", "02", "-c", "4", "-j", "3", "--suffix", "_test",
+                         "-n", "-p", "-s", "-a", "--disable_wav_scale", "--error_off"])
+    assert parsed.star == "HDswitches"
+    assert parsed.obsnum == "02"
+    assert parsed.suffix == "_test"
+    assert parsed.small is True
+    assert parsed.area_scale is False
+    assert parsed.n_jobs == 3
+    assert parsed.chip == "4"
+    assert parsed.renormalize is True
+    assert parsed.disable_wav_scale is True
+    assert parsed.error_off is True
+    assert parsed.parallel is True
