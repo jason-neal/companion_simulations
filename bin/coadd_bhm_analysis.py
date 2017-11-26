@@ -12,9 +12,8 @@ import argparse
 import os
 import sys
 
-import sqlalchemy as sa
-
 import simulators
+from bin.coadd_analysis_script import decompose_database_name, load_sql_table
 from bin.coadd_bhm_analysis_module import (chi2_parabola_plots,
                                            compare_spectra, contours,
                                            contrast_bhm_results,
@@ -52,39 +51,6 @@ def parse_args(args):
                                  "all", "rvplot", "chi2_parabola", "compare_spectra",
                                  "contrast", "xcorr"])
     return parser.parse_args(args)
-
-
-def decompose_database_name(database):
-    """Database names of form */Star-obsnum_chip...db."""
-    os.path.split(database)
-    path, name = os.path.split(database)
-    name_split = name.split("_")
-    star, obsnum = name_split[0].split("-")
-    chip = name_split[1]
-    return path, star, obsnum, chip
-
-
-def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
-    sqlite_db = 'sqlite:///{0}'.format(database)
-    try:
-        engine = sa.create_engine(sqlite_db, echo=echo)
-        table_names = engine.table_names()
-    except Exception as e:
-        print("\nAccessing sqlite_db = {0}\n".format(sqlite_db))
-        print("cwd =", os.getcwd())
-        raise e
-    if verbose:
-        print("Table names in database =", engine.table_names())
-    if len(table_names) == 1:
-        tb_name = table_names[0]
-    else:
-        raise ValueError("Database has two many tables {0}".format(table_names))
-    if tb_name != name:
-        raise NameError("Name given does not match table in database.")
-
-    meta = sa.MetaData(bind=engine)
-    db_table = sa.Table(name, meta, autoload=True)
-    return db_table
 
 
 def main(star, obsnum, suffix=None, echo=False, mode="parabola",
