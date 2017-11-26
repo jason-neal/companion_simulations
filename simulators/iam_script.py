@@ -167,7 +167,7 @@ if __name__ == "__main__":
                      verbose=True, move=True)
 
             coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
-                           echo=False, mode="all", verbose=False, norm=False, npars=3)
+                           echo=False, mode="all", verbose=False, npars=3)
 
             print("\nFinished the db analysis after iam_script simulations!\n")
             sys.exit(0)
