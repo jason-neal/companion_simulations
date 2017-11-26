@@ -185,17 +185,13 @@ def alpha_rv_contour(engine, params, tb_name):
     df = pd.read_sql(sa.text((
                                  "SELECT teff_2, alpha, rv, gamma, chi2 "
                                  "FROM {0} "
-                                 "WHERE ({1} = {2} AND teff_1 = {3} AND logg_1 = {4} AND feh_1 = {5})").format(tb_name,
-                                                                                                               par_limit,
-                                                                                                               df_min_chi2[
-                                                                                                                   par_limit][
-                                                                                                                   0],
-                                                                                                               params[
-                                                                                                                   "teff"],
-                                                                                                               params[
-                                                                                                                   "logg"],
-                                                                                                               params[
-                                                                                                                   "fe_h"])),
+                                 "WHERE ({1} = {2} AND teff_1 = {3} AND "
+                                 "logg_1 = {4} AND feh_1 = {5})").format(tb_name,
+                                                                         par_limit,
+                                                                         df_min_chi2[par_limit][0],
+                                                                         params["teff"],
+                                                                         params["logg"],
+                                                                         params["fe_h"])),
                      engine)
 
     print("len df", len(df))
