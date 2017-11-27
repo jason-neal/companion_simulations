@@ -13,7 +13,7 @@ from mingle.models.broadcasted_models import inherent_alpha_model, independent_i
 from mingle.utilities.norm import continuum
 from mingle.utilities.simulation_utilities import spec_max_delta
 from simulators.iam_module import prepare_iam_model_spectra
-
+import warnings
 
 def parse_args(args):
     """Take care of all the argparse stuff.
@@ -43,10 +43,13 @@ def parse_args(args):
 
 
 def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
-                        independent=False, noise=None, header=False):
+                        independent=False, noise=None, header=False, fudge=None):
     """Make a fake spectrum with binary params and radial velocities."""
     mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits)
 
+    if fudge is not None:
+        mod2_spec.flux = fudge
+        warnings.warn("Fudging fake companion by {}".format(fudge))
     # Combine model spectra with iam model
     if independent:
         iam_grid_func = independent_inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
