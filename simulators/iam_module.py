@@ -191,8 +191,8 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             # Combine model spectra with iam model
             mod1_spec.plot(label=params1)
             mod2_spec.plot(label=params2)
-            fudge_factor = 1.3
-            mod2_spec.flux *= fudge_factor   # fudge factor
+            fudge_factor = 1.6
+            mod2_spec.flux *= fudge_factor  # fudge factor
             mod2_spec.plot(label="fudged {0}".format(params2))
             plt.title("fudges models")
             plt.legend()

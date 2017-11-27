@@ -29,16 +29,19 @@ config = {
     'scripts': ["simulators/bhm_script.py",
                 "simulators/iam_script.py",
                 "simulators/tcm_script.py",
-                "bin/mkdbs.py",
+                # "bin/mkdbs.py",
                 "bin/coadd_analysis_script.py",
-                "bin/create_fake_obs.py",
+                "bin/coadd_bhm_analysis.py",
+                # "bin/create_fake_obs.py",
                 "bin/check_result.py",
                 "bin/coadd_chi2_db.py",
+                "bin/coadd_bhm_db.py",
                 "bin/do_iam_on_stars.py",
                 "bin/fully_analyze_star.py",
-                "bin/create_min_chi2_table.py",
+                # "bin/create_min_chi2_table.py",
                 "bin/bhm_chi2_script.py",
-                "bin/analysis_iam_chi2.py"],
+                # "bin/analysis_iam_chi2.py"
+                ],
     'name': 'companion_simulations',
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     "classifiers": [

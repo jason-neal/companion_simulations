@@ -99,9 +99,9 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         raise IOError("Database '{0}' does not exist.".format(database))
 
     path, dbstar, db_obsnum, chip = decompose_database_name(database)
-    assert dbstar == star
-    assert db_obsnum == obsnum
-    assert chip == "coadd"
+    assert dbstar == star, "{} == {}".format(dbstar, star)
+    assert db_obsnum == obsnum, "{} == {}".format(db_obsnum, obsnum)
+    assert chip == "coadd", "{} == {}".format(chip, "coadd")
 
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)  # make dir for plots
 
