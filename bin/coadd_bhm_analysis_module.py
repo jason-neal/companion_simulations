@@ -391,9 +391,7 @@ def host_parameters_reduced_gamma(table, params):
         for ii, col in enumerate(columns):
             df = pd.read_sql(
                 sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
-                    sa.and_(table.c["logg_1"] == float(params["logg"]),
-                            table.c["feh_1"] == float(params["fe_h"]),
-                            table.c.gamma > float(lower_lim),
+                    sa.and_(table.c.gamma > float(lower_lim),
                             table.c.gamma < float(upper_lim)
                             )
                 ), table.metadata.bind)
@@ -446,9 +444,7 @@ def host_parameters_reduced_gamma_individual(table, params):
         for ii, col in enumerate(columns):
             df = pd.read_sql(
                 sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
-                    sa.and_(table.c["logg_1"] == float(params["logg"]),
-                            table.c["feh_1"] == float(params["fe_h"]),
-                            table.c.gamma > float(lower_lim),
+                    sa.and_(table.c.gamma > float(lower_lim),
                             table.c.gamma < float(upper_lim)
                             )
                 ), table.metadata.bind)
