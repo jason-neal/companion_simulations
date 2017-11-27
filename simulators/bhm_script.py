@@ -23,8 +23,6 @@ def parse_args(args):
     parser.add_argument("star", help='Star name.', type=str)
     parser.add_argument("obsnums", help='Star observation number.', nargs="+")
     parser.add_argument('-c', '--chips', help='Chip Number.', default=None, nargs="+")
-    parser.add_argument('-m', '--mask', action="store_true",
-                        help='Apply wavelength mask.')
     parser.add_argument('-s', '--suffix', type=str, default="",
                         help='Extra name identifier.')
     parser.add_argument("--error_off", action="store_true",
@@ -34,7 +32,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(star, obsnum, chip=None, verbose=False, suffix=None, mask=False, error_off=False, disable_wav_scale=False):
+def main(star, obsnum, chip=None, verbose=False, suffix=None, error_off=False, disable_wav_scale=False):
     """Best Host modelling main function."""
     wav_scale = not disable_wav_scale
     star = star.upper()
