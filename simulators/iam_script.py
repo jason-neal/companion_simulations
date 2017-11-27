@@ -76,7 +76,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(star, obsnum, chip=None, parallel=True, small=True, verbose=False,
+def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
          suffix=None, error_off=False, area_scale=True, disable_wav_scale=False, renormalize=False):
     """Main function."""
     wav_scale = not disable_wav_scale
