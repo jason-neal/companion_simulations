@@ -21,7 +21,7 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(description='Best host modelling.')
     parser.add_argument("star", help='Star name.', type=str)
-    parser.add_argument("obsnums", help='Star observation number.', nargs="+")
+    parser.add_argument("obsnum", help='Star observation number.')
     parser.add_argument('-c', '--chips', help='Chip Number.', default=None, nargs="+")
     parser.add_argument('-s', '--suffix', type=str, default="",
                         help='Extra name identifier.')
@@ -92,16 +92,27 @@ def main(star, obsnum, chip=None, verbose=False, suffix=None, error_off=False, d
     print("\nNow use bin/coadd_bhm_db.py")
 
 
+from bin.coadd_bhm_db import main as coadd_db
+from bin.coadd_bhm_analysis import main as coadd_analysis
+
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
     star = opts.pop("star")
-    obsnums = opts.pop("obsnums")
+
     chips = opts.pop("chips")
 
     if chips is None:
         chips = range(1, 5)
 
-    for obs in obsnums:
-        for chip in chips:
-            main(star, obs, chip, **opts)
+    for chip in chips:
+        main(star, chip=chip, **opts)
+
+    print("\nDoing analysis after simulations!\n")
+    coadd_db(star, opts["obsnum"], opts["suffix"], replace=True,
+             verbose=True, move=True)
+
+    coadd_analysis(star, opts["obsnum"], suffix=opts["suffix"],
+                   echo=False, mode="all", verbose=False, npars=3)
+
+    print("\nFinished the db analysis after iam_script simulations!\n")
