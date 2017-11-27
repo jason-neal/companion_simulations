@@ -17,7 +17,7 @@ def test_barycorr_crires_spectrum(host):
 
 @pytest.mark.xfail
 def test_barycorr_crires_spectrum_with_obs_spec(host):
-    new_spec = barycorr_crires_spectrum(host, extra_offset=None)
+    _new_spec = barycorr_crires_spectrum(host, extra_offset=None)
     assert False
 
 

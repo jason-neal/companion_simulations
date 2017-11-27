@@ -127,7 +127,7 @@ def main(star="HD211847", obsnum="2", chip=1):
     offset = -host_rv  # -To shift to host star reference.
     logging.debug("Host rv offset" + pv("offset"))
 
-    berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
+    _berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum  (at the ends)
     berv_corrected_observed_spectra.wav_select(*berv_corrected_observed_spectra.xaxis[
         np.isfinite(berv_corrected_observed_spectra.flux)][[0, -1]])

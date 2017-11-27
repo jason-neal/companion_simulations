@@ -73,7 +73,7 @@ def main():
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
-    obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
+    _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
     obs_spec.flux /= 1.02
     # Mask out bad portion of observed spectra ## HACK
     if chip == 4:

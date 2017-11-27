@@ -597,7 +597,7 @@ def compare_spectra(table, params):
         # obs_spec = spectrum_masking(obs_spec, params["star"], params["obsnum"], ii + 1)
 
         # Barycentric correct spectrum
-        obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
+        _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
         normalization_limits = [obs_spec.xaxis[0] - 5, obs_spec.xaxis[-1] + 5]
         # models
         print("params for models", params1)

@@ -53,7 +53,7 @@ def main():
     # Load observation
     # uncorrected_spectra = load_spectrum(obs_name)
     observed_spectra = load_spectrum(obs_name)
-    observed_spectra = barycorr_crires_spectrum(observed_spectra, extra_offset=None)
+    _observed_spectra = barycorr_crires_spectrum(observed_spectra, extra_offset=None)
     observed_spectra.flux /= 1.02
 
     obs_resolution = crires_resolution(observed_spectra.header)

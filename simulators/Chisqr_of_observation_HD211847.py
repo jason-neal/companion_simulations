@@ -81,7 +81,7 @@ def main():
     offset = -host_rv  # -22
     logging.warning("Non-zero rv offset", pv("offset"))
     # offset = 0  # -22
-    berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
+    _berv_corrected_observed_spectra = barycorr_crires_spectrum(observed_spectra, offset)  # Issue with air/vacuum
     # This introduces nans into the observed spectrum
     berv_corrected_observed_spectra.wav_select(*berv_corrected_observed_spectra.xaxis[
         np.isfinite(berv_corrected_observed_spectra.flux)][[0, -1]])
