@@ -14,6 +14,7 @@ from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs
 from simulators.iam_module import observation_rv_limits
+from simulators.bhm_module import sim_helper_function
 
 
 def setup_tcm_dirs(star):
@@ -24,16 +25,8 @@ def setup_tcm_dirs(star):
     return None
 
 
-def tcm_helper_function(star, obsnum, chip):
-    param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
-    params = parse_paramfile(param_file, path=None)
-    obs_name = os.path.join(
-        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obsnum, chip))
-
-    output_prefix = os.path.join(
-        simulators.paths["output_dir"], star.upper(), "tcm",
-        "{0}-{1}_{2}_tcm_chisqr_results".format(star.upper(), obsnum, chip))
-    return obs_name, params, output_prefix
+def tcm_helper_function(star, obsnum, chip, skip_params=False):
+    return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="tcm")
 
 
 def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,

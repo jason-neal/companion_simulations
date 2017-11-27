@@ -156,16 +156,26 @@ def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
     return None
 
 
-def bhm_helper_function(star, obsnum, chip):
-    param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
-    params = parse_paramfile(param_file, path=None)
+def sim_helper_function(star, obsnum, chip, skip_params, mode="iam"):
+    mode = mode.lower()
+    if mode not in ["iam", "tcm", "bhm"]:
+        raise ValueError(f"Mode {mode} for sim_helper_function not in 'iam, tcm, bhm'")
+    if not skip_params:
+        param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
+        params = parse_paramfile(param_file, path=None)
+    else:
+        params = {}
     obs_name = os.path.join(
         simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obsnum, chip))
 
     output_prefix = os.path.join(
-        simulators.paths["output_dir"], star.upper(), "bhm",
-        "{0}-{1}_{2}_bhm_chisqr_results".format(star.upper(), obsnum, chip))
+        simulators.paths["output_dir"], star.upper(), mode,
+        "{0}-{1}_{2}_{3}_chisqr_results".format(star.upper(), obsnum, chip, mode))
     return obs_name, params, output_prefix
+
+
+def bhm_helper_function(star, obsnum, chip, skip_params=False):
+    return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="bhm")
 
 
 def get_model_pars(params, method="close"):
