@@ -38,38 +38,7 @@ def parse_args(args):
                                  "contour_old"])
     return parser.parse_args(args)
 
-
-def decompose_database_name(database):
-    """Database names of form */Star_obsnum_chip...db ."""
-    os.path.split(database)
-    path, name = os.path.split(database)
-    name_split = name.split("_")
-    star, obsnum = name_split[0].split("-")
-    chip = name_split[1]
-    return path, star, obsnum, chip
-
-
-def load_sql_table(database, name="chi2_table", echo=False):
-    sqlite_db = 'sqlite:///{}'.format(database)
-    try:
-        engine = sa.create_engine(sqlite_db, echo=echo)
-        table_names = engine.table_names()
-    except Exception as e:
-        print("\nAccessing sqlite_db = {}\n".format(sqlite_db))
-        print("cwd =", os.getcwd())
-        raise e
-    print("Table names in database =", engine.table_names())
-    if len(table_names) == 1:
-        tb_name = table_names[0]
-    else:
-        raise ValueError("Database has two many tables {}".format(table_names))
-    if tb_name != name:
-        raise NameError("Name given does not match table in database.")
-
-    meta = sa.MetaData(bind=engine)
-    db_table = sa.Table(name, meta, autoload=True)
-    return db_table
-
+from bin.coadd_analysis_script import decompose_database_name, load_sql_table
 
 def main(database, echo=False, mode="parabola"):
     path, star, obsnum, chip = decompose_database_name(database)
