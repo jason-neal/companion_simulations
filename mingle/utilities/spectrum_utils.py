@@ -61,8 +61,7 @@ def select_observation(star, obsnum, chip):
     crires_name: name of file
     """
     if str(chip) not in "1234":
-        print("The Chip is not correct. It needs to be 1,2,3 or 4")
-        raise ValueError("Chip not in 1-4.")
+        raise ValueError("Chip not in rannge(1-4).")
 
     else:
         # New reduction and calibration

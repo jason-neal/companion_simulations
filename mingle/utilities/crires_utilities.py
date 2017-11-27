@@ -73,7 +73,7 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
         nflux, wlprime = pyasl.dopplerShift(wavelength, flux, helcorr_val,
                                             edgeHandling=None, fillValue=None)
 
-        print("RV Size of Heliocenter correction for spectra", helcorr_val)
+        logging.info("RV Size of Heliocenter correction for spectra", helcorr_val)
         return wlprime, nflux
 
 

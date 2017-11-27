@@ -55,7 +55,7 @@ def create_cross_correlations(observation, template1, template2):
             t1 = ft1(wv)
             t2 = ft2(wv)
 
-    print("lenght of s", len(s))
+    logging.debug("lenght of s", len(s))
     # Calculate normalized 1-D cross-correlation functions for each order
     # c1 = np.zeros([len(s), 8041])
     # c2 = np.zeros([len(s), 8041])

@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 import sys
 
@@ -60,10 +61,10 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
         wav = mod1_spec.xaxis[mask]
 
     iam_grid_models = iam_grid_func(wav).squeeze()
-    print("iam_grid_func(wav).squeeze()", iam_grid_models)
-    print("number of nans", np.sum(~np.isfinite(iam_grid_models)))
+    logging.debug("iam_grid_func(wav).squeeze()", iam_grid_models)
+    logging.debug("number of nans", np.sum(~np.isfinite(iam_grid_models)))
     # assert np.all(np.isfinite(iam_grid_models))
-    print(iam_grid_models)
+    logging.debug("iam_grid_models", iam_grid_models)
 
     if noise == "sqrt":
         # Add noise with sigma = 1 / sqrt(N)
@@ -73,13 +74,13 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
     else:
         snr = None
 
-    print("continuum normalizing")
+    logging.debug("Continuum normalizing")
 
     # Continuum normalize all iam_gird_models
     def axis_continuum(flux):
         """Continuum to apply along axis with predefined variables parameters."""
-        print(wav, flux)
-        print("axis lengths", len(wav), len(flux))
+        # print(wav, flux)
+        # "axis lengths", len(wav), len(flux))
         return continuum(wav, flux, splits=50, method="exponential", top=5)
 
     iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
@@ -116,7 +117,7 @@ def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, hea
 
     bhm_grid_values = bhm_grid_func(wav).squeeze()
 
-    print("number of bhm nans", np.sum(~np.isfinite(bhm_grid_values)))
+    logging.debug("number of bhm nans", np.sum(~np.isfinite(bhm_grid_values)))
 
     if noise == "sqrt":
         # Add noise with sigma = 1 / sqrt(N)
@@ -306,12 +307,12 @@ def export_fits(filename, wavelength, flux, hdr, hdrkeys, hdrvals):
 
 
 def append_hdr(hdr, keys=None, values=None, item=0):
-    """Apend/change parameters to fits hdr.
+    """Append/change parameters to fits hdr.
 
     Can take list or tuple as input of keywords
     and values to change in the header
     Defaults at changing the header in the 0th item
-    unless the number the index is givien,
+    unless the number the index is given,
     If a key is not found it adds it to the header.
     """
     if keys is not None and values is not None:

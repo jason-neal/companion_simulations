@@ -53,7 +53,7 @@ def main():
 
     obs_name = os.path.join(
         simulators.paths["spectra"], "{}-{}-mixavg-tellcorr_{}.fits".format(star, obsnum, chip))
-    print("The observation used is ", obs_name, "\n")
+    logging.info("The observation used is ", obs_name, "\n")
 
     closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
     # closest_comp_model = closest_model_params(*comp_params)

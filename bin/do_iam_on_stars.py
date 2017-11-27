@@ -28,7 +28,7 @@ if __name__ == "__main__":
     star = args.star
     n_jobs = args.pop("n_jobs", 1)
 
-    print("Performing simulations on", star)
+    logging.info("Performing simulations on", star)
     obsnums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"]}
 
 

@@ -96,7 +96,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
 
     if limits is not None:
         if limits[0] > spec.xaxis[-1] or limits[-1] < spec.xaxis[0]:
-            print("Warning: The wavelength limits do not overlap the spectrum."
+            logging.warning("Warning: The wavelength limits do not overlap the spectrum."
                   "There is no spectrum left... Check your wavelength, or limits.")
         spec.wav_select(*limits)
 
@@ -152,7 +152,7 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
 
     if limits is not None:
         if limits[0] > spec.xaxis[-1] or limits[-1] < spec.xaxis[0]:
-            print("Warning: The wavelength limits do not overlap the spectrum."
+            logging.warning("Warning: The wavelength limits do not overlap the spectrum."
                   "There is no spectrum left... Check your wavelength, or limits.")
         spec.wav_select(*limits)
 
@@ -329,7 +329,7 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
     temp, logg, metals = params[0], params[1], params[2]
     # This is the backup if not specified in config file.
     bk_temps, bk_loggs, bk_metals = gen_new_param_values(temp, logg, metals, small=small)
-    print("params", params, target, small, limits)
+    # print("params", params, target, small, limits)
 
     teff_key = "teff_1" if target == "host" else "teff_2"
     logg_key = "logg_1" if target == "host" else "logg_2"

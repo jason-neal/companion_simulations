@@ -70,7 +70,7 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
 
     obs_name, params, output_prefix = tcm_helper_function(star, obsnum, chip)
 
-    print("The observation used is ", obs_name, "\n")
+    logging.debug("The observation used is ", obs_name, "\n")
 
     host_params = [params["temp"], params["logg"], params["fe_h"]]
     comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
@@ -95,8 +95,8 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
         errors = None
 
     param_iter = len(alphas) * len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
-    print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
-    print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
+    logging.info("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
+    logging.debug("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
     ####
     if parallel:
@@ -107,10 +107,7 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
         chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
                                   verbose=verbose, norm=True, prefix=output_prefix, wav_scale=wav_scale)
 
-    # Print TODO
-    print("TODO: Add joining of sql table here")
-
-    # subprocess.call(make_chi2_bd.py)
+    return 0
 
 
 if __name__ == "__main__":

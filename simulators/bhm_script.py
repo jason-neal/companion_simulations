@@ -88,7 +88,7 @@ def main(star, obsnum, chip=None, verbose=False, suffix=None, mask=False, error_
     print("broadcast_gamma shape", broadcast_gamma.shape)
     print("broadcast_gamma (first 5)", broadcast_gamma[:5])
     print("broadcast_chi2_gamma shape", broadcast_chi2_gamma.shape)
-    print("broadcast_chi2_gamma (first 5)", broadcast_chi2_gamma[:5])
+    # print("broadcast_chi2_gamma (first 5)", broadcast_chi2_gamma[:5])
 
     print("Finished chi square generation")
     print("\nNow use bin/coadd_bhm_db.py")

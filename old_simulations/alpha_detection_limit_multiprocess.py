@@ -105,7 +105,6 @@ def wrapper_parallel_chisquare(args):
 
 def main():
     """Chisquare determinination to detect minimum alpha value."""
-    print("Loading Data")
 
     path = "/home/jneal/Phd/Codes/Phd-codes/Simulations/saves"  # save path
 
@@ -131,13 +130,13 @@ def main():
     input_parameters = (rv_val, alpha_val)
 
     # starting convolution
-    print("Begining convolution of models")
+    logging.debug("Begining convolution of models")
     time_init = dt.now()
     convolved_star_models = store_convolutions(org_star_spec, resolutions,
                                                chip_limits=chip_limits)
     convolved_planet_models = store_convolutions(org_bd_spec, resolutions,
                                                  chip_limits=chip_limits)
-    print("Convolution of models took {} seconds".format(dt.now() - time_init))
+    logging.debug("Convolution of models took {} seconds".format(dt.now() - time_init))
 
     simulated_observations = generate_observations(convolved_star_models,
                                                    convolved_planet_models,
@@ -159,7 +158,7 @@ def main():
     # res_snr_iter = itertools.product(resolutions, snrs)
     # Can then store to dict store_dict[res][snr]
 
-    print("Starting loops")
+    logging.debug("Starting loops")
 
     # multiprocessing part
     n_jobs = 4
@@ -223,7 +222,7 @@ def main():
 
     # mprocPool.close()
     time_end = dt.now()
-    print("Multi-Proc chisqr has been completed in "
+    logging.debug("Multi-Proc chisqr has been completed in "
           "{} using {}/{} cores.\n".format(time_end - time_init, n_jobs,
                                            mprocess.cpu_count()))
 

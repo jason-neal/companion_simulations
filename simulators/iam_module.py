@@ -219,7 +219,8 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             iam_grid_models = iam_grid_models / iam_grid_continuum
 
             # ### RE-NORMALIZATION to observations?
-            print("Shape of iam_grid_models before renormalization", iam_grid_models.shape)
+            # print("Shape of iam_grid_models before renormalization", iam_grid_models.shape)
+            # print("Shape of obs_spec.flux  before renormalization", obs_spec.flux.shape)
             if norm:
                 warnings.warn("Scalar Re-normalizing to observations! Try this off!")
                 obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux,
@@ -243,11 +244,11 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match rescale
             iam_norm_grid_chisquare = chi_squared(obs_flux, iam_grid_models, error=errors)
 
-            print("Broadcast chi-squared values with arb norm", iam_norm_grid_chisquare.shape)
+            # print("Broadcast chi-squared values with arb norm", iam_norm_grid_chisquare.shape)
 
             # Take minimum chi-squared value along Arbitrary normalization axis
             iam_grid_chisquare, arbitrary_norms = arbitrary_minimums(iam_norm_grid_chisquare, arb_norm)
-            print("Broadcast chi-squared values ", iam_grid_chisquare.shape)
+            # print("Broadcast chi-squared values ", iam_grid_chisquare.shape)
 
             npix = obs_flux.shape[0]  # Number of pixels used
 
@@ -262,7 +263,6 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             save_full_iam_chisqr(save_filename, params1, params2,
                                  inherent_alpha, rvs, gammas,
                                  iam_grid_chisquare, arbitrary_norms, npix, verbose=verbose)
-
         if save_only:
             return None
         else:
