@@ -1,6 +1,8 @@
-import yaml
+import os
+
 import matplotlib
 import numpy as np
+import yaml
 
 matplotlib.use('Agg')
 
@@ -18,7 +20,7 @@ try:
     config = yaml.load(f)
     f.close()
 except FileNotFoundError as e:
-    default = __file__[:-11] + "config.yaml"
+    default = os.path.join(__file__[:-11], "..", "config.yaml")
     import warnings
 
     warnings.warn("Using the default config.yaml file located at {0}."
