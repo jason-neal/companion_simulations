@@ -27,9 +27,6 @@ def test_iam_helper_function(star, obs, chip):
 
 
 @pytest.mark.xfail()
-
-
-@pytest.mark.xfail()
 def test_iam_analysis_same_as_parallel():
     assert parallel_iam_analysis() == iam_analysis()
 

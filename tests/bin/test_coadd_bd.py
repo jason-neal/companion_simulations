@@ -46,6 +46,10 @@ def test_load_sql_table_with_invalid_table(db_name, invalid_name):
 
 
 @pytest.mark.xfail()
+def test_sql_table_with_more_than_one_table():
+    db_name = "db with many tables."
+    with pytest.raises(ValueError):
+        load_sql_table(db_name, echo=False, verbose=False)
 
 
 def test_decompose_database_name(db_name):
@@ -57,6 +61,9 @@ def test_decompose_database_name(db_name):
     assert obsnum == "1"
 
 
+# Assert they return None
+# An image appears somewhere
+# And some text is captured?
 
 
 def test_simple_database_returns_correctly_from_sql_db(tmpdir):
@@ -89,6 +96,53 @@ def test_simple_database_returns_correctly_from_sql_db(tmpdir):
 
 from simulators.iam_module import iam_helper_function
 
+
+def test_iam_db_main(tmpdir):
+    simulators.paths["output_dir"] = tmpdir
+    # Setup
+    star = "test_star"
+    star = star.upper()
+    obsnum = "11"
+    suffix = "_test"
+    # Gen fake param file
+    iam_helper_function(star, obsnum, 1, skip_params=True)
+    num = 20
+    # Standard values
+    teff = np.linspace(3000, 5000, num)
+    logg = np.linspace(0.5, 6, num)
+    feh = np.linspace(-3, 1, num)
+    gamma = np.linspace(-20, 20, num)
+
+    for chip in range(1, 4):
+        #        "TEST_STAR - 11_2_iam_chisqr_results_test *.csv"
+        fname = os.path.join(tmpdir, star, "iam", f"{star}-{obsnum}_{chip}_iam_chisqr_results{suffix}.csv")
+        chi2 = chip + gamma + teff / logg
+        npix = (985 - chip) * np.ones_like(teff)
+
+        df = pd.DataFrame({'teff_1': teff, 'logg_1': logg, 'feh_1': feh,
+                           'gamma': gamma, 'chi2': chi2, "npix": npix})
+        df.to_csv(fname)
+        # database_name = 'sqlite:///{0}'.format(fname)
+        # engine = sa.create_engine(database_name)
+        # df.to_sql('test_table', engine, if_exists='append')
+
+    expected_db_name = os.path.join(tmpdir, star,
+                                    "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
+    assert not os.path.exists(expected_db_name)
+    # make 4 databases to add together()
+    res = iam_db_main(star, obsnum, suffix, replace=False, verbose=True, chunksize=5, move=False)
+    assert res is None
+    assert os.path.exists(os.path.exists(expected_db_name))
+
+    db_table = load_sql_table(expected_db_name)
+    assert isinstance(db_table, pd.DataFrame)
+    assert np.all(db_table.teff_1.values == teff)
+    assert np.all(db_table.logg_1.values == logg)
+    assert np.all(db_table.feh_1.values == feh)
+    assert len(db_table) == num
+    assert False
+
+
 def test_coadd_chi2_bd_parser_defaults():
     args = ["HDdefault", "0", ]
     parsed = parse_args(args)
@@ -113,3 +167,13 @@ def test_coadd_chi2_bd_parser():
     assert parsed.replace is True
     assert parsed.verbose is True
     assert parsed.move is True
+
+
+@pytest.mark.xfail()
+@pytest.mark.parametrize("func", [smallest_chi2_values, ])
+def test_analysis_functions_run(func, db_table, db_params):
+    res = func(db_table, db_params)
+    out, err = capsys.readouterr()
+    assert res is None
+    #    assert
+    assert False
