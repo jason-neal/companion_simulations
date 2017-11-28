@@ -84,8 +84,8 @@ def test_simple_database_returns_correctly_from_sql_db(tmpdir):
     db_table = load_sql_table(fname, name="test_table")
 
     df = pd.read_sql(
-        sa.select([table.c["x"], table.c["y"], table.c["z"]]),
-        table.metadata.bind)
+        sa.select([db_table.c["x"], db_table.c["y"], db_table.c["z"]]),
+        db_table.metadata.bind)
 
     # NEED to query out x from database inot dataframe.
     # select x, y, z from db_tbale using sqlalchemy
