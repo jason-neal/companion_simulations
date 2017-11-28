@@ -86,16 +86,16 @@ def test_continuum_alpha(chip):
 def test_setup_dirs_creates_dirs(tmpdir):
     simulators.paths["output_dir"] = tmpdir
     star = "TestStar"
-    assert not os.path.exists(tmpdir.join(star.upper()))
-    assert not os.path.exists(tmpdir.join(star.upper(), "plots"))
-    assert not os.path.exists(tmpdir.join(star.upper(), "grid_plots"))
-    assert not os.path.exists(tmpdir.join(star.upper(), "fudgeplots"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "iam"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "iam", "plots"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "iam", "grid_plots"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "iam", "fudgeplots"))
     result = setup_iam_dirs(star)
 
-    assert os.path.exists(tmpdir.join(star.upper()))
-    assert os.path.exists(tmpdir.join(star.upper(), "plots"))
-    assert os.path.exists(tmpdir.join(star.upper(), "grid_plots"))
-    assert os.path.exists(tmpdir.join(star.upper(), "fudgeplots"))
+    assert os.path.exists(tmpdir.join(star.upper(), "iam"))
+    assert os.path.exists(tmpdir.join(star.upper(), "iam", "plots"))
+    assert os.path.exists(tmpdir.join(star.upper(), "iam", "grid_plots"))
+    assert os.path.exists(tmpdir.join(star.upper(), "iam", "fudgeplots"))
     assert result is None
 
 
