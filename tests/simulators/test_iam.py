@@ -117,8 +117,9 @@ def test_iam_script_parser():
 
 
 def test_iam_script_parser_toggle():
-    parsed = parse_args(["HDswitches", "02", "-c", "4", "-j", "3", "--suffix", "_test",
-                         "-n", "-p", "-s", "-a", "--disable_wav_scale", "--error_off"])
+    args = ["HDswitches", "02", "-c", "4", "-j", "3", "--suffix", "_test",
+                         "-n", "-p", "-s", "-a", "--disable_wav_scale", "--error_off"]
+    parsed = parse_args(args)
     assert parsed.star == "HDswitches"
     assert parsed.obsnum == "02"
     assert parsed.suffix == "_test"
