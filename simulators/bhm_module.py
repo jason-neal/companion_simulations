@@ -16,11 +16,18 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model
 from mingle.utilities.xcorr import xcorr_peak
 
 
+def setup_dirs(star, mode="iam"):
+    mode = mode.lower()
+    assert mode in ["iam", "tcm", "bhm"]
+
+    basedir = os.path.join(simulators.paths["output_dir"], star.upper(), mode)
+    os.makedirs(basedir, exist_ok=True)
+    os.makedirs(os.path.join(basedir, "plots"), exist_ok=True)
+    return basedir
+
+
 def setup_bhm_dirs(star):
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm"), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "plots"), exist_ok=True)
-    # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "grid_plots"), exist_ok=True)
-    # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "bhm", "fudgeplots"), exist_ok=True)
+    setup_dirs(star, mode="bhm")
     return None
 
 from simulators.iam_module import arbitrary_minimums, arbitrary_rescale

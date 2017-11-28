@@ -14,14 +14,11 @@ from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs
 from simulators.iam_module import observation_rv_limits
-from simulators.bhm_module import sim_helper_function
+from simulators.bhm_module import sim_helper_function, setup_dirs
 
 
 def setup_tcm_dirs(star):
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm"), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "plots"), exist_ok=True)
-    # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "grid_plots"), exist_ok=True)
-    # os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "tcm", "fudgeplots"), exist_ok=True)
+    setup_dirs(star, mode="tcm")
     return None
 
 

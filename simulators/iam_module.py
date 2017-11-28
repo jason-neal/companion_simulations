@@ -16,7 +16,7 @@ from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
-from simulators.bhm_module import sim_helper_function
+from simulators.bhm_module import sim_helper_function, setup_dirs
 
 def iam_helper_function(star, obsnum, chip, skip_params=False):
     """Specifies parameter files and output directories given observation parameters."""
@@ -24,10 +24,9 @@ def iam_helper_function(star, obsnum, chip, skip_params=False):
 
 
 def setup_iam_dirs(star):
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper()), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "plots"), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "grid_plots"), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "fudgeplots"), exist_ok=True)
+    basedir = setup_dirs(star, mode="iam")
+    os.makedirs(os.path.join(basedir, "grid_plots"), exist_ok=True)
+    os.makedirs(os.path.join(basedir, "fudgeplots"), exist_ok=True)
     return None
 
 
