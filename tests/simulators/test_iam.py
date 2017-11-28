@@ -27,8 +27,6 @@ def test_iam_helper_function(star, obs, chip):
 
 
 @pytest.mark.xfail()
-def test_save_full_iam_chisqr():
-    assert 0
 
 
 @pytest.mark.xfail()
@@ -36,6 +34,7 @@ def test_iam_analysis_same_as_parallel():
     assert parallel_iam_analysis() == iam_analysis()
 
 
+@pytest.mark.xfail()
 def test_iam_wrapper(host, comp, tmpdir):
     simulators.paths["output_dir"] = tmpdir
     host_params = [5600, 4.5, 0.0]
@@ -55,6 +54,7 @@ def test_iam_wrapper(host, comp, tmpdir):
     assert result is None
 
 
+@pytest.mark.xfail()
 def test_iam_wrapper_without_prefix(host, comp, tmpdir):
     simulators.paths["output_dir"] = tmpdir
     host_params = [5600, 4.5, 0.0]
@@ -72,6 +72,7 @@ def test_iam_wrapper_without_prefix(host, comp, tmpdir):
                          gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
                          save_only=True, chip=1)
     assert result is None
+
 
 @pytest.mark.parametrize("chip", [None, 1, 2, 3, 4])
 def test_continuum_alpha(chip):
