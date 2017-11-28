@@ -22,7 +22,7 @@ def parse_args(args):
     parser = argparse.ArgumentParser(description='Best host modelling.')
     parser.add_argument("star", help='Star name.', type=str)
     parser.add_argument("obsnum", help='Star observation number.')
-    parser.add_argument('-c', '--chips', help='Chip Number.', default=None, nargs="+")
+    parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
     parser.add_argument('-s', '--suffix', type=str, default="",
                         help='Extra name identifier.')
     parser.add_argument("--error_off", action="store_true",
@@ -100,19 +100,23 @@ if __name__ == "__main__":
     opts = {k: args[k] for k in args}
     star = opts.pop("star")
 
-    chips = opts.pop("chips")
+    chips = opts.pop("chip")
 
     if chips is None:
         chips = range(1, 5)
+        do_after = True
+    else:
+        do_after = False
 
     for chip in chips:
         main(star, chip=chip, **opts)
 
-    print("\nDoing analysis after simulations!\n")
-    coadd_db(star, opts["obsnum"], opts["suffix"], replace=True,
-             verbose=True, move=True)
+    if do_after:
+        print("\nDoing analysis after simulations!\n")
+        coadd_db(star, opts["obsnum"], opts["suffix"], replace=True,
+                 verbose=True, move=True)
 
-    coadd_analysis(star, opts["obsnum"], suffix=opts["suffix"],
-                   echo=False, mode="all", verbose=False, npars=3)
+        coadd_analysis(star, opts["obsnum"], suffix=opts["suffix"],
+                       echo=False, mode="all", verbose=False, npars=3)
 
-    print("\nFinished the db analysis after iam_script simulations!\n")
+        print("\nFinished the db analysis after iam_script simulations!\n")

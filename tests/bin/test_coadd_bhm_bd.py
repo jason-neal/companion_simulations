@@ -25,4 +25,3 @@ def test_coadd_bhm_db_parser():
     assert parsed.replace is True
     assert parsed.verbose is True
     assert parsed.move is True
-
