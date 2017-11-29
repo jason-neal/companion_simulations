@@ -2,18 +2,19 @@ import argparse
 import logging
 import os
 import sys
+import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
-from astropy.io import fits
-from spectrum_overload import Spectrum
-
 import simulators
+from astropy.io import fits
 from mingle.models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
 from mingle.utilities.norm import continuum
 from mingle.utilities.simulation_utilities import spec_max_delta
+from simulators.bhm_module import obs_name_template
 from simulators.iam_module import prepare_iam_model_spectra
-import warnings
+from spectrum_overload import Spectrum
+
 
 def parse_args(args):
     """Take care of all the argparse stuff.
@@ -194,7 +195,8 @@ def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=
             plt.plot(spec.xaxis, spec.flux)
             plt.title("Fake spectrum {0} {1} detector {2}".format(star, sim_num, ii + 1))
             plt.show()
-        name = "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, sim_num, ii + 1)
+        name = obs_name_template().format(star, sim_num, ii + 1)
+        # name = "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, sim_num, ii + 1)
         name = os.path.join(simulators.paths["spectra"], name)
         # spec.save...
         hdrkeys = ["OBJECT", "Id_sim", "num", "chip", "snr", "ind_rv", "c_gamma", "cor_rv", "host", "compan"]
