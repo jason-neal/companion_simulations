@@ -45,3 +45,6 @@ paths:
     parameters: "./tests/testdata/parameter_files/"
     spectra: "./tests/testdata/handy_spectra/"
     output_dir: "./tests/testdata/Analysis/"
+
+# Valid values [tell_corr, h2o_tell_corr, berv_mask, berv_corr, h2o_berv_corr, h2o_berv_mask]
+spec_version: berv_mask
