@@ -7,7 +7,7 @@ import simulators
 from bin.coadd_analysis_script import load_sql_table
 from bin.coadd_bhm_db import main as bhm_db_main
 from bin.coadd_bhm_db import parse_args
-from simulators.bhm_module import bhm_helper_function
+from simulators.bhm_module import bhm_helper_function, setup_bhm_dirs
 
 
 def test_bhm_db_main(tmpdir):
@@ -20,7 +20,7 @@ def test_bhm_db_main(tmpdir):
     obsnum = "11"
     suffix = "_test"
     # Gen fake param file
-    bhm_helper_function(star, obsnum, 1, skip_params=True)
+    setup_bhm_dirs(star)
     num = 20
     # Standard values
     teff = np.linspace(3000, 5000, num)

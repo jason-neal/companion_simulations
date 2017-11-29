@@ -64,7 +64,7 @@ def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move
         simulators.paths["output_dir"], star,
         "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
 
-    print("Replace", replace)
+    # print("Replace", replace)
     print("os.path.isfile(coadd_database)", os.path.isfile(coadd_database))
     if os.path.isfile(coadd_database):
         if replace:

@@ -94,7 +94,7 @@ def test_simple_database_returns_correctly_from_sql_db(tmpdir):
     assert np.all(df.z.values == z)
 
 
-from simulators.iam_module import iam_helper_function
+from simulators.iam_module import iam_helper_function, setup_iam_dirs
 
 
 def test_iam_db_main(tmpdir):
@@ -105,7 +105,8 @@ def test_iam_db_main(tmpdir):
     obsnum = "11"
     suffix = "_test"
     # Gen fake param file
-    iam_helper_function(star, obsnum, 1, skip_params=True)
+    
+    setup_iam_dirs(star)
     num = 20
     # Standard values
     teff = np.linspace(3000, 5000, num)
