@@ -99,7 +99,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
 
     path, dbstar, db_obsnum, chip = decompose_database_name(database)
     assert dbstar == star, "{} == {}".format(dbstar, star)
-    assert db_obsnum == obsnum, "{} == {}".format(db_obsnum, obsnum)
+    assert str(db_obsnum) == str(obsnum), "{} == {}".format(db_obsnum, obsnum)
     assert chip == "coadd", "{} == {}".format(chip, "coadd")
 
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)  # make dir for plots
@@ -143,10 +143,10 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         display_arbitary_norm_values(db_table, params)
         smallest_chi2_values(db_table, params)
         parabola_plots(db_table, params)
-        contours(db_table, params)
         test_figure(db_table, params)
         chi2_parabola_plots(db_table, params)
         compare_spectra(db_table, params)
+        contours(db_table, params)
     print("Done")
     return 0
 
