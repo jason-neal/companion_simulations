@@ -5,11 +5,12 @@ Create Table of minimum Chi_2 values and save to a table.
 """
 import argparse
 import sys
-
+import logging
 from joblib import Parallel, delayed
 
 from simulators.iam_script import main
-
+from bin.coadd_chi2_db import main as coadd_db
+from bin.coadd_analysis_script import main as coadd_analysis
 
 def parse_args(args):
     """Take care of all the argparse stuff.
@@ -46,4 +47,16 @@ if __name__ == "__main__":
 
         res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(iam_opts, chip)
                                           for chip in range(1, 5))
+
+        if not sum(res):
+
+            print("\nDoing analysis after simulations!\n")
+            coadd_db(star, obs, args.suffix, replace=True,
+                     verbose=True, move=True)
+
+            coadd_analysis(star, obs, suffix=args.suffix,
+                           echo=False, mode="all", verbose=False, npars=3)
+
+            print("\nFinished the db analysis after iam_script simulations!\n")
+
     sys.exit(0)
