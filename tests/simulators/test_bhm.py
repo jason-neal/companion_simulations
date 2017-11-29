@@ -58,23 +58,22 @@ def test_setup_bhm_dirs_creates_dirs(tmpdir):
 
 
 def test_bhm_script_parser():
-    parsed = parse_args(["HD30501", "01"])
+    args = ["HD30501", "01"]
+    parsed = parse_args(args)
     assert parsed.star == "HD30501"
-    assert parsed.obsnums == ["01"]
-    assert parsed.chips is None
+    assert parsed.obsnum == "01"
+    assert parsed.chip is None
     assert parsed.suffix is ""
-    assert parsed.mask is False
     assert parsed.error_off is False
     assert parsed.disable_wav_scale is False
 
 
 def test_bhm_script_parser_toggle():
-    parsed = parse_args(["HDswitches", "1a", "2", "-c", "1", "2", "4", "--suffix", "_test",
-                         "-m", "--disable_wav_scale", "--error_off"])
+    args = ["HDswitches", "1a", "-c", "4", "--suffix", "_test", "--disable_wav_scale", "--error_off"]
+    parsed = parse_args(args)
     assert parsed.star == "HDswitches"
-    assert parsed.obsnums == ["1a", "2"]
-    assert parsed.chips == ["1", "2", "4"]
+    assert parsed.obsnum == "1a"
+    assert parsed.chip == "4"
     assert parsed.suffix is "_test"
-    assert parsed.mask is True
     assert parsed.error_off is True
     assert parsed.disable_wav_scale is True

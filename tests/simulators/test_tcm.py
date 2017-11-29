@@ -53,7 +53,8 @@ def test_tcm_script_parser():
 
 
 def test_tcm_script_parser_toggle():
-    parsed = parse_args(["--chip", "2", "-p", "-s", "--error_off", "--disable_wav_scale"])
+    args = ["--chip", "2", "-p", "-s", "--error_off", "--disable_wav_scale"]
+    parsed = parse_args(args)
     # assert parsed.star == "HD30501"
     # assert parsed.obsnum == "01"
     assert parsed.chip is "2"

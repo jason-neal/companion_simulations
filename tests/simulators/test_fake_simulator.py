@@ -5,7 +5,8 @@ from simulators.fake_simulator import parse_args
 
 
 def test_fake_simulator_parser():
-    parsed = parse_args(["HD30501", "01", "-p", "2300, 4.5, -3.0", "--params2", "2100, 3.5, 0.0", "-g", "10"])
+    args = ["HD30501", "01", "-p", "2300, 4.5, -3.0", "--params2", "2100, 3.5, 0.0", "-g", "10"]
+    parsed = parse_args(args)
     assert parsed.star == "HD30501"
     assert parsed.sim_num == "01"
     assert parsed.params1 == "2300, 4.5, -3.0"
@@ -21,8 +22,8 @@ def test_fake_simulator_parser():
 
 
 def test_fake_simulator_parser_toggle():
-    parsed = parse_args(["HDTEST", "02", "-t", "-r", '-v', "10", "-m", "bhm", "-s", "100", "-n"])
-
+    args = ["HDTEST", "02", "-t", "-r", '-v', "10", "-m", "bhm", "-s", "100", "-n"]
+    parsed = parse_args(args)
     assert parsed.star == "HDTEST"
     assert parsed.sim_num == "02"
     assert parsed.params1 is None

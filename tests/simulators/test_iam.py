@@ -21,14 +21,12 @@ def test_iam_helper_function(star, obs, chip):
     assert str(star) in obs_name
     assert str(obs) in obs_name
     assert str(chip) in obs_name
-    assert os.path.join(star, star) in output_prefix
+    assert os.path.join(star, "iam", star) in output_prefix
     assert "iam_chisqr" in output_prefix
     assert params["name"] == star.lower()
 
 
 @pytest.mark.xfail()
-def test_save_full_iam_chisqr():
-    assert 0
 
 
 @pytest.mark.xfail()
@@ -36,6 +34,7 @@ def test_iam_analysis_same_as_parallel():
     assert parallel_iam_analysis() == iam_analysis()
 
 
+@pytest.mark.xfail()
 def test_iam_wrapper(host, comp, tmpdir):
     simulators.paths["output_dir"] = tmpdir
     host_params = [5600, 4.5, 0.0]
@@ -55,6 +54,7 @@ def test_iam_wrapper(host, comp, tmpdir):
     assert result is None
 
 
+@pytest.mark.xfail()
 def test_iam_wrapper_without_prefix(host, comp, tmpdir):
     simulators.paths["output_dir"] = tmpdir
     host_params = [5600, 4.5, 0.0]
@@ -73,6 +73,7 @@ def test_iam_wrapper_without_prefix(host, comp, tmpdir):
                          save_only=True, chip=1)
     assert result is None
 
+
 @pytest.mark.parametrize("chip", [None, 1, 2, 3, 4])
 def test_continuum_alpha(chip):
     x = np.linspace(2100, 2180, 100)
@@ -86,16 +87,16 @@ def test_continuum_alpha(chip):
 def test_setup_dirs_creates_dirs(tmpdir):
     simulators.paths["output_dir"] = tmpdir
     star = "TestStar"
-    assert not os.path.exists(tmpdir.join(star.upper()))
-    assert not os.path.exists(tmpdir.join(star.upper(), "plots"))
-    assert not os.path.exists(tmpdir.join(star.upper(), "grid_plots"))
-    assert not os.path.exists(tmpdir.join(star.upper(), "fudgeplots"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "iam"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "iam", "plots"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "iam", "grid_plots"))
+    assert not os.path.exists(tmpdir.join(star.upper(), "iam", "fudgeplots"))
     result = setup_iam_dirs(star)
 
-    assert os.path.exists(tmpdir.join(star.upper()))
-    assert os.path.exists(tmpdir.join(star.upper(), "plots"))
-    assert os.path.exists(tmpdir.join(star.upper(), "grid_plots"))
-    assert os.path.exists(tmpdir.join(star.upper(), "fudgeplots"))
+    assert os.path.exists(tmpdir.join(star.upper(), "iam"))
+    assert os.path.exists(tmpdir.join(star.upper(), "iam", "plots"))
+    assert os.path.exists(tmpdir.join(star.upper(), "iam", "grid_plots"))
+    assert os.path.exists(tmpdir.join(star.upper(), "iam", "fudgeplots"))
     assert result is None
 
 
@@ -117,8 +118,9 @@ def test_iam_script_parser():
 
 
 def test_iam_script_parser_toggle():
-    parsed = parse_args(["HDswitches", "02", "-c", "4", "-j", "3", "--suffix", "_test",
-                         "-n", "-p", "-s", "-a", "--disable_wav_scale", "--error_off"])
+    args = ["HDswitches", "02", "-c", "4", "-j", "3", "--suffix", "_test",
+                         "-n", "-p", "-s", "-a", "--disable_wav_scale", "--error_off"]
+    parsed = parse_args(args)
     assert parsed.star == "HDswitches"
     assert parsed.obsnum == "02"
     assert parsed.suffix == "_test"

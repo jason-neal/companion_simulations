@@ -16,26 +16,17 @@ from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
+from simulators.bhm_module import sim_helper_function, setup_dirs
 
-
-def iam_helper_function(star, obsnum, chip):
+def iam_helper_function(star, obsnum, chip, skip_params=False):
     """Specifies parameter files and output directories given observation parameters."""
-    param_file = os.path.join(simulators.paths["parameters"], "{0}_params.dat".format(star))
-    params = parse_paramfile(param_file, path=None)
-    obs_name = os.path.join(
-        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obsnum, chip))
-    output_prefix = os.path.join(
-        simulators.paths["output_dir"], star.upper(), "{0}-{1}_{2}_iam_chisqr_results".format(
-            star.upper(), obsnum, chip))
-
-    return obs_name, params, output_prefix
+    return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="iam")
 
 
 def setup_iam_dirs(star):
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper()), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "plots"), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "grid_plots"), exist_ok=True)
-    os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "fudgeplots"), exist_ok=True)
+    basedir = setup_dirs(star, mode="iam")
+    os.makedirs(os.path.join(basedir, "grid_plots"), exist_ok=True)
+    os.makedirs(os.path.join(basedir, "fudgeplots"), exist_ok=True)
     return None
 
 
@@ -158,6 +149,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 params1[0], params1[1], params1[2], num))
         prefix = os.path.join(
             simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper())  # for fudge
+
     else:
         sf = "{0}_part{4}_host_pars_[{1}_{2}_{3}].csv".format(
             prefix, params1[0], params1[1], params1[2], num)
