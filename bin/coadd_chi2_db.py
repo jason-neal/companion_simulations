@@ -45,13 +45,13 @@ def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move
         suffix = ""
 
     patterns = [os.path.join(
-        simulators.paths["output_dir"], star,
+        simulators.paths["output_dir"], star, "iam",
         "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obsnum, chip, suffix))
         for chip in range(1, 5)]
 
     if (sum(1 for _ in glob.iglob(patterns[0]))) == 0:
         patterns = [os.path.join(
-            simulators.paths["output_dir"], star, "processed_csv",
+            simulators.paths["output_dir"], star, "iam", "processed_csv",
             "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obsnum, chip, suffix))
             for chip in range(1, 5)]
 
