@@ -142,7 +142,7 @@ def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, hea
 
 
 def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
-         independent=False, noise=None, test=False, replace=False, noplots=False, mode="iam"):
+         independent=False, noise=None, test=False, replace=False, noplots=False, mode="iam", fudge=None):
     star = star.upper()
 
     if params1 is not None:
@@ -162,7 +162,7 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
         else:
             # chip = None gives full range
             x_wav, y_wav, header = fake_iam_simulation(None, params_1, params_2, gamma, rv,
-                                                       independent=independent, noise=noise, header=True)
+                                                       independent=independent, noise=noise, header=True, fudge=fudge)
             fake_spec = Spectrum(xaxis=x_wav, flux=y_wav, header=header)
 
             # save to file
