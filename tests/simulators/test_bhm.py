@@ -79,7 +79,8 @@ def test_bhm_script_parser_toggle():
     assert parsed.disable_wav_scale is True
 
 
-from simulators.bhm_module import obs_name_template
+from simulators.common_setup import obs_name_template
+
 
 @pytest.fixture(scope="module")
 def simulator_init():

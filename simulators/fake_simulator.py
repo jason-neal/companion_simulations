@@ -11,7 +11,7 @@ from astropy.io import fits
 from mingle.models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
 from mingle.utilities.norm import continuum
 from mingle.utilities.simulation_utilities import spec_max_delta
-from simulators.bhm_module import obs_name_template
+from simulators.common_setup import obs_name_template
 from simulators.iam_module import prepare_iam_model_spectra
 from spectrum_overload import Spectrum
 

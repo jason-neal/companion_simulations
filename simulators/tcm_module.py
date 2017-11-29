@@ -14,7 +14,7 @@ from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs
 from simulators.iam_module import observation_rv_limits
-from simulators.bhm_module import sim_helper_function, setup_dirs
+from simulators.common_setup import setup_dirs, sim_helper_function
 
 
 def setup_tcm_dirs(star):

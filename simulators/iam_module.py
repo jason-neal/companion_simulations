@@ -16,7 +16,7 @@ from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
-from simulators.bhm_module import sim_helper_function, setup_dirs
+from simulators.common_setup import setup_dirs, sim_helper_function
 
 
 def iam_helper_function(star, obsnum, chip, skip_params=False):

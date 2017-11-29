@@ -1,27 +1,16 @@
 import logging
 import os
-import warnings
 
 import numpy as np
 import pandas as pd
 import simulators
 from mingle.models.broadcasted_models import one_comp_model
-from mingle.utilities import parse_paramfile
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.norm import chi2_model_norms
 from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model_params, generate_close_params
 from mingle.utilities.xcorr import xcorr_peak
+from simulators.common_setup import setup_dirs, sim_helper_function
 from tqdm import tqdm
-
-
-def setup_dirs(star, mode="iam"):
-    mode = mode.lower()
-    assert mode in ["iam", "tcm", "bhm"]
-
-    basedir = os.path.join(simulators.paths["output_dir"], star.upper(), mode)
-    os.makedirs(basedir, exist_ok=True)
-    os.makedirs(os.path.join(basedir, "plots"), exist_ok=True)
-    return basedir
 
 
 def setup_bhm_dirs(star):
@@ -159,64 +148,6 @@ def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
     columns = ["teff_1", "logg_1", "feh_1", "gamma", "npix", "chi2", "arbnorm", "xcorr"]
     df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
     return None
-
-
-def sim_helper_function(star, obsnum, chip, skip_params, mode="iam"):
-    """Help simulations by getting parameters, and observation name, and prefix for any output files."""
-    mode = mode.lower()
-    if mode not in ["iam", "tcm", "bhm"]:
-        raise ValueError("Mode {} for sim_helper_function not in 'iam, tcm, bhm'".format(mode))
-    if not skip_params:
-        param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
-        params = parse_paramfile(param_file, path=None)
-    else:
-        params = {}
-    obs_name = os.path.join(
-        simulators.paths["spectra"], obs_name_template().format(star, obsnum, chip))
-
-    output_prefix = os.path.join(
-        simulators.paths["output_dir"], star.upper(), mode,
-        "{0}-{1}_{2}_{3}_chisqr_results".format(star.upper(), obsnum, chip, mode))
-    return obs_name, params, output_prefix
-
-
-def obs_name_template():
-    """Make spectrum name based on config file.
-
-    Valid values:
-        [tell_corr, h2o_tell_corr, berv_mask, berv_corr, h2o_berv_corr, h2o_berv_mask]
-    """
-    spec_version = simulators.spec_version
-    valid_keys = ["tell_corr", "h2o_tell_corr", "berv_mask", "berv_corr", "h2o_berv_corr", "h2o_berv_mask"]
-    if spec_version is None:
-        warnings.warn("No spec_version specified in config.yaml. Defaulting to berv_mask template.")
-        spec_version = "berv_mask"
-
-    assert spec_version in valid_keys, "spec_versions {} is not valid.".format(spec_version
-                                                                              )
-    if spec_version == "berv_mask":
-        fname = "{0}-{1}-mixavg-tellcorr_{2}_bervcorr_masked.fits"
-
-    elif spec_version == "h2o_berv_mask":
-        fname = "{0}-{1}-mixavg-h2otellcorr_{2}_bervcorr_masked.fits"
-
-    elif spec_version == "berv_corr":
-        fname = "{0}-{1}-mixavg-tellcorr_{2}_bervcorr.fits"
-
-    elif spec_version == "h2o_berv_corr":
-        fname = "{0}-{1}-mixavg-h2otellcorr_{2}_bervcorr.fits"
-
-    elif spec_version == "tell_corr":
-        fname = "{0}-{1}-mixavg-tellcorr_{2}.fits"
-
-    elif spec_version == "h2o_tell_corr":
-        fname = "{0}-{1}-mixavg-h2otellcorr_{2}.fits"
-
-    else:
-        raise ValueError("")
-    logging.debug("Filename template from obs_name_template = '{}'".format(fname))
-
-    return fname
 
 
 def bhm_helper_function(star, obsnum, chip, skip_params=False):
