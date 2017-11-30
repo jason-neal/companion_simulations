@@ -620,8 +620,8 @@ def compare_spectra(table, params):
 
         from mingle.utilities.chisqr import chi_squared
         chisqr = chi_squared(obs_spec.flux, model_spec.flux)
-        print(f"Recomputed chi^2 = {chisqr}")
-        print(f"Database chi^2 = {df[chi2_val]}")
+        print(f"\nRecomputed chi^2 = {chisqr}")
+        print(f"Database chi^2 = {df[chi2_val]}\n")
         fig, ax = plt.subplots(1, 1, figsize=(15, 8))
         plt.plot(obs_spec.xaxis, obs_spec.flux + 0.01, label="0.05 + Observation, {}".format(obs_name))
         plt.plot(model_spec.xaxis, model_spec.flux, label="Minimum \chi^2 model")
