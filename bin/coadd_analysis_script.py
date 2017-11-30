@@ -11,6 +11,7 @@ For HD30501 and HD211847 this means  +- 50K so a fixed temperature.
 import argparse
 import os
 import sys
+import warnings
 
 import sqlalchemy as sa
 
@@ -21,7 +22,8 @@ from bin.coadd_analysis_module import (chi2_parabola_plots, compare_spectra,
                                        fix_host_parameters_reduced_gamma,
                                        get_column_limits, get_npix_values,
                                        parabola_plots, rv_plot,
-                                       smallest_chi2_values, test_figure)
+                                       smallest_chi2_values, test_figure,
+                                       contrast_iam_results)
 from mingle.utilities.param_file import get_host_params
 from mingle.utilities.phoenix_utils import closest_model_params
 
@@ -46,7 +48,7 @@ def parse_args(args):
                         help="Analysis mode to choose",
                         choices=["parabola", "fixed_host_params", "param_limits",
                                  "smallest_chi2", "test", "contour", "arbnorm",
-                                 "all", "rvplot", "chi2_parabola", "compare_spectra"])
+                                 "all", "rvplot", "chi2_parabola", "compare_spectra", "contrast"])
     return parser.parse_args(args)
 
 
@@ -136,6 +138,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         chi2_parabola_plots(db_table, params)
     elif mode == "compare_spectra":
         compare_spectra(db_table, params)
+    elif mode == "contrast":
+        contrast_iam_results(db_table, params)
     elif mode == "all":
         fix_host_parameters_reduced_gamma(db_table, params)
         get_column_limits(db_table, params)
@@ -147,7 +151,10 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         chi2_parabola_plots(db_table, params)
         compare_spectra(db_table, params)
         contours(db_table, params)
-    print("Done")
+        contrast_iam_results(db_table, params)
+    else:
+        warnings.warn("Incorrect Mode in iam analysis")
+        print("Done")
     return 0
 
 

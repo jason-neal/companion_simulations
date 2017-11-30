@@ -11,6 +11,7 @@ For HD30501 and HD211847 this means  +- 50K so a fixed temperature.
 import argparse
 import os
 import sys
+import warnings
 
 import simulators
 from bin.coadd_analysis_script import decompose_database_name, load_sql_table
@@ -125,6 +126,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         compare_spectra(db_table, params)
         contrast_bhm_results(db_table, params)
         display_bhm_xcorr_values(db_table, params)
+    else:
+        warnings.warn("Incorrect Mode in bhm analysis")
     print("Done")
     return 0
 
