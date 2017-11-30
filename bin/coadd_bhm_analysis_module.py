@@ -481,86 +481,66 @@ def get_column_limits(table, params):
 
 
 def contours(table, params):
-    for par_limit, par_limit2, contour_param in zip(["logg_1", "feh_1"], ["feh_1", "gamma"], ["gamma", "logg_1"]):
-        print("par_limit, par_limit2, contour_param", par_limit, par_limit2, contour_param)
         for chi2_val, npix_val in zip(chi2_names, npix_names):
             red_chi2 = "red_{0}".format(chi2_val)
+
             df_min_chi2 = pd.read_sql(
                 sa.select(table.c).order_by(
                     table.c[chi2_val].asc()).limit(1),
                 table.metadata.bind)
 
-            print("contour db columns", df_min_chi2.columns)
-            print("df_min_chi2", df_min_chi2.head())
-
             df = pd.read_sql(
                 sa.select([table.c["teff_1"], table.c["feh_1"], table.c["logg_1"], table.c["gamma"], table.c[chi2_val]]).where(
-                    sa.and_(table.c[par_limit] == float(df_min_chi2[par_limit][0]),
-                            table.c[par_limit2] == float(df_min_chi2[par_limit2][0]),
-                            table.c.feh_1 == float(params["fe_h"]))),  # Fix companion fe_h
+                    sa.and_(table.c["logg_1"] == float(df_min_chi2["logg_1"][0]),
+                            table.c["feh_1"] == float(df_min_chi2["feh_1"][0]))),
                 table.metadata.bind)
 
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
 
-            # print(df.head())
             params["this_npix"] = params["npix"][npix_val]
-            params["par_limit"] = par_limit
+            params["chi2_value"] = chi2_val
 
-            pars = [contour_param, "teff_1", red_chi2]
-            print("pars before dataframe contour", pars)
-            # dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
-            warnings.warn("not doing data framecontours for bhm. need 2x2 array")
+            pars = ["gamma", "teff_1", red_chi2]
+            dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
 
 
-# def dataframe_contour(df, xcol, ycol, zcol, params):
-    # x = sorted(np.array(list(set(df[xcol].values))))
-    # y = sorted(np.array(list(set(df[ycol].values))))
-    #
-    # print(len(set(df.feh_1.values)))
-    # print(len(set(df.logg_1.values)))
-    # print(len(set(df.gamma.values)))
-    # print(len(set(df.teff_1.values)))
-    # print("df", df.head())
-    # print("x=", xcol, x)
-    # print("y=", ycol, y)
-    #
-    # print("z=", zcol)
-    #
-    # # Create grid for chi2 values
-    # z_grid = np.empty((len(x), len(y)))
-    # for i, x_value in enumerate(x):
-    #     for j, y_value in enumerate(y):
-    #         print("x, y =", x_value, y_value)
-    #         print("loc val", df.loc[(df[xcol].values == x_value) * (df[ycol].values == y_value), zcol].values)
-    #         try:
-    #             z_grid[i, j] = df.loc[(df[xcol].values == x_value) * (df[ycol].values == y_value), zcol].values
-    #         except ValueError as e:
-    #             print("x_S * y_s", sum((df[xcol].values == x_value) * (df[ycol].values == y_value)))
-    #             print("Check metallicity and logg of companion")
-    #             raise e
-    #
-    # x_grid, y_grid = np.meshgrid(x, y, indexing='ij')
-    #
-    # assert x_grid.shape == z_grid.shape
-    # assert x_grid.shape == y_grid.shape
-    #
-    # fig, ax = plt.subplots()
-    # c = ax.contourf(x_grid, y_grid, z_grid, alpha=0.5, cmap=plt.cm.inferno)
-    # cbar = plt.colorbar(c)
-    # cbar.ax.set_ylabel(zcol)
-    # ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
-    # ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
-    # ax.set_title(
-    #     '{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"],
-    #                                                                   params["this_npix"], params["npars"]))
-    #
-    # ax.grid(True)
-    # fig.tight_layout()
-    # name = "{0}-{1}_{2}_{3}_{4}_{5}_contour_{6}.pdf".format(
-    #     params["star"], params["obsnum"], params["chip"], xcol, ycol, zcol, params["suffix"])
-    # plt.savefig(os.path.join(params["path"], "plots", name))
-    # plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
-    # plt.close()
+def dataframe_contour(df, xcol, ycol, zcol, params):
+    x = sorted(np.array(list(set(df[xcol].values))))
+    y = sorted(np.array(list(set(df[ycol].values))))
+
+    # Create grid for chi2 values
+    z_grid = np.empty((len(x), len(y)))
+    for i, x_value in enumerate(x):
+        for j, y_value in enumerate(y):
+            try:
+                z_grid[i, j] = df.loc[(df[xcol].values == x_value) * (df[ycol].values == y_value), zcol].values
+            except ValueError as e:
+                print("x_S * y_s", sum((df[xcol].values == x_value) * (df[ycol].values == y_value)))
+                print("Check metallicity and logg of companion")
+                raise e
+
+    x_grid, y_grid = np.meshgrid(x, y, indexing='ij')
+
+    assert x_grid.shape == z_grid.shape
+    assert x_grid.shape == y_grid.shape
+
+    fig, ax = plt.subplots()
+    c = ax.contourf(x_grid, y_grid, z_grid, alpha=0.5, cmap=plt.cm.inferno)
+    cbar = plt.colorbar(c)
+    cbar.ax.set_ylabel(zcol)
+    ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
+    ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
+    ax.set_title(
+        '{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["chi2_value"],
+                                                                      params["this_npix"], params["npars"]))
+
+    ax.grid(True)
+    fig.tight_layout()
+    name = "{0}-{1}_{2}_{3}_{4}_{5}_contour_{6}.pdf".format(
+        params["star"], params["obsnum"], params["chip"], xcol, ycol, zcol, params["suffix"])
+    plt.savefig(os.path.join(params["path"], "plots", name))
+    plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+    plt.close()
 
 
 def test_figure(table, params):
