@@ -63,10 +63,13 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
     db_main(star=star, obsnum=obsnum, suffix=suffix, move=True, replace=True)
 
     # Selected Analysis
-    anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="smallest_chi2")
-    anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="compare_spectra")
+    # anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="smallest_chi2")
+    # anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="compare_spectra")
     anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="all")
     anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="contrast")
+
+
+    print("Noise level =", noise)
 
 
 if __name__ == "__main__":
@@ -74,3 +77,5 @@ if __name__ == "__main__":
     opts = {k: args[k] for k in args}
 
     main(**opts)
+    print("iam fake analysis")
+    print("Original opts", opts)

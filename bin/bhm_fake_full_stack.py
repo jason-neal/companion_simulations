@@ -71,8 +71,12 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=Fa
     anaylsis_main(star=star, obsnum=num, suffix=suffix, mode="all")
     anaylsis_main(star=star, obsnum=num, suffix=suffix, mode="contrast")
 
+    print("Noise level =", noise)
+
 if __name__ == "__main__":
     args = vars(_parser())
     opts = {k: args[k] for k in args}
 
     main(**opts)
+    print("bhm fake analysis")
+    print("Original opts", opts)
