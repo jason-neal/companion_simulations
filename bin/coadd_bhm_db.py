@@ -14,7 +14,6 @@ import sqlalchemy as sa
 
 import simulators
 
-
 def parse_args(args):
     """Take care of all the argparse stuff.
 
@@ -62,7 +61,7 @@ def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move
     coadd_database = os.path.join(
         simulators.paths["output_dir"], star, "bhm",
         "{0}-{1}_coadd_bhm_chisqr_results{2}.db".format(star, obsnum, suffix))
-
+    print("database name", coadd_database)
     # print("Replace", replace)
     print("os.path.isfile(coadd_database)", os.path.isfile(coadd_database))
     if os.path.isfile(coadd_database):
@@ -73,7 +72,9 @@ def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move
                           " -r to replace the old database file.".format(coadd_database))
 
     database_name = 'sqlite:///{0}'.format(coadd_database)
+    print("engine name", database_name)
     engine = sa.create_engine(database_name)
+    print("engine", engine)
     if verbose:
         print("csv_database =", engine, type(engine))
 
@@ -81,7 +82,7 @@ def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move
 
     # get list of patterns. and sort in order for loading in.
     detector_files = [sorted(glob.glob(pattern)) for pattern in patterns]
-
+    print(detector_files)
     i, j = 0, 1
     for num, files in enumerate(zip(*detector_files)):
         assert len(files) == 4

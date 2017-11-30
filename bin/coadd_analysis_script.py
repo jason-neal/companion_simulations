@@ -74,7 +74,7 @@ def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
     if len(table_names) == 1:
         tb_name = table_names[0]
     else:
-        raise ValueError("Database does not just have 1 table. {0}, len={1}".format(table_names. len(table_names)))
+        raise ValueError("Database does not just have 1 table. {0}, len={1}".format(table_names, len(table_names)))
     if tb_name != name:
         raise NameError("Name {0} given does not match table in database, {1}.".format(tb_name, table_names))
 
