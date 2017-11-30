@@ -148,6 +148,8 @@ def load_starfish_hd211847(limits=None, normalize=False, hdr=False):
 
     return star_spec, bd_spec
 
+import simulators
+import os
 
 def main():
     """Main."""

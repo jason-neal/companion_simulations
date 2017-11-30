@@ -7,13 +7,13 @@ Jason Neal November 2016.
 import logging
 import os
 import pickle
-from ajplanet import pl_rv_array
 from datetime import datetime as dt
 
 import ephem
 import matplotlib.pyplot as plt
 import multiprocess as mprocess
 import numpy as np
+from ajplanet import pl_rv_array
 from astropy.io import fits
 from spectrum_overload import Spectrum
 
@@ -23,7 +23,7 @@ from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
                                                crires_resolution)
 from mingle.utilities.debug_utils import pv
 from mingle.utilities.spectrum_utils import select_observation
-from simulators.Planet_spectral_simulations import (load_starfish_hd211847)
+from old_simulations.Planet_spectral_simulations import (load_starfish_hd211847)
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')

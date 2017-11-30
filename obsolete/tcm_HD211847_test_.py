@@ -29,7 +29,7 @@ from mingle.utilities.norm import chi2_model_norms  # , renormalize_observation
 from mingle.utilities.phoenix_utils import (closest_model_params,
                                             generate_close_params,
                                             load_starfish_spectrum)
-from simulators.Chisqr_of_observation import load_spectrum  # , select_observation
+from old_simulations.Chisqr_of_observation import load_spectrum  # , select_observation
 from simulators.tcm_module import save_full_chisqr, tcm_helper_function
 
 # from spectrum_overload import Spectrum

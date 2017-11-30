@@ -35,7 +35,7 @@ from mingle.utilities.simulate_obs import \
     generate_observations2 as generate_observations
 from mingle.utilities.simulation_utilities import combine_spectra
 from mingle.utilities.spectrum_utils import spectrum_plotter
-from simulators.Planet_spectral_simulations import load_PHOENIX_hd211847
+from old_simulations.Planet_spectral_simulations import load_PHOENIX_hd211847
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
