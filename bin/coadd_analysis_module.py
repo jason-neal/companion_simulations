@@ -442,7 +442,7 @@ def get_column_limits(table, params):
         max_df = pd.read_sql(
             sa.select([table.c[col]]).order_by(table.c[col].desc()).limit(1),
             table.metadata.bind)
-        print(col, min_df[col].values[0], max_df[col].values[0])
+        print("{0:10}\t\t{1:5.3} - {1:5.3}".format(col, min_df[col].values[0], max_df[col].values[0]))
 
 
 def contours(table, params):
@@ -453,8 +453,6 @@ def contours(table, params):
                 sa.select(table.c).order_by(
                     table.c[chi2_val].asc()).limit(1),
                 table.metadata.bind)
-
-            print("contour db columns", df_min_chi2.columns)
 
             # cols = ['teff_2', 'rv', 'gamma', chi2_val]
             # par_limit = "gamma"  # gamma value at minimum chi2
