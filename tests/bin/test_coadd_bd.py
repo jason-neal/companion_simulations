@@ -127,7 +127,7 @@ def test_iam_db_main(tmpdir):
         # engine = sa.create_engine(database_name)
         # df.to_sql('test_table', engine, if_exists='append')
 
-    expected_db_name = os.path.join(tmpdir, star,
+    expected_db_name = os.path.join(tmpdir, star, "iam",
                                     "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
     assert not os.path.exists(expected_db_name)
     # make 4 databases to add together()

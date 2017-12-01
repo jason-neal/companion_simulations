@@ -56,7 +56,7 @@ def sql_join(star, obsnum, suffix=None, verbose=True, move=False, remove=False):
         if suffix is None:
             suffix = ""
 
-        pattern = os.path.join(simulators.paths["output_dir"], star,
+        pattern = os.path.join(simulators.paths["output_dir"], star, "iam",
                                "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obsnum, chip, suffix))
 
         number_of_files = sum(1 for _ in glob.iglob(pattern))

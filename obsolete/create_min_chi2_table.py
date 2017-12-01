@@ -33,7 +33,7 @@ def parse_args(args):
 
 
 def main(star, obsnum, chip, suffix="", echo=False):
-    database = os.path.join(simulators.paths["output_dir"], star,
+    database = os.path.join(simulators.paths["output_dir"], star, "iam",
                             "{0}-{1}_{2}_iam_chisqr_results{3}.db".format(star, obsnum, chip, suffix))
     path, star, obsnum, chip = decompose_database_name(database)
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)

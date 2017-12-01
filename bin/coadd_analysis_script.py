@@ -88,7 +88,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     star = star.upper()
     suffix = "" if suffix is None else suffix
     database = os.path.join(
-        simulators.paths["output_dir"], star,
+        simulators.paths["output_dir"], star, "iam",
         "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
 
     if verbose:

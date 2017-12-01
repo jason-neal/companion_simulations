@@ -44,8 +44,8 @@ def test_bhm_db_main(tmpdir):
         # engine = sa.create_engine(database_name)
         # df.to_sql('test_table', engine, if_exists='append')
 
-    expected_db_name = os.path.join(tmpdir, star,
-                                    "bhm", "{0}-{1}_coadd_bhm_chisqr_results{2}.db".format(star, obsnum, suffix))
+    expected_db_name = os.path.join(tmpdir, star, "bhm",
+                                    "{0}-{1}_coadd_bhm_chisqr_results{2}.db".format(star, obsnum, suffix))
     assert not os.path.exists(expected_db_name)
     # make 4 databases to add together()
     res = bhm_db_main(star, obsnum, suffix, replace=False, verbose=True, chunksize=5, move=False)

@@ -363,7 +363,7 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
             plt.ylabel(zlabel)
             plt.title("Grid slice for {0}={1}".format(ylabel, y_val))
 
-            plot_name = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
+            plot_name = os.path.join(simulators.paths["output_dir"], star, "iam", "grid_plots",
                                  "y_grid_slice_{0}_chip-{1}_{2}_{3}_{4}_{5}_{6}_{7}.png".format(star, chip, xlabel,
                                                                                                 ylabel, zlabel, ii,
                                                                                                 suffix,
@@ -388,7 +388,7 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
         plt.ylabel(ylabel)
 
         plt.title("Grid slice for {0}={1}".format(zlabel, z_val))
-        plot_name = os.path.join(simulators.paths["output_dir"], star, "grid_plots",
+        plot_name = os.path.join(simulators.paths["output_dir"], star, "iam", "grid_plots",
                                  "z__grid_slice_{0}_chip-{1}_{2}_{3}_{4}_{5}_{6}_{7}.png".format(star, chip, xlabel,
                                                                                                  ylabel, zlabel, jj,
                                                                                                  suffix,
