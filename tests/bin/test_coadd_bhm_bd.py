@@ -30,7 +30,7 @@ def test_bhm_db_main(tmpdir):
     print(tmpdir.join(star, "bhm"))
     # assert os.path.exists(tmpdir.join(f"{star}", "bhm"))
 
-    for chip in range(1, 4):
+    for chip in range(1, 5):
         # "TEST_STAR - 11_2_bhm_chisqr_results_test *.csv"
         fname = os.path.join(tmpdir, star, "bhm", "{0}-{1}_{2}_bhm_chisqr_results{3}.csv".format(star, obsnum, chip, suffix))
         print("fname", fname)

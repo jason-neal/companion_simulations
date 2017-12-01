@@ -114,7 +114,7 @@ def test_iam_db_main(tmpdir):
     feh = np.linspace(-3, 1, num)
     gamma = np.linspace(-20, 20, num)
 
-    for chip in range(1, 4):
+    for chip in range(1, 5):
         #        "TEST_STAR - 11_2_iam_chisqr_results_test *.csv"
         fname = os.path.join(tmpdir, star, "iam", f"{star}-{obsnum}_{chip}_iam_chisqr_results{suffix}.csv")
         chi2 = chip + gamma + teff / logg
