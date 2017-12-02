@@ -10,12 +10,13 @@ from spectrum_overload import Spectrum
 
 from mingle.models.broadcasted_models import (independent_inherent_alpha_model,
                                               inherent_alpha_model)
+from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import iam_helper_function
-from mingle.utilities.crires_utilities import barycorr_crires_spectrum
+
 
 def parse_args(args):
     """Take care of all the argparse stuff.
