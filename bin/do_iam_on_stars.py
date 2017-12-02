@@ -38,12 +38,8 @@ if __name__ == "__main__":
         return main(**opts)
 
 
-    iam_opts = {"parallel": False, "more_id": args.suffix, "small": True, }
-
-    iam_opts["star"] = star
     for obs in obsnums[star]:
-        iam_opts["obsnum"] = obs
-
+        iam_opts = {"star": star, "obsnum": obs, "parallel": False, "more_id": args.suffix, "small": True}
         res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(iam_opts, chip)
-                                          for chip in range(1, 5))
+                                      for chip in range(1, 5))
     sys.exit(0)
