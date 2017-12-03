@@ -146,7 +146,7 @@ def test_iam_db_main_single_host_model(tmpdir):
     assert np.allclose(df.teff_2.values, teff2)
     assert np.allclose(df.logg_2.values, logg2)
     assert np.allclose(df.feh_2.values, feh2)
-    assert np.allclose(df.gamma.values,  gamma)
+    assert np.allclose(df.gamma.values, gamma)
     assert np.allclose(df.rv.values, rv)
     assert len(df) == num
 
@@ -160,7 +160,95 @@ def test_iam_db_main_single_host_model(tmpdir):
     assert np.all(df.npix_2 == (985 - 2))
     assert np.all(df.npix_3 == (985 - 3))
     assert np.all(df.npix_4 == (985 - 4))
-    assert False
+
+
+def test_iam_db_main_multiple_host_model(tmpdir):
+    simulators.paths["output_dir"] = tmpdir
+    # Setup
+    star = "test_star"
+    star = star.upper()
+    obsnum = "11"
+    suffix = "_test"
+    # Gen fake param file
+    print("before dirs")
+    list_files(str(tmpdir))
+    setup_iam_dirs(star)
+
+    print("after dirs")
+    list_files(str(tmpdir))
+    num = 20
+    # Standard values
+    teff = np.linspace(3000, 5000, 4)
+    logg = np.linspace(3.5, 4.5, 3)
+    feh = np.linspace(-0.5, 0.5, 2)
+    teff2 = np.linspace(2300, 4300, num)
+    logg2 = np.linspace(1.5, 5, num)
+    feh2 = np.linspace(-2, 2, num)
+    rv = np.linspace(-15, 15, num)
+    gamma = np.linspace(-20, 20, num)
+    import itertools
+
+    for chip in range(1, 5):
+        for t, l, f in itertools.product(teff, logg, feh):
+            fname = os.path.join(tmpdir, star, "iam",
+                                 "{0}-{1}_{2}_iam_chisqr_results{3}[{4}_{5}_{6}].csv".format(star, obsnum, chip, suffix,
+                                                                                             t, l, f))
+            chi2 = chip + (f + gamma + t / l) * (feh2 + rv + teff2 / logg2)
+            npix = (985 - chip) * np.ones_like(chi2)
+
+            # print("chi2 shape", chi2.shape)
+            # print("tshape", t.shape)
+            # print("tgamma shape", gamma.shape)
+
+            df = pd.DataFrame({'gamma': gamma,
+                               'teff_2': teff2, 'logg_2': logg2, 'feh_2': feh2, "rv": rv,
+                               'chi2': chi2, "npix": npix})
+            df["teff_1"] = t
+            df["logg_1"] = l
+            df["feh_1"] = f
+            df.to_csv(fname)
+
+    print("after df.to_csv")
+    list_files(str(tmpdir))
+    expected_db_name = os.path.join(tmpdir, star, "iam",
+                                    "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
+    assert not os.path.exists(expected_db_name)
+    # make 4 databases to add together()
+    res = iam_db_main(star, obsnum, suffix, replace=False, verbose=False, chunksize=5,
+                      move=False)  # move=True does not test well.
+    print("After iam db main")
+    assert res is None
+    assert os.path.exists(os.path.exists(expected_db_name))
+
+    db_table = load_sql_table(expected_db_name)
+    assert isinstance(db_table, sa.Table)
+    df = pd.read_sql(
+        sa.select(db_table.c), db_table.metadata.bind)
+
+    print("df head", df.head())
+    print("types", df.dtypes)
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == num * (len(teff) * len(feh) * len(logg))
+
+    x = (df.feh_1 + df.gamma + df.teff_1 / df.logg_1) * (df.feh_2 + df.rv + df.teff_2 / df.logg_2)
+    assert np.allclose(df.chi2_1, 1 + x)
+    assert np.allclose(df.chi2_2, 2 + x)
+    assert np.allclose(df.chi2_3, 3 + x)
+    assert np.allclose(df.chi2_4, 4 + x)
+    assert np.allclose(df.coadd_chi2, 10 + 4 * x)
+    assert np.all(df.npix_1 == (985 - 1))
+    assert np.all(df.npix_2 == (985 - 2))
+    assert np.all(df.npix_3 == (985 - 3))
+    assert np.all(df.npix_4 == (985 - 4))
+
+    assert np.allclose(np.unique(df.teff_1.values), teff)
+    assert np.allclose(np.unique(df.logg_1.values), logg)
+    assert np.allclose(np.unique(df.feh_1.values), feh)
+    assert np.allclose(np.unique(df.teff_2.values), teff2)
+    assert np.allclose(np.unique(df.logg_2.values), logg2)
+    assert np.allclose(np.unique(df.feh_2.values), feh2)
+    assert np.allclose(np.unique(df.gamma.values), gamma)
+    assert np.allclose(np.unique(df.rv.values), rv)
 
 
 def test_coadd_chi2_bd_parser_defaults():
