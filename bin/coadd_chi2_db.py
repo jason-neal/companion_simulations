@@ -4,6 +4,7 @@
 Create Table of minimum Chi_2 values and save to a table.
 """
 import argparse
+import warnings
 import glob
 import os
 import sys
@@ -92,13 +93,14 @@ def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move
             n = f_0.split("[")[-1]
             n = n.split("]")[0]
             assert all(n in f for f in files)  # All have this same host
-            teff, logg, feh = n.split("_")
+            teff, logg, feh = [float(x) for x in n.split("_")]
             if verbose:
                 print("host params", teff, logg, feh)
             host_flag = True
         else:
             host_flag = False
             teff, logg, feh = np.nan, np.nan, np.nan
+            warnings.warn("No host parameter values found in file name.")
 
         # Initalize iterators:
         iterators = [pd.read_csv(f, iterator=True, chunksize=chunksize) for f in files]
