@@ -166,7 +166,7 @@ def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
 def sim_helper_function(star, obsnum, chip, skip_params, mode="iam"):
     mode = mode.lower()
     if mode not in ["iam", "tcm", "bhm"]:
-        raise ValueError(f"Mode {mode} for sim_helper_function not in 'iam, tcm, bhm'")
+        raise ValueError("Mode {0} for sim_helper_function not in 'iam, tcm, bhm'".format(mode))
     if not skip_params:
         param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
         params = parse_paramfile(param_file, path=None)

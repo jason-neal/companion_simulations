@@ -29,7 +29,7 @@ def test_bhm_db_main(tmpdir):
     feh = np.linspace(-3, 1, num)
     gamma = np.linspace(-20, 20, num)
     print(tmpdir.join(star, "bhm"))
-    # assert os.path.exists(tmpdir.join(f"{star}", "bhm"))
+    # assert os.path.exists(tmpdir.join(star, "bhm"))
 
     for chip in range(1, 5):
         # "TEST_STAR - 11_2_bhm_chisqr_results_test *.csv"
