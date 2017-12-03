@@ -44,9 +44,17 @@ def test_load_sql_table_with_invalid_table(db_name, invalid_name):
         load_sql_table(db_name, name=invalid_name, echo=False, verbose=False)
 
 
+def test_sql_table_with_no_table(tmpdir):
+    db_name = tmpdir.join("db_no_tables.db")
+    with pytest.raises(ValueError):
+        load_sql_table(db_name, echo=False, verbose=False)
+
+
 @pytest.mark.xfail()
-def test_sql_table_with_more_than_one_table():
-    db_name = "db with many tables."
+def test_sql_table_with_more_than_one_table(tmpdir):
+    db_name = tmpdir.join("db with many tables.db")
+    assert False  # need to make the db
+
     with pytest.raises(ValueError):
         load_sql_table(db_name, echo=False, verbose=False)
 
