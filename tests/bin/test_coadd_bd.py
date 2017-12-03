@@ -10,9 +10,8 @@ from bin.coadd_analysis_module import smallest_chi2_values
 from bin.coadd_analysis_script import load_sql_table, decompose_database_name
 from bin.coadd_chi2_db import main as iam_db_main
 from bin.coadd_chi2_db import parse_args
-
-
 # from bin.coadd_analysis_module import contours, smallest_chi2_values, compare_spectra
+from mingle.utilities import list_files
 
 
 @pytest.fixture()
@@ -94,10 +93,10 @@ def test_simple_database_returns_correctly_from_sql_db(tmpdir):
     assert np.all(df.z.values == z)
 
 
-from simulators.iam_module import iam_helper_function, setup_iam_dirs
+from simulators.iam_module import setup_iam_dirs
 
 
-def test_iam_db_main(tmpdir):
+def test_iam_db_main_single_host_model(tmpdir):
     simulators.paths["output_dir"] = tmpdir
     # Setup
     star = "test_star"
@@ -105,28 +104,31 @@ def test_iam_db_main(tmpdir):
     obsnum = "11"
     suffix = "_test"
     # Gen fake param file
-    
+
     setup_iam_dirs(star)
+    list_files(str(tmpdir))
     num = 20
-    # Standard values
-    teff = np.linspace(3000, 5000, num)
-    logg = np.linspace(0.5, 6, num)
-    feh = np.linspace(-3, 1, num)
+
+    # Setting values
+    teff = 3000
+    logg = 4.5
+    feh = 0.0
+    teff2 = np.linspace(2300, 4300, num)
+    logg2 = np.linspace(1.5, 5, num)
+    feh2 = np.linspace(-2, 2, num)
+    rv = np.linspace(-15, 15, num)
     gamma = np.linspace(-20, 20, num)
 
     for chip in range(1, 5):
-        #        "TEST_STAR - 11_2_iam_chisqr_results_test *.csv"
-        fname = os.path.join(tmpdir, star, "iam", f"{star}-{obsnum}_{chip}_iam_chisqr_results{suffix}.csv")
-        chi2 = chip + gamma + teff / logg
+        fname = os.path.join(tmpdir, star, "iam", f"{star}-{obsnum}_{chip}_iam_chisqr_results{suffix}[{teff}_{logg}_{feh}].csv")
+        chi2 = chip + (feh + gamma + teff / logg) * (feh2 + rv + teff2 / logg2)
         npix = (985 - chip) * np.ones_like(teff)
 
-        df = pd.DataFrame({'teff_1': teff, 'logg_1': logg, 'feh_1': feh,
-                           'gamma': gamma, 'chi2': chi2, "npix": npix})
+        df = pd.DataFrame({'gamma': gamma, 'teff_2': teff2, 'logg_2': logg2, 'feh_2': feh2, "rv": rv,
+                           'chi2': chi2, "npix": npix})
         df.to_csv(fname)
-        # database_name = 'sqlite:///{0}'.format(fname)
-        # engine = sa.create_engine(database_name)
-        # df.to_sql('test_table', engine, if_exists='append')
 
+    list_files(str(tmpdir))
     expected_db_name = os.path.join(tmpdir, star, "iam",
                                     "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
     assert not os.path.exists(expected_db_name)
@@ -136,11 +138,31 @@ def test_iam_db_main(tmpdir):
     assert os.path.exists(os.path.exists(expected_db_name))
 
     db_table = load_sql_table(expected_db_name)
-    assert isinstance(db_table, pd.DataFrame)
-    assert np.all(db_table.teff_1.values == teff)
-    assert np.all(db_table.logg_1.values == logg)
-    assert np.all(db_table.feh_1.values == feh)
-    assert len(db_table) == num
+    assert isinstance(db_table, sa.Table)
+    df = pd.read_sql(
+        sa.select(db_table.c), db_table.metadata.bind)
+
+    assert isinstance(df, pd.DataFrame)
+    assert np.all(df.teff_1.values == teff)
+    assert np.all(df.logg_1.values == logg)
+    assert np.all(df.feh_1.values == feh)
+    assert np.allclose(df.teff_2.values, teff2)
+    assert np.allclose(df.logg_2.values, logg2)
+    assert np.allclose(df.feh_2.values, feh2)
+    assert np.allclose(df.gamma.values,  gamma)
+    assert np.allclose(df.rv.values, rv)
+    assert len(df) == num
+
+    x = (feh + gamma + teff / logg) * (feh2 + rv + teff2 / logg2)
+    assert np.allclose(df.chi2_1, 1 + x)
+    assert np.allclose(df.chi2_2, 2 + x)
+    assert np.allclose(df.chi2_3, 3 + x)
+    assert np.allclose(df.chi2_4, 4 + x)
+    assert np.allclose(df.coadd_chi2, 10 + 4 * x)
+    assert np.all(df.npix_1 == (985 - 1))
+    assert np.all(df.npix_2 == (985 - 2))
+    assert np.all(df.npix_3 == (985 - 3))
+    assert np.all(df.npix_4 == (985 - 4))
     assert False
 
 

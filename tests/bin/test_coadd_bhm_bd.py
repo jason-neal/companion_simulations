@@ -2,12 +2,13 @@ import os
 
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
 
 import simulators
 from bin.coadd_analysis_script import load_sql_table
 from bin.coadd_bhm_db import main as bhm_db_main
 from bin.coadd_bhm_db import parse_args
-from simulators.bhm_module import bhm_helper_function, setup_bhm_dirs
+from simulators.bhm_module import setup_bhm_dirs
 
 
 def test_bhm_db_main(tmpdir):
@@ -53,12 +54,28 @@ def test_bhm_db_main(tmpdir):
     assert os.path.exists(os.path.exists(expected_db_name))
 
     db_table = load_sql_table(expected_db_name)
-    assert isinstance(db_table, pd.DataFrame)
-    assert np.all(db_table.teff_1.values == teff)
-    assert np.all(db_table.logg_1.values == logg)
-    assert np.all(db_table.feh_1.values == feh)
-    assert len(db_table) == num
-    assert False
+    assert isinstance(db_table, sa.Table)
+
+    df = pd.read_sql(
+        sa.select(db_table.c),
+        db_table.metadata.bind)
+
+    assert isinstance(df, pd.DataFrame)
+    assert np.allclose(df.teff_1.values, teff)
+    assert np.allclose(df.logg_1.values, logg)
+    assert np.allclose(df.feh_1.values, feh)
+    assert np.allclose(df.gamma.values, gamma)
+    assert len(df) == num
+    x = gamma + teff / logg
+    assert np.allclose(df.chi2_1, 1 + x)
+    assert np.allclose(df.chi2_2, 2 + x)
+    assert np.allclose(df.chi2_3, 3 + x)
+    assert np.allclose(df.chi2_4, 4 + x)
+    assert np.allclose(df.coadd_chi2, 10 + 4 * x)
+    assert np.all(df.npix_1 == (985 - 1))
+    assert np.all(df.npix_2 == (985 - 2))
+    assert np.all(df.npix_3 == (985 - 3))
+    assert np.all(df.npix_4 == (985 - 4))
 
 
 def test_coadd_bhm_db_parser_defaults():
