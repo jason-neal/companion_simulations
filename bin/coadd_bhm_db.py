@@ -6,7 +6,6 @@ Create Table of minimum Chi_2 values and save to a table.
 import argparse
 import glob
 import os
-import subprocess
 import sys
 
 import pandas as pd
@@ -129,7 +128,8 @@ def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move
                 f_split = os.path.split(f)  # ["head", "tail"]
                 new_f = os.path.join(f_split[0], "processed_csv", f_split[1])
                 os.makedirs(os.path.dirname(new_f), exist_ok=True)
-                subprocess.call("mv {} {}".format(f, new_f), shell=True)
+                os.rename(f, new_f)
+
 
         if verbose:
             print("Reached end of part =", num)

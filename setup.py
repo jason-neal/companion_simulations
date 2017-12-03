@@ -24,7 +24,8 @@ config = {
         'dev': ['check-manifest'],
         'test': ['coverage', 'pytest', 'pytest-cov', 'python-coveralls', 'hypothesis'],
     },
-    'packages': ["mingle", "mingle/models", 'mingle/utilities', 'simulators'],  # find_packages("src", exclude=['contrib', 'docs', 'tests']), #   find_packages("src", exclude=['contrib', 'docs', 'tests'])   'packages': +['utilities', 'simulators'], #
+    'packages': ["mingle", "mingle/models", 'mingle/utilities', 'simulators'],
+    # find_packages("src", exclude=['contrib', 'docs', 'tests']),
 
     'scripts': ["simulators/bhm_script.py",
                 "simulators/iam_script.py",
