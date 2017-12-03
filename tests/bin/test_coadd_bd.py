@@ -60,11 +60,6 @@ def test_decompose_database_name(db_name):
     assert obsnum == "1"
 
 
-# Assert they return None
-# An image appears somewhere
-# And some text is captured?
-
-
 def test_simple_database_returns_correctly_from_sql_db(tmpdir):
     fname = os.path.join(tmpdir, "test_db.db")
     x = np.linspace(1, 5, 20)
@@ -120,7 +115,9 @@ def test_iam_db_main_single_host_model(tmpdir):
     gamma = np.linspace(-20, 20, num)
 
     for chip in range(1, 5):
-        fname = os.path.join(tmpdir, star, "iam", f"{star}-{obsnum}_{chip}_iam_chisqr_results{suffix}[{teff}_{logg}_{feh}].csv")
+        fname = os.path.join(tmpdir, star, "iam",
+                             "{0}-{1}_{2}_iam_chisqr_results{3}[{4}_{5}_{6}].csv".format(
+                                 star, obsnum, chip, suffix, teff, logg, feh))
         chi2 = chip + (feh + gamma + teff / logg) * (feh2 + rv + teff2 / logg2)
         npix = (985 - chip) * np.ones_like(teff)
 

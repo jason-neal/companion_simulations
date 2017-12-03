@@ -620,7 +620,10 @@ def contrast_iam_results(table, params):
     c_temp = host_params.get("comp_temp")
 
     print(
-        f"Expected Parameters\n---------------------\nteff={h_temp}\tlogg={h_logg}\tfeh={h_feh}\tcompanion_temp={c_temp} ")
+        "Expected Parameters\n---------------------\nteff={0}\tlogg={1}\tfeh={2}\tcompanion_temp={3} ".format(h_temp,
+                                                                                                              h_logg,
+                                                                                                              h_feh,
+                                                                                                              c_temp))
     print("IAM SOLUTIONS\n---------------------")
     for ii, chi2_val in enumerate(chi2_names):
         df = pd.read_sql_query(sa.select([table.c.teff_1, table.c.logg_1, table.c.feh_1,
@@ -628,6 +631,8 @@ def contrast_iam_results(table, params):
                                           table.c.gamma, table.c.rv,
                                           table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
                                table.metadata.bind)
-        print(f"{chi2_val} solution: Companion:teff2={df.teff_2.values[0]}\tlogg2={df.logg_2.values[0]}\t"
-              f"feh2={df.feh_2.values[0]}\tgamma=={df.gamma.values[0]}\trv=={df.rv.values[0]}\t"
-              f"Host: teff={df.teff_1.values[0]}\tlogg={df.logg_1.values[0]}\tfeh={df.feh_1.values[0]}\t")
+        print(
+            "{0} solution: Companion:teff2={1}\tlogg2={2}\t".format(chi2_val, df.teff_2.values[0],
+                                                                    df.logg_2.values[0]) +
+            "feh2={0}\tgamma={1}\trv={2}\t".format(df.feh_2.values[0], df.gamma.values[0], df.rv.values[0]) +
+            "Host: teff={0}\tlogg={1}\tfeh={2}\t".format(df.teff_1.values[0], df.logg_1.values[0], df.feh_1.values[0]))
