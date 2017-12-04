@@ -16,7 +16,8 @@ from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
-from simulators.bhm_module import sim_helper_function, setup_dirs
+from simulators.common_setup import setup_dirs, sim_helper_function
+
 
 def iam_helper_function(star, obsnum, chip, skip_params=False):
     """Specifies parameter files and output directories given observation parameters."""
@@ -191,7 +192,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
 
             fudge_prefix = os.path.basename(os.path.normpath(prefix))
             fname = os.path.join(simulators.paths["output_dir"],
-                                 obs_spec.header["OBJECT"].upper(), "fudgeplots",
+                                 obs_spec.header["OBJECT"].upper(), "iam", "fudgeplots",
                                  "{1}_fudged_model_spectra_factor={0}_num={2}.png".format(fudge_factor, fudge_prefix,
                                                                                           num))
             plt.savefig(fname)

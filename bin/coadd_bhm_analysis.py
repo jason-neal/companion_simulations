@@ -11,6 +11,7 @@ For HD30501 and HD211847 this means  +- 50K so a fixed temperature.
 import argparse
 import os
 import sys
+import warnings
 
 import simulators
 from bin.coadd_analysis_script import decompose_database_name, load_sql_table
@@ -69,9 +70,9 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         raise IOError("Database '{0}' does not exist.".format(database))
 
     path, dbstar, db_obsnum, chip = decompose_database_name(database)
-    assert dbstar == star
-    assert str(db_obsnum) == str(obsnum)
-    assert chip == "coadd"
+    assert dbstar == star, "{} == {}".format(dbstar, star)
+    assert str(db_obsnum) == str(obsnum), "{} == {}".format(db_obsnum, obsnum)
+    assert chip == "coadd", "{} == {}".format(chip, "coadd")
 
     os.makedirs(os.path.join(path, "plots"), exist_ok=True)  # make dir for plots
 
@@ -125,6 +126,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         compare_spectra(db_table, params)
         contrast_bhm_results(db_table, params)
         display_bhm_xcorr_values(db_table, params)
+    else:
+        warnings.warn("Incorrect Mode in bhm analysis")
     print("Done")
     return 0
 

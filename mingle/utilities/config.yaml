@@ -43,3 +43,7 @@ sim_grid:
 
 paths:
     parameters: "/home/jneal/Phd/data/parameter_files/"
+
+
+# Valid values [tell_corr, h2o_tell_corr, berv_mask, berv_corr, h2o_berv_corr, h2o_berv_mask]
+spec_version: berv_mask

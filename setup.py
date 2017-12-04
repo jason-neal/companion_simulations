@@ -41,6 +41,8 @@ config = {
                 "bin/fully_analyze_star.py",
                 # "bin/create_min_chi2_table.py",
                 "bin/bhm_chi2_script.py",
+                "bin/iam_fake_full_stack.py",
+                "bin/bhm_fake_full_stack.py",
                 # "bin/analysis_iam_chi2.py"
                 ],
     'name': 'companion_simulations',

@@ -17,6 +17,7 @@ from mingle.utilities.debug_utils import timeit2
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.bhm_module import bhm_helper_function
+import warnings
 
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
@@ -476,38 +477,31 @@ def get_column_limits(table, params):
         max_df = pd.read_sql(
             sa.select([table.c[col]]).order_by(table.c[col].desc()).limit(1),
             table.metadata.bind)
-        print(col, min_df[col].values[0], max_df[col].values[0])
+        print("{0:10}\t\t{1:5.3} - {1:5.3}".format(col, float(min_df[col].values[0]), float(max_df[col].values[0])))
 
 
 def contours(table, params):
-    for par_limit, contour_param in zip(["gamma", "teff_1"], ["teff_1", "gamma"]):
         for chi2_val, npix_val in zip(chi2_names, npix_names):
             red_chi2 = "red_{0}".format(chi2_val)
+
             df_min_chi2 = pd.read_sql(
                 sa.select(table.c).order_by(
                     table.c[chi2_val].asc()).limit(1),
                 table.metadata.bind)
 
-            print("contour db columns", df_min_chi2.columns)
-
             df = pd.read_sql(
-                sa.select([table.c["teff_1"], table.c["logg_1"], table.c["gamma"], table.c[chi2_val]]).where(
-                    sa.and_(table.c[par_limit] == float(df_min_chi2[par_limit][0]),
-                            table.c.feh_1 == float(params["fe_h"]))),  # Fix companion fe_h
+                sa.select([table.c["teff_1"], table.c["feh_1"], table.c["logg_1"], table.c["gamma"], table.c[chi2_val]]).where(
+                    sa.and_(table.c["logg_1"] == float(df_min_chi2["logg_1"][0]),
+                            table.c["feh_1"] == float(df_min_chi2["feh_1"][0]))),
                 table.metadata.bind)
 
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
 
-            # print(df.head())
             params["this_npix"] = params["npix"][npix_val]
-            params["par_limit"] = par_limit
+            params["chi2_value"] = chi2_val
 
-            pars = [contour_param, "teff_1", red_chi2]
+            pars = ["gamma", "teff_1", red_chi2]
             dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
-            # pars = ["gamma", "rv", red_chi2]
-            # dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
-            # pars = ["gamma", "teff_2", red_chi2]
-            # dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
 
 
 def dataframe_contour(df, xcol, ycol, zcol, params):
@@ -537,7 +531,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
     ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
     ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
     ax.set_title(
-        '{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"],
+        '{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["chi2_value"],
                                                                       params["this_npix"], params["npars"]))
 
     ax.grid(True)
@@ -626,6 +620,7 @@ def compare_spectra(table, params):
 
         from mingle.utilities.chisqr import chi_squared
         chisqr = chi_squared(obs_spec.flux, model_spec.flux)
+
         print("Recomputed chi^2 = {0}".format(chisqr))
         print("Database chi^2 = {0}".format(df[chi2_val]))
         fig, ax = plt.subplots(1, 1, figsize=(15, 8))

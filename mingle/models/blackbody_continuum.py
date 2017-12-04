@@ -2,9 +2,10 @@
 
 Sometimes works, but spectral lines and depressions are a problem.
 """
-import numpy as np
+import os
 
 import matplotlib.pyplot as plt
+import numpy as np
 import simulators
 from astropy import units as u
 from astropy.analytic_functions import blackbody_lambda

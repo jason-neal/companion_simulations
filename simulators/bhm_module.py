@@ -1,29 +1,16 @@
-import copy
 import logging
 import os
 
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
-from tqdm import tqdm
-
 import simulators
 from mingle.models.broadcasted_models import one_comp_model
-from mingle.utilities import parse_paramfile
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.norm import chi2_model_norms
 from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model_params, generate_close_params
 from mingle.utilities.xcorr import xcorr_peak
-
-
-def setup_dirs(star, mode="iam"):
-    mode = mode.lower()
-    assert mode in ["iam", "tcm", "bhm"]
-
-    basedir = os.path.join(simulators.paths["output_dir"], star.upper(), mode)
-    os.makedirs(basedir, exist_ok=True)
-    os.makedirs(os.path.join(basedir, "plots"), exist_ok=True)
-    return basedir
+from simulators.common_setup import setup_dirs, sim_helper_function
+from tqdm import tqdm
 
 
 def setup_bhm_dirs(star):
@@ -161,24 +148,6 @@ def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
     columns = ["teff_1", "logg_1", "feh_1", "gamma", "npix", "chi2", "arbnorm", "xcorr"]
     df[columns].to_csv(name, sep=',', index=False, mode="a")  # Append to values cvs
     return None
-
-
-def sim_helper_function(star, obsnum, chip, skip_params, mode="iam"):
-    mode = mode.lower()
-    if mode not in ["iam", "tcm", "bhm"]:
-        raise ValueError("Mode {0} for sim_helper_function not in 'iam, tcm, bhm'".format(mode))
-    if not skip_params:
-        param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(star))
-        params = parse_paramfile(param_file, path=None)
-    else:
-        params = {}
-    obs_name = os.path.join(
-        simulators.paths["spectra"], "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, obsnum, chip))
-
-    output_prefix = os.path.join(
-        simulators.paths["output_dir"], star.upper(), mode,
-        "{0}-{1}_{2}_{3}_chisqr_results".format(star.upper(), obsnum, chip, mode))
-    return obs_name, params, output_prefix
 
 
 def bhm_helper_function(star, obsnum, chip, skip_params=False):

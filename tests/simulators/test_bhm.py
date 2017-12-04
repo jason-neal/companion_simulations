@@ -77,3 +77,43 @@ def test_bhm_script_parser_toggle():
     assert parsed.suffix is "_test"
     assert parsed.error_off is True
     assert parsed.disable_wav_scale is True
+
+
+from simulators.common_setup import obs_name_template
+
+
+@pytest.fixture(scope="module")
+def simulator_init():
+    import simulators
+    yield simulators  # provide the fixture value
+    # Cleanup simulators parameters after messing with them.
+    simulators.spec_version == None
+
+
+@pytest.mark.parametrize("mode, end", [
+    ("tell_corr", ".fits"),
+    ("h2o_tell_corr", ".fits"),
+    ("berv_corr", "_bervcorr.fits"),
+    ("h2o_berv_corr", "_bervcorr.fits"),
+    ("berv_mask", "_bervcorr_masked.fits"),
+    ("h2o_berv_mask", "_bervcorr_masked.fits")])
+def test_obs_name_template(simulator_init, mode, end):
+    simulator_init.spec_version = mode
+    star = "HD00001"
+    obsnum = "1"
+    chip = 7
+
+    template = obs_name_template()
+    assert "tellcorr" in template
+    assert "mixavg" in template
+    assert end in template
+
+    fname = template.format(star, obsnum, chip)
+
+    assert fname.startswith("{}-{}-".format(star, obsnum))
+    assert end in fname
+    if "h2o" in mode:
+        assert "-h2otellcorr" in template
+        assert "-h2otellcorr" in fname
+
+    simulators.spec_version = None

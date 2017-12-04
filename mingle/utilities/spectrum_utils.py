@@ -8,15 +8,15 @@ from spectrum_overload import Spectrum
 
 
 
-def load_spectrum(name, corrected=True):
+def load_spectrum(name):
     """Load in fits file and return as a Spectrum object.
+
+    Tries multiple names for flux column from past implementations.
 
     Parameters
     ----------
     name: str
         Filename of spectrum.
-    corrected: bool
-        Use telluric corrected spectra. (depreciated).
 
     Returns
     -------
