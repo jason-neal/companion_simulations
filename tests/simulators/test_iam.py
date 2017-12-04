@@ -33,7 +33,7 @@ def test_iam_analysis_same_as_parallel():
 
 @pytest.mark.xfail()
 def test_iam_wrapper(host, comp, tmpdir):
-    simulators.paths["output_dir"] = tmpdir
+    simulators.paths["output_dir"] = str(tmpdir)
     host_params = [5600, 4.5, 0.0]
     comp_params = [[2300, 4.5, 0.0], [2400, 4.5, 0.0]]
 
@@ -53,7 +53,7 @@ def test_iam_wrapper(host, comp, tmpdir):
 
 @pytest.mark.xfail()
 def test_iam_wrapper_without_prefix(host, comp, tmpdir):
-    simulators.paths["output_dir"] = tmpdir
+    simulators.paths["output_dir"] = str(tmpdir)
     host_params = [5600, 4.5, 0.0]
     comp_params = [[2300, 4.5, 0.0], [2400, 4.5, 0.0]]
 
@@ -82,7 +82,7 @@ def test_continuum_alpha(chip):
 
 
 def test_setup_dirs_creates_dirs(tmpdir):
-    simulators.paths["output_dir"] = tmpdir
+    simulators.paths["output_dir"] = str(tmpdir)
     star = "TestStar"
     assert not os.path.exists(tmpdir.join(star.upper(), "iam"))
     assert not os.path.exists(tmpdir.join(star.upper(), "iam", "plots"))

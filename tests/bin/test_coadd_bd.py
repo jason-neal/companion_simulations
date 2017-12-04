@@ -100,7 +100,7 @@ from simulators.iam_module import setup_iam_dirs
 
 
 def test_iam_db_main_single_host_model(tmpdir):
-    simulators.paths["output_dir"] = tmpdir
+    simulators.paths["output_dir"] = str(tmpdir)
     # Setup
     star = "test_star"
     star = star.upper()
@@ -171,7 +171,7 @@ def test_iam_db_main_single_host_model(tmpdir):
 
 
 def test_iam_db_main_multiple_host_model(tmpdir):
-    simulators.paths["output_dir"] = tmpdir
+    simulators.paths["output_dir"] = str(tmpdir)
     # Setup
     star = "test_star"
     star = star.upper()

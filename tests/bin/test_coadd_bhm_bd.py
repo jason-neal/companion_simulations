@@ -12,7 +12,7 @@ from simulators.bhm_module import setup_bhm_dirs
 
 
 def test_bhm_db_main(tmpdir):
-    simulators.paths["output_dir"] = tmpdir
+    simulators.paths["output_dir"] = str(tmpdir)
 
     # make directory !
     # Setup
