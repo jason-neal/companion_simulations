@@ -136,11 +136,11 @@ def test_iam_db_main_single_host_model(tmpdir):
     list_files(str(tmpdir))
     expected_db_name = tmpdir.join(star, "iam",
                                     "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
-    assert not os.path.exists(expected_db_name)
+    assert expected_db_name.check(file=0)
     # make 4 databases to add together()
     res = iam_db_main(star, obsnum, suffix, replace=False, verbose=True, chunksize=5, move=False)
     assert res is None
-    assert os.path.exists(os.path.exists(expected_db_name))
+    assert expected_db_name.check(file=1)
 
     db_table = load_sql_table(expected_db_name)
     assert isinstance(db_table, sa.Table)
@@ -220,13 +220,13 @@ def test_iam_db_main_multiple_host_model(tmpdir):
     list_files(str(tmpdir))
     expected_db_name = tmpdir.join(star, "iam",
                                     "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
-    assert not os.path.exists(expected_db_name)
+    assert expected_db_name.check(file=0)
     # make 4 databases to add together()
     res = iam_db_main(star, obsnum, suffix, replace=False, verbose=False, chunksize=5,
                       move=False)  # move=True does not test well.
     print("After iam db main")
     assert res is None
-    assert os.path.exists(os.path.exists(expected_db_name))
+    assert expected_db_name.check(file=1)
 
     db_table = load_sql_table(expected_db_name)
     assert isinstance(db_table, sa.Table)
