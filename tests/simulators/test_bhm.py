@@ -44,16 +44,16 @@ def test_bhm_helper_function(star, obs, chip):
 def test_setup_bhm_dirs_creates_dirs(tmpdir):
     simulators.paths["output_dir"] = str(tmpdir)
     star = "TestStar"
-    assert not os.path.exists(os.path.join(tmpdir, star.upper()))
-    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "plots"))
-    # assert not os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "grid_plots"))
-    # assert not os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "fudgeplots"))
+    assert not tmpdir.join(star.upper()).check(dir=True)
+    assert not tmpdir.join(star.upper(), "bhm", "plots").check(dir=True)
+    # assert not tmpdir.join(star.upper(), "bhm", "grid_plots").check(dir=True)
+    # assert not tmpdir.join(star.upper(), "bhm", "fudgeplots").check(dir=True)
     result = setup_bhm_dirs(star)
 
-    assert os.path.exists(os.path.join(tmpdir, star.upper()))
-    assert os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "plots"))
-    # assert os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "grid_plots"))
-    # assert os.path.exists(os.path.join(tmpdir, star.upper(), "bhm", "fudgeplots"))
+    assert tmpdir.join(star.upper()).check(dir=True)
+    assert tmpdir.join(star.upper(), "bhm", "plots").check(dir=True)
+    # assert tmpdir.join(star.upper(), "bhm", "grid_plots").check(dir=True)
+    # assert tmpdir.join(star.upper(), "bhm", "fudgeplots").check(dir=True)
     assert result is None
 
 

@@ -29,11 +29,11 @@ def test_bhm_db_main(tmpdir):
     feh = np.linspace(-3, 1, num)
     gamma = np.linspace(-20, 20, num)
     print(tmpdir.join(star, "bhm"))
-    # assert os.path.exists(tmpdir.join(star, "bhm"))
+    # assert tmpdir.join(star, "bhm").check(dir=True)
 
     for chip in range(1, 5):
         # "TEST_STAR - 11_2_bhm_chisqr_results_test *.csv"
-        fname = os.path.join(tmpdir, star, "bhm", "{0}-{1}_{2}_bhm_chisqr_results{3}.csv".format(star, obsnum, chip, suffix))
+        fname = tmpdir.join(star, "bhm", "{0}-{1}_{2}_bhm_chisqr_results{3}.csv".format(star, obsnum, chip, suffix))
         print("fname", fname)
         chi2 = chip + gamma + teff / logg
         npix = (985 - chip) * np.ones_like(teff)
@@ -45,7 +45,7 @@ def test_bhm_db_main(tmpdir):
         # engine = sa.create_engine(database_name)
         # df.to_sql('test_table', engine, if_exists='append')
 
-    expected_db_name = os.path.join(tmpdir, star, "bhm",
+    expected_db_name = tmpdir.join(star, "bhm",
                                     "{0}-{1}_coadd_bhm_chisqr_results{2}.db".format(star, obsnum, suffix))
     assert not os.path.exists(expected_db_name)
     # make 4 databases to add together()

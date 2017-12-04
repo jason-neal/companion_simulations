@@ -9,7 +9,7 @@ from simulators.tcm_module import save_full_tcm_chisqr
 
 
 def test_save_full_ima_chisqr(tmpdir):
-    savename = os.path.join(tmpdir, "saving_test_iam_filename.csv")
+    savename = str(tmpdir.join("saving_test_iam_filename.csv"))
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
     rvs = np.arange(7, 10)
@@ -39,7 +39,7 @@ def test_save_full_ima_chisqr(tmpdir):
 
 
 def test_save_full_bhm_chisqr(tmpdir):
-    savename = os.path.join(tmpdir, "saving_test_bhm_filename.csv")
+    savename = str(tmpdir.join("saving_test_bhm_filename.csv"))
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
     gammas = np.arange(-2, 4)
@@ -66,7 +66,7 @@ def test_save_full_bhm_chisqr(tmpdir):
 
 
 def test_save_full_bhm_chisqr_with_xcorr_None(tmpdir):
-    savename = os.path.join(tmpdir, "saving_test_bhm_filename.csv")
+    savename = str(tmpdir.join("saving_test_bhm_filename.csv"))
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
     gammas = np.arange(-2, 4)
@@ -92,7 +92,7 @@ def test_save_full_bhm_chisqr_with_xcorr_None(tmpdir):
 
 
 def test_save_full_tcm_chisqr(tmpdir):
-    savename = os.path.join(tmpdir, "saving_test_tcm_filename.csv")
+    savename = str(tmpdir.join("saving_test_tcm_filename.csv"))
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
     alphas = np.arange(0.5, 1.1, 0.1)

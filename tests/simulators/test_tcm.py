@@ -28,16 +28,16 @@ def test_tcm_helper_function(star, obs, chip):
 def test_setup_tcm_dirs_creates_dirs(tmpdir):
     simulators.paths["output_dir"] = str(tmpdir)
     star = "TestStar"
-    assert not os.path.exists(os.path.join(tmpdir, star.upper()))
-    assert not os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "plots"))
-    # assert not os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "grid_plots"))
-    # assert not os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "fudgeplots"))
+    assert not tmpdir.join(star.upper()).check()
+    assert not tmpdir.join(star.upper(), "tcm", "plots").check()
+    # assert not tmpdir.join(star.upper(), "tcm", "grid_plots").check(dir=True)
+    # assert not tmpdir.join(star.upper(), "tcm", "fudgeplots").check(dir=True)
     result = setup_tcm_dirs(star)
 
-    assert os.path.exists(os.path.join(tmpdir, star.upper()))
-    assert os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "plots"))
-    # assert os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "grid_plots"))
-    # assert os.path.exists(os.path.join(tmpdir, star.upper(), "tcm", "fudgeplots"))
+    assert tmpdir.join(star.upper()).check(dir=True)
+    assert tmpdir.join(star.upper(), "tcm", "plots").check(dir=True)
+    # assert tmpdir.join(star.upper(), "tcm", "grid_plots").check(dir=True)
+    # assert tmpdir.join(star.upper(), "tcm", "fudgeplots").check(dir=True)
     assert result is None
 
 

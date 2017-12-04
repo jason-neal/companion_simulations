@@ -69,7 +69,7 @@ def test_decompose_database_name(db_name):
 
 
 def test_simple_database_returns_correctly_from_sql_db(tmpdir):
-    fname = os.path.join(tmpdir, "test_db.db")
+    fname = tmpdir.join("test_db.db")
     x = np.linspace(1, 5, 20)
     y = x ** 2
     z = x + y
@@ -123,7 +123,7 @@ def test_iam_db_main_single_host_model(tmpdir):
     gamma = np.linspace(-20, 20, num)
 
     for chip in range(1, 5):
-        fname = os.path.join(tmpdir, star, "iam",
+        fname = tmpdir.join(star, "iam",
                              "{0}-{1}_{2}_iam_chisqr_results{3}[{4}_{5}_{6}].csv".format(
                                  star, obsnum, chip, suffix, teff, logg, feh))
         chi2 = chip + (feh + gamma + teff / logg) * (feh2 + rv + teff2 / logg2)
@@ -134,7 +134,7 @@ def test_iam_db_main_single_host_model(tmpdir):
         df.to_csv(fname)
 
     list_files(str(tmpdir))
-    expected_db_name = os.path.join(tmpdir, star, "iam",
+    expected_db_name = tmpdir.join(star, "iam",
                                     "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
     assert not os.path.exists(expected_db_name)
     # make 4 databases to add together()
@@ -198,7 +198,7 @@ def test_iam_db_main_multiple_host_model(tmpdir):
 
     for chip in range(1, 5):
         for t, l, f in itertools.product(teff, logg, feh):
-            fname = os.path.join(tmpdir, star, "iam",
+            fname = tmpdir.join(star, "iam",
                                  "{0}-{1}_{2}_iam_chisqr_results{3}[{4}_{5}_{6}].csv".format(star, obsnum, chip, suffix,
                                                                                              t, l, f))
             chi2 = chip + (f + gamma + t / l) * (feh2 + rv + teff2 / logg2)
@@ -218,7 +218,7 @@ def test_iam_db_main_multiple_host_model(tmpdir):
 
     print("after df.to_csv")
     list_files(str(tmpdir))
-    expected_db_name = os.path.join(tmpdir, star, "iam",
+    expected_db_name = tmpdir.join(star, "iam",
                                     "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
     assert not os.path.exists(expected_db_name)
     # make 4 databases to add together()
