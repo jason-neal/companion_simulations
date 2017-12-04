@@ -442,7 +442,7 @@ def get_column_limits(table, params):
         max_df = pd.read_sql(
             sa.select([table.c[col]]).order_by(table.c[col].desc()).limit(1),
             table.metadata.bind)
-        print("{0:10}\t\t{1:5.3} - {1:5.3}".format(col, min_df[col].values[0], max_df[col].values[0]))
+        print("{0:10}\t\t{1:5.3} - {1:5.3}".format(col, float(min_df[col].values[0]), float(max_df[col].values[0])))
 
 
 def contours(table, params):
