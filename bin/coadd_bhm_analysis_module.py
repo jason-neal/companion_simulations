@@ -17,7 +17,6 @@ from mingle.utilities.debug_utils import timeit2
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.bhm_module import bhm_helper_function
-import warnings
 
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
@@ -590,7 +589,7 @@ def compare_spectra(table, params):
         _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
         normalization_limits = [obs_spec.xaxis[0] - 5, obs_spec.xaxis[-1] + 5]
         # models
-        print("params for models", params1)
+        # print("params for models", params1)
         mod1 = load_starfish_spectrum(params1, limits=normalization_limits,
                                       hdr=True, normalize=False, area_scale=True,
                                       flux_rescale=True)
@@ -655,5 +654,8 @@ def contrast_bhm_results(table, params):
                                           table.c.gamma, table.c.xcorr_1,
                                           table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
                                table.metadata.bind)
-        print("{0}: teff={1}\tlogg={2}\t".format(chi2_val, df.teff_1.values[0], df.logg_1.values[0]) +
-              " feh={0}\tgamma=={1}, xcorr={2}".format(df.feh_1.values[0], df.gamma.values[0], df.xcorr_1.values[0]))
+        print("{0}: teff={1:5}\tlogg={2:3.02}\t".format(chi2_val, df.teff_1.values[0], df.logg_1.values[0]) +
+              "feh={0:4.1}\tgamma={1:3.1},\txcorr={2:3.2},\tchi2={3:8.2}".format(df.feh_1.values[0],
+                                                                                 float(df.gamma.values[0]),
+                                                                                 df.xcorr_1.values[0],
+                                                                                 df[chi2_val].values[0]))
