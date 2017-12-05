@@ -13,6 +13,9 @@ from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_model_pars
 from simulators.bhm_module import setup_bhm_dirs
 
+from bin.coadd_bhm_db import main as coadd_db
+from bin.coadd_bhm_analysis import main as coadd_analysis
+
 
 def parse_args(args):
     """Take care of all the argparse stuff.
@@ -73,27 +76,14 @@ def main(star, obsnum, chip=None, verbose=False, suffix=None, error_off=False, d
     (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
      broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids
 
-    TEFF = np.array([par[0] for par in model_pars])
-    LOGG = np.array([par[1] for par in model_pars])
-    FEH = np.array([par[2] for par in model_pars])
+    # TEFF = np.array([par[0] for par in model_pars])
+    # LOGG = np.array([par[1] for par in model_pars])
+    # FEH = np.array([par[2] for par in model_pars])
 
     # Testing shapes
-    print("model_chisqr_vals", model_chisqr_vals.shape)
-    print("model_xcorr_vals", model_xcorr_vals.shape)
-    print("model_xcorr_rv_vals", model_xcorr_rv_vals.shape)
-    print("broadcast_chisqr_vals shape", broadcast_chisqr_vals.shape)
-    print("broadcast_chisqr_vals (first 5)", broadcast_chisqr_vals[:5])
-    print("broadcast_gamma shape", broadcast_gamma.shape)
-    print("broadcast_gamma (first 5)", broadcast_gamma[:5])
-    print("broadcast_chi2_gamma shape", broadcast_chi2_gamma.shape)
-    # print("broadcast_chi2_gamma (first 5)", broadcast_chi2_gamma[:5])
-
     print("Finished chi square generation")
     print("\nNow use bin/coadd_bhm_db.py")
 
-
-from bin.coadd_bhm_db import main as coadd_db
-from bin.coadd_bhm_analysis import main as coadd_analysis
 
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
