@@ -618,8 +618,9 @@ def contrast_iam_results(table, params):
     c_temp = host_params.get("comp_temp")
 
     print(
+        "Observation {4} - {5}\n"
         "Expected Parameters\n---------------------\n"
-        "teff={0}\tlogg={1}\tfeh={2}\tcompanion_temp={3} ".format(h_temp, h_logg, h_feh, c_temp))
+        "teff={0:5.0f}  logg={1:3.02f}  feh={2:4.01f} \tcompanion_temp={3:5.0f} ".format(h_temp, h_logg, h_feh, c_temp, star_name, obsnum))
 
     print("IAM SOLUTIONS\n---------------------")
     for ii, chi2_val in enumerate(chi2_names):
@@ -629,11 +630,11 @@ def contrast_iam_results(table, params):
                                           table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
                                table.metadata.bind)
         print(
-            "{0} solution: Companion:teff2={1:5}\tlogg2={2:3.02}\t".format(chi2_val, df.teff_2.values[0],
-                                                                           df.logg_2.values[0]) +
-            "feh2={0:4.1}\tgamma={1:3.1}\trv={2:3.1}\t".format(df.feh_2.values[0], float(df.gamma.values[0]),
-                                                               (df.rv.values[0])) +
-            "Host: teff={0:5}\tlogg={1:3.02}\tfeh={2:4.1}\tchi2={3:8.2}".format(df.teff_1.values[0],
+            "{0:10} solution: Companion:teff2={1:5.0f}  logg2={2:4.02f}  ".format(chi2_val, df.teff_2.values[0],
+                                                                               df.logg_2.values[0]) +
+            "feh2={0:4.01f}  gamma={1:4.01f}  rv={2:4.01f}  ".format(df.feh_2.values[0], float(df.gamma.values[0]),
+                                                                     float(df.rv.values[0])) +
+            "Host: teff={0:5.0f}  logg={1:4.02f}  feh={2:4.01f}  chi2={3:8.02f}".format(df.teff_1.values[0],
                                                                                 df.logg_1.values[0],
                                                                                 df.feh_1.values[0],
                                                                                 df[chi2_val].values[0]))
