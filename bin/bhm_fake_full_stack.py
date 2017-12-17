@@ -42,7 +42,7 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=Fa
 
     # star = "FullTest"
     # num = 1
-    # teff1 = 5600
+    # teff_1 = 5600
     # logg1 = 4.5
     # feh1 = 0.0
     # gamma = 15

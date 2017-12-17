@@ -339,16 +339,17 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
     logg_values = simulators.sim_grid.get(logg_key)
     feh_values = simulators.sim_grid.get(feh_key)
 
-    if teff_values is None:
+    if teff_values is None or teff_values == "None":
         new_temps = bk_temps
     else:
         new_temps = np.arange(*teff_values) + temp
 
-    if feh_values is None:
+
+    if feh_values is None or feh_values == "None":
          new_metals = bk_metals
     else:
         new_metals = np.arange(*feh_values) + metals
-    if logg_values is None:
+    if logg_values is None or logg_values == "None":
         new_loggs = bk_loggs
     else:
         new_loggs = np.arange(*logg_values) + logg
