@@ -34,12 +34,12 @@ sim_grid:
     gammas: [-20, 20, 1]  # (start, stop, step)
     rvs: [-20, 20, 1]
     alphas: [0.01, 0.25, 0.005]
-    teff1: None
-    teff2: None
+    teff_1: None
+    teff_2: None
     feh_1: None
     feh_2: None
-    log_1: None
-    log_2: None
+    logg_1: None
+    logg_2: None
     arb_norm: [0.95, 1.05, 0.02]   # Arbitrary normalization inside chisquare
 
 paths:

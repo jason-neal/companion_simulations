@@ -630,7 +630,7 @@ def contrast_iam_results(table, params):
                                           table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
                                table.metadata.bind)
         print(
-            "{0:10} solution: Companion:teff2={1:5.0f}  logg2={2:4.02f}  ".format(chi2_val, df.teff_2.values[0],
+            "{0:10} solution: Companion:teff_2={1:5.0f}  logg2={2:4.02f}  ".format(chi2_val, df.teff_2.values[0],
                                                                                df.logg_2.values[0]) +
             "feh2={0:4.01f}  gamma={1:4.01f}  rv={2:4.01f}  ".format(df.feh_2.values[0], float(df.gamma.values[0]),
                                                                      float(df.rv.values[0])) +
