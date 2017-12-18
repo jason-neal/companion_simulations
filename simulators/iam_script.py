@@ -67,12 +67,13 @@ def parse_args(args):
     parser.add_argument('--disable_wav_scale', action="store_true",
                         help='Disable scaling by wavelength.')
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
+    parser.add_argument("-m", "--model", choices=["btsettl", "aces"], default="aces")
 
     return parser.parse_args(args)
 
 
 def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
-         suffix=None, error_off=False, area_scale=True, disable_wav_scale=False, renormalize=False):
+         suffix=None, error_off=False, area_scale=True, disable_wav_scale=False, renormalize=False, model="aces"):
     """Main function."""
     wav_scale = not disable_wav_scale
     if chip is None:
@@ -93,10 +94,16 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
     closest_comp_model = closest_model_params(*comp_params)
 
     # Function to find the good models I need from parameters
-    model1_pars = list(generate_close_params_with_simulator(
-        closest_host_model, "host", small="host", limits="phoenix"))
-    model2_pars = list(generate_close_params_with_simulator(
-        closest_comp_model, "companion", small=small, limits="phoenix"))
+    if model is "aces":
+        model1_pars = list(generate_close_params_with_simulator(
+            closest_host_model, "host", small="host", limits="phoenix"))
+        model2_pars = list(generate_close_params_with_simulator(
+            closest_comp_model, "companion", small=small, limits="phoenix"))
+    else:
+        model1_pars = list(generate_close_params_with_simulator(
+            closest_host_model, "host", small="host", limits="cifist"))
+        model2_pars = list(generate_close_params_with_simulator(
+            closest_comp_model, "companion", small=small, limits="cifist"))
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
