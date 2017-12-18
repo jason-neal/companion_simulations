@@ -32,20 +32,15 @@ from simulators.iam_module import (iam_analysis, iam_helper_function,
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 
-wav_dir = simulators.starfish_grid["raw_path"]
-
-wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
-wav_model /= 10  # turn into nm
+# wav_dir = simulators.starfish_grid["raw_path"]
+# wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
+# wav_model /= 10  # turn into nm
 
 gammas = np.arange(*simulators.sim_grid["gammas"])
 rvs = np.arange(*simulators.sim_grid["rvs"])
 # Pre-check_rv_vals(rvs)
 check_inputs(rvs)
 check_inputs(gammas)
-
-
-# alphas = np.arange(*simulators.sim_grid["alphas"])
-# alphas = np.arange(0.01, 0.2, 0.02)
 
 
 def parse_args(args):
