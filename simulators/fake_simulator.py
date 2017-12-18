@@ -76,7 +76,10 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
     elif isinstance(noise, (int, float)):
         snr = noise
     else:
-        snr = None
+        try:
+            snr = float(noise)
+        except:
+            snr = None
 
     logging.debug("Continuum normalizing")
 
@@ -129,7 +132,10 @@ def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, hea
     elif isinstance(noise, (int, float)):
         snr = noise
     else:
-        snr = None
+        try:
+            snr = float(noise)
+        except:
+            snr = None
 
     # Add the noise
     if snr is not None:
