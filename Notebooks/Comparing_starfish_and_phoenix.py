@@ -2,8 +2,8 @@
 # coding: utf-8
 
 # # Check Loading starfish models compared to manually convolving.
-# 
-# 
+#
+#
 
 # In[1]:
 

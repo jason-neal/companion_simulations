@@ -1,4 +1,3 @@
-
 # coding: utf-8
 
 # In[ ]:
@@ -32,24 +31,22 @@ rv = -30
 normalization_limits = [2000, 2300]
 
 mod1_spec_scaled = load_starfish_spectrum(params1, limits=normalization_limits,
-                                       hdr=True, normalize=False, area_scale=True,
-                                       flux_rescale=True)
+                                          hdr=True, normalize=False, area_scale=True,
+                                          flux_rescale=True)
 mod1_spec_unscaled = load_starfish_spectrum(params1, limits=normalization_limits,
-                                       hdr=True, normalize=False, area_scale=False,
-                                       flux_rescale=True)
+                                            hdr=True, normalize=False, area_scale=False,
+                                            flux_rescale=True)
 
 mod2_spec_scaled = load_starfish_spectrum(params2, limits=normalization_limits,
-                                       hdr=True, normalize=False, area_scale=True,
-                                       flux_rescale=True)
+                                          hdr=True, normalize=False, area_scale=True,
+                                          flux_rescale=True)
 mod2_spec_unscaled = load_starfish_spectrum(params2, limits=normalization_limits,
-                                       hdr=True, normalize=False, area_scale=False,
-                                       flux_rescale=True)
-
+                                            hdr=True, normalize=False, area_scale=False,
+                                            flux_rescale=True)
 
 for name, mod1_spec, mod2_spec in zip(["area scaled", "area unscaled"],
-                                  [mod1_spec_scaled, mod1_spec_unscaled],
-                                  [mod2_spec_scaled, mod2_spec_unscaled]):
-
+                                      [mod1_spec_scaled, mod1_spec_unscaled],
+                                      [mod2_spec_scaled, mod2_spec_unscaled]):
     mod1_spec = mod1_spec.remove_nans()
     mod2_spec = mod2_spec.remove_nans()
     mod1_spec.wav_select(2000, 2200)
@@ -59,8 +56,6 @@ for name, mod1_spec, mod2_spec in zip(["area scaled", "area unscaled"],
     plt.plot(mod2_spec.xaxis, mod2_spec.flux, label="mod2")
     plt.title(name)
 plt.show()
-
-
 
 # In[4]:
 
@@ -76,28 +71,28 @@ sample_x = np.linspace(2112, 2145, 1024)
 def join_with_broadcast_spectrum(mod1, mod2, rv, gamma, new_x, independent=False):
     if independent:
         broadcast_result = independent_inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
-                                                rvs=rv, gammas=gamma, independent_rv=True)
+                                                            rvs=rv, gammas=gamma, independent_rv=True)
     else:
         broadcast_result = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
                                                 rvs=rv, gammas=gamma, independent_rv=True)
 
     broadcast_values = broadcast_result(new_x)
     return Spectrum(flux=broadcast_values.squeeze(), xaxis=new_x)
-    
+
 
 def join_with_broadcast(mod1, mod2, rv, gamma, new_x, independent=False):
     if independent:
         broadcast_result = independent_inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
-                                                rvs=rv, gammas=gamma, independent_rv=True)
+                                                            rvs=rv, gammas=gamma, independent_rv=True)
     else:
         broadcast_result = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
                                                 rvs=rv, gammas=gamma, independent_rv=True)
     broadcast_values = broadcast_result(new_x)
-    return  broadcast_values.squeeze()
+    return broadcast_values.squeeze()
+
 
 gammas = np.linspace(-100, 100, 50)
 rvs = np.linspace(-100, 100, 60)
-
 
 for independent in (True, False):
     print("independant ", independent)
@@ -115,8 +110,7 @@ for independent in (True, False):
 
     for normalize in (True, False):
         print("normalizing", normalize)
-        
-    
+
         fake_data.remove_nans()
 
         print(fake_data.flux.shape)
@@ -127,7 +121,6 @@ for independent in (True, False):
         gamma_chi2 = chi_squared(fake_data.flux[:, np.newaxis], gamma_grid_data)
         rv_chi2 = chi_squared(fake_data.flux[:, np.newaxis], rv_grid_data)
         dual_chi2 = chi_squared(fake_data.flux[:, np.newaxis, np.newaxis], dual_grid_data)
-        
 
         plt.plot(gammas, gamma_chi2)
         plt.title("gamma chi2")
@@ -151,7 +144,6 @@ for independent in (True, False):
 
         dof = len(fake_data.xaxis) - 1
 
-
 # In[ ]:
 
 
@@ -165,27 +157,26 @@ plt.show()
 def plt_1d_grid(grid):
     assert len(grid.shape) == 2
     for i in range(grid.shape[1]):
-         plt.plot(grid[:,i], label=i)
-    #plt.legend()
+        plt.plot(grid[:, i], label=i)
+    # plt.legend()
     plt.show()
-            
 
 
 def plt_2d_grid(grid):
     assert len(grid.shape) == 3
-    
+
     for i in range(grid.shape[1]):
-         for j in range(grid.shape[2]):
-             plt.plot(grid[:,i, j], label="{}, {}".format(i, j))
-    #plt.legend()
+        for j in range(grid.shape[2]):
+            plt.plot(grid[:, i, j], label="{}, {}".format(i, j))
+    # plt.legend()
     plt.show()
-    
+
+
 plt_1d_grid(gamma_grid_data)
 
 plt_1d_grid(rv_grid_data)
 
 plt_2d_grid(dual_grid_data)
-
 
 # In[ ]:
 
@@ -201,13 +192,13 @@ plt_2d_grid(dual_grid_data)
 fake_data2 = fake_data.copy()
 fake_data2.add_noise(200)
 
-gamma_chi2_2 = chi_squared(fake_data2.flux[:, np.newaxis], gamma_grid_data, 1/100)
-rv_chi2_2 = chi_squared(fake_data2.flux[:, np.newaxis], rv_grid_data, 1/100)
-dual_chi2_2 = chi_squared(fake_data2.flux[:, np.newaxis, np.newaxis], dual_grid_data, 1/100)
+gamma_chi2_2 = chi_squared(fake_data2.flux[:, np.newaxis], gamma_grid_data, 1 / 100)
+rv_chi2_2 = chi_squared(fake_data2.flux[:, np.newaxis], rv_grid_data, 1 / 100)
+dual_chi2_2 = chi_squared(fake_data2.flux[:, np.newaxis, np.newaxis], dual_grid_data, 1 / 100)
 
 gamma_reduced_chi2 = gamma_chi2_2 / dof
 rv_reduced_chi2 = gamma_chi2_2 / dof
-gamma_reduced_chi2 = dual_chi2_2 / (dof-1)
+gamma_reduced_chi2 = dual_chi2_2 / (dof - 1)
 
 print(np.min(gamma_reduced_chi2))
 print(np.min(rv_reduced_chi2))
@@ -215,7 +206,3 @@ print(np.min(gamma_reduced_chi2))
 
 
 # In[ ]:
-
-
-
-

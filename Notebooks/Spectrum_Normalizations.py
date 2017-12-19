@@ -2,25 +2,25 @@
 # coding: utf-8
 
 # # Spectrum Continuum Normalization
-# 
+#
 # ## Aim:
 #    - To perform Chi^2 comparision between PHOENIX ACES spectra and my CRIRES observations.
-#      
+#
 # ## Problem:
 #    - The nomalization of the observed spectra
 #    - Differences in the continuum normalization affect the chi^2 comparison when using mixed models of two different spectra. 
-#    
+#
 # ### Proposed Solution:
 #   - equation (1) from [Passegger 2016](https://arxiv.org/pdf/1601.01877.pdf) 
 #           Fobs = F obs * (cont_fit model / cont_fit observation) where con_fit is a linear fit to the spectra.
 # To take out and linear trends in the continuums and correct the amplitude of the continuum.
-#    
-#    
+#
+#
 # In this notebook I outline what I do currently showing an example.
-# 
-# 
-# 
-# 
+#
+#
+#
+#
 
 # In[1]:
 
@@ -35,7 +35,7 @@ get_ipython().magic('matplotlib inline')
 
 
 # The obeservatios were originally automatically continuum normalized in the iraf extraction pipeline. 
-# 
+#
 # I believe the continuum is not quite at 1 here anymore due to the divsion by the telluric spectra.
 
 # In[2]:
@@ -96,13 +96,13 @@ plt.show()
 # # Current Normalization
 # I then continuum normalize the Phoenix spectrum locally around my observations 
 # by fitting an **exponenital** to the continuum like so.
-# 
+#
 # - Split the spectrum into 50 bins
 # - Take median of 20 highest points in each bin.
 # - Fix an exponetial
 # - Evaulate at the orginal wavelength values
 # - Divide original by the fit
-# 
+#
 
 # In[4]:
 
@@ -243,7 +243,7 @@ plt.show()
 
 # The companion is cooler there are many more deeper lines present in the spectra.
 # Even a small contribution of the companion spectra reduce the continuum of the mixed spectra considerably.
-# 
+#
 # When I compare these mixed spectra to my observations
 
 # In[10]:
@@ -277,21 +277,21 @@ plt.show()
 
 # As you can see here my observations are above the continuum most of the time.
 # What I have noticed is this drastically affects the chisquared result as the mix model is the one with the least amount of alpha.
-# 
+#
 # I am thinking of renormalizing my observations by implementing equation (1) from [Passegger 2016](https://arxiv.org/pdf/1601.01877.pdf) *(Fundamental M-dwarf parameters from high-resolution spectra using PHOENIX ACES modesl)*
-# 
+#
 #             F_obs = F_obs * (continuum_fit model / continuum_fit observation)
-#             
+#
 # They fit a linear function to the continuum of the observation and computed spectra to account for *"slight differences in the continuum level and possible linear trends between the already noramlized spectra."* 
-# 
+#
 # - One difference is that they say they normalize the **average** flux of the spectra to unity. Would this make a difference in this method.
-# 
-# 
+#
+#
 # ## Questions
 # - Would this be the correct approach to take to solve this? 
 # - Should I renomalize the observations first as well?
 # - Am I treating the cooler M-dwarf spectra correctly in this approach? 
-# 
+#
 
 # ### Attempting the Passegger method
 
@@ -403,8 +403,8 @@ plt.show()
 
 
 # # Range of phoenix spectra
-# 
-# 
+#
+#
 
 # In[19]:
 

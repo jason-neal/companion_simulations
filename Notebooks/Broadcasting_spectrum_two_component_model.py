@@ -29,13 +29,13 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
         rvs = np.asarray(rvs)[np.newaxis]
     if not hasattr(gammas, "__len__"):
         gammas = np.asarray(gammas)[np.newaxis]
-        print(len(gammas))
+        # print(len(gammas))
 
     am2 = model2[:,np.newaxis] * alphas           # alpha * Model2 (am2)
-    print(am2.shape) 
+    # print(am2.shape)
     
     am2rv = np.empty(am2.shape + (len(rvs),))     # am2rv = am2 with rv doppler-shift
-    print(am2rv.shape)
+    # print(am2rv.shape)
     for i, rv in enumerate(rvs):
         #nflux, wlprime = dopplerShift(wav, am2, rv)
         #am2rv[:, :, i] = nflux
@@ -46,7 +46,7 @@ def two_comp_model(wav, model1, model2, alphas, rvs, gammas):
     am2rv = am2rv / (1 + alphas)[np.newaxis, :, np.newaxis]
 
     am2rvm1 = h[:, np.newaxis, np.newaxis] + am2rv                            # am2rvm1 = am2rv + model_1
-    print(am2rvm1.shape)
+    # print(am2rvm1.shape)
     
     am2rvm1g = np.empty(am2rvm1.shape + (len(gammas),))   # am2rvm1g = am2rvm1 with gamma doppler-shift
     for j, gamma in enumerate(gammas):
