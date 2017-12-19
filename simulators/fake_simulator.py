@@ -85,7 +85,7 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
 
     iam_grid_models = iam_grid_models / iam_grid_continuum
 
-    iam_grid_models = add_the_noise(iam_grid_models, snr)
+    iam_grid_models = add_noise(iam_grid_models, snr)
 
     if header:
         return wav, iam_grid_models.squeeze(), mod1_spec.header
@@ -95,6 +95,8 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
 
 from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.simulation_utilities import add_noise
+
 
 
 def determine_noise_snr(noise, flux):
@@ -109,12 +111,6 @@ def determine_noise_snr(noise, flux):
         except:
             snr = None
     return snr
-
-
-def add_the_noise(flux, snr):
-    if snr is not None:
-        flux += (1. / snr) * np.random.randn(*flux.shape)
-    return flux
 
 
 def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, header=False):
@@ -137,7 +133,7 @@ def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, hea
 
     snr = determine_noise_snr(noise, bhm_grid_values)
 
-    bhm_grid_values = add_the_noise(bhm_grid_values, snr)
+    bhm_grid_values = add_noise(bhm_grid_values, snr)
 
     if header:
         return wav, bhm_grid_values.squeeze(), mod_spec.header
