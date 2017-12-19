@@ -8,12 +8,18 @@ import copy
 import numpy as np
 
 
-def add_noise(flux, snr):
-    """Using the formulation mu/sigma from wikipedia.
+def add_noise(flux, snr, use_mu=False):
+    """Using the formulation 1/sigma (default) or mu/sigma from wikipedia.
 
-    Applies noise based on the flux at ech pixel.
+    https://en.wikipedia.org/wiki/Signal-to-noise_ratio#Alternative_definition
+
+    Applies noise based on the flux at each pixel.
     """
-    sigma = flux / snr
+    if use_mu:
+        sigma = flux / snr
+    else:
+        sigma = np.ones_like(flux) / snr
+
     # Add normal distributed noise at the snr level.
     noisy_flux = flux + np.random.normal(0, sigma)
     return noisy_flux

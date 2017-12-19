@@ -58,3 +58,28 @@ def test_check_inputs_raises_empty_error(inputs):
     with pytest.raises(ValueError) as excinfo:
         check_inputs(inputs)
     assert "Empty variable" in str(excinfo.value)
+
+
+from mingle.utilities.simulation_utilities import add_noise
+
+
+@pytest.mark.xfail()
+@pytest.mark.parametrize("noise", [
+    (5),
+    (500),
+    (50),
+])
+def test_add_noise(noise):
+    x = np.ones(10000)
+    assert np.allclose(np.std(add_noise(x, noise)), 1. / noise, 1e-2)
+
+
+@pytest.mark.xfail()
+@pytest.mark.parametrize("mu, noise", [
+    (20, 5),
+    (5, 500),
+    (1, 50),
+])
+def test_add_noise_with_mu(mu, noise):
+    x = mu * np.ones(10000)
+    assert np.allclose(np.std(add_noise(x, noise, use_mu=True)), mu / noise, 1e-2)
