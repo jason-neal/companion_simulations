@@ -226,11 +226,12 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                                  star=obs_spec.header["OBJECT"].upper(),
                                  xlabel="wavelength", ylabel="rv", zlabel="gamma",
                                  suffix="iam_grid_models", chip=chip)
-
+            old_shape = iam_grid_models.shape
             # Arbitrary_normalization of observation
             iam_grid_models, arb_norm = arbitrary_rescale(iam_grid_models,
                                                           *simulators.sim_grid["arb_norm"])
-            print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
+            # print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
+            assert iam_grid_models.shape == (*old_shape, len(arb_norm))
 
             # Calculate Chi-squared
             obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match rescale
