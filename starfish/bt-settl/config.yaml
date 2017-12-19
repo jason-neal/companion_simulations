@@ -14,12 +14,12 @@ plotdir : plots/
 
 # The parameters defining your raw spectral library live here.
 grid:
-  raw_path: "/home/jneal/Documents/data/BT-Settl_M-0.0a+0.0/"
-  hdf5_path: "/home/jneal/Documents/data/libraries/CIFIST_CRIRES_50k.hdf5"
+  raw_path: "/home/jneal/Phd/data/PHOENIX-ALL/BT-SETTL/BT-Settl_M-0.0a+0.0_cifist2011_2015_fits/"
+  hdf5_path: "/home/jneal/Phd/Codes/companion_simulations/starfish/libraries/CIFIST_CRIRES_50k.hdf5"
   key_name: "t{0:.0f}g{1:.1f}" # Specifies how the params are stored
   parname: ["temp", "logg"]
   # in the HDF5 file
-  parrange: [[1200, 7001], [3.0, 6.0]]
+  parrange: [[1200, 7000], [3.0, 6.0]]
   wl_range: [20700, 21800]
   buffer: 50. # AA
 
