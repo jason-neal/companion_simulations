@@ -136,15 +136,6 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
             lower_lim, upper_lim)
 
         df = pd.read_sql(sa.text(query), engine)
-        # print(df.columns)
-        # print(df.dtypes)
-
-        # plt.subplot(3, 2, ii + 1)
-        # if col == "gamma":   # Duplicate columns
-        #    df["gamma2"] = df.gamma.iloc[:, 0]
-        #    df.plot(ax=axes.ravel()[ii]).scatter("gamma2", "chi2")  #, c="gamma2", colorbar=True)
-        # else:
-        #    df.plot(ax=axes.ravel()[ii]).scatter(col, "chi2")  #, c="gamma", colorbar=True)
         axis_pos = [int(x) for x in np.where(indices == ii)]
         if col == "gamma":  # Duplicate columns
             df["gamma2"] = df.gamma.iloc[:, 0]
@@ -155,8 +146,8 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
                     ax=axes[axis_pos[0], axis_pos[1]])  # , c="gamma", colorbar=True)
 
     name = "{0}-{1}_{2}_fixed_host_params.png".format(
-        params["star"], params["obsnum"], params["chip"], col)
-    plt.suptitle("Chi**2 Results: {0}-{1}_{2}".format(params["star"], params["obsnum"], params["chip"]))
+        params["star"], params["obsnum"], params["chip"])
+    plt.suptitle("Chi**2 Results: {0}-{1}_{2}: {3}".format(params["star"], params["obsnum"], params["chip"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
 
