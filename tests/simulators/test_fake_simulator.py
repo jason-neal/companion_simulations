@@ -36,7 +36,8 @@ def test_fake_simulator_parser_toggle():
     assert parsed.noplots is True
     assert parsed.test is True
     assert parsed.mode == "bhm"
-    assert parsed.noise == "100"
+    assert parsed.noise == 100.0
+    assert isinstance(parsed.noise, float)
 
 
 def test_fake_sim_main_with_no_params1_returns_error():
@@ -54,7 +55,7 @@ def test_fake_simulator_main():
     assert False
 
 
-# @pytest.mark.xfail()
+@pytest.mark.xfail()
 @pytest.mark.parametrize("params", [(2500, 4.5, 0.0), (2800, 4.5, 0.5)])
 @pytest.mark.parametrize("wav", [np.linspace(2130, 2145, 40), np.linspace(2147, 2160, 200)])
 @pytest.mark.parametrize("rv", [5, 2, -6])
