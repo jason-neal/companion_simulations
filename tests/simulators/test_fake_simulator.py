@@ -95,3 +95,27 @@ def test_fake_bhm_simulation_without_wav(limits):
     fake_wav, fake_flux = fake_bhm_simulation(None, [4000, 4.0, -0.5], gamma=5, limits=limits)
     assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
     assert fake_wav.shape == fake_flux.shape
+
+
+from simulators.fake_simulator import determine_noise_snr, add_the_noise
+@pytest.mark.parametrize("noise, flux, expected", [
+    ("sqrt", [1, 2, 4, 16], [1, np.sqrt(2), 2, 4]),
+    ("50", [], 50.0),
+    ("500", [1, 2, 4, 16], 500.0),
+    (None, [], None),
+    ("Not_None", [], None),
+    ("None", [], None),
+])
+def test_determine_noise(noise, flux, expected):
+    assert np.all(determine_noise_snr(noise, flux) == expected)
+
+
+@pytest.mark.xfail()
+def test_add_the_noise():
+    add_the_noise(1, 100)
+    assert False
+
+    # def add_the_noise(flux, snr):
+    #     if snr is not None:
+    #         flux += (1. / snr) * np.random.randn(*flux.shape)
+    #     return flux
