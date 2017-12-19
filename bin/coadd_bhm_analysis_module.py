@@ -231,7 +231,7 @@ def host_parameters_individual(table, params):
 
             name = "{0}-{1}_coadd_fixed_logg_feh_params_full_gamma_{2}_{3}_individual_{4}.png".format(
                 params["star"], params["obsnum"], params["suffix"], chi2_val, col)
-            plt.suptitle("Co-add {2}-Chi**2 Results (fixed_logg_feh): {0}-{1}".format(
+            plt.suptitle("Co-add {2}-Chi**2 Results (fixed_logg_feh): {0}-{1}: {3}".format(
                 params["star"], params["obsnum"], chi2_val, col))
             fig.savefig(os.path.join(params["path"], "plots", name))
             fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
@@ -403,8 +403,8 @@ def host_parameters_reduced_gamma(table, params):
                     ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)
 
     plt.suptitle("Coadd reduced Chi**2 Results: {0}-{1}".format(params["star"], params["obsnum"]))
-    name = "{0}-{1}_coadd_fixed_host_params_{2}_{3}.png".format(
-        params["star"], params["obsnum"], params["suffix"], chi2_val)
+    name = "{0}-{1}_coadd_fixed_host_params_{2}.png".format(
+        params["star"], params["obsnum"], params["suffix"])
     fig.savefig(os.path.join(params["path"], "plots", name))
     fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
     plt.close()
@@ -476,7 +476,7 @@ def get_column_limits(table, params):
         max_df = pd.read_sql(
             sa.select([table.c[col]]).order_by(table.c[col].desc()).limit(1),
             table.metadata.bind)
-        print("{0:10}\t\t{1:5.3} - {1:5.3}".format(col, float(min_df[col].values[0]), float(max_df[col].values[0])))
+        print("{0:10}\t\t{1:5.3} - {2:5.3}".format(col, float(min_df[col].values[0]), float(max_df[col].values[0])))
 
 
 def contours(table, params):
