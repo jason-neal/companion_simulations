@@ -49,18 +49,15 @@ def fake_simulation(wav, params1, params2, gamma, rv, chip=None,
         print("wav masked", wav)
     
     iam_grid_models = iam_grid_func(wav).squeeze()
-    
+
     print(iam_grid_models)
     assert np.all(np.isfinite(iam_grid_models))
-    if noise == "sqrt":
-        # Add noise with sigma = 1 / sqrt(N)
-        snr = np.sqrt(iam_grid_models)
-    elif isinstance(noise, (int, float)):
+    if isinstance(noise, (int, float)):
         snr = noise
     else:
         snr = None
 
-    #Continuum normalize all iam_gird_models
+    # Continuum normalize all iam_gird_models
     def axis_continuum(flux):
         """Continuum to apply along axis with predefined variables parameters."""
         return continuum(wav, flux, splits=50, method="exponential", top=5)
@@ -68,12 +65,13 @@ def fake_simulation(wav, params1, params2, gamma, rv, chip=None,
     iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
 
     iam_grid_models = iam_grid_models / iam_grid_continuum
-    
-    #grid_spectrum = Spectrum(xaxis=wav, flux=iam_grid_models)
-    #iam_grid_models = grid_spectrum.normalize("exponential")
+
+    # grid_spectrum = Spectrum(xaxis=wav, flux=iam_grid_models)
+    # iam_grid_models = grid_spectrum.normalize("exponential")
     # Add the noise
+    from mingle.utilities.simulation_utilities import add_noise
     if snr is not None:
-        iam_grid_models += (1. / snr) * np.random.randn(*iam_grid_models.shape)
+        iam_grid_models = add_noise(iam_grid_models, snr)
 
     if np.any(np.isnan(iam_grid_models)):
         print("there was some nans")

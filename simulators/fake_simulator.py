@@ -15,6 +15,10 @@ from simulators.common_setup import obs_name_template
 from simulators.iam_module import prepare_iam_model_spectra
 from spectrum_overload import Spectrum
 
+from mingle.models.broadcasted_models import one_comp_model
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.simulation_utilities import add_noise
+
 
 def parse_args(args):
     """Take care of all the argparse stuff.
@@ -30,7 +34,7 @@ def parse_args(args):
     parser.add_argument('-v', "--rv", help='RV of Companion.', type=float)
     parser.add_argument("-i", "--independent", help='Independent rv value."', action="store_true")
     parser.add_argument('-s', '--noise',
-                        help='SNR value. int or "sqrt"', default=None)
+                        help='SNR value. int', type=float, default=None)
     parser.add_argument('-r', '--replace',
                         help='Replace old fake spectra.', action="store_true")
     parser.add_argument('-n', '--noplots',
@@ -70,8 +74,6 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
     # assert np.all(np.isfinite(iam_grid_models))
     logging.debug("iam_grid_models", iam_grid_models)
 
-    snr = determine_noise_snr(noise, iam_grid_models)
-
     logging.debug("Continuum normalizing")
 
     # Continuum normalize all iam_gird_models
@@ -85,32 +87,14 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
 
     iam_grid_models = iam_grid_models / iam_grid_continuum
 
-    iam_grid_models = add_noise(iam_grid_models, snr)
+    if noise is not None:
+        # Add 1 / snr noise to continuum normalized spectra
+        iam_grid_models = add_noise(iam_grid_models, noise)
 
     if header:
         return wav, iam_grid_models.squeeze(), mod1_spec.header
     else:
         return wav, iam_grid_models.squeeze()
-
-
-from mingle.models.broadcasted_models import one_comp_model
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
-from mingle.utilities.simulation_utilities import add_noise
-
-
-
-def determine_noise_snr(noise, flux):
-    if noise == "sqrt":
-        # Add noise with sigma = 1 / sqrt(N)
-        snr = np.sqrt(flux)
-    elif isinstance(noise, (int, float)):
-        snr = noise
-    else:
-        try:
-            snr = float(noise)
-        except:
-            snr = None
-    return snr
 
 
 def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, header=False):
@@ -131,9 +115,8 @@ def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, hea
 
     logging.debug("number of bhm nans", np.sum(~np.isfinite(bhm_grid_values)))
 
-    snr = determine_noise_snr(noise, bhm_grid_values)
-
-    bhm_grid_values = add_noise(bhm_grid_values, snr)
+    if noise is not None:
+        bhm_grid_values = add_noise(bhm_grid_values, noise)
 
     if header:
         return wav, bhm_grid_values.squeeze(), mod_spec.header

@@ -36,7 +36,7 @@ def _parser():
     parser.add_argument('-s', '--suffix', type=str, default="",
                         help='Extra name identifier.')
     parser.add_argument('-n', '--noise',
-                        help='SNR value. int or "sqrt"', default=None)
+                        help='SNR value int', type=int, default=None)
     parser.add_argument('-r', '--replace',
                         help='Replace old fake spectra.', action="store_true")
     return parser.parse_args()
