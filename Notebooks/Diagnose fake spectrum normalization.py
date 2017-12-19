@@ -1,8 +1,7 @@
-
 # coding: utf-8
 
 # # Diagnose fake spectrum normalization
-# 
+#
 # 7 Novemeber 2017
 
 # In[1]:
@@ -25,7 +24,7 @@ def fake_simulation(wav, params1, params2, gamma, rv, chip=None,
                     limits=[2070, 2180], independent=False, noise=None):
     """Make a fake spectrum with binary params and radial velocities."""
     mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits)
-    
+
     mod1_spec.plot()
     mod2_spec.plot()
     plt.show()
@@ -47,7 +46,7 @@ def fake_simulation(wav, params1, params2, gamma, rv, chip=None,
         mask = (mod1_spec.xaxis > mod1_spec.xaxis[0] + delta) * (mod1_spec.xaxis < mod1_spec.xaxis[-1] - delta)
         wav = mod1_spec.xaxis[mask]
         print("wav masked", wav)
-    
+
     iam_grid_models = iam_grid_func(wav).squeeze()
 
     print(iam_grid_models)
@@ -83,16 +82,14 @@ def main(star, sim_num, params1, params2, gamma, rv,
          independent=False, noise=None, suffix=None):
     params1 = [float(par) for par in params1.split(",")]
     params2 = [float(par) for par in params2.split(",")]
-    
-    
+
     x_wav, y_wav = fake_simulation(np.linspace(2090, 2150, 2000), params1,
                                    params2, gamma, rv, chip=1, independent=independent, noise=noise)
 
-    
     x, y = fake_simulation(None, params1, params2, gamma, rv, chip=1,
                            independent=independent, noise=noise)
     print(x)
-    
+
     plt.plot(x, y, label="Fake simulation")
     plt.plot(x_wav, y_wav, ".", label="2k")
 
@@ -105,26 +102,25 @@ def main(star, sim_num, params1, params2, gamma, rv,
     # NEED to normalize at full wavelenght and then resample
 
     y_reinterp = np.interp(x_wav, x, y)
-   # y_500_reinterp = np.interp(x_wav, x_500, y_500)
-   # y_10k_reinterp = np.interp(x_wav, x_10k, y_10k)
-  #  y_30k_reinterp = np.interp(x_wav, x_30k, y_30k)
+    # y_500_reinterp = np.interp(x_wav, x_500, y_500)
+    # y_10k_reinterp = np.interp(x_wav, x_10k, y_10k)
+    #  y_30k_reinterp = np.interp(x_wav, x_30k, y_30k)
 
     plt.plot(x_wav, y_wav, ".", label="x_wav")
     plt.plot(x_wav, y_reinterp, ".", label="org sampling.")
-  #  plt.plot(x_wav, y_500_reinterp, ".", label="500")
-  #  plt.plot(x_wav, y_10k_reinterp, ".", label="10k.")
- #   plt.plot(x_wav, y_30k_reinterp, ".", label="30k.")
+    #  plt.plot(x_wav, y_500_reinterp, ".", label="500")
+    #  plt.plot(x_wav, y_10k_reinterp, ".", label="10k.")
+    #   plt.plot(x_wav, y_30k_reinterp, ".", label="30k.")
     plt.title("Accessing renormaliation")
     plt.legend()
     plt.show()
 
     plt.plot(y_reinterp - y_wav, label="diff")
-    #plt.plot(y_500_reinterp - y_wav, label="500 diff")
-    #plt.plot(y_10k_reinterp - y_wav, label="10k diff")
-    #plt.plot(y_30k_reinterp - y_wav, label="30k diff")
+    # plt.plot(y_500_reinterp - y_wav, label="500 diff")
+    # plt.plot(y_10k_reinterp - y_wav, label="10k diff")
+    # plt.plot(y_30k_reinterp - y_wav, label="30k diff")
     plt.legend()
     plt.show()
-
 
 
 # In[3]:
@@ -135,7 +131,5 @@ params2 = "3000,4.5, 0.0"
 gamma = 20
 rv = -7
 
-
 main("test", "1", params1, params2, gamma, rv,
-         independent=False, noise=None, suffix=None)
-
+     independent=False, noise=None, suffix=None)

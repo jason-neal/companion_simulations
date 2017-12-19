@@ -2,10 +2,10 @@
 # coding: utf-8
 
 # # Interpolate wavelength on multiple dimensions
-# 
+#
 # ### Jason Neal - 19th July 2017
 # To try and interpolate N-D data along the first axis.
-# 
+#
 # This is to be able to perfrom chisquare analsysis for many parameters.
 
 # In[ ]:
@@ -19,11 +19,11 @@ get_ipython().magic('matplotlib inline')
 
 
 # The model we have is obs (w, f), and model (wm, fm).
-# 
+#
 # the model is combined (x + (y*a)*v) * gamma    two doppler shifts of v and gamma.
-# 
+#
 # We either need to be able to perform broadcasting inside Pyastronomy.dopplershift, or do it ourselves and interpolate.
-# 
+#
 
 # In[ ]:
 
@@ -120,7 +120,7 @@ a_min
 
 
 # # Add a third axis for a vertical shift
-# 
+#
 
 # In[ ]:
 
@@ -209,9 +209,9 @@ plt.show()
 
 
 # # Interpolating different wavelength axis. 
-# 
+#
 # Each wl dimension has a dopplershift added.
-# 
+#
 
 # In[ ]:
 
@@ -262,7 +262,7 @@ print(result)
 
 
 # # This lets me doppler shift the wavelength and return it to wm.
-# 
+#
 # In the second case for model I will just want to return it to the wavelength values of the observation.
 
 # In[ ]:

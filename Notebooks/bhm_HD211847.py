@@ -3,11 +3,11 @@
 
 # # Chi sqaure analsys for the best host star model
 # ## HD211847
-# 
-# 
-# 
-# 
-# 
+#
+#
+#
+#
+#
 
 # In[ ]:
 
@@ -73,7 +73,7 @@ observed_spectra.flux /= 1.02
 main()
 
 
-# 
+#
 
 # In[ ]:
 
