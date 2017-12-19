@@ -94,6 +94,6 @@ def test_fake_bhm_simulation_with_wav(wav, gamma, limits):
 # @pytest.mark.xfail()
 @pytest.mark.parametrize("limits", [[2030, 2180], [2100, 2140]])
 def test_fake_bhm_simulation_without_wav(limits):
-    fake_wav, fake_flux = fake_bhm_simulation(None, [4000, 4.0, -0.5], gamma=5, limits=limits)
+    fake_wav, fake_flux = fake_bhm_simulation(None, [5000, 4.5, 0.5], gamma=5, limits=limits)
     assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
     assert fake_wav.shape == fake_flux.shape
