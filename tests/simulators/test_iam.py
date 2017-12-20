@@ -7,7 +7,9 @@ from spectrum_overload import Spectrum
 import simulators
 from simulators.iam_module import (continuum_alpha, iam_analysis,
                                    iam_helper_function, iam_wrapper,
-                                   parallel_iam_analysis, setup_iam_dirs)
+                                   setup_iam_dirs)
+
+from simulators.iam_script import parse_args
 
 
 @pytest.mark.parametrize("star, obs, chip", [
@@ -24,11 +26,6 @@ def test_iam_helper_function(star, obs, chip):
     assert os.path.join(star, "iam", star) in output_prefix
     assert "iam_chisqr" in output_prefix
     assert params["name"] == star.lower()
-
-
-@pytest.mark.xfail()
-def test_iam_analysis_same_as_parallel():
-    assert parallel_iam_analysis() == iam_analysis()
 
 
 @pytest.mark.xfail()
@@ -62,7 +59,7 @@ def test_iam_wrapper_without_prefix(host, comp, tmpdir):
 
     obs_spec = host.copy()
     obs_spec.flux += comp.flux
-    obs_spec.header.update({"OBJECT": "Test_object","MJD-OBS": 56114.31674297})
+    obs_spec.header.update({"OBJECT": "Test_object", "MJD-OBS": 56114.31674297})
     setup_iam_dirs("Test_object")
 
     result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
@@ -97,9 +94,6 @@ def test_setup_dirs_creates_dirs(tmpdir):
     assert result is None
 
 
-from simulators.iam_script import parse_args
-
-
 def test_iam_script_parser():
     parsed = parse_args(["HD30501", "01"])
     assert parsed.star == "HD30501"
@@ -111,12 +105,11 @@ def test_iam_script_parser():
     assert parsed.area_scale is True
     assert parsed.renormalize is False
     assert parsed.disable_wav_scale is False
-    assert parsed.parallel is False
 
 
 def test_iam_script_parser_toggle():
     args = ["HDswitches", "02", "-c", "4", "-j", "3", "--suffix", "_test",
-                         "-n", "-p", "-s", "-a", "--disable_wav_scale", "--error_off"]
+            "-n", "-s", "-a", "--disable_wav_scale", "--error_off"]
     parsed = parse_args(args)
     assert parsed.star == "HDswitches"
     assert parsed.obsnum == "02"
@@ -128,4 +121,3 @@ def test_iam_script_parser_toggle():
     assert parsed.renormalize is True
     assert parsed.disable_wav_scale is True
     assert parsed.error_off is True
-    assert parsed.parallel is True
