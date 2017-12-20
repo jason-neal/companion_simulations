@@ -39,11 +39,13 @@ def _parser():
                         help='SNR value int', type=int, default=None)
     parser.add_argument('-r', '--replace',
                         help='Replace old fake spectra.', action="store_true")
+    parser.add_argument('-a', '--area_scale',
+                        help='Disable area_scaling.', action="store_false")
     return parser.parse_args()
 
 
 def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
-         noise=False, suffix="", replace=False, independent=False, fudge=None):
+         noise=False, suffix="", replace=False, independent=False, fudge=None, area_scale=True):
     chips = range(1, 5)
 
     starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh, "comp_temp": teff2}
@@ -53,11 +55,12 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
     params2 = "{}, {}, {}".format(teff2, logg2, feh2)
 
     fake_generator(star=star, sim_num=obsnum, params1=params1, params2=params2, rv=rv, gamma=gamma, noise=noise,
-                   replace=replace, noplots=True, mode="iam", independent=independent, fudge=fudge)
+                   replace=replace, noplots=True, mode="iam", independent=independent, fudge=fudge,
+                   area_scale=area_scale)
 
     # iam_script
     for chip in chips:
-        iam_script_main(star=star, obsnum=obsnum, chip=chip, suffix=suffix)
+        iam_script_main(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale)
 
     # Generate db
     db_main(star=star, obsnum=obsnum, suffix=suffix, move=True, replace=True)
@@ -67,7 +70,6 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
     # anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="compare_spectra")
     anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="all")
     anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="contrast")
-
 
     print("Noise level =", noise)
 
