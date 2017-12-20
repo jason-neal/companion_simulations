@@ -48,9 +48,9 @@ def parse_args(args):
 
 
 def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
-                        independent=False, noise=None, header=False, fudge=None):
+                        independent=False, noise=None, header=False, fudge=None, area_scale=True):
     """Make a fake spectrum with binary params and radial velocities."""
-    mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits)
+    mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits, area_scale=area_scale)
 
     if fudge is not None:
         mod2_spec.flux = fudge
@@ -125,7 +125,8 @@ def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, hea
 
 
 def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
-         independent=False, noise=None, test=False, replace=False, noplots=False, mode="iam", fudge=None):
+         independent=False, noise=None, test=False, replace=False,
+         noplots=False, mode="iam", fudge=None, area_scale=True):
     star = star.upper()
 
     if params1 is not None:
@@ -145,7 +146,8 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
         else:
             # chip = None gives full range
             x_wav, y_wav, header = fake_iam_simulation(None, params_1, params_2, gamma, rv,
-                                                       independent=independent, noise=noise, header=True, fudge=fudge)
+                                                       independent=independent, noise=noise,
+                                                       header=True, fudge=fudge, area_scale=area_scale)
             fake_spec = Spectrum(xaxis=x_wav, flux=y_wav, header=header)
 
             # save to file
