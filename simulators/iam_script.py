@@ -119,8 +119,8 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
 
     rv_iter = len(rvs) * len(gammas)
     model_iter = len(model2_pars) * len(model1_pars)
-    print(("STARTING iam_analysis\nWith {0} parameter iterations.\n{1} rv iterations,"
-           " {2} model iterations").format(rv_iter * model_iter, rv_iter, model_iter))
+    print(("\nSTARTING iam_analysis\n{0} parameter iterations\n{1} rv iterations\n"
+           "{2} model iterations\n\n").format(rv_iter * model_iter, rv_iter, model_iter))
 
     ####
     if parallel:
