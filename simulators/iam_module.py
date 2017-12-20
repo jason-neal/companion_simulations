@@ -6,14 +6,12 @@ import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed
 from tqdm import tqdm
 
 import simulators
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale, arbitrary_minimums
-from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 from simulators.common_setup import setup_dirs, sim_helper_function
@@ -60,54 +58,6 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
         return iam_grid_chisqr_vals  # Just output the best value for each model pair
 
 
-def parallel_iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None,
-                          gammas=None, verbose=False, norm=False,
-                          save_only=True, chip=None, prefix=None,
-                          errors=None, area_scale=False, wav_scale=True):
-    """Run two component model over all model combinations."""
-    rvs = check_inputs(rvs)
-    gammas = check_inputs(gammas)
-
-    if isinstance(model1_pars, list):
-        logging.debug("Number of close model_pars returned {0}".format(len(model1_pars)))
-    if isinstance(model2_pars, list):
-        logging.debug("Number of close model_pars returned {0}".format(len(model2_pars)))
-
-    def filled_iam_wrapper(num, param):
-        """Fill in all extra parameters for parallel wrapper."""
-        return iam_wrapper(num, param, model2_pars, rvs, gammas,
-                           obs_spec, norm=norm, save_only=save_only,
-                           chip=chip, prefix=prefix, verbose=verbose, errors=errors,
-                           area_scale=area_scale, wav_scale=wav_scale)
-
-    print("Parallelized running\n\n\n ###################")
-    # raise NotImplementedError("Need to fix this up")
-    iam_grid_chisqr_vals = Parallel(n_jobs=-2)(
-        delayed(filled_iam_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
-    # iam_grid_chisqr_vals = Parallel(n_jobs=-2)(
-    #     delayed(iam_wrapper)(ii, param, model2_pars, rvs, gammas,
-    #                          obs_spec, norm=norm, save_only=save_only,
-    #                          chip=chip, prefix=prefix, verbose=verbose)
-    #     for ii, param in enumerate(model1_pars))
-
-    if prefix is None:
-        prefix = ""
-    prefix += "_parallel"
-    args = [model2_pars, rvs, gammas, obs_spec]
-    kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
-              "prefix": prefix, "verbose": verbose, "errors": errors,
-              "area_scale": area_scale, "wav_scale": wav_scale}
-
-    iam_grid_chisqr_vals = Parallel(n_jobs=-2)(
-        delayed(iam_wrapper)(ii, param, *args, **kwargs)
-        for ii, param in enumerate(model1_pars))
-    # iam_grid_chisqr_vals = np.empty_like(model1_pars)
-    # for ii, param in enumerate(model1_pars):
-    #    iam_grid_chisqr_vals[ii] = iam_wrapper(ii, param, *args, **kwargs)
-
-    return iam_grid_chisqr_vals  # Just output the best value for each model pair
-
-
 def continuum_alpha(model1, model2, chip=None):
     """Inherent flux ratio between the continuum of the two models.
 
@@ -141,7 +91,7 @@ def continuum_alpha(model1, model2, chip=None):
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 verbose=True, save_only=True, chip=None, prefix=None, errors=None,
                 area_scale=True, wav_scale=True, grid_slices=False):
-    """Wrapper for iteration loop of iam. To use with parallelization."""
+    """Wrapper for iteration loop of iam. params1 fixed, model2_pars are many."""
     if prefix is None:
         sf = os.path.join(
             simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper(),

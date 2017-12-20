@@ -27,7 +27,7 @@ from mingle.utilities.phoenix_utils import (closest_model_params,
 from mingle.utilities.simulation_utilities import check_inputs
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import (iam_analysis, iam_helper_function,
-                                   parallel_iam_analysis, setup_iam_dirs)
+                                   setup_iam_dirs)
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -52,8 +52,6 @@ def parse_args(args):
     parser.add_argument("star", help='Star name.', type=str)
     parser.add_argument("obsnum", help='Star observation number.', type=str)
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
-    parser.add_argument('-p', '--parallel', help='Use parallelization.',
-                        action="store_true")
     parser.add_argument("-j", "--n_jobs", help="Number of parallel Jobs",
                         default=1, type=int)
     parser.add_argument("-n", "--renormalize", help="Scalar re-normalize flux to models. Default=False",
@@ -72,7 +70,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
+def main(star, obsnum, chip=None, small=True, verbose=False,
          suffix=None, error_off=False, area_scale=True, disable_wav_scale=False, renormalize=False, model="aces"):
     """Main function."""
     wav_scale = not disable_wav_scale
@@ -122,27 +120,13 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
     print(("\nSTARTING iam_analysis\n{0} parameter iterations\n{1} rv iterations\n"
            "{2} model iterations\n\n").format(rv_iter * model_iter, rv_iter, model_iter))
 
-    ####
-    if parallel:
-        chi2_grids = parallel_iam_analysis(obs_spec, model1_pars, model2_pars,
-                                           rvs, gammas, verbose=verbose,
-                                           norm=renormalize, prefix=output_prefix,
-                                           save_only=True, errors=errors,
-                                           area_scale=area_scale, wav_scale=wav_scale)
-    else:
-        chi2_grids = iam_analysis(obs_spec, model1_pars, model2_pars, rvs,
+    # IAM Analysis
+    chi2_grids = iam_analysis(obs_spec, model1_pars, model2_pars, rvs,
                                   gammas, verbose=verbose, norm=renormalize,
                                   prefix=output_prefix, errors=errors,
                                   area_scale=area_scale, wav_scale=wav_scale)
 
-    ####
-    # Print TODO
-    if chi2_grids is not None:
-        print("chi2_grid.shape", chi2_grids.shape)
-    print("TODO: Add joining of sql table here")
-    # subprocess.call(make_chi2_bd.py)
-
-    print( "\nNow use bin/coadd_chi2_db.py")
+    print("\nNow use bin/coadd_chi2_db.py")
     return 0
 
 
