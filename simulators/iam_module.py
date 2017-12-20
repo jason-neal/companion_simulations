@@ -140,7 +140,7 @@ def continuum_alpha(model1, model2, chip=None):
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 verbose=True, save_only=True, chip=None, prefix=None, errors=None,
-                area_scale=True, wav_scale=True):
+                area_scale=True, wav_scale=True, grid_slices=False):
     """Wrapper for iteration loop of iam. To use with parallelization."""
     if prefix is None:
         sf = os.path.join(
@@ -222,10 +222,13 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 warnings.warn("Not Scalar Re-normalizing to observations!")
                 obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis]
 
-            plot_iam_grid_slices(obs_spec.xaxis, rvs, gammas, iam_grid_models,
-                                 star=obs_spec.header["OBJECT"].upper(),
-                                 xlabel="wavelength", ylabel="rv", zlabel="gamma",
-                                 suffix="iam_grid_models", chip=chip)
+            if grid_slices:
+                # Long execution plotting.
+                plot_iam_grid_slices(obs_spec.xaxis, rvs, gammas, iam_grid_models,
+                                     star=obs_spec.header["OBJECT"].upper(),
+                                     xlabel="wavelength", ylabel="rv", zlabel="gamma",
+                                     suffix="iam_grid_models", chip=chip)
+
             old_shape = iam_grid_models.shape
             # Arbitrary_normalization of observation
             iam_grid_models, arb_norm = arbitrary_rescale(iam_grid_models,
@@ -245,10 +248,12 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
 
             npix = obs_flux.shape[0]  # Number of pixels used
 
-            plot_iam_grid_slices(rvs, gammas, arb_norm, iam_norm_grid_chisquare,
-                                 star=obs_spec.header["OBJECT"].upper(),
-                                 xlabel="rv", ylabel="gamma", zlabel="Arbitrary Normalization",
-                                 suffix="iam_grid_chisquare", chip=chip)
+            if grid_slices:
+                # Long execution plotting.
+                plot_iam_grid_slices(rvs, gammas, arb_norm, iam_norm_grid_chisquare,
+                                     star=obs_spec.header["OBJECT"].upper(),
+                                     xlabel="rv", ylabel="gamma", zlabel="Arbitrary Normalization",
+                                     suffix="iam_grid_chisquare", chip=chip)
 
             if not save_only:
                 iam_grid_chisqr_vals[jj] = iam_grid_chisquare.ravel()[np.argmin(iam_grid_chisquare)]
@@ -335,7 +340,9 @@ def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
 
 def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, suffix=None, star=None,
                          chip=None):
-    """Slice up 3d grid and plot slices."""
+    """Slice up 3d grid and plot slices.
+
+    This is very slow!"""
     os.makedirs(os.path.join(simulators.paths["output_dir"], star.upper(), "grid_plots"), exist_ok=True)
     x_grid, y_grid, z_grid = np.meshgrid(x, y, z, indexing="ij")
 
