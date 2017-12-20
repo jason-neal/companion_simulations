@@ -196,7 +196,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                                  "{1}_fudged_model_spectra_factor={0}_num={2}.png".format(fudge_factor, fudge_prefix,
                                                                                           num))
             plt.savefig(fname)
-            warnings.warn("Using a fudge factor")
+            warnings.warn("Using a fudge factor = {0}".format(fudge_factor))
 
             iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
                                                  rvs=rvs, gammas=gammas)
