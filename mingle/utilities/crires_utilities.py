@@ -20,15 +20,16 @@ def barycorr_crires_spectrum(spectrum, extra_offset=None):
         if (extra_offset is not None) or (extra_offset != 0):
             warnings.warn("Only applying the extra offset.")
             _, nflux = barycorr_crires(spectrum.xaxis, spectrum.flux,
-                                       None, extra_offset=extra_offset)
+                                       {}, extra_offset=extra_offset)
         else:
             warnings.warn("Not changing spectrum.")
-            new_spectrum = spectrum
+            return spectrum
     else:
         _, nflux = barycorr_crires(spectrum.xaxis, spectrum.flux,
                                    spectrum.header, extra_offset=extra_offset)
-        new_spectrum = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
-        new_spectrum.header["BARYDONE"] = True
+
+    new_spectrum = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
+    new_spectrum.header["BARYDONE"] = True
     return new_spectrum
 
 
