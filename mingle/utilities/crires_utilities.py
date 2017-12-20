@@ -6,22 +6,29 @@
 
 
 import logging
+import warnings
 
 import ephem
 from PyAstronomy import pyasl
 from spectrum_overload import Spectrum
 
 
-# TODO: Add a line in the header to check if this script has already been
-# applied.
-# TODO: wrapper to handle Specturm objects
-
-
 def barycorr_crires_spectrum(spectrum, extra_offset=None):
     """Wrapper to apply barycorr for CRIRES spectra if given a Spectrum object."""
-    _, nflux = barycorr_crires(spectrum.xaxis, spectrum.flux,
-                               spectrum.header, extra_offset=extra_offset)
-    new_spectrum = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
+    if spectrum.header.get("BARYDONE", False):
+        warnings.warn("Spectrum already berv corrected")
+        if (extra_offset is not None) or (extra_offset != 0):
+            warnings.warn("Only applying the extra offset.")
+            _, nflux = barycorr_crires(spectrum.xaxis, spectrum.flux,
+                                       None, extra_offset=extra_offset)
+        else:
+            warnings.warn("Not changing spectrum.")
+            new_spectrum = spectrum
+    else:
+        _, nflux = barycorr_crires(spectrum.xaxis, spectrum.flux,
+                                   spectrum.header, extra_offset=extra_offset)
+        new_spectrum = Spectrum(flux=nflux, xaxis=spectrum.xaxis, header=spectrum.header)
+        new_spectrum.header["BARYDONE"] = True
     return new_spectrum
 
 
@@ -53,6 +60,10 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
         helcorr = pyasl.helcorr(longitude, latitude, altitude, ra, dec, jd,
                                 debug=False)
         helcorr = helcorr[0]
+
+        if header.get("BARYDONE", False):
+            warnings.warn("Applying barycentric correction when 'BARYDONE' already flag set.")
+
     except KeyError as e:
         logging.warning("Not a valid header so can't do automatic correction.")
 
@@ -80,6 +91,8 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
 def crires_resolution(header):
     """Set CRIRES resolution based on rule of thumb equation from the manual.
 
+    resolving_power = 100000 * 0.2 / slit_width
+
     Warning! The use of adaptive optics is not checked for!!
     # This code has been copied from tapas xml request script.
     """
@@ -92,9 +105,6 @@ def crires_resolution(header):
         # checked for!!")
         resolving_power = 100000 * 0.2 / slit_width
         resolving_power = int(resolving_power)
-        # print("Slit width was {0} inches.\n
-        # Therefore the resolving_power is set = {1}".format(slit_width,
-        # resolving_power))
     else:
         print("Instrument is not CRIRES")
     return resolving_power

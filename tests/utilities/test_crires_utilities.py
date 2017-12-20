@@ -34,6 +34,16 @@ def test_barycorr_crires_spectrum_with_invalid_header_no_offset_returns_same(hos
 
     assert np.allclose(new_spec.flux, host.flux)
 
+
+@pytest.mark.parametrize("extra", [None, 0.0])
+def test_barycorr_crires_spectrum_with_BARYDONE_no_offset_returns_same(host, extra):
+    host.header["BARYDONE"] = True
+    with pytest.warns(UserWarning):
+        new_spec = barycorr_crires_spectrum(host, extra_offset=extra)
+    assert np.allclose(new_spec.xaxis, host.xaxis)
+    assert np.allclose(new_spec.flux, host.flux)
+
+
 @pytest.mark.xfail
 @pytest.mark.parametrize("extra", [None, 0.0, -10., 50.])
 def test_barycorr_crires_is_implemented_on_spectrum(host, extra):
