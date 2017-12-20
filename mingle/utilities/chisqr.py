@@ -28,7 +28,7 @@ def reduced_chi_squared(chi_squared, N, P):
 
 
 def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
-    """Chi squared for specturm objects."""
+    """Chi squared for spectrum objects."""
     # Spectrum wrapper for chisquare
     # make sure xaxis is the Same
     nan_number = np.sum(np.isnan(spectrum_1.flux))
@@ -43,7 +43,6 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
 
         if np.isnan(chi2):
             print(" Nan chisqr")
-            # print(spectrum_1.xaxis, spectrum_1.flux, spectrum_2.xaxis, spectrum_2.flux)
         return chi2
     else:
         print("Spectrum_1", len(spectrum_1))
@@ -54,8 +53,6 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
 
 def model_chisqr_wrapper(spectrum_1, model, params, error=None):
     """Evaluate model and call chisquare."""
-    # print("params for model", params)
-    # params = copy.copy(params)
     evaluated_model = model(*params)  # unpack parameters
 
     if np.all(np.isnan(evaluated_model.flux)):
@@ -65,7 +62,7 @@ def model_chisqr_wrapper(spectrum_1, model, params, error=None):
 
 
 def parallel_chisqr(iter1, iter2, observation, model_func, model_params, n_jobs=1):
-    """Parallel chisqr calculation with two iterables."""
+    """Parallel chisquared calculation with two iterators."""
     grid = Parallel(n_jobs=n_jobs)(delayed(model_chisqr_wrapper)(observation,
                                                                  model_func, (a, b, *model_params))
                                    for a in iter1 for b in iter2)
