@@ -1,13 +1,11 @@
-import os
-
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 
 import simulators
 from bin.coadd_analysis_script import load_sql_table
+from bin.coadd_bhm_db import bhm_parse_args
 from bin.coadd_bhm_db import main as bhm_db_main
-from bin.coadd_bhm_db import parse_args
 from simulators.bhm_module import setup_bhm_dirs
 
 
@@ -46,7 +44,7 @@ def test_bhm_db_main(tmpdir):
         # df.to_sql('test_table', engine, if_exists='append')
 
     expected_db_name = tmpdir.join(star, "bhm",
-                                    "{0}-{1}_coadd_bhm_chisqr_results{2}.db".format(star, obsnum, suffix))
+                                   "{0}-{1}_coadd_bhm_chisqr_results{2}.db".format(star, obsnum, suffix))
     assert expected_db_name.check(file=0)
     # make 4 databases to add together()
     res = bhm_db_main(star, obsnum, suffix, replace=False, verbose=True, chunksize=5, move=False)
@@ -79,9 +77,9 @@ def test_bhm_db_main(tmpdir):
 
 
 def test_coadd_bhm_db_parser_defaults():
-    args = ["HDdefault", "0", ]
-    parsed = parse_args(args)
-    assert parsed.star == "HDdefault"
+    args = ["bhmdefault", "0", ]
+    parsed = bhm_parse_args(args)
+    assert parsed.star == "bhmdefault"
     assert parsed.obsnum == "0"
     assert parsed.suffix is ""
     assert parsed.chunksize == 1000
@@ -92,9 +90,9 @@ def test_coadd_bhm_db_parser_defaults():
 
 
 def test_coadd_bhm_db_parser():
-    args = ["HDswitches", "1a", "--suffix", "_test", "-v", "-r", "-c", "50000", "-m"]
-    parsed = parse_args(args)
-    assert parsed.star == "HDswitches"
+    args = ["bhmswitches", "1a", "--suffix", "_test", "-v", "-r", "-c", "50000", "-m"]
+    parsed = bhm_parse_args(args)
+    assert parsed.star == "bhmswitches"
     assert parsed.obsnum == "1a"
     assert parsed.suffix is "_test"
     assert parsed.chunksize == 50000
