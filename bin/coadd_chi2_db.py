@@ -38,7 +38,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(star, obsnum, suffix, replace=False, verbose=True, chunksize=1000, move=False):
+def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, move=False):
     """"""
     star = star.upper()
     if suffix is None:

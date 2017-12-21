@@ -114,8 +114,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
 
     # Put pixel counts in params
     params["npix"] = get_npix_values(db_table)
-
-    print("Mode =", mode)
+    if verbose:
+        print("Mode =", mode)
 
     if mode == "fixed_host_params":
         fix_host_parameters_reduced_gamma(db_table, params)
@@ -154,7 +154,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         contrast_iam_results(db_table, params)
     else:
         warnings.warn("Incorrect Mode in iam analysis")
-        print("Done")
+
+    print("Done")
     return 0
 
 

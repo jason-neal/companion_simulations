@@ -85,7 +85,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     # Put pixel counts in params
     params["npix"] = get_npix_values(db_table)
 
-    print("Mode =", mode)
+    if verbose:
+        print("Mode =", mode)
 
     if mode == "fixed_host_params":
         host_parameters_reduced_gamma(db_table, params)
