@@ -57,10 +57,12 @@ def sql_join(pattern, suffix=None, verbose=True, move=False, remove=False):
         suffix = ""
     # Get first part of name
     prefix = next(glob.iglob(pattern)).split("_part")[0]
-    print(prefix, suffix)
+    if verbose:
+        print(prefix, suffix)
     database_name = 'sqlite:///{0}{1}.db'.format(prefix, suffix)
     engine = sa.create_engine(database_name)
-    print("csv_database =", engine, type(engine))
+    if verbose:
+        print("csv_database =", engine, type(engine))
 
     chunksize = 100000
     i = 0
