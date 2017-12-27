@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 import simulators
 
-def parse_args(args):
+def bhm_parse_args(args):
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -139,7 +139,7 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
 
 
 if __name__ == "__main__":
-    args = vars(parse_args(sys.argv[1:]))
+    args = vars(bhm_parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
     main(**opts)
 
