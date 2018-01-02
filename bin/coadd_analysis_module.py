@@ -215,7 +215,7 @@ def parabola_plots(table, params):
                         table.c[chi2_val].asc()).limit(3), table.metadata.bind)
                 min_chi2.append(df_chi2[chi2_val].values[0])
 
-            min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
+            # min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
 
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
@@ -259,7 +259,7 @@ def chi2_parabola_plots(table, params):
                         table.c[chi2_val].asc()).limit(3), table.metadata.bind)
                 min_chi2.append(df_chi2[chi2_val].values[0])
 
-            min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
+            # min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
 
             min_chi2 = min_chi2 - min(min_chi2)
 
@@ -270,7 +270,7 @@ def chi2_parabola_plots(table, params):
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
             plt.xlabel(r"${0}$".format(par))
-            plt.ylabel(r"$\Delta \chi^2_{red}$ from mimimum")
+            plt.ylabel(r"$\Delta \chi^2$ from mimimum")
 
         plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
         plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
