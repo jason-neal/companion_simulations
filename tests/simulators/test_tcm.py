@@ -30,35 +30,25 @@ def test_setup_tcm_dirs_creates_dirs(tmpdir):
     star = "TestStar"
     assert not tmpdir.join(star.upper()).check()
     assert not tmpdir.join(star.upper(), "tcm", "plots").check()
-    # assert not tmpdir.join(star.upper(), "tcm", "grid_plots").check(dir=True)
-    # assert not tmpdir.join(star.upper(), "tcm", "fudgeplots").check(dir=True)
     result = setup_tcm_dirs(star)
 
     assert tmpdir.join(star.upper()).check(dir=True)
     assert tmpdir.join(star.upper(), "tcm", "plots").check(dir=True)
-    # assert tmpdir.join(star.upper(), "tcm", "grid_plots").check(dir=True)
-    # assert tmpdir.join(star.upper(), "tcm", "fudgeplots").check(dir=True)
     assert result is None
 
 
 def test_tcm_script_parser():
     parsed = parse_args([])
-    # assert parsed.star == "HD30501"
-    # assert parsed.obsnum == "01"
     assert parsed.chip is None
     assert parsed.small is False
     assert parsed.error_off is False
     assert parsed.disable_wav_scale is False
-    assert parsed.parallel is False
 
 
 def test_tcm_script_parser_toggle():
-    args = ["--chip", "2", "-p", "-s", "--error_off", "--disable_wav_scale"]
+    args = ["--chip", "2", "-s", "--error_off", "--disable_wav_scale"]
     parsed = parse_args(args)
-    # assert parsed.star == "HD30501"
-    # assert parsed.obsnum == "01"
     assert parsed.chip is "2"
     assert parsed.small is True
     assert parsed.error_off is True
     assert parsed.disable_wav_scale is True
-    assert parsed.parallel is True

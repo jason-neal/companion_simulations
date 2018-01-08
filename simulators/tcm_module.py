@@ -3,14 +3,12 @@ import os
 
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed
 from tqdm import tqdm
 
 import simulators
 from mingle.models.broadcasted_models import two_comp_model
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.norm import chi2_model_norms
-from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs
 from simulators.iam_module import observation_rv_limits
@@ -55,57 +53,10 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
         return broadcast_chisqr_vals  # Just output the best value for each model pair
 
 
-def parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None,
-                          rvs=None, gammas=None, errors=None, verbose=False, norm=False, save_only=True, chip=None,
-                          prefix=None, wav_scale=True):
-    """Run two component model over all parameter combinations in model1_pars and model2_pars."""
-    alphas = check_inputs(alphas)
-    rvs = check_inputs(rvs)
-    gammas = check_inputs(gammas)
-
-    if isinstance(model1_pars, list):
-        logging.debug("Number of close model_pars returned {}".format(len(model1_pars)))
-    if isinstance(model2_pars, list):
-        logging.debug("Number of close model_pars returned {}".format(len(model2_pars)))
-
-    # def filled_tcm_wrapper(num, param):
-    #     """Fill in all extra parameters for parallel wrapper."""
-    #    return tcm_wrapper(num, params, model2_pars, alphas, rvs, gammas,
-    #                       obs_spec, norm=norm, save_only=save_only,
-    #                       chip=chip, prefix=prefix, verbose=verbose)
-
-    print("Parallelized running\n\n\n ###################")
-    raise NotImplementedError("Need to fix this up")
-    # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
-    #    delayed(filled_tcm_wrapper)(ii, param) for ii, param in enumerate(model1_pars))
-    # broadcast_chisqr_vals = Parallel(n_jobs=-2)(
-    #     delayed(tcm_wrapper)(ii, param, model2_pars, alphas, rvs, gammas,
-    #                          obs_spec, norm=norm, save_only=save_only,
-    #                          chip=chip, prefix=prefix, verbose=verbose)
-    #     for ii, param in enumerate(model1_pars))
-
-    if prefix is None:
-        prefix = ""
-    prefix += "_parallel"
-
-    args = [model2_pars, alphas, rvs, gammas, obs_spec]
-    kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
-              "prefix": prefix, "verbose": verbose, "errors": errors, "wav_scale": wav_scale}
-
-    broadcast_chisqr_vals = Parallel(n_jobs=-2)(
-        delayed(tcm_wrapper)(ii, param, *args, **kwargs)
-        for ii, param in enumerate(model1_pars))
-    # broadcast_chisqr_vals = np.empty_like(model1_pars)
-    # for ii, param in enumerate(model1_pars):
-    #    broadcast_chisqr_vals[ii] = tcm_wrapper(ii, param, *args, **kwargs)
-
-    return broadcast_chisqr_vals  # Just output the best value for each model pair
-
-
 def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
                 errors=None, norm=True, verbose=True, save_only=True,
                 chip=None, prefix=None, wav_scale=True):
-    """Wrapper for iteration loop of tcm. To use with parallelization."""
+    """Wrapper for iteration loop of tcm. params1 fixed, model2_pars are many."""
     normalization_limits = [2105, 2185]  # small as possible?
 
     if prefix is None:

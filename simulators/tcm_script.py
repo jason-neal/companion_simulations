@@ -26,8 +26,7 @@ from mingle.utilities.errors import spectrum_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
 from mingle.utilities.spectrum_utils import load_spectrum  # , select_observation
-from simulators.tcm_module import (parallel_tcm_analysis, tcm_analysis,
-                                   tcm_helper_function, setup_tcm_dirs)
+from simulators.tcm_module import (tcm_analysis, tcm_helper_function, setup_tcm_dirs)
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -49,7 +48,6 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(description='tcm')
     parser.add_argument('--chip', help='Chip Number.', default=None)
-    parser.add_argument('-p', '--parallel', help='Use parallelization.', action="store_true")
     parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
     parser.add_argument("--error_off", help="Turn snr value errors off.", action="store_true")
     parser.add_argument('--disable_wav_scale', action="store_true",
@@ -57,7 +55,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, disable_wav_scale=False):
+def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scale=False):
     """Main function."""
     wav_scale = not disable_wav_scale
 
@@ -98,14 +96,8 @@ def main(chip=None, parallel=True, small=True, verbose=False, error_off=False, d
     logging.info("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
     logging.debug("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
-    ####
-    if parallel:
-        chi2_grids = parallel_tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
-                                           verbose=verbose, norm=True, prefix=output_prefix, save_only=True,
-                                           wav_scale=wav_scale)
-    else:
-        chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
-                                  verbose=verbose, norm=True, prefix=output_prefix, wav_scale=wav_scale)
+    chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
+                              verbose=verbose, norm=True, prefix=output_prefix, wav_scale=wav_scale)
 
     return 0
 
