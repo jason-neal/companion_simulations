@@ -28,6 +28,7 @@ from mingle.utilities.simulation_utilities import check_inputs
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    setup_iam_dirs)
+import warnings
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -98,6 +99,7 @@ def main(star, obsnum, chip=None, small=True, verbose=False,
         model2_pars = list(generate_close_params_with_simulator(
             closest_comp_model, "companion", small=small, limits="phoenix"))
     else:
+        warnings.warn("BT-Settl mode is not valid yet as")
         model1_pars = list(generate_close_params_with_simulator(
             closest_host_model, "host", small="host", limits="cifist"))
         model2_pars = list(generate_close_params_with_simulator(
