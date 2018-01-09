@@ -109,5 +109,5 @@ def parse_obslist(fname, path=None):
                 if "." in line:
                     line = line.split(".")[0]   # remove fractions of seconds.
                 obstimes.append(line.strip())
-        logging.debug("obstimes = {}",format(obstimes))
+        logging.debug("obstimes = {}".format(obstimes))
     return obstimes
