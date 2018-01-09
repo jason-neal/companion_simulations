@@ -162,15 +162,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             iam_grid_models = iam_grid_models / iam_grid_continuum
 
             # RE-NORMALIZATION
-            if norm:
-                if norm_method in ["scalar", "linear"]:
-                    raise ValueError("Renormalization value '{}' is not in ['scalar', 'linear']".format(norm_method))
-                logging.info("{} Re-normalizing to observations!".format(norm_method))
-                obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux,
-                                            iam_grid_models, method=norm_method)
-            else:
-                warnings.warn("Not Scalar Re-normalizing to observations!")
-                obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis]
+            test_obs_flux = renormalization(obs_spec, iam_grid_models, normalize=norm, method=norm_method)
 
             if grid_slices:
                 # Long execution plotting.
@@ -215,6 +207,39 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             return None
         else:
             return iam_grid_chisqr_vals
+
+
+def renormalization(spectrum, model_grid, normalize=False, method="scalar"):
+    """Re-normalize the flux of spectrum to the continuum of the model_grid.
+
+       Broadcast out spectrum to match the dimensions of model_grid.
+
+    Parameters
+    ----------
+    spectrum: Spectrum
+    model_grid: np.ndarray
+    normalize: bool
+    method: str ("scalar", "linear")
+
+    Returns
+    -------
+    norm_flux: np.ndarray
+    """
+    if normalize:
+        if method not in ["scalar", "linear"]:
+              raise ValueError("Renormalization method '{}' is not in ['scalar', 'linear']".format(norm_method))
+        logging.info("{} Re-normalizing to observations!".format(method))
+        norm_flux = chi2_model_norms(spectrum.xaxis, spectrum.flux,
+                                     model_grid, method=method)
+    else:
+        warnings.warn("Not Scalar Re-normalizing to observations!")
+        norm_flux = spectrum.flux[:]
+        # Extend dimensions of norm_flux until they match the grid.
+        while norm_flux.ndim < model_grid.ndim:
+            norm_flux = norm_flux[:, np.newaxis]
+
+    assert np.allclose(norm_flux.ndim, model_grid.ndim)
+    return norm_flux
 
 
 def observation_rv_limits(obs_spec, rvs, gammas):

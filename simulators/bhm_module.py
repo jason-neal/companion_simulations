@@ -10,6 +10,7 @@ from mingle.utilities.norm import chi2_model_norms
 from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model_params, generate_close_params
 from mingle.utilities.xcorr import xcorr_peak
 from simulators.common_setup import setup_dirs, sim_helper_function
+from simulators.iam_module import renormalization
 from tqdm import tqdm
 
 from simulators.iam_module import arbitrary_minimums, arbitrary_rescale
@@ -70,14 +71,8 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
         # RENORMALIZATION
-        if norm:
-            if norm_method in ["scalar", "linear"]:
-                raise ValueError("Renormalization value '{}' is not in ['scalar', 'linear']".format(norm_method))
-            logging.info("{} Re-normalizing to observations!".format(norm_method))
-            obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, bhm_grid_values)
-        else:
-            obs_flux = obs_spec.flux[:, np.newaxis]
-        # Simple chi2
+        obs_flux = renormalization(obs_spec, bhm_grid_values, normalize=norm, method=norm_method)
+
         bhm_grid_chisquare_old = chi_squared(obs_flux, bhm_grid_values, error=errors)
 
         ### Applying arbitrary scalar normalization to continuum
