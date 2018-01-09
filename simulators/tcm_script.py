@@ -52,10 +52,15 @@ def parse_args(args):
     parser.add_argument("--error_off", help="Turn snr value errors off.", action="store_true")
     parser.add_argument('--disable_wav_scale', action="store_true",
                         help='Disable scaling by wavelength.')
+    parser.add_argument("-n", "--renormalize", help="Scalar re-normalize flux to models. Default=False",
+                        action="store_true")
+    parser.add_argument("-m", "--norm_method", help="Re-normalization method flux to models. Default=scalar",
+                        choices=["scalar", "linear"], default="scalar")
     return parser.parse_args(args)
 
 
-def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scale=False):
+def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scale=False, renormalize=False,
+         norm_method="scalar"):
     """Main function."""
     wav_scale = not disable_wav_scale
 
@@ -97,7 +102,7 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
     logging.debug("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
     chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
-                              verbose=verbose, norm=True, prefix=output_prefix, wav_scale=wav_scale)
+                              verbose=verbose, norm=renormalize, prefix=output_prefix, wav_scale=wav_scale, norm_method=norm_method)
 
     return 0
 

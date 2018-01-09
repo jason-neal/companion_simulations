@@ -13,7 +13,7 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs
 from simulators.iam_module import observation_rv_limits
 from simulators.common_setup import setup_dirs, sim_helper_function
-
+from simulators.iam_module import renormalization
 
 def setup_tcm_dirs(star):
     setup_dirs(star, mode="tcm")
@@ -26,7 +26,7 @@ def tcm_helper_function(star, obsnum, chip, skip_params=False):
 
 def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
                  gammas=None, errors=None, verbose=False, norm=False, save_only=True,
-                 chip=None, prefix=None, wav_scale=True):
+                 chip=None, prefix=None, wav_scale=True, norm_method="scalar"):
     """Run two component model over all parameter combinations in model1_pars and model2_pars."""
     alphas = check_inputs(alphas)
     rvs = check_inputs(rvs)
@@ -40,7 +40,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
     args = [model2_pars, alphas, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
               "prefix": prefix, "verbose": verbose, "errors": errors,
-              "wav_scale": wav_scale}
+              "wav_scale": wav_scale, norm_method: norm_method}
 
     broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
 
@@ -55,7 +55,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
 
 def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
                 errors=None, norm=True, verbose=True, save_only=True,
-                chip=None, prefix=None, wav_scale=True):
+                chip=None, prefix=None, wav_scale=True, norm_method="scalar"):
     """Wrapper for iteration loop of tcm. params1 fixed, model2_pars are many."""
     normalization_limits = [2105, 2185]  # small as possible?
 
@@ -101,11 +101,8 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
 
             assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
-            # ### NORMALIZATION NEEDED HERE
-            if norm:
-                obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, broadcast_values)
-            else:
-                obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis, np.newaxis]
+            # RE-NORMALIZATION
+            obs_flux = renormalization(obs_spec, broadcast_values, normalize=norm, method=norm_method)
 
             # sp_chisquare is much faster but don't think I can add masking.
             broadcast_chisquare = chi_squared(obs_flux, broadcast_values, error=errors)
