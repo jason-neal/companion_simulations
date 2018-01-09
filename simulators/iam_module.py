@@ -162,7 +162,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             iam_grid_models = iam_grid_models / iam_grid_continuum
 
             # RE-NORMALIZATION
-            test_obs_flux = renormalization(obs_spec, iam_grid_models, normalize=norm, method=norm_method)
+            obs_flux = renormalization(obs_spec, iam_grid_models, normalize=norm, method=norm_method)
 
             if grid_slices:
                 # Long execution plotting.
