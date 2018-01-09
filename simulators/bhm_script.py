@@ -28,6 +28,10 @@ def parse_args(args):
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
     parser.add_argument('-s', '--suffix', type=str, default="",
                         help='Extra name identifier.')
+    parser.add_argument("-n", "--renormalize", help="Scalar re-normalize flux to models. Default=False",
+                        action="store_true")
+    parser.add_argument("-m", "--norm_method", help="Re-normalization method flux to models. Default=scalar",
+                        choices=["scalar", "linear"], default="scalar")
     parser.add_argument("--error_off", action="store_true",
                         help="Turn snr value errors off.")
     parser.add_argument('--disable_wav_scale', action="store_true",
@@ -35,7 +39,8 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(star, obsnum, chip=None, verbose=False, suffix=None, error_off=False, disable_wav_scale=False):
+def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scale=False, renormalize=False,
+         norm_method="scalar"):
     """Best Host modelling main function."""
     wav_scale = not disable_wav_scale
     star = star.upper()
@@ -69,8 +74,8 @@ def main(star, obsnum, chip=None, verbose=False, suffix=None, error_off=False, d
     except KeyError as e:
         errors = None
 
-    chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=False,
-                              wav_scale=wav_scale, prefix=output_prefix)
+    chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=renormalize,
+                              wav_scale=wav_scale, prefix=output_prefix, norm_method=norm_method)
     print("after bhm_analysis")
 
     (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,

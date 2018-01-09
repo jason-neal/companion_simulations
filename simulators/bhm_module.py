@@ -21,7 +21,7 @@ def setup_bhm_dirs(star):
 
 
 def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, verbose=False, chip=None, norm=False,
-                 wav_scale=True):
+                 wav_scale=True, norm_method="scalar"):
     """Run one component model over all parameter combinations in model_pars."""
     # Gammas
     if gammas is None:
@@ -69,15 +69,14 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
 
         assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
-        # ### NORMALIZATION NEEDED HERE
+        # RENORMALIZATION
         if norm:
-            # return NotImplemented
-            # obs_flux = broadcast_normalize_observation(obs_spec.xaxis[:, np.newaxis],
-            #                                            obs_spec.flux[:, np.newaxis], bhm_grid_values)
+            if norm_method in ["scalar", "linear"]:
+                raise ValueError("Renormalization value '{}' is not in ['scalar', 'linear']".format(norm_method))
+            logging.info("{} Re-normalizing to observations!".format(norm_method))
             obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux, bhm_grid_values)
         else:
             obs_flux = obs_spec.flux[:, np.newaxis]
-        #####
         # Simple chi2
         bhm_grid_chisquare_old = chi_squared(obs_flux, bhm_grid_values, error=errors)
 

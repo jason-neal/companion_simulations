@@ -31,7 +31,7 @@ def setup_iam_dirs(star):
 
 def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
                  verbose=False, norm=False, save_only=True, chip=None,
-                 prefix=None, errors=None, area_scale=False, wav_scale=True):
+                 prefix=None, errors=None, area_scale=False, wav_scale=True, norm_method="scalar"):
     """Run two component model over all model combinations."""
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
@@ -47,7 +47,7 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
     args = [model2_pars, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
               "prefix": prefix, "verbose": verbose, "errors": errors,
-              "area_scale": area_scale, "wav_scale": wav_scale}
+              "area_scale": area_scale, "wav_scale": wav_scale, "norm_method": norm_method}
 
     for ii, params1 in enumerate(tqdm(model1_pars)):
         iam_grid_chisqr_vals[ii] = iam_wrapper(ii, params1, *args, **kwargs)
@@ -90,7 +90,7 @@ def continuum_alpha(model1, model2, chip=None):
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 verbose=True, save_only=True, chip=None, prefix=None, errors=None,
-                area_scale=True, wav_scale=True, grid_slices=False):
+                area_scale=True, wav_scale=True, grid_slices=False, norm_method="scalar"):
     """Wrapper for iteration loop of iam. params1 fixed, model2_pars are many."""
     if prefix is None:
         sf = os.path.join(
@@ -161,13 +161,13 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
 
             iam_grid_models = iam_grid_models / iam_grid_continuum
 
-            # ### RE-NORMALIZATION to observations?
-            # print("Shape of iam_grid_models before renormalization", iam_grid_models.shape)
-            # print("Shape of obs_spec.flux  before renormalization", obs_spec.flux.shape)
+            # RE-NORMALIZATION
             if norm:
-                warnings.warn("Scalar Re-normalizing to observations! Try this off!")
+                if norm_method in ["scalar", "linear"]:
+                    raise ValueError("Renormalization value '{}' is not in ['scalar', 'linear']".format(norm_method))
+                logging.info("{} Re-normalizing to observations!".format(norm_method))
                 obs_flux = chi2_model_norms(obs_spec.xaxis, obs_spec.flux,
-                                            iam_grid_models, method="scalar")
+                                            iam_grid_models, method=norm_method)
             else:
                 warnings.warn("Not Scalar Re-normalizing to observations!")
                 obs_flux = obs_spec.flux[:, np.newaxis, np.newaxis]
