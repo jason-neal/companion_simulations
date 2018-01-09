@@ -3,13 +3,15 @@
 import json
 import os
 
+from jsmin import jsmin
+
 import simulators
 
 
 def get_maskinfo(star, obsnum, chip):
     mask_file = os.path.join(simulators.paths["spectra"], "detector_masks.json")
     with open(mask_file, "r") as f:
-        mask_data = json.load(f)
+        mask_data = json.loads(jsmin(f.read()))
     try:
         this_mask = mask_data[str(star)][str(obsnum)][str(chip)]
         return this_mask

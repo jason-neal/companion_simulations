@@ -3,6 +3,7 @@ import os
 import warnings
 
 import numpy as np
+from jsmin import jsmin
 
 import simulators
 
@@ -16,7 +17,7 @@ def get_snrinfo(star, obsnum, chip):
     """Load SNR info from json file."""
     snr_file = os.path.join(simulators.paths["spectra"], "detector_snrs.json")
     with open(snr_file, "r") as f:
-        snr_data = json.load(f)
+        snr_data = json.loads(jsmin(f.read()))
     try:
         return snr_data[str(star)][str(obsnum)][str(chip)]
     except KeyError as e:
@@ -28,7 +29,7 @@ def get_snrinfo(star, obsnum, chip):
 def spectrum_error(star, obsnum, chip, error_off=False):
     """Return the spectrum error.
 
-    errors = None will perform a normal chi**2 statistic.
+    if errors is None it will perform a normal chi**2 statistic.
     """
     if error_off:
         errors = None
