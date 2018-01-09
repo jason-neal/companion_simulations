@@ -118,8 +118,11 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         print("Mode =", mode)
 
     if mode == "fixed_host_params":
-        fix_host_parameters_reduced_gamma(db_table, params)
-        fix_host_parameters(db_table, params)
+        try:
+            fix_host_parameters_reduced_gamma(db_table, params)
+            fix_host_parameters(db_table, params)
+        except:
+            pass
     elif mode == "param_limits":
         get_column_limits(db_table, params)
     elif mode == "parabola":
@@ -141,9 +144,12 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     elif mode == "contrast":
         contrast_iam_results(db_table, params)
     elif mode == "all":
-        fix_host_parameters_reduced_gamma(db_table, params)
+        try:
+            fix_host_parameters_reduced_gamma(db_table, params)
+            fix_host_parameters(db_table, params)
+        except:
+            pass
         get_column_limits(db_table, params)
-        fix_host_parameters(db_table, params)
         display_arbitary_norm_values(db_table, params)
         smallest_chi2_values(db_table, params)
         parabola_plots(db_table, params)
