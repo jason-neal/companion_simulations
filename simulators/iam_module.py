@@ -227,7 +227,7 @@ def renormalization(spectrum, model_grid, normalize=False, method="scalar"):
     """
     if normalize:
         if method not in ["scalar", "linear"]:
-              raise ValueError("Renormalization method '{}' is not in ['scalar', 'linear']".format(norm_method))
+              raise ValueError("Renormalization method '{}' is not in ['scalar', 'linear']".format(method))
         logging.info("{} Re-normalizing to observations!".format(method))
         norm_flux = chi2_model_norms(spectrum.xaxis, spectrum.flux,
                                      model_grid, method=method)

@@ -7,7 +7,7 @@ from spectrum_overload import Spectrum
 import simulators
 from simulators.iam_module import (continuum_alpha, iam_analysis,
                                    iam_helper_function, iam_wrapper,
-                                   setup_iam_dirs)
+                                   setup_iam_dirs, renormalization)
 
 from simulators.iam_script import parse_args
 
@@ -121,3 +121,38 @@ def test_iam_script_parser_toggle():
     assert parsed.renormalize is True
     assert parsed.disable_wav_scale is True
     assert parsed.error_off is True
+
+
+@pytest.mark.parametrize("method", ["scalar", "linear"])
+@pytest.mark.parametrize("model_shape", [(1, 5, 7), (1, 5), (1, 4, 2, 8)])
+def test_renormalization_on(host, method, model_shape):
+    host_flux = host.flux
+    while host_flux.ndim < len(model_shape):
+        host_flux = host_flux[:, np.newaxis]
+    models = host_flux * np.ones(model_shape)
+    result = renormalization(host, models, normalize=True, method=method)
+
+    assert result.ndim == models.ndim
+    assert result.ndim == len(model_shape)
+    assert result.shape == models.shape
+
+
+@pytest.mark.parametrize("method", ["scalar", "linear"])
+@pytest.mark.parametrize("model_shape", [(1, 5, 7), (1, 59), (1, 4, 2, 8)])
+def test_renormalization_off(host, method, model_shape):
+    host_flux = host.flux
+    while host_flux.ndim < len(model_shape):
+        host_flux = host_flux[:, np.newaxis]
+    models = host_flux * np.ones(model_shape)
+    result = renormalization(host, models, normalize=False, method=method)
+
+    assert result.ndim == len(model_shape)
+    result_shape = tuple(1 for _ in model_shape)
+    result_shape = (len(host.flux), *result_shape[1:])
+    assert result.shape == result_shape
+
+
+@pytest.mark.parametrize("method", ["", None, "quadratic", "poly"])
+def test_renormalization_with_invalid_method(host, method):
+    with pytest.raises(ValueError):
+        renormalization(host.flux, host.flux, method=method, normalize=True)
