@@ -123,13 +123,18 @@ def test_iam_script_parser_toggle():
     assert parsed.error_off is True
 
 
+def setup_renomlization_model(spectrum, model_shape):
+    flux = spectrum.flux
+    while flux.ndim < len(model_shape):
+        flux = flux[:, np.newaxis]
+    models = flux * np.ones(model_shape)
+    return models
+
+
 @pytest.mark.parametrize("method", ["scalar", "linear"])
 @pytest.mark.parametrize("model_shape", [(1, 5, 7), (1, 5), (1, 4, 2, 8)])
 def test_renormalization_on(host, method, model_shape):
-    host_flux = host.flux
-    while host_flux.ndim < len(model_shape):
-        host_flux = host_flux[:, np.newaxis]
-    models = host_flux * np.ones(model_shape)
+    models = setup_renomlization_model(host, model_shape)
     result = renormalization(host, models, normalize=True, method=method)
 
     assert result.ndim == models.ndim
@@ -140,16 +145,14 @@ def test_renormalization_on(host, method, model_shape):
 @pytest.mark.parametrize("method", ["scalar", "linear"])
 @pytest.mark.parametrize("model_shape", [(1, 5, 7), (1, 59), (1, 4, 2, 8)])
 def test_renormalization_off(host, method, model_shape):
-    host_flux = host.flux
-    while host_flux.ndim < len(model_shape):
-        host_flux = host_flux[:, np.newaxis]
-    models = host_flux * np.ones(model_shape)
+    expected_shape = tuple(1 for _ in model_shape)
+    expected_shape = (len(host.flux), *expected_shape[1:])
+    models = setup_renomlization_model(host, model_shape)
+
     result = renormalization(host, models, normalize=False, method=method)
 
     assert result.ndim == len(model_shape)
-    result_shape = tuple(1 for _ in model_shape)
-    result_shape = (len(host.flux), *result_shape[1:])
-    assert result.shape == result_shape
+    assert result.shape == expected_shape
 
 
 @pytest.mark.parametrize("method", ["", None, "quadratic", "poly"])
