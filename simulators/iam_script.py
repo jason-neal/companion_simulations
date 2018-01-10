@@ -152,6 +152,7 @@ if __name__ == "__main__":
                            echo=False, mode="all", verbose=False, npars=3)
 
             print("\nFinished the db analysis after iam_script simulations!\n")
+            print("Inital parameters = {}".formt(args))
             sys.exit(0)
         else:
             sys.exit(sum(res))
