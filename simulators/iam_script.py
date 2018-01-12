@@ -136,7 +136,6 @@ if __name__ == "__main__":
         main_opts["chip"] = chip
         return main(**main_opts)
 
-
     # Iterate over chips
     if opts["chip"] is None:
         res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
