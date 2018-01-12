@@ -42,3 +42,21 @@ def spectrum_error(star, obsnum, chip, error_off=False):
         else:
             raise NotImplementedError("Haven't checked if an error array can be handled yet.")
     return errors
+
+
+def betasigma_error(spectrum, N=5, j=2, returnMAD=True, **kwargs):
+    """Calculated std using the BetaSigma technique.
+
+    N=5, j=2 is suitable for the CRIRES High resolution spectra used here.
+    Check if this is valid for the spectra you are using it for following
+    the guidelines in Czesla et al. 2017.
+
+    Extra beta sigma kwargs passed in.
+    Uses the MAD robust estimator.
+    """
+    from PyAstronomy import pyasl
+
+    bseq = pyasl.BSEqSamp()
+    sigma, delta_sigma = bseq.betaSigma(spectrum.xaxis, spectrum.flux, N, j, returnMAD=returnMAD, **kwargs)
+
+    return sigma, delta_sigma

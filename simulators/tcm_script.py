@@ -22,7 +22,7 @@ from astropy.io import fits
 
 import simulators
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
-from mingle.utilities.errors import spectrum_error
+from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
 from mingle.utilities.spectrum_utils import load_spectrum  # , select_observation
@@ -56,11 +56,13 @@ def parse_args(args):
                         action="store_true")
     parser.add_argument("-m", "--norm_method", help="Re-normalization method flux to models. Default=scalar",
                         choices=["scalar", "linear"], default="scalar")
+    parser.add_argument("-b", '--betasigma', help='Use BetaSigma std estimator.',
+                        action="store_true")
     return parser.parse_args(args)
 
 
 def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scale=False, renormalize=False,
-         norm_method="scalar"):
+         norm_method="scalar", betasigma=False):
     """Main function."""
     wav_scale = not disable_wav_scale
 
@@ -93,7 +95,12 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
     _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
     # Determine Spectrum Errors
     try:
-        errors = spectrum_error(star, obsnum, chip, error_off=error_off)
+        if betasigma:
+            errors = betasigma_error(obs_spec)
+            logging.info("Beta-Sigma error value = {:6.5f}".format(errors))
+        else:
+            errors = spectrum_error(star, obsnum, chip, error_off=error_off)
+            logging.info("File obtained error value = {}".format(errors))
     except KeyError as e:
         errors = None
 
