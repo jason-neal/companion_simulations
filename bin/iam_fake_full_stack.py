@@ -1,6 +1,8 @@
 import argparse
 import os
 import logging
+from joblib import Parallel, delayed
+
 import simulators
 from bin.coadd_analysis_script import main as anaylsis_main
 from bin.coadd_chi2_db import main as db_main
@@ -41,11 +43,13 @@ def _parser():
                         help='Replace old fake spectra.', action="store_true")
     parser.add_argument('-a', '--area_scale',
                         help='Disable area_scaling.', action="store_false")
+    parser.add_argument('-j', '--n_jobs',
+                        help='Number of parallel jobs.', type=int, default=4)
     return parser.parse_args()
 
 
 def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
-         noise=False, suffix="", replace=False, independent=False, fudge=None, area_scale=True):
+         noise=False, suffix="", replace=False, independent=False, fudge=None, area_scale=True, n_jobs=4):
     chips = range(1, 5)
 
     starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh, "comp_temp": teff2}
@@ -59,8 +63,11 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
                    area_scale=area_scale)
 
     # iam_script
-    for chip in chips:
-        iam_script_main(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale)
+    # for chip in chips:
+    #     iam_script_main(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale)
+    Parallel(n_jobs=n_jobs)(
+        delayed(iam_script_main)(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale)
+        for chip in chips)
 
     # Generate db
     db_main(star=star, obsnum=obsnum, suffix=suffix, move=True, replace=True)
