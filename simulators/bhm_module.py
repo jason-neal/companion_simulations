@@ -78,20 +78,16 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         ### Applying arbitrary scalar normalization to continuum
         bhm_norm_grid_values, arb_norm = arbitrary_rescale(bhm_grid_values,
                                                            *simulators.sim_grid["arb_norm"])
-        # print("Arbitrary Normalized bhm_grid_values shape.", bhm_norm_grid_values.shape)
 
         # Calculate Chi-squared
         obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match rescale
         bhm_norm_grid_chisquare = chi_squared(obs_flux, bhm_norm_grid_values, error=errors)
 
-        # print("Broadcast chi-squared values with arb norm", bhm_norm_grid_chisquare.shape)
-
         # Take minimum chi-squared value along Arbitrary normalization axis
         bhm_grid_chisquare, arbitrary_norms = arbitrary_minimums(bhm_norm_grid_chisquare, arb_norm)
-        # print("Broadcast chi-squared values ", bhm_grid_chisquare.shape)
-
-        assert np.all(
-            bhm_grid_chisquare_old >= bhm_grid_chisquare), "All chi2 values are not better or same with arbitary scaling"
+        
+        assert np.any(
+            bhm_grid_chisquare_old >= bhm_grid_chisquare), "All chi2 values are not better or same with arbitrary scaling"
 
         # Interpolate to obs
         mod_spec.spline_interpolate_to(obs_spec)

@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 """Run bhm analysis for HD211847."""
 import argparse
@@ -104,6 +105,7 @@ if __name__ == "__main__":
         do_after = False
 
     for chip in chips:
+        print("Doing chip {}".format(chip))
         main(star, chip=chip, **opts)
 
     if do_after:
