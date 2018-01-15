@@ -522,7 +522,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
         plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
     except Exception as e:
-        logging.warn("database_contour did not plot due to \n{e}".format(e))
+        logging.warning("database_contour did not plot due to \n{0}".format(e))
 
 
 def test_figure(table, params):
