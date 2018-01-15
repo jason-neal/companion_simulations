@@ -44,6 +44,7 @@ def parse_args(args):
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
     parser.add_argument("-m", "--mode", help="Combination mode", choices=["tcm", "bhm", "iam"],
                         default="iam")
+    parser.add_argument("-f", "--fudge", help="Fudge value to add", default=None)
     return parser.parse_args(args)
 
 
@@ -53,8 +54,8 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
     mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits, area_scale=area_scale)
 
     if fudge is not None:
-        mod2_spec.flux = fudge
-        warnings.warn("Fudging fake companion by {}".format(fudge))
+        mod2_spec.flux = mod2_spec.flux * fudge
+        warnings.warn("Fudging fake companion by '*{0}'".format(fudge))
     # Combine model spectra with iam model
     if independent:
         iam_grid_func = independent_inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
@@ -79,8 +80,6 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
     # Continuum normalize all iam_gird_models
     def axis_continuum(flux):
         """Continuum to apply along axis with predefined variables parameters."""
-        # print(wav, flux)
-        # "axis lengths", len(wav), len(flux))
         return continuum(wav, flux, splits=50, method="exponential", top=5)
 
     iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
