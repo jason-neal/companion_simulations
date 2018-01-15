@@ -8,9 +8,10 @@ numpy==1.13.3
 multiprocess==0.70.5
 pandas==0.20.3
 scipy==0.19.1
+spectrum-overload
 # Starfish
 sqlalchemy
 tqdm==4.17.1
 typing>=3.5.3.0  # Otherwise yarl fail with python 3.4
-PyAstronomy==0.11.1
+PyAstronomy==0.12.0
 pyyaml

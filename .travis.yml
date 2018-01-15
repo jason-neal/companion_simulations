@@ -42,9 +42,6 @@ install:
   - travis_retry pip install -r test_requirements.txt
   - travis_retry pip install -r requirements.txt
 
-  # Clone spectrum_overload
-  - travis_retry pip install https://github.com/jason-neal/spectrum_overload/archive/develop.zip
-
   - python setup.py install
 
   - cp tests/config.yaml .
