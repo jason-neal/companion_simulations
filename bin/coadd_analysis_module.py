@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-
+import logging
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
@@ -476,6 +476,7 @@ def contours(table, params):
 
             pars = [contour_param, "teff_2", red_chi2]
             dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
+
             # pars = ["gamma", "rv", red_chi2]
             # dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
             # pars = ["gamma", "teff_2", red_chi2]
@@ -502,23 +503,26 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
     assert x_grid.shape == z_grid.shape
     assert x_grid.shape == y_grid.shape
 
-    fig, ax = plt.subplots()
-    c = ax.contourf(x_grid, y_grid, z_grid, alpha=0.5, cmap=plt.cm.inferno)
-    cbar = plt.colorbar(c)
-    cbar.ax.set_ylabel(zcol)
-    ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
-    ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
-    ax.set_title(
-        '{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"],
-                                                                      params["this_npix"], params["npars"]))
+    try:
+        fig, ax = plt.subplots()
+        c = ax.contourf(x_grid, y_grid, z_grid, alpha=0.5, cmap=plt.cm.inferno)
+        cbar = plt.colorbar(c)
+        cbar.ax.set_ylabel(zcol)
+        ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
+        ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
+        ax.set_title(
+            '{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["par_limit"],
+                                                                          params["this_npix"], params["npars"]))
 
-    ax.grid(True)
-    fig.tight_layout()
-    name = "{0}-{1}_{2}_{3}_{4}_{5}_contour_{6}.pdf".format(
-        params["star"], params["obsnum"], params["chip"], xcol, ycol, zcol, params["suffix"])
-    plt.savefig(os.path.join(params["path"], "plots", name))
-    plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
-    plt.close()
+        ax.grid(True)
+        fig.tight_layout()
+        name = "{0}-{1}_{2}_{3}_{4}_{5}_contour_{6}.pdf".format(
+            params["star"], params["obsnum"], params["chip"], xcol, ycol, zcol, params["suffix"])
+        plt.savefig(os.path.join(params["path"], "plots", name))
+        plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+        plt.close()
+    except Exception as e:
+        logging.warning("database_contour did not plot due to \n{0}".format(e))
 
 
 def test_figure(table, params):

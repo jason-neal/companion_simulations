@@ -73,9 +73,10 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         # RENORMALIZATION
         obs_flux = renormalization(obs_spec, bhm_grid_values, normalize=norm, method=norm_method)
 
+        # Simple chi2
         bhm_grid_chisquare_old = chi_squared(obs_flux, bhm_grid_values, error=errors)
 
-        ### Applying arbitrary scalar normalization to continuum
+        # Applying arbitrary scalar normalization to continuum
         bhm_norm_grid_values, arb_norm = arbitrary_rescale(bhm_grid_values,
                                                            *simulators.sim_grid["arb_norm"])
 

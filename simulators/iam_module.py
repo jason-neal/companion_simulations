@@ -182,11 +182,8 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match rescale
             iam_norm_grid_chisquare = chi_squared(obs_flux, iam_grid_models, error=errors)
 
-            # print("Broadcast chi-squared values with arb norm", iam_norm_grid_chisquare.shape)
-
             # Take minimum chi-squared value along Arbitrary normalization axis
             iam_grid_chisquare, arbitrary_norms = arbitrary_minimums(iam_norm_grid_chisquare, arb_norm)
-            # print("Broadcast chi-squared values ", iam_grid_chisquare.shape)
 
             npix = obs_flux.shape[0]  # Number of pixels used
 
@@ -348,10 +345,10 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
             plt.title("Grid slice for {0}={1}".format(ylabel, y_val))
 
             plot_name = os.path.join(simulators.paths["output_dir"], star, "iam", "grid_plots",
-                                 "y_grid_slice_{0}_chip-{1}_{2}_{3}_{4}_{5}_{6}_{7}.png".format(star, chip, xlabel,
-                                                                                                ylabel, zlabel, ii,
-                                                                                                suffix,
-                                                                                                datetime.datetime.now()))
+                                     "y_grid_slice_{0}_chip-{1}_{2}_{3}_{4}_{5}_{6}_{7}.png".format(star, chip, xlabel,
+                                                                                                    ylabel, zlabel, ii,
+                                                                                                    suffix,
+                                                                                                    datetime.datetime.now()))
             plt.savefig(plot_name)
             plt.close(plt.gcf())
 
