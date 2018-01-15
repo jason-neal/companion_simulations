@@ -639,11 +639,12 @@ def contrast_iam_results(table, params):
                                                                                df.logg_2.values[0]) +
             "feh2={0:4.01f}  gamma={1:4.01f}  rv={2:4.01f}  ".format(df.feh_2.values[0], float(df.gamma.values[0]),
                                                                      float(df.rv.values[0])) +
-            "Host: teff={0:5.0f}  logg={1:4.02f}  feh={2:4.01f}  chi2={3:8.02f} median alpha={4}".format(df.teff_1.values[0],
-                                                                                df.logg_1.values[0],
-                                                                                df.feh_1.values[0],
-                                                                                df[chi2_val].values[0],
-                                                                                np.median([df["alpha_1"].values[0],
+            "Host: teff={0:5.0f}  logg={1:4.02f}  feh={2:4.01f}  chi2={3:8.02f} median alpha={4:5.03f}".format(
+                df.teff_1.values[0],
+                df.logg_1.values[0],
+                df.feh_1.values[0],
+                df[chi2_val].values[0],
+                np.median([df["alpha_1"].values[0],
                                                                                            df["alpha_2"].values[0],
                                                                                            df["alpha_3"].values[0],
                                                                                            df["alpha_4"].values[0]])))
