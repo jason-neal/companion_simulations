@@ -655,7 +655,7 @@ def contrast_bhm_results(table, params):
                                           table.c[chi2_val]]).order_by(table.c[chi2_val].asc()).limit(1),
                                table.metadata.bind)
         print("{0}: teff={1:5}\tlogg={2:3.02}\t".format(chi2_val, df.teff_1.values[0], df.logg_1.values[0]) +
-              "feh={0:4.1}\tgamma={1:3.1},\txcorr={2:3.2},\tchi2={3:8.2}".format(df.feh_1.values[0],
-                                                                                 float(df.gamma.values[0]),
-                                                                                 df.xcorr_1.values[0],
-                                                                                 df[chi2_val].values[0]))
+              "feh={0:4.1}\tgamma={1:3.2},\txcorr={2:3.2},\tchi2={3:8.03}".format(df.feh_1.values[0],
+                                                                                  float(df.gamma.values[0]),
+                                                                                  df.xcorr_1.values[0],
+                                                                                  df[chi2_val].values[0]))
