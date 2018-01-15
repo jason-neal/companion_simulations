@@ -438,3 +438,43 @@ def phoenix_regex(teff, logg, feh, alpha=None, Z=False):
         regex = regex.replace("+0.0", "-0.0")
     return regex
 
+
+class ParamGeneratorBase(object):
+    def __init__(self, prange, valid):
+        self.range = prange
+        self.valid = valid
+
+    def generate(self, value):
+        return self.range + value
+
+    def is_valid(self, teff):
+        return teff in self.valid
+
+
+class PHOENIXACESTemp(ParamGeneratorBase):
+    valid_teffs = np.concatenate((np.arange(2300, 7000, 100),
+                                  np.arange(7000, 12001, 200)))
+
+    def __init__(self, prange=None):
+        ParamGeneratorBase.__init__(self, prange, valid=self.valid_teffs)
+
+
+class PHOENIXACESLogg(ParamGeneratorBase):
+    valid_loggs = np.arange(0, 6.1, 0.5)
+
+    def __init__(self, prange=None):
+        ParamGeneratorBase.__init__(self, range, valid=self.valid_loggs)
+
+
+class PHOENIXACESFeH(ParamGeneratorBase):
+    valid_fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.1, 0.5)))
+
+    def __init__(self, prange=None):
+        ParamGeneratorBase.__init__(self, prange, valid=self.valid_fehs)
+
+
+class PHOENIXACESAlpha(ParamGeneratorBase):
+    valid_alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if necessary
+
+    def __init__(self, prange=None):
+        ParamGeneratorBase.__init__(self, prange, valid=self.valid_alphas)
