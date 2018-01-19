@@ -52,7 +52,7 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
             "{0}-{1}_{2}_bhm_chisqr_results{3}*.csv".format(star, obsnum, chip, suffix))
             for chip in range(1, 5)]
 
-    print("new Patterns", patterns)
+    # print("new Patterns", patterns)
     if sum(sum(1 for _ in glob.iglob(pattern)) for pattern in patterns) == 0:
         raise ValueError("Issue with patterns finding for {0} obs {1}".format(star, obsnum))
 
@@ -60,8 +60,8 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
     coadd_database = os.path.join(
         simulators.paths["output_dir"], star, "bhm",
         "{0}-{1}_coadd_bhm_chisqr_results{2}.db".format(star, obsnum, suffix))
-    print("database name", coadd_database)
-    # print("Replace", replace)
+    # print("database name", coadd_database)
+
     print("os.path.isfile(coadd_database)", os.path.isfile(coadd_database))
     if os.path.isfile(coadd_database):
         if replace:
@@ -81,7 +81,7 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
 
     # get list of patterns. and sort in order for loading in.
     detector_files = [sorted(glob.glob(pattern)) for pattern in patterns]
-    print(detector_files)
+    # print(detector_files)
     i, j = 0, 1
     for num, files in enumerate(zip(*detector_files)):
         assert len(files) == 4
