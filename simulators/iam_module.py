@@ -31,7 +31,7 @@ def setup_iam_dirs(star):
 
 def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
                  verbose=False, norm=False, save_only=True, chip=None,
-                 prefix=None, errors=None, area_scale=False, wav_scale=True, norm_method="scalar"):
+                 prefix=None, errors=None, area_scale=False, wav_scale=True, norm_method="scalar", fudge=None):
     """Run two component model over all model combinations."""
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
@@ -47,7 +47,9 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
     args = [model2_pars, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
               "prefix": prefix, "verbose": verbose, "errors": errors,
-              "area_scale": area_scale, "wav_scale": wav_scale, "norm_method": norm_method}
+              "area_scale": area_scale, "wav_scale": wav_scale,
+              "norm_method": norm_method, "fudge": fudge,
+              }
 
     for ii, params1 in enumerate(tqdm(model1_pars)):
         iam_grid_chisqr_vals[ii] = iam_wrapper(ii, params1, *args, **kwargs)
@@ -90,8 +92,12 @@ def continuum_alpha(model1, model2, chip=None):
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 verbose=True, save_only=True, chip=None, prefix=None, errors=None,
-                area_scale=True, wav_scale=True, grid_slices=False, norm_method="scalar"):
-    """Wrapper for iteration loop of iam. params1 fixed, model2_pars are many."""
+                area_scale=True, wav_scale=True, grid_slices=False, norm_method="scalar",
+                fudge=None):
+    """Wrapper for iteration loop of iam. params1 fixed, model2_pars are many.
+
+    fudge is multiplicative on companion spectrum.
+    """
     if prefix is None:
         sf = os.path.join(
             simulators.paths["output_dir"], obs_spec.header["OBJECT"].upper(),
@@ -134,19 +140,23 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             # Combine model spectra with iam model
             mod1_spec.plot(label=params1)
             mod2_spec.plot(label=params2)
-            fudge_factor = 1
-            mod2_spec.flux *= fudge_factor  # fudge factor
-            mod2_spec.plot(label="fudged {0}".format(params2))
-            plt.title("fudges models")
-            plt.legend()
 
-            fudge_prefix = os.path.basename(os.path.normpath(prefix))
-            fname = os.path.join(simulators.paths["output_dir"],
-                                 obs_spec.header["OBJECT"].upper(), "iam", "fudgeplots",
-                                 "{1}_fudged_model_spectra_factor={0}_num={2}.png".format(fudge_factor, fudge_prefix,
-                                                                                          num))
-            plt.savefig(fname)
-            warnings.warn("Using a fudge factor = {0}".format(fudge_factor))
+            if fudge or (fudge is not None):
+                fudge_factor = float(fudge)
+                mod2_spec.flux *= fudge_factor  # fudge factor multiplication
+                mod2_spec.plot(label="fudged {0}".format(params2))
+                plt.title("fudges models")
+                plt.legend()
+
+                fudge_prefix = os.path.basename(os.path.normpath(prefix))
+                fname = os.path.join(simulators.paths["output_dir"],
+                                     obs_spec.header["OBJECT"].upper(), "iam", "fudgeplots",
+                                     "{1}_fudged_model_spectra_factor={0}_num={2}_iter_{3}.png".format(fudge_factor,
+                                                                                              fudge_prefix,
+                                                                                              num, jj))
+                plt.savefig(fname)
+                plt.close()
+                warnings.warn("Using a fudge factor = {0}".format(fudge_factor))
 
             iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
                                                  rvs=rvs, gammas=gammas)
@@ -224,7 +234,7 @@ def renormalization(spectrum, model_grid, normalize=False, method="scalar"):
     """
     if normalize:
         if method not in ["scalar", "linear"]:
-              raise ValueError("Renormalization method '{}' is not in ['scalar', 'linear']".format(method))
+            raise ValueError("Renormalization method '{}' is not in ['scalar', 'linear']".format(method))
         logging.info("{} Re-normalizing to observations!".format(method))
         norm_flux = chi2_model_norms(spectrum.xaxis, spectrum.flux,
                                      model_grid, method=method)

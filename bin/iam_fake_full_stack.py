@@ -45,6 +45,8 @@ def _parser():
                         help='Disable area_scaling.', action="store_false")
     parser.add_argument('-j', '--n_jobs',
                         help='Number of parallel jobs.', type=int, default=4)
+    parser.add_argument('-f', '--fudge',
+                        help='Fudge factor.', default=None)
     return parser.parse_args()
 
 
