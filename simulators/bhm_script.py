@@ -5,7 +5,7 @@ import argparse
 import sys
 
 import numpy as np
-
+import logging
 import simulators
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error, betasigma_error
@@ -74,8 +74,9 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     # Determine Spectrum Errors
     try:
         if betasigma:
-            errors = betasigma_error(obs_spec)
+            errors, derrors = betasigma_error(obs_spec)
             logging.info("Beta-Sigma error value = {:6.5f}".format(errors))
+            logging.info("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
         else:
             errors = spectrum_error(star, obsnum, chip, error_off=error_off)
             logging.info("File obtained error value = {}".format(errors))
