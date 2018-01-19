@@ -151,10 +151,11 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 fudge_prefix = os.path.basename(os.path.normpath(prefix))
                 fname = os.path.join(simulators.paths["output_dir"],
                                      obs_spec.header["OBJECT"].upper(), "iam", "fudgeplots",
-                                     "{1}_fudged_model_spectra_factor={0}_num={2}.png".format(fudge_factor,
+                                     "{1}_fudged_model_spectra_factor={0}_num={2}_iter_{3}.png".format(fudge_factor,
                                                                                               fudge_prefix,
-                                                                                              num))
+                                                                                              num, jj))
                 plt.savefig(fname)
+                plt.close()
                 warnings.warn("Using a fudge factor = {0}".format(fudge_factor))
 
             iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
