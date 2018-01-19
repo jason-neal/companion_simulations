@@ -67,16 +67,20 @@ def parse_args(args):
     parser.add_argument('--disable_wav_scale', action="store_true",
                         help='Disable scaling by wavelength.')
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
+    parser.add_argument('-f', '--fudge', help='Fudge factor to apply.', default=None)
     parser.add_argument("-b", '--betasigma', help='Use BetaSigma std estimator.',
                         action="store_true")
-
     return parser.parse_args(args)
 
 
 def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
-         suffix=None, error_off=False, area_scale=True, disable_wav_scale=False, renormalize=False,
-         norm_method="scalar", betasigma=False):
+         suffix=None, error_off=False, area_scale=True, disable_wav_scale=False,
+         renormalize=False, norm_method="scalar", fudge=None, betasigma=False):
     """Main function."""
+
+    if fudge is not None:
+        logging.warning("Using a fudge factor!")
+
     wav_scale = not disable_wav_scale
     if chip is None:
         chip = 4
@@ -107,6 +111,7 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
     obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
     # Barycentric correct spectrum
     _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
+
     # Determine Spectrum Errors
     try:
         if betasigma:
@@ -128,7 +133,7 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
                                   gammas, verbose=verbose, norm=renormalize,
                                   prefix=output_prefix, errors=errors,
                                   area_scale=area_scale, wav_scale=wav_scale,
-                                  norm_method=norm_method)
+                                  norm_method=norm_method, fudge=fudge)
 
     print("\nNow use bin/coadd_chi2_db.py")
     return 0

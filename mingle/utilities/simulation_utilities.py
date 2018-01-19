@@ -16,7 +16,7 @@ def add_noise(flux, snr, use_mu=False):
     Applies noise based on the flux at each pixel.
     """
     if use_mu:
-        sigma = flux / snr
+        sigma = np.median(flux) / snr
     else:
         sigma = np.ones_like(flux) / snr
 
