@@ -385,6 +385,45 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
         yield [t, l, m]
 
 
+def generate_bhm_config_params(params, limits="phoenix"):
+    """Generate teff, logg, Z values given star params and config values.
+
+    Version of "generate_close_params_with_simulator" for bhm.
+    """
+
+    temp, logg, metals = params[0], params[1], params[2]
+    # This is the backup if not specified in config file.
+    bk_temps, bk_loggs, bk_metals = gen_new_param_values(temp, logg, metals, small=True)
+
+    teff_values = simulators.sim_grid.get("teff_1")
+    logg_values = simulators.sim_grid.get("logg_1")
+    feh_values = simulators.sim_grid.get("feh_1")
+
+    if teff_values is None or teff_values == "None":
+        new_temps = bk_temps
+    else:
+        new_temps = np.arange(*teff_values) + temp
+
+    if feh_values is None or feh_values == "None":
+         new_metals = bk_metals
+    else:
+        new_metals = np.arange(*feh_values) + metals
+    if logg_values is None or logg_values == "None":
+        new_loggs = bk_loggs
+    else:
+        new_loggs = np.arange(*logg_values) + logg
+
+    if limits == "phoenix":
+        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
+        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
+        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
+
+    check_inputs(new_temps)
+    check_inputs(new_loggs)
+    check_inputs(new_metals)
+
+    for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
+        yield [t, l, m]
 def gen_new_param_values(temp, logg, metals, small=True):
     if small == "host":
         # only include error bounds.

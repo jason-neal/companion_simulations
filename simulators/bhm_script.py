@@ -50,7 +50,7 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     setup_bhm_dirs(star)
     # Define the broadcasted gamma grid
     gammas = np.arange(*simulators.sim_grid["gammas"])
-    print("bhm gammas", gammas)
+    # print("bhm gammas", gammas)
 
     obs_name, params, output_prefix = bhm_helper_function(star, obsnum, chip)
 
@@ -59,7 +59,8 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     print("The observation used is ", obs_name, "\n")
 
     # Host Model parameters to iterate over
-    model_pars = get_model_pars(params, method="close")
+    # model_pars = get_model_pars(params, method="close")
+    model_pars = get_model_pars(params, method="config")  # Use config file
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
