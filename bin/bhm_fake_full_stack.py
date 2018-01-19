@@ -2,7 +2,7 @@ import argparse
 import os
 
 import simulators
-from bin.coadd_bhm_analysis import main as anaylyse_main
+from bin.coadd_bhm_analysis import main as analyse_main
 from bin.coadd_bhm_db import main as db_main
 from simulators.bhm_script import main as bhm_script_main
 from simulators.fake_simulator import main as fake_generator
@@ -56,10 +56,10 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=Fa
     db_main(star=star, obsnum=num, suffix=suffix, move=True, replace=True)
 
     # Selected Analysis
-    # anaylyse_main(star=star, obsnum=num, suffix=suffix, mode="smallest_chi2")
-    # anaylyse_main(star=star, obsnum=num, suffix=suffix, mode="compare_spectra")
-    anaylyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
-    # anaylyse_main(star=star, obsnum=num, suffix=suffix, mode="contrast")
+    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="smallest_chi2")
+    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="compare_spectra")
+    analyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
+    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="contrast")
 
     print("Noise level =", noise)
 
