@@ -225,6 +225,26 @@ def closest_model_params(teff, logg, feh, alpha=None):
         return [closest_teff, closest_logg, closest_feh]
 
 
+def all_aces_params():
+    teffs = np.concatenate((np.arange(2300, 7000, 100),
+                            np.arange(7000, 12100, 200)))
+    loggs = np.arange(0, 6.1, 0.5)
+    fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.1, 0.5)))
+    alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if necessary
+    return teffs, loggs, fehs, alphas
+
+
+def all_btsettl_params(model="cifist2011_2015"):
+    if model == "cifist2011_2015":
+        teffs = np.arange(1200, 7000, 100)
+        loggs = np.arange(2.5, 5.1, 0.5)
+        fehs = np.arange(0, 0.1, 1)
+        alphas = np.arange(0, 0.1, 0.2)
+    else:
+        NotImplementedError("all_btsettl_params not supported for model {0}".format(model))
+    return teffs, loggs, fehs, alphas
+
+
 # find_closest_phoenix_name   # Should change to this
 def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None, Z=True):
     """Find the closest PHOENIX-ACES model to the stellar parameters given.
