@@ -40,16 +40,6 @@ def _parser():
 def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=False):
     chips = range(1, 5)
 
-    # star = "FullTest"
-    # num = 1
-    # teff_1 = 5600
-    # logg1 = 4.5
-    # feh1 = 0.0
-    # gamma = 15
-    # noise = 100
-    # suffix = "_test_suffix"
-    mode = "bhm"
-
     starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh}
     make_fake_parameter_file(starinfo)
 
