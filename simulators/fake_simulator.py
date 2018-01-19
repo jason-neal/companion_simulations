@@ -86,9 +86,10 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
 
     iam_grid_models = iam_grid_models / iam_grid_continuum
 
+    # This noise is added after continuum normalization.
     if noise is not None:
         # Add 1 / snr noise to continuum normalized spectra
-        iam_grid_models = add_noise(iam_grid_models, noise)
+        iam_grid_models = add_noise(iam_grid_models, noise, use_mu=False)
 
     if header:
         return wav, iam_grid_models.squeeze(), mod1_spec.header
