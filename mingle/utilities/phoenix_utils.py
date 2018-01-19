@@ -378,6 +378,13 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
         new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
         new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
 
+    # Limit to in hdf5 grid
+    parrange = simulators.starfish_grid["parrange"]  #: [[2200, 7000], [3.0, 6.0], [-1.5, 1.5]]
+    new_temps = new_temps[(new_temps >= parrange[0][0]) * (new_temps <= parrange[0][1])]
+    new_loggs = new_loggs[(new_loggs >= parrange[1][0]) * (new_loggs <= parrange[1][1])]
+    new_metals = new_metals[(new_metals >= parrange[2][0]) * (new_metals <= parrange[2][1])]
+
+
     check_inputs(new_temps)
     check_inputs(new_loggs)
     check_inputs(new_metals)
@@ -418,12 +425,20 @@ def generate_bhm_config_params(params, limits="phoenix"):
         new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
         new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
 
+    # Check in hdf5 grid
+    parrange = simulators.starfish_grid["parrange"]  #: [[2200, 7000], [3.0, 6.0], [-1.5, 1.5]]
+    new_temps = new_temps[(new_temps >= parrange[0][0]) * (new_temps <= parrange[0][1])]
+    new_loggs = new_loggs[(new_loggs >= parrange[1][0]) * (new_loggs <= parrange[1][1])]
+    new_metals = new_metals[(new_metals >= parrange[2][0]) * (new_metals <= parrange[2][1])]
+
     check_inputs(new_temps)
     check_inputs(new_loggs)
     check_inputs(new_metals)
 
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
         yield [t, l, m]
+
+
 def gen_new_param_values(temp, logg, metals, small=True):
     if small == "host":
         # only include error bounds.
