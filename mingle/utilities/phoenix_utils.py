@@ -22,7 +22,6 @@ from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.simulation_utilities import check_inputs
 
 
-
 def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
     wav_dir = simulators.starfish_grid["raw_path"]
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
@@ -97,7 +96,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
     if limits is not None:
         if limits[0] > spec.xaxis[-1] or limits[-1] < spec.xaxis[0]:
             logging.warning("Warning: The wavelength limits do not overlap the spectrum."
-                  "There is no spectrum left... Check your wavelength, or limits.")
+                            "There is no spectrum left... Check your wavelength, or limits.")
         spec.wav_select(*limits)
 
     return spec
@@ -153,7 +152,7 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
     if limits is not None:
         if limits[0] > spec.xaxis[-1] or limits[-1] < spec.xaxis[0]:
             logging.warning("Warning: The wavelength limits do not overlap the spectrum."
-                  "There is no spectrum left... Check your wavelength, or limits.")
+                            "There is no spectrum left... Check your wavelength, or limits.")
         spec.wav_select(*limits)
 
     return spec
@@ -165,12 +164,27 @@ def phoenix_area(header):
     -------
     surface_area: float
         Stellar effective surface area. in Gm**2
+
+
+    The BT-Settl radius is in meters while ACES is in cm.
+     So we need to differentiate between BT-Settl and ACES by the other keywords used
     """
     if header is None:
         raise ValueError("Header should not be None.")
+    # ACES
     # BUNIT 	'erg/s/cm^2/cm' 	Unit of flux
     # PHXREFF 	67354000000.0	[cm] Effective stellar radius
-    radius = header["PHXREFF"] * 1e-11  # cm to Gm
+
+    # BT-Settl
+    #  PHXREFF = 183250000.0 / [m] effective(tau=1) radius
+    radius = header["PHXREFF"]
+    comment = header.comment["PHXREFF"]
+    if "[cm]" in comment:
+        radius *= 1e-11  # cm to Gm
+    elif "[m]" in comment:
+        radius *= 1e-9  # m to Gm
+    else:
+        raise NotImplementedError("The PHXREFF comment does not give a valid unit [m] or [cm]. '{}'".format(comment))
     surface_area = np.pi * radius ** 2  # towards Earth
     return surface_area
 
@@ -247,7 +261,7 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None, Z=True):
     else:
         if Z:
             phoenix_glob = ("Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
-                        "").format(closest_teff, closest_logg, closest_feh)
+                            "").format(closest_teff, closest_logg, closest_feh)
         else:
             phoenix_glob = ("*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                             "").format(closest_teff, closest_logg, closest_feh)
@@ -344,9 +358,8 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
     else:
         new_temps = np.arange(*teff_values) + temp
 
-
     if feh_values is None or feh_values == "None":
-         new_metals = bk_metals
+        new_metals = bk_metals
     else:
         new_metals = np.arange(*feh_values) + metals
     if logg_values is None or logg_values == "None":
@@ -423,7 +436,7 @@ def phoenix_name(teff, logg, feh, alpha=None, Z=False):
         name = os.path.join("Z{0:+1.10}".format(feh), name)
 
     if "+0.0" in name:  # Positive zero is not allowed in naming
-       name = name.replace("+0.0", "-0.0")
+        name = name.replace("+0.0", "-0.0")
     return name
 
 
@@ -431,10 +444,9 @@ def phoenix_regex(teff, logg, feh, alpha=None, Z=False):
     if alpha is not None:
         raise NotImplementedError("Need to add alpha to phoenix name.")
     regex = ("*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
-                    "").format(teff, logg, feh)
+             "").format(teff, logg, feh)
     if Z:
         regex = os.path.join("Z{0:+1.10}".format(feh), regex)
     if "+0.0" in regex:  # Positive zero is not allowed in naming
         regex = regex.replace("+0.0", "-0.0")
     return regex
-

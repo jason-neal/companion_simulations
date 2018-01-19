@@ -266,3 +266,15 @@ def test_phoenix_regex():
     assert phoenix_regex(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5", "*02000-2.50+0.5.PHOENIX*.fits")
 
     assert phoenix_regex(12000, 3, 0, Z=False) == "*12000-3.00-0.0.PHOENIX*.fits"
+
+
+def test_phoenix_area_with_comments():
+    # radius = header["PHXREFF"]
+    # comment = header.comment["PHXREFF"]
+    # if "[cm]" in comment:
+    #    radius *= 1e-11  # cm to Gm
+    # elif "[m]" in comment:
+    #     radius *= 1e-9  # m to Gm
+    # else:
+    #     raise NotImplementedError("The PHXREFF comment does not give a valid unit [m] or [cm]. '{}'".format(comment))
+    assert False
