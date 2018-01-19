@@ -56,7 +56,10 @@ def betasigma_error(spectrum, N=5, j=2, returnMAD=True, **kwargs):
     """
     from PyAstronomy import pyasl
 
+    # Arbitrary returns segfaults and linear algebra faults.
+    # bsarb = pyasl.BSArbSamp()
+    # sigma, delta_sigma = bsarb.betaSigma(spectrum.xaxis, spectrum.flux, N, j, returnMAD=returnMAD, **kwargs)
     bseq = pyasl.BSEqSamp()
-    sigma, delta_sigma = bseq.betaSigma(spectrum.xaxis, spectrum.flux, N, j, returnMAD=returnMAD, **kwargs)
+    sigma, delta_sigma = bseq.betaSigma(spectrum.flux, N, j, returnMAD=returnMAD, **kwargs)
 
     return sigma, delta_sigma
