@@ -38,7 +38,7 @@ config = {
                 "bin/coadd_chi2_db.py",
                 "bin/coadd_bhm_db.py",
                 "bin/do_iam_on_stars.py",
-                "bin/fully_analyze_star.py",
+                # "bin/fully_analyze_star.py",
                 # "bin/create_min_chi2_table.py",
                 "bin/iam_fake_full_stack.py",
                 "bin/bhm_fake_full_stack.py",
