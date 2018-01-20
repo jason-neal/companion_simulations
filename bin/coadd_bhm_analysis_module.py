@@ -40,14 +40,28 @@ def get_npix_values(table):
 
 def gamma_plot(table, params):
     for chi2_val, npix_val in zip(chi2_names, npix_names):
-        red_chi2 = "red_{0}".format(chi2_val)
         df = pd.read_sql(
             sa.select([table.c["gamma"], table.c[chi2_val], table.c["teff_1"]]),
             table.metadata.bind)
+        fig, ax = plt.subplots()
+        c = ax.scatter(df["gamma"], df[chi2_val], c=df["teff_1"], alpha=0.8)
+        cbar = plt.colorbar(c)
+        cbar.ax.set_ylabel(r"teff_1")
+        ax.set_xlabel(r'Host RV offset', fontsize=12)
+        ax.set_ylabel(r"${0}$".format(chi2_val), fontsize=12)
+        ax.set_title(r'$teff_1$ (color) and companion temperature.')
+        ax.grid(True)
+        fig.tight_layout()
+        name = "{0}-{1}_{2}_temp_gamma_plot_{3}_{4}.pdf".format(
+            params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
+        plt.savefig(os.path.join(params["path"], "plots", name))
+        plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+        plt.close()
+
+        red_chi2 = "red_{0}".format(chi2_val)
         df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
         fig, ax = plt.subplots()
         c = ax.scatter(df["gamma"], df[red_chi2], c=df["teff_1"], alpha=0.8)
-
         cbar = plt.colorbar(c)
         cbar.ax.set_ylabel(r"teff_1")
 
@@ -169,6 +183,33 @@ def host_parameters(table, params):
             chi2legend = "coadd chi2"
         else:
             chi2legend = "det {0}".format(jj + 1)
+        fig, axes = plt.subplots(nrows, ncols)
+        fig.tight_layout()
+        indices = np.arange(nrows * ncols).reshape(nrows, ncols)
+        for ii, col in enumerate(columns):
+            df = pd.read_sql(
+                sa.select([table.c[col], table.c[chi2_val]]).where(
+                    sa.and_(table.c["logg_1"] == params["logg"],
+                            table.c["feh_1"] == params["fe_h"])
+                ), table.metadata.bind)
+
+            axis_pos = [int(x) for x in np.where(indices == ii)]
+            df.plot(x=col, y=chi2_val, kind="scatter",
+                    ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)  # , c="gamma", colorbar=True)
+
+        plt.suptitle("Co-add Chi**2 Results (fixed_logg_feh): {0}-{1}".format(
+            params["star"], params["obsnum"]))
+        name = "{0}-{1}_coadd_fixed_logg_feh_params_full_gamma_{2}_{3}.png".format(
+            params["star"], params["obsnum"], params["suffix"], chi2_val)
+        fig.savefig(os.path.join(params["path"], "plots", name))
+        fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+        plt.close()
+
+    for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
+        if jj == 4:
+            chi2legend = "coadd chi2"
+        else:
+            chi2legend = "det {0}".format(jj + 1)
 
         red_chi2 = "red_{0}".format(chi2_val)
 
@@ -188,10 +229,10 @@ def host_parameters(table, params):
             df.plot(x=col, y=red_chi2, kind="scatter",
                     ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)  # , c="gamma", colorbar=True)
 
-        plt.suptitle("Co-add Chi**2 Results (fixed_logg_feh): {0}-{1}".format(
+        plt.suptitle("Co-add reduced Chi**2 Results (fixed_logg_feh): {0}-{1}".format(
             params["star"], params["obsnum"]))
         name = "{0}-{1}_coadd_fixed_logg_feh_params_full_gamma_{2}_{3}.png".format(
-            params["star"], params["obsnum"], params["suffix"], chi2_val)
+            params["star"], params["obsnum"], params["suffix"], red_chi2)
         fig.savefig(os.path.join(params["path"], "plots", name))
         fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
@@ -361,6 +402,44 @@ def host_parameters_reduced_gamma(table, params):
     indices = np.arange(nrows * ncols).reshape(nrows, ncols)
 
     for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
+        if jj == 4:
+            chi2legend = "coadd"
+        else:
+            chi2legend = "det {0}".format(jj + 1)
+
+        # Select lowest chi square gamma values.
+        df = pd.read_sql(
+            sa.select([table.c.gamma, table.c[chi2_val]]).order_by(
+                table.c[chi2_val].asc()).limit(1),
+            table.metadata.bind)
+
+        min_chi2_gamma = df.loc[0, "gamma"]
+        upper_lim = min_chi2_gamma + d_gamma
+        lower_lim = min_chi2_gamma - d_gamma
+
+        columns = ["teff_1", "logg_1", "feh_1", "gamma", ]
+        assert len(columns) <= (nrows * ncols)
+
+        for ii, col in enumerate(columns):
+            df = pd.read_sql(
+                sa.select([table.c[col], table.c[chi2_val], table.c.gamma, table.c.teff_1], table.c.teff_1).where(
+                    sa.and_(table.c.gamma > float(lower_lim),
+                            table.c.gamma < float(upper_lim)
+                            )
+                ), table.metadata.bind)
+
+            axis_pos = [int(x) for x in np.where(indices == ii)]
+            df.plot(x=col, y=chi2_val, kind="scatter",
+                    ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)
+
+    plt.suptitle("Coadd Chi**2 Results: {0}-{1}".format(params["star"], params["obsnum"]))
+    name = "{0}-{1}_coadd_fixed_host_params_{2}.png".format(
+        params["star"], params["obsnum"], params["suffix"])
+    fig.savefig(os.path.join(params["path"], "plots", name))
+    fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+    plt.close()
+
+    for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
         red_chi2 = "red_{0}".format(chi2_val)
         if jj == 4:
             chi2legend = "coadd"
@@ -395,7 +474,7 @@ def host_parameters_reduced_gamma(table, params):
                     ax=axes[axis_pos[0], axis_pos[1]], label=chi2legend)
 
     plt.suptitle("Coadd reduced Chi**2 Results: {0}-{1}".format(params["star"], params["obsnum"]))
-    name = "{0}-{1}_coadd_fixed_host_params_{2}.png".format(
+    name = "{0}-{1}_reduced_coadd_fixed_host_params_{2}.png".format(
         params["star"], params["obsnum"], params["suffix"])
     fig.savefig(os.path.join(params["path"], "plots", name))
     fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
@@ -465,27 +544,40 @@ def get_column_limits(table, params):
 
 
 def contours(table, params):
-        for chi2_val, npix_val in zip(chi2_names, npix_names):
-            red_chi2 = "red_{0}".format(chi2_val)
+    for chi2_val, npix_val in zip(chi2_names, npix_names):
+        df_min_chi2 = pd.read_sql(
+            sa.select(table.c).order_by(
+                table.c[chi2_val].asc()).limit(1),
+            table.metadata.bind)
+        df = pd.read_sql(
+            sa.select(
+                [table.c["teff_1"], table.c["feh_1"], table.c["logg_1"], table.c["gamma"], table.c[chi2_val]]).where(
+                sa.and_(table.c["logg_1"] == float(df_min_chi2["logg_1"][0]),
+                        table.c["feh_1"] == float(df_min_chi2["feh_1"][0]))),
+            table.metadata.bind)
+        params["this_npix"] = params["npix"][npix_val]
+        params["chi2_value"] = chi2_val
+        pars = ["gamma", "teff_1", chi2_val]
+        dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
 
-            df_min_chi2 = pd.read_sql(
-                sa.select(table.c).order_by(
-                    table.c[chi2_val].asc()).limit(1),
-                table.metadata.bind)
-
-            df = pd.read_sql(
-                sa.select([table.c["teff_1"], table.c["feh_1"], table.c["logg_1"], table.c["gamma"], table.c[chi2_val]]).where(
-                    sa.and_(table.c["logg_1"] == float(df_min_chi2["logg_1"][0]),
-                            table.c["feh_1"] == float(df_min_chi2["feh_1"][0]))),
-                table.metadata.bind)
-
-            df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
-
-            params["this_npix"] = params["npix"][npix_val]
-            params["chi2_value"] = chi2_val
-
-            pars = ["gamma", "teff_1", red_chi2]
-            dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
+    # Reduced chi2
+    for chi2_val, npix_val in zip(chi2_names, npix_names):
+        red_chi2 = "red_{0}".format(chi2_val)
+        df_min_chi2 = pd.read_sql(
+            sa.select(table.c).order_by(
+                table.c[chi2_val].asc()).limit(1),
+            table.metadata.bind)
+        df = pd.read_sql(
+            sa.select(
+                [table.c["teff_1"], table.c["feh_1"], table.c["logg_1"], table.c["gamma"], table.c[chi2_val]]).where(
+                sa.and_(table.c["logg_1"] == float(df_min_chi2["logg_1"][0]),
+                        table.c["feh_1"] == float(df_min_chi2["feh_1"][0]))),
+            table.metadata.bind)
+        df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
+        params["this_npix"] = params["npix"][npix_val]
+        params["chi2_value"] = chi2_val
+        pars = ["gamma", "teff_1", red_chi2]
+        dataframe_contour(df, xcol=pars[0], ycol=pars[1], zcol=pars[2], params=params)
 
 
 def dataframe_contour(df, xcol, ycol, zcol, params):
