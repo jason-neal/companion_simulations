@@ -7,7 +7,7 @@ import pandas as pd
 import sqlalchemy as sa
 from matplotlib import pyplot as plt
 from matplotlib import rc
-from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit, newton
 from scipy.stats import chi2
 from spectrum_overload import Spectrum
 
@@ -297,6 +297,16 @@ def chi2_parabola_plots(table, params):
             plt.xlabel(r"${0}$".format(par))
             plt.ylabel(r"$\Delta \chi^2$ from minimum")
 
+            # Find roots
+            if chi2_val == "coadd_chi2":
+                residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
+                min_chi2_par = unique_par[np.argmin(min_chi2)]
+                lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2)
+                upper_bound = newton(residual, (min_chi2_par + unique_par[-1]) / 2)
+
+                print("{0} solution {1} - {2} + {3}".format(chi2_val, min_chi2_par, lower_bound, upper_bound))
+            plt.annotate("{0} -{1} +{2}".format(min_chi2_par, lower_bound, upper_bound), xy=(min_chi2_par, 0),
+                         xytext=(0.5, 0.5), textcoords="figure fraction", arrowprops={"arrowstyle": "<-"})
         plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
         plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
         plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma")
