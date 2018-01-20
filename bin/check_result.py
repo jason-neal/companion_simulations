@@ -29,7 +29,7 @@ def parse_args(args):
     parser.add_argument('teff_1', type=int,
                         help='Host Temperature')
     parser.add_argument('logg_1', type=float,
-                        help='Host Tlogg')
+                        help='Host logg')
     parser.add_argument('feh_1', type=float,
                         help='Host Fe/H')
     parser.add_argument('teff_2', type=int,

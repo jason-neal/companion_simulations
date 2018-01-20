@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import logging
 import os
 
 import numpy as np
@@ -18,8 +19,7 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.bhm_module import bhm_helper_function
 
-# rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-# rc('text', usetex=True)
+
 rc("image", cmap="inferno")
 chi2_names = ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]
 npix_names = ["npix_1", "npix_2", "npix_3", "npix_4", "coadd_npix"]
@@ -69,7 +69,7 @@ def xshift(x, num):
     return x + num * (x * 0.1)
 
 
-def display_arbitary_norm_values(table, params):
+def display_arbitrary_norm_values(table, params):
     fig, axarr = plt.subplots(3)
     for ii, arbnorm in enumerate([r"arbnorm_1", r"arbnorm_2", r"arbnorm_3", r"arbnorm_4"]):
         df = pd.read_sql(
@@ -80,19 +80,19 @@ def display_arbitary_norm_values(table, params):
                              c=df[r"teff_1"].values, alpha=0.9, label=arbnorm)
 
         axarr[0].set_xlabel(r'host rv offset', fontsize=12)
-        axarr[0].set_ylabel(r'Arbitary norm', fontsize=12)
-        axarr[0].set_title(r'Arbitary normalization.')
+        axarr[0].set_ylabel(r'Arbitrary norm', fontsize=12)
+        axarr[0].set_title(r'Arbitrary normalization.')
 
         d = axarr[1].scatter(xshift(df[r"gamma"], ii), df[arbnorm],
                              c=df[r"teff_1"].values, alpha=0.9, label=arbnorm)
         axarr[1].set_xlabel(r'$\gamma$ offset', fontsize=12)
-        axarr[1].set_ylabel(r'Arbitary norm', fontsize=12)
+        axarr[1].set_ylabel(r'Arbitrary norm', fontsize=12)
         axarr[1].set_title(r'$\gamma$.')
 
         e = axarr[2].scatter(xshift(df[r"teff_1"], ii), df[arbnorm],
                              c=df[r"gamma"].values, alpha=0.9, label=arbnorm)
         axarr[2].set_xlabel(r'Companion temperature', fontsize=15)
-        axarr[2].set_ylabel(r'Arbitary norm ', fontsize=15)
+        axarr[2].set_ylabel(r'Arbitrary norm ', fontsize=15)
         axarr[2].set_title(r'Companion Temperature')
     axarr[0].grid(True)
     axarr[1].grid(True)
@@ -124,19 +124,19 @@ def display_bhm_xcorr_values(table, params):
                              c=df[r"teff_1"].values, alpha=0.9, label=xcorr)
 
         axarr[0].set_xlabel(r'host rv offset', fontsize=12)
-        axarr[0].set_ylabel(r'Arbitary norm', fontsize=12)
-        axarr[0].set_title(r'Arbitary normalization.')
+        axarr[0].set_ylabel(r'Arbitrary norm', fontsize=12)
+        axarr[0].set_title(r'Arbitrary normalization.')
 
         d = axarr[1].scatter(xshift(df[r"gamma"], ii), df[xcorr],
                              c=df[r"teff_1"].values, alpha=0.9, label=xcorr)
         axarr[1].set_xlabel(r'$\gamma$ offset', fontsize=12)
-        axarr[1].set_ylabel(r'Arbitary norm', fontsize=12)
+        axarr[1].set_ylabel(r'Arbitrary norm', fontsize=12)
         axarr[1].set_title(r'$\gamma$.')
 
         e = axarr[2].scatter(xshift(df[r"teff_1"], ii), df[xcorr],
                              c=df[r"gamma"].values, alpha=0.9, label=xcorr)
         axarr[2].set_xlabel(r'Companion temperature', fontsize=15)
-        axarr[2].set_ylabel(r'Arbitary norm ', fontsize=15)
+        axarr[2].set_ylabel(r'Arbitrary norm ', fontsize=15)
         axarr[2].set_title(r'Companion Temperature')
     axarr[0].grid(True)
     axarr[1].grid(True)
@@ -201,13 +201,7 @@ def host_parameters(table, params):
 
 def host_parameters_individual(table, params):
     nrows, ncols = 1, 1
-    # fig, axes = plt.subplots(nrows, ncols)
-    # fig.tight_layout()
-    # indices = np.arange(nrows * ncols).reshape(nrows, ncols)
-
     columns = ["teff_1", "logg_1", "feh_1", "gamma"]
-    # assert len(columns) <= (nrows * ncols)
-
     for ii, col in enumerate(columns):
         for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
             if jj == 4:
@@ -225,10 +219,9 @@ def host_parameters_individual(table, params):
                             table.c["feh_1"] == params["fe_h"])
                 ), table.metadata.bind)
             df[red_chi2] = reduced_chi_squared(df[chi2_val], params["npix"][npix_val], params["npars"])
-            # axis_pos = [int(x) for x in np.where(indices == ii)]
-            df.plot(x=col, y=red_chi2, kind="scatter",
-                    ax=axes, label=chi2legend)  # , c="gamma", colorbar=True)
 
+            df.plot(x=col, y=red_chi2, kind="scatter",
+                    ax=axes, label=chi2legend)
             name = "{0}-{1}_coadd_fixed_logg_feh_params_full_gamma_{2}_{3}_individual_{4}.png".format(
                 params["star"], params["obsnum"], params["suffix"], chi2_val, col)
             plt.suptitle("Co-add {2}-Chi**2 Results (fixed_logg_feh): {0}-{1}: {3}".format(
@@ -383,7 +376,6 @@ def host_parameters_reduced_gamma(table, params):
         min_chi2_gamma = df.loc[0, "gamma"]
         upper_lim = min_chi2_gamma + d_gamma
         lower_lim = min_chi2_gamma - d_gamma
-        # print("Reduced gamma_limits", lower_lim, upper_lim)
 
         columns = ["teff_1", "logg_1", "feh_1", "gamma", ]
         assert len(columns) <= (nrows * ncols)
@@ -408,17 +400,13 @@ def host_parameters_reduced_gamma(table, params):
     fig.savefig(os.path.join(params["path"], "plots", name))
     fig.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
     plt.close()
-
     host_parameters_reduced_gamma_individual(table, params)
 
 
 def host_parameters_reduced_gamma_individual(table, params):
     print("Fixed host analysis with reduced gamma individual plots.")
     d_gamma = 5
-
     nrows, ncols = 1, 1
-
-    # indices = np.arange(nrows * ncols).reshape(nrows, ncols)
 
     for jj, (chi2_val, npix_val) in enumerate(zip(chi2_names, npix_names)):
         red_chi2 = "red_{0}".format(chi2_val)
@@ -436,10 +424,7 @@ def host_parameters_reduced_gamma_individual(table, params):
         min_chi2_gamma = df.loc[0, "gamma"]
         upper_lim = min_chi2_gamma + d_gamma
         lower_lim = min_chi2_gamma - d_gamma
-        # print("Reduced gamma_limits", lower_lim, upper_lim)
-
         columns = ["teff_1", "logg_1", "feh_1", "gamma"]
-        # assert len(columns) <= (nrows * ncols)
 
         for ii, col in enumerate(columns):
             df = pd.read_sql(

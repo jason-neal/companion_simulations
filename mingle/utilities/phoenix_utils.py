@@ -126,8 +126,8 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
     spec: Spectrum
         The loaded spectrum as Spectrum object.
     """
-    # Starfish.grid["btsettle_hdf5_path"], instrument, ranges=Starfish.grid["parrange"]
-    my_hdf5 = HDF5Interface(filename=simulators.grid["btsettle_hdf5_path"], key_name=simulators.grid["key_name"])
+    # Starfish.grid["btsettl_hdf5_path"], instrument, ranges=Starfish.grid["parrange"]
+    my_hdf5 = HDF5Interface(filename=simulators.grid["btsettl_hdf5_path"], key_name=simulators.grid["key_name"])
     my_hdf5.wl = my_hdf5.wl / 10  # Turn into Nanometer
 
     if hdr:
