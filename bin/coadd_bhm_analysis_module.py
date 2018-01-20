@@ -64,15 +64,13 @@ def gamma_plot(table, params):
         c = ax.scatter(df["gamma"], df[red_chi2], c=df["teff_1"], alpha=0.8)
         cbar = plt.colorbar(c)
         cbar.ax.set_ylabel(r"teff_1")
-
         ax.set_xlabel(r'Host RV offset', fontsize=12)
         ax.set_ylabel(r"${0}$".format(red_chi2), fontsize=12)
         ax.set_title(r'$teff_1$ (color) and companion temperature.')
-
         ax.grid(True)
         fig.tight_layout()
         name = "{0}-{1}_{2}_temp_gamma_plot_{3}_{4}.pdf".format(
-            params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
+            params["star"], params["obsnum"], params["chip"], red_chi2, params["suffix"])
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
@@ -600,23 +598,28 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
     assert x_grid.shape == z_grid.shape
     assert x_grid.shape == y_grid.shape
 
-    fig, ax = plt.subplots()
-    c = ax.contourf(x_grid, y_grid, z_grid, alpha=0.5, cmap=plt.cm.inferno)
-    cbar = plt.colorbar(c)
-    cbar.ax.set_ylabel(zcol)
-    ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
-    ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
-    ax.set_title(
-        '{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["chi2_value"],
-                                                                      params["this_npix"], params["npars"]))
-
-    ax.grid(True)
-    fig.tight_layout()
-    name = "{0}-{1}_{2}_{3}_{4}_{5}_contour_{6}.pdf".format(
-        params["star"], params["obsnum"], params["chip"], xcol, ycol, zcol, params["suffix"])
-    plt.savefig(os.path.join(params["path"], "plots", name))
-    plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
-    plt.close()
+    try:
+        fig, ax = plt.subplots()
+        c = ax.contourf(x_grid, y_grid, z_grid, alpha=0.5, cmap=plt.cm.inferno)
+        # Mark minimum with a +.
+        min_loc = np.argmin(z_grid)
+        plt.plot(x_grid[min_loc], y_grid[min_loc], "r+", markersize=5)
+        cbar = plt.colorbar(c)
+        cbar.ax.set_ylabel(zcol)
+        ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
+        ax.set_ylabel(r"$ {0}$".format(ycol), fontsize=15)
+        ax.set_title(
+            '{0}: {1} contour, at min chi2 {2} value, dof={3}-{4}'.format(params["star"], zcol, params["chi2_value"],
+                                                                          params["this_npix"], params["npars"]))
+        ax.grid(True)
+        fig.tight_layout()
+        name = "{0}-{1}_{2}_{3}_{4}_{5}_contour_{6}.pdf".format(
+            params["star"], params["obsnum"], params["chip"], xcol, ycol, zcol, params["suffix"])
+        plt.savefig(os.path.join(params["path"], "plots", name))
+        plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
+        plt.close()
+    except Exception as e:
+        logging.warning("database_contour did not plot due to \n{0}".format(e))
 
 
 def test_figure(table, params):
