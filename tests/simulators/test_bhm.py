@@ -4,23 +4,35 @@ import pytest
 
 import simulators
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
-from simulators.bhm_module import (bhm_helper_function, get_model_pars, setup_bhm_dirs)
+from simulators.bhm_module import (bhm_helper_function, get_bh_model_pars, setup_bhm_dirs)
 from simulators.bhm_script import parse_args
 
 
-def test_get_model_pars_close_method_returns_close_params():
-    pars = get_model_pars({"temp": 5200, "logg": 4.5, "fe_h": 0.0}, method="close")
+def test_get_bh_model_pars_close_method_returns_close_params():
+    pars = get_bh_model_pars({"temp": 5200, "logg": 4.5, "fe_h": 0.0}, method="close")
     assert pars == list(generate_close_params(closest_model_params(5200, 4.5, 0.0)))
 
+import itertools
+def test_get_bh_model_pars_from_config():
+    simulators.sim_grid["teff_1"] = [-100, 101, 100]
+    simulators.sim_grid["logg_1"] = [-1, 0.51, 0.5]
+    simulators.sim_grid["feh_1"] = [-0.5, 0.51, 0.5]
 
-def test_get_model_pars_all_notimplemented():
-    with pytest.raises(NotImplementedError):
-        get_model_pars({"temp": 5200, "logg": 4.5, "fe_h": 0.0}, method="all")
+    pars = get_bh_model_pars({"temp": 5200, "logg": 4.5, "fe_h": 0.0}, method="config")
+
+    expected = []
+    for t, l, m in itertools.product([5100, 5200, 5300], [3.5, 4, 4.5, 5], [-0.5, 0, 0.5]):
+         expected.append([t, l, m])
+    print(pars)
+    print(expected)
+    print(len(pars), len(expected))
+    assert pars == expected
 
 
-def test_get_model_pars_value_error_for_method():
+
+def test_get_bh_model_pars_value_error_for_method():
     with pytest.raises(ValueError):
-        get_model_pars({"temp": 5200, "logg": 4.5, "fe_h": 0.0}, method="some")
+        get_bh_model_pars({"temp": 5200, "logg": 4.5, "fe_h": 0.0}, method="some")
 
 
 @pytest.mark.parametrize("star, obs, chip", [
