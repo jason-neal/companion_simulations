@@ -330,13 +330,22 @@ def generate_close_params(params, small=True, limits="phoenix"):
 
     new_temps, new_loggs, new_metals = gen_new_param_values(temp, logg, metals, small=small)
 
-    if limits == "phoenix":
-        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
-        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
-        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
+    phoenix_limits = get_phoenix_limits(limits)
+
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals, phoenix_limits)
 
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
         yield [t, l, m]
+
+
+def get_phoenix_limits(limits="phoenix"):
+   if limits == "phoenix":
+        phoenix_limits = [[2300, 12000], [0, 6], [-4, 1]]
+   elif limits == "cifist":
+        phoenix_limits = [[1200, 7000], [2.5, 5], [0, 0]]
+   else:
+       raise ValueError("Error with phoenix limits. Invalid limits name '{0}'".format(limits))
+   return phoenix_limits
 
 
 def generate_close_params_with_simulator(params, target, small=True, limits="phoenix"):
@@ -373,16 +382,9 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
     else:
         new_loggs = np.arange(*logg_values) + logg
 
-    if limits == "phoenix":
-        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
-        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
-        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
+    phoenix_limits = get_phoenix_limits(limits)
 
-    # Limit to in hdf5 grid
-    parrange = simulators.starfish_grid["parrange"]  #: [[2200, 7000], [3.0, 6.0], [-1.5, 1.5]]
-    new_temps = new_temps[(new_temps >= parrange[0][0]) * (new_temps <= parrange[0][1])]
-    new_loggs = new_loggs[(new_loggs >= parrange[1][0]) * (new_loggs <= parrange[1][1])]
-    new_metals = new_metals[(new_metals >= parrange[2][0]) * (new_metals <= parrange[2][1])]
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals, phoenix_limits)
 
     dim = len(new_temps) * len(new_loggs) * len(new_metals)
     new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals,
@@ -441,16 +443,9 @@ def generate_bhm_config_params(params, limits="phoenix"):
     else:
         new_loggs = np.arange(*logg_values) + logg
 
-    if limits == "phoenix":
-        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
-        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
-        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
+    phoenix_limits = get_phoenix_limits(limits)
 
-    # Check in hdf5 grid
-    parrange = simulators.starfish_grid["parrange"]  #: [[2200, 7000], [3.0, 6.0], [-1.5, 1.5]]
-    new_temps = new_temps[(new_temps >= parrange[0][0]) * (new_temps <= parrange[0][1])]
-    new_loggs = new_loggs[(new_loggs >= parrange[1][0]) * (new_loggs <= parrange[1][1])]
-    new_metals = new_metals[(new_metals >= parrange[2][0]) * (new_metals <= parrange[2][1])]
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals, phoenix_limits)
 
     new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals,
                                                         simulators.starfish_grid["parrange"])

@@ -14,6 +14,7 @@ from mingle.utilities.phoenix_utils import (gen_new_param_values,
                                             generate_close_params_with_simulator,
                                             load_phoenix_spectrum,
                                             load_starfish_spectrum, phoenix_area)
+from mingle.utilities.phoenix_utils import get_phoenix_limits
 from mingle.utilities.phoenix_utils import phoenix_name, phoenix_regex, \
     find_closest_phoenix_name, find_phoenix_model_names
 from mingle.utilities.phoenix_utils import set_model_limits
@@ -272,6 +273,7 @@ def test_phoenix_regex():
 
     assert phoenix_regex(12000, 3, 0, Z=False) == "*12000-3.00-0.0.PHOENIX*.fits"
 
+
 @pytest.mark.parametrize("parrange, lengths", [
     ([[4000, 4200], [1, 3], [0, 0.5]], (3, 5, 2)),
     ([[4000, 4800], [3, 6], [-0.5, 0.5]], (9, 7, 3)),
@@ -304,3 +306,17 @@ def test_set_model_limits(limits, lengths):
     assert len(new_teff) == lengths[0]
     assert len(new_logg) == lengths[1]
     assert len(new_feh) == lengths[2]
+
+
+@pytest.mark.parametrize("name, expected", [
+    ("phoenix", [[2300, 12000], [0, 6], [-4, 1]]),
+    ("cifist", [[1200, 7000], [2.5, 5], [0, 0]])
+])
+def test_phoenix_limits(name, expected):
+    assert get_phoenix_limits(name) == expected
+
+
+@pytest.mark.parametrize("name", ["cond", "dusty", "all", "", " "])
+def test_phoenix_limits_errors_on_invalid_name(name):
+    with pytest.raises(ValueError):
+        get_phoenix_limits(name)
