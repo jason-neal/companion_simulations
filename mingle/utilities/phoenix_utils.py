@@ -394,9 +394,10 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
         # Warning in-case you do not remember about parrange limits.
         logging.warning("Some models were cut out using the 'parrange' limits.")
 
-    check_inputs(new_temps)
-    check_inputs(new_loggs)
-    check_inputs(new_metals)
+    new_temps = check_inputs(new_temps)
+    new_loggs = check_inputs(new_loggs)
+    new_metals = check_inputs(new_metals)
+
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
         yield [t, l, m]
 
@@ -449,9 +450,10 @@ def generate_bhm_config_params(params, limits="phoenix"):
 
     new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals,
                                                         simulators.starfish_grid["parrange"])
-    check_inputs(new_temps)
-    check_inputs(new_loggs)
-    check_inputs(new_metals)
+
+    new_temps = check_inputs(new_temps)
+    new_loggs = check_inputs(new_loggs)
+    new_metals = check_inputs(new_metals)
 
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
         yield [t, l, m]
