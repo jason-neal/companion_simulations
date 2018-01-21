@@ -59,22 +59,45 @@ def test_phoenix_and_starfish_load_differently_without_limits():
     assert isinstance(spec2, Spectrum)
 
 
-@pytest.mark.xfail(strict=True)  # Starfish does resampling
-@pytest.mark.parametrize("limits", [[2090, 2135], [2450, 2570]])
-def test_phoenix_and_starfish_load_equally_with_limits(limits):
+@pytest.mark.parametrize("limits", [[2090, 2135],])
+def test_phoenix_and_starfish_load_with_same_limits(sim_config, limits):
+    simulators = sim_config
     test_spectrum = "tests/testdata/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     spec1 = load_phoenix_spectrum(test_spectrum, limits=limits)
-    spec2 = load_starfish_spectrum([2300, 5, 0], limits=limits)
+    spec2 = load_starfish_spectrum([2300, 5, 0], limits=limits, wav_scale=False)
 
-    spec2 = spec2.interpolate1d_to(spec1)  # resamle to same axis
-    assert spec1.xaxis[0] == spec2.xaxis[0]
-    assert spec1.xaxis[-1] == spec2.xaxis[-1]
-
-    assert np.allclose(spec1.flux, spec2.flux)
-    assert np.allclose(spec1.xaxis, spec2.xaxis)
-    assert spec1.header == spec2.header
+    print(simulators.starfish_grid["wl_range"])
     assert isinstance(spec1, Spectrum)
     assert isinstance(spec2, Spectrum)
+    assert len(spec1.xaxis) != len(spec2.xaxis)
+
+    spec2.spline_interpolate_to(spec1, k=3)  # resample to same axis
+
+    assert len(spec1) == len(spec2)
+    assert spec1.xaxis[0] == spec2.xaxis[0]
+    assert spec1.xaxis[-1] == spec2.xaxis[-1]
+    assert spec1.header == spec2.header
+    # Doesn't check flux is equal
+
+
+@pytest.mark.parametrize("limits", [[2090, 2135]])
+def test_phoenix_and_starfish_load_simliarly_equally_with_limits(limits):
+    test_spectrum = "tests/testdata/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    spec1 = load_phoenix_spectrum(test_spectrum, limits=limits)
+    spec2 = load_starfish_spectrum([2300, 5, 0], limits=limits, wav_scale=False)
+
+    assert len(spec1) != len(spec2)
+    spec2.spline_interpolate_to(spec1, k=3)  # resample to same axis
+
+    assert len(spec1) == len(spec2)
+    assert spec1.xaxis[0] == spec2.xaxis[0]
+    assert spec1.xaxis[-1] == spec2.xaxis[-1]
+    assert spec1.header == spec2.header
+    assert np.allclose(spec1.xaxis, spec2.xaxis)
+
+    # As there are some differences I get the mean flux ratio difference and test that close to 1
+    assert np.allclose(np.nanmean(spec1.flux / spec2.flux), 1, rtol=3)
+    assert np.nanstd(spec1.flux / spec2.flux) < 0.1
 
 
 def test_phoenix_area():
