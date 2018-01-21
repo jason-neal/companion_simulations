@@ -8,7 +8,6 @@ import numpy as np
 import pytest
 from spectrum_overload import Spectrum
 
-import simulators
 from mingle.utilities.phoenix_utils import closest_model_params
 from mingle.utilities.phoenix_utils import (gen_new_param_values,
                                             generate_close_params_with_simulator,
@@ -171,9 +170,6 @@ def test_load_starfish_flux_rescale():
 ])
 def closest_model_params(input, expected):
     assert closest_model_params(*input) == expected
-
-
-from mingle.utilities.phoenix_utils import (phoenix_name_from_params)
 
 
 def test_find_closest_phoenix_name():
