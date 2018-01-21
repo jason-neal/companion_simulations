@@ -216,6 +216,27 @@ def test_gen_close_params_with_simulator_gets_comp_set_to_sims(sim_config, teff,
 
 
 @pytest.mark.parametrize("teff, logg, feh, expected_num", [
+    ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 12),
+    ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
+    ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 18)])
+def test_gen_close_params_with_simulator_gets_comp_set_to_sims_constrained_parrange(sim_config, teff, logg, feh, expected_num):
+    simulators = sim_config
+    simulators.sim_grid["teff_2"] = teff
+    simulators.sim_grid["logg_2"] = logg
+    simulators.sim_grid["feh_2"] = feh
+
+    # Constrain parrange further
+    simulators.starfish_grid["parrange"] = [[5000, 7000], [4.0, 6.0], [-1.5, 0.5]]
+
+    result = generate_close_params_with_simulator([5000, 4.5, 0.5], target="companion")
+    assert isinstance(result, GeneratorType)
+    result = list(result)
+    print(result)
+    assert len(list(result)) == expected_num
+
+
+
+@pytest.mark.parametrize("teff, logg, feh, expected_num", [
     ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 27),
     ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
     ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 33)])
