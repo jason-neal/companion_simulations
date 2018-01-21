@@ -10,7 +10,8 @@ from simulators.tcm_script import parse_args
 @pytest.mark.parametrize("star, obs, chip", [
     ("HD30501", 1, 1),
     ("HD4747", "a", 4)])
-def test_tcm_helper_function(star, obs, chip):
+def test_tcm_helper_function(sim_config, star, obs, chip):
+    simulators = sim_config
     obs_name, params, output_prefix = tcm_helper_function(star, obs, chip)
 
     assert isinstance(obs_name, str)
@@ -25,7 +26,8 @@ def test_tcm_helper_function(star, obs, chip):
     assert params["name"] == star.lower()
 
 
-def test_setup_tcm_dirs_creates_dirs(tmpdir):
+def test_setup_tcm_dirs_creates_dirs(sim_config, tmpdir):
+    simulators = sim_config
     simulators.paths["output_dir"] = str(tmpdir)
     star = "TestStar"
     assert not tmpdir.join(star.upper()).check()

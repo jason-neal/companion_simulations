@@ -26,7 +26,8 @@ def test_get_model_pars_value_error_for_method():
 @pytest.mark.parametrize("star, obs, chip", [
     ("HD30501", 1, 1),
     ("HD4747", "a", 4)])
-def test_bhm_helper_function(star, obs, chip):
+def test_bhm_helper_function(sim_config, star, obs, chip):
+    simulators = sim_config
     obs_name, params, output_prefix = bhm_helper_function(star, obs, chip)
 
     assert isinstance(obs_name, str)
@@ -41,7 +42,8 @@ def test_bhm_helper_function(star, obs, chip):
     assert params["name"] == star.lower()
 
 
-def test_setup_bhm_dirs_creates_dirs(tmpdir):
+def test_setup_bhm_dirs_creates_dirs(sim_config, tmpdir):
+    simulators = sim_config
     simulators.paths["output_dir"] = str(tmpdir)
     star = "TestStar"
     assert not tmpdir.join(star.upper()).check(dir=True)
@@ -82,14 +84,6 @@ def test_bhm_script_parser_toggle():
 from simulators.common_setup import obs_name_template
 
 
-@pytest.fixture(scope="module")
-def simulator_init():
-    import simulators
-    yield simulators  # provide the fixture value
-    # Cleanup simulators parameters after messing with them.
-    simulators.spec_version == None
-
-
 @pytest.mark.parametrize("mode, end", [
     ("tell_corr", ".fits"),
     ("h2o_tell_corr", ".fits"),
@@ -97,8 +91,9 @@ def simulator_init():
     ("h2o_berv_corr", "_bervcorr.fits"),
     ("berv_mask", "_bervcorr_masked.fits"),
     ("h2o_berv_mask", "_bervcorr_masked.fits")])
-def test_obs_name_template(simulator_init, mode, end):
-    simulator_init.spec_version = mode
+def test_obs_name_template(sim_config, mode, end):
+    simulators = sim_config
+    simulators.spec_version = mode
     star = "HD00001"
     obsnum = "1"
     chip = 7
@@ -115,5 +110,3 @@ def test_obs_name_template(simulator_init, mode, end):
     if "h2o" in mode:
         assert "-h2otellcorr" in template
         assert "-h2otellcorr" in fname
-
-    simulators.spec_version = None

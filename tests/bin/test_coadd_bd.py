@@ -99,7 +99,8 @@ def test_simple_database_returns_correctly_from_sql_db(tmpdir):
 from simulators.iam_module import setup_iam_dirs
 
 
-def test_iam_db_main_single_host_model(tmpdir):
+def test_iam_db_main_single_host_model(sim_config, tmpdir):
+    simulators = sim_config
     simulators.paths["output_dir"] = str(tmpdir)
     # Setup
     star = "test_star"
@@ -170,7 +171,8 @@ def test_iam_db_main_single_host_model(tmpdir):
     assert np.all(df.npix_4 == (985 - 4))
 
 
-def test_iam_db_main_multiple_host_model(tmpdir):
+def test_iam_db_main_multiple_host_model(sim_config, tmpdir):
+    simulators = sim_config
     simulators.paths["output_dir"] = str(tmpdir)
     # Setup
     star = "test_star"

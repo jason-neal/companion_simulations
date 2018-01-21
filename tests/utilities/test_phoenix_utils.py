@@ -105,7 +105,8 @@ def test_gen_new_param_values_with_host():
     assert np.all(z == np.array([0.5, 1, 1.5]))
 
 
-def test_generate_close_params_with_simulator_single_return():
+def test_generate_close_params_with_simulator_single_return(sim_config):
+    simulators = sim_config
     start_params = [5000, 4.5, 0]
     # start, stop, step of [0, 1, 1]  -> [0] while [0, 0, 1] -> []
     test_dict = {"teff_1": [0, 1, 1], "feh_1": [0, 1, 1], "logg_1": [0, 1, 1],
@@ -203,7 +204,8 @@ def test_gen_close_params_with_simulator_invalid_target(target):
     ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 27),
     ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
     ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 33)])
-def test_gen_close_params_with_simulator_gets_comp_set_to_sims(teff, logg, feh, expected_num):
+def test_gen_close_params_with_simulator_gets_comp_set_to_sims(sim_config, teff, logg, feh, expected_num):
+    simulators = sim_config
     simulators.sim_grid["teff_2"] = teff
     simulators.sim_grid["logg_2"] = logg
     simulators.sim_grid["feh_2"] = feh
@@ -219,7 +221,8 @@ def test_gen_close_params_with_simulator_gets_comp_set_to_sims(teff, logg, feh, 
     ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 27),
     ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
     ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 33)])
-def test_gen_close_params_with_simulator_gets_host_set_to_sims(teff, logg, feh, expected_num):
+def test_gen_close_params_with_simulator_gets_host_set_to_sims(sim_config, teff, logg, feh, expected_num):
+    simulators = sim_config
     simulators.sim_grid["teff_1"] = teff
     simulators.sim_grid["logg_1"] = logg
     simulators.sim_grid["feh_1"] = feh
@@ -234,7 +237,8 @@ def test_gen_close_params_with_simulator_gets_host_set_to_sims(teff, logg, feh, 
     (5600, 2.5, 0.5),
     (7200, 1.5, -1.5)
 ])
-def test_gen_close_params_simulators_with_none_configured(teff, logg, feh):
+def test_gen_close_params_simulators_with_none_configured(sim_config, teff, logg, feh):
+    simulators = sim_config
     for key in ["teff_1", "teff_2", "logg_1", "logg_2", "feh_1", "feh_2"]:
         simulators.sim_grid[key] = None
     gen_params = list(gen_new_param_values(teff, logg, feh, small=True))

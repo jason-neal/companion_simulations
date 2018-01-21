@@ -53,8 +53,9 @@ def test_parse_paramfile_errors():
         param_file.parse_paramfile(test_param_file, "tests/testdata")
 
 
-def test_get_host_params():
+def test_get_host_params(sim_config):
     """Find host star parameters from param file."""
+    simulators = sim_config
     star = "test"
     simulators.paths["parameters"] = "tests/testdata"
 
@@ -64,7 +65,8 @@ def test_get_host_params():
     assert params == (5340, 4.65, -0.22)
 
 
-def test_load_paramfile_returns_parse_paramfile():
+def test_load_paramfile_returns_parse_paramfile(sim_config):
+    simulators = sim_config
     star = "test"
     test_param_file = "test_params.dat"
     simulators.paths["parameters"] = "tests/testdata"

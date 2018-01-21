@@ -9,7 +9,8 @@ from bin.coadd_bhm_db import main as bhm_db_main
 from simulators.bhm_module import setup_bhm_dirs
 
 
-def test_bhm_db_main(tmpdir):
+def test_bhm_db_main(sim_config, tmpdir):
+    simulators = sim_config
     simulators.paths["output_dir"] = str(tmpdir)
 
     # make directory !
