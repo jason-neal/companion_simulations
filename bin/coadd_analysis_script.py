@@ -17,7 +17,7 @@ import sqlalchemy as sa
 
 import simulators
 from bin.coadd_analysis_module import (chi2_parabola_plots, compare_spectra,
-                                       contours, display_arbitary_norm_values,
+                                       contours, display_arbitrary_norm_values,
                                        fix_host_parameters,
                                        fix_host_parameters_reduced_gamma,
                                        get_column_limits, get_npix_values,
@@ -136,7 +136,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     elif mode == "rvplot":
         rv_plot(db_table, params)
     elif mode == "arbnorm":
-        display_arbitary_norm_values(db_table, params)
+        display_arbitrary_norm_values(db_table, params)
     elif mode == "chi2_parabola":
         chi2_parabola_plots(db_table, params)
     elif mode == "compare_spectra":
@@ -150,7 +150,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         except:
             pass
         get_column_limits(db_table, params)
-        display_arbitary_norm_values(db_table, params)
+        display_arbitrary_norm_values(db_table, params)
         smallest_chi2_values(db_table, params)
         parabola_plots(db_table, params)
         test_figure(db_table, params)

@@ -20,7 +20,7 @@ import simulators
 from bin.coadd_analysis_script import main as coadd_analysis
 from bin.coadd_chi2_db import main as coadd_db
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
-from mingle.utilities.errors import spectrum_error
+from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import (closest_model_params,
                                             generate_close_params_with_simulator)
@@ -68,12 +68,14 @@ def parse_args(args):
                         help='Disable scaling by wavelength.')
     parser.add_argument('--suffix', help='Suffix for file.', type=str)
     parser.add_argument('-f', '--fudge', help='Fudge factor to apply.', default=None)
+    parser.add_argument("-b", '--betasigma', help='Use BetaSigma std estimator.',
+                        action="store_true")
     return parser.parse_args(args)
 
 
 def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
          suffix=None, error_off=False, area_scale=True, disable_wav_scale=False,
-         renormalize=False, norm_method="scalar", fudge=None):
+         renormalize=False, norm_method="scalar", fudge=None, betasigma=False):
     """Main function."""
 
     if fudge is not None:
@@ -109,9 +111,17 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
     obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
     # Barycentric correct spectrum
     _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
+
     # Determine Spectrum Errors
     try:
-        errors = spectrum_error(star, obsnum, chip, error_off=error_off)
+        if betasigma:
+            N = simulators.betasigma.get("N", 5)
+            j = simulators.betasigma.get("j", 2)
+            errors = betasigma_error(obs_spec, N=N, j=j)
+            logging.info("Beta-Sigma error value = {:6.5f}".format(errors))
+        else:
+            errors = spectrum_error(star, obsnum, chip, error_off=error_off)
+            logging.info("File obtained error value = {}".format(errors))
     except KeyError as e:
         errors = None
 

@@ -5,13 +5,13 @@ import argparse
 import sys
 
 import numpy as np
-
+import logging
 import simulators
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
-from mingle.utilities.errors import spectrum_error
+from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.spectrum_utils import load_spectrum
-from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_model_pars
+from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_bh_model_pars
 from simulators.bhm_module import setup_bhm_dirs
 
 from bin.coadd_bhm_db import main as coadd_db
@@ -37,18 +37,20 @@ def parse_args(args):
                         help="Turn snr value errors off.")
     parser.add_argument('--disable_wav_scale', action="store_true",
                         help='Disable scaling by wavelength.')
+    parser.add_argument("-b", '--betasigma', help='Use BetaSigma std estimator.',
+                        action="store_true")
     return parser.parse_args(args)
 
 
 def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scale=False, renormalize=False,
-         norm_method="scalar"):
+         norm_method="scalar", betasigma=False):
     """Best Host modelling main function."""
     wav_scale = not disable_wav_scale
     star = star.upper()
     setup_bhm_dirs(star)
     # Define the broadcasted gamma grid
     gammas = np.arange(*simulators.sim_grid["gammas"])
-    print("bhm gammas", gammas)
+    # print("bhm gammas", gammas)
 
     obs_name, params, output_prefix = bhm_helper_function(star, obsnum, chip)
 
@@ -57,7 +59,8 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     print("The observation used is ", obs_name, "\n")
 
     # Host Model parameters to iterate over
-    model_pars = get_model_pars(params, method="close")
+    # model_pars = get_bh_model_pars(params, method="close")
+    model_pars = get_bh_model_pars(params, method="config")  # Use config file
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
@@ -71,7 +74,15 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
 
     # Determine Spectrum Errors
     try:
-        errors = spectrum_error(star, obsnum, chip, error_off=error_off)
+        if betasigma:
+            N = simulators.betasigma.get("N", 5)
+            j = simulators.betasigma.get("j", 2)
+            errors, derrors = betasigma_error(obs_spec, N=N, j=j)
+            logging.info("Beta-Sigma error value = {:6.5f}".format(errors))
+            logging.info("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
+        else:
+            errors = spectrum_error(star, obsnum, chip, error_off=error_off)
+            logging.info("File obtained error value = {}".format(errors))
     except KeyError as e:
         errors = None
 

@@ -105,13 +105,13 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
 
     Inputs
     ------
-    obs: n*1 N-D arrary
+    obs: n*1 N-D array
     models: n*x*... N-D array
     method: str
         const or linear
     Returns
     -------
-    norm_obs: N-D arrary
+    norm_obs: N-D array
         Observation normalized to all model continuum.
 
     Notes
@@ -170,7 +170,7 @@ def arbitrary_minimums(model_grid, last_axis):
 
 if __name__ == "__main__":
     w = np.arange(500)
-    f = np.sort(np.random.rand(500))  # .sort()
+    f = np.sort(np.random.rand(500))
     print(f)
     models = np.sort(np.random.rand(500, 20, 2, 5), axis=0)
     print(models)

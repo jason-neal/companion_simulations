@@ -12,7 +12,7 @@ from mingle.utilities.xcorr import xcorr_peak
 from simulators.common_setup import setup_dirs, sim_helper_function
 from simulators.iam_module import renormalization
 from tqdm import tqdm
-
+from mingle.utilities.phoenix_utils import generate_bhm_config_params
 from simulators.iam_module import arbitrary_minimums, arbitrary_rescale
 
 
@@ -145,17 +145,16 @@ def bhm_helper_function(star, obsnum, chip, skip_params=False):
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="bhm")
 
 
-def get_model_pars(params, method="close"):
+def get_bh_model_pars(params, method="close"):
     method = method.lower()
-    if method == "all":
-        raise NotImplementedError("Cant yet choose all parameters.")
-    elif method == "close":
-        host_params = [params["temp"], params["logg"], params["fe_h"]]
-        # comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
-        closest_host_model = closest_model_params(*host_params)
 
+    host_params = [params["temp"], params["logg"], params["fe_h"]]
+    closest_host_model = closest_model_params(*host_params)
+    if method == "config":
+        model_pars = list(generate_bhm_config_params(closest_host_model))
+    elif method == "close":
         # Model parameters to try iterate over.
-        model_pars = list(generate_close_params(closest_host_model))
+        model_pars = list(generate_close_params(closest_host_model, small=True))
     else:
         raise ValueError("The method '{0}' is not valid".format(method))
 
