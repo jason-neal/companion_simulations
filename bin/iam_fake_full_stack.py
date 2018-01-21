@@ -68,7 +68,7 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
     # for chip in chips:
     #     iam_script_main(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale)
     Parallel(n_jobs=n_jobs)(
-        delayed(iam_script_main)(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale)
+        delayed(iam_script_main)(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale, betasigma=True)
         for chip in chips)
 
     # Generate db

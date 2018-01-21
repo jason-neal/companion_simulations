@@ -22,7 +22,6 @@ from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.simulation_utilities import check_inputs
 
 
-
 def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
     wav_dir = simulators.starfish_grid["raw_path"]
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
@@ -97,7 +96,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
     if limits is not None:
         if limits[0] > spec.xaxis[-1] or limits[-1] < spec.xaxis[0]:
             logging.warning("Warning: The wavelength limits do not overlap the spectrum."
-                  "There is no spectrum left... Check your wavelength, or limits.")
+                            "There is no spectrum left... Check your wavelength, or limits.")
         spec.wav_select(*limits)
 
     return spec
@@ -126,8 +125,8 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
     spec: Spectrum
         The loaded spectrum as Spectrum object.
     """
-    # Starfish.grid["btsettle_hdf5_path"], instrument, ranges=Starfish.grid["parrange"]
-    my_hdf5 = HDF5Interface(filename=simulators.grid["btsettle_hdf5_path"], key_name=simulators.grid["key_name"])
+    # Starfish.grid["btsettl_hdf5_path"], instrument, ranges=Starfish.grid["parrange"]
+    my_hdf5 = HDF5Interface(filename=simulators.grid["btsettl_hdf5_path"], key_name=simulators.grid["key_name"])
     my_hdf5.wl = my_hdf5.wl / 10  # Turn into Nanometer
 
     if hdr:
@@ -153,7 +152,7 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
     if limits is not None:
         if limits[0] > spec.xaxis[-1] or limits[-1] < spec.xaxis[0]:
             logging.warning("Warning: The wavelength limits do not overlap the spectrum."
-                  "There is no spectrum left... Check your wavelength, or limits.")
+                            "There is no spectrum left... Check your wavelength, or limits.")
         spec.wav_select(*limits)
 
     return spec
@@ -267,7 +266,7 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None, Z=True):
     else:
         if Z:
             phoenix_glob = ("Z{2:+4.1f}/*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
-                        "").format(closest_teff, closest_logg, closest_feh)
+                            "").format(closest_teff, closest_logg, closest_feh)
         else:
             phoenix_glob = ("*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                             "").format(closest_teff, closest_logg, closest_feh)
@@ -330,13 +329,22 @@ def generate_close_params(params, small=True, limits="phoenix"):
 
     new_temps, new_loggs, new_metals = gen_new_param_values(temp, logg, metals, small=small)
 
-    if limits == "phoenix":
-        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
-        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
-        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
+    phoenix_limits = get_phoenix_limits(limits)
+
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals, phoenix_limits)
 
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
         yield [t, l, m]
+
+
+def get_phoenix_limits(limits="phoenix"):
+   if limits == "phoenix":
+        phoenix_limits = [[2300, 12000], [0, 6], [-4, 1]]
+   elif limits == "cifist":
+        phoenix_limits = [[1200, 7000], [2.5, 5], [0, 0]]
+   else:
+       raise ValueError("Error with phoenix limits. Invalid limits name '{0}'".format(limits))
+   return phoenix_limits
 
 
 def generate_close_params_with_simulator(params, target, small=True, limits="phoenix"):
@@ -364,8 +372,71 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
     else:
         new_temps = np.arange(*teff_values) + temp
 
+    if logg_values is None or logg_values == "None":
+        new_loggs = bk_loggs
+    else:
+        new_loggs = np.arange(*logg_values) + logg
+
     if feh_values is None or feh_values == "None":
-         new_metals = bk_metals
+        new_metals = bk_metals
+    else:
+        new_metals = np.arange(*feh_values) + metals
+
+    phoenix_limits = get_phoenix_limits(limits)
+
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals, phoenix_limits)
+
+    dim = len(new_temps) * len(new_loggs) * len(new_metals)
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals,
+                                                        simulators.starfish_grid["parrange"])
+    dim_2 = len(new_temps) * len(new_loggs) * len(new_metals)
+    if dim_2 < dim:
+        # Warning in-case you do not remember about parrange limits.
+        logging.warning("Some models were cut out using the 'parrange' limits.")
+
+    new_temps = check_inputs(new_temps)
+    new_loggs = check_inputs(new_loggs)
+    new_metals = check_inputs(new_metals)
+
+    for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
+        yield [t, l, m]
+
+
+def set_model_limits(temps, loggs, metals, limits):
+    """Apply limits to list of models
+
+    limits format = [[temp1, temp2][log-1, logg2][feh_1, feh_2]
+    """
+    new_temps = temps[(temps >= limits[0][0]) * (temps <= limits[0][1])]
+    new_loggs = loggs[(loggs >= limits[1][0]) * (loggs <= limits[1][1])]
+    new_metals = metals[(metals >= limits[2][0]) * (metals <= limits[2][1])]
+
+    if len(temps) > len(new_temps) | len(loggs) > len(new_loggs) | len(metals) > len(new_metals):
+        logging.warning("Some models were removed using the 'parrange' limits.")
+    return new_temps, new_loggs, new_metals
+
+
+def generate_bhm_config_params(params, limits="phoenix"):
+    """Generate teff, logg, Z values given star params and config values.
+
+    Version of "generate_close_params_with_simulator" for bhm.
+    """
+
+    temp, logg, metals = params[0], params[1], params[2]
+    # This is the backup if not specified in config file.
+    bk_temps, bk_loggs, bk_metals = gen_new_param_values(temp, logg, metals, small=True)
+
+    teff_values = simulators.sim_grid.get("teff_1")
+    logg_values = simulators.sim_grid.get("logg_1")
+    feh_values = simulators.sim_grid.get("feh_1")
+
+    if teff_values is None or teff_values == "None":
+        new_temps = bk_temps
+    else:
+        new_temps = np.arange(*teff_values) + temp
+
+    if feh_values is None or feh_values == "None":
+        new_metals = bk_metals
     else:
         new_metals = np.arange(*feh_values) + metals
     if logg_values is None or logg_values == "None":
@@ -373,14 +444,17 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
     else:
         new_loggs = np.arange(*logg_values) + logg
 
-    if limits == "phoenix":
-        new_temps = new_temps[(new_temps >= 2300) * (new_temps <= 12000)]
-        new_loggs = new_loggs[(new_loggs >= 0) * (new_loggs <= 6)]
-        new_metals = new_metals[(new_metals >= -4) * (new_metals <= 1)]
+    phoenix_limits = get_phoenix_limits(limits)
 
-    check_inputs(new_temps)
-    check_inputs(new_loggs)
-    check_inputs(new_metals)
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals, phoenix_limits)
+
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals,
+                                                        simulators.starfish_grid["parrange"])
+
+    new_temps = check_inputs(new_temps)
+    new_loggs = check_inputs(new_loggs)
+    new_metals = check_inputs(new_metals)
+
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
         yield [t, l, m]
 
@@ -402,7 +476,7 @@ def gen_new_param_values(temp, logg, metals, small=True):
     return new_temps, new_loggs, new_metals
 
 
-# def find_phoenix_model_names(base_dir: str, original_model: str) -> List[str]:    # mypy
+# def find_phoenix_model_names(base_dir: str, original_model: str) -> List[str]:  # mypy
 def find_phoenix_model_names(base_dir, original_model):
     """Find other phoenix models with similar temp and metallicities.
 
@@ -442,7 +516,7 @@ def phoenix_name(teff, logg, feh, alpha=None, Z=False):
         name = os.path.join("Z{0:+1.10}".format(feh), name)
 
     if "+0.0" in name:  # Positive zero is not allowed in naming
-       name = name.replace("+0.0", "-0.0")
+        name = name.replace("+0.0", "-0.0")
     return name
 
 
@@ -450,10 +524,9 @@ def phoenix_regex(teff, logg, feh, alpha=None, Z=False):
     if alpha is not None:
         raise NotImplementedError("Need to add alpha to phoenix name.")
     regex = ("*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
-                    "").format(teff, logg, feh)
+             "").format(teff, logg, feh)
     if Z:
         regex = os.path.join("Z{0:+1.10}".format(feh), regex)
     if "+0.0" in regex:  # Positive zero is not allowed in naming
         regex = regex.replace("+0.0", "-0.0")
     return regex
-

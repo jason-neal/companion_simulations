@@ -39,7 +39,7 @@ mygrid = BTSETTL(norm=False, air=False, base=Starfish.grid["btsettle_raw"])    #
 instrument = CRIRES_50k()
 # HDF5Creator(GridInterface, filename, Instrument, ranges=None, key_name='t{0:.0f}g{1:.1f}', vsinis=None)
 # Specify hdf5_path in config.yaml file.
-creator = HDF5Creator(mygrid, Starfish.grid["btsettle_hdf5_path"], instrument, ranges=Starfish.grid["parrange"])
+creator = HDF5Creator(mygrid, Starfish.grid["btsettl_hdf5_path"], instrument, ranges=Starfish.grid["parrange"])
 
 
 

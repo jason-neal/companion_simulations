@@ -18,7 +18,7 @@ from bin.coadd_analysis_script import decompose_database_name, load_sql_table
 from bin.coadd_bhm_analysis_module import (chi2_parabola_plots,
                                            compare_spectra, contours,
                                            contrast_bhm_results,
-                                           display_arbitary_norm_values,
+                                           display_arbitrary_norm_values,
                                            display_bhm_xcorr_values,
                                            gamma_plot, get_column_limits,
                                            get_npix_values, host_parameters,
@@ -104,7 +104,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     elif mode == "rvplot":
         gamma_plot(db_table, params)
     elif mode == "arbnorm":
-        display_arbitary_norm_values(db_table, params)
+        display_arbitrary_norm_values(db_table, params)
     elif mode == "xcorr":
         display_bhm_xcorr_values(db_table, params)
     elif mode == "chi2_parabola":
@@ -117,7 +117,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         host_parameters_reduced_gamma(db_table, params)
         get_column_limits(db_table, params)
         host_parameters(db_table, params)
-        display_arbitary_norm_values(db_table, params)
+        display_arbitrary_norm_values(db_table, params)
         smallest_chi2_values(db_table, params)
         gamma_plot(db_table, params)
         parabola_plots(db_table, params)

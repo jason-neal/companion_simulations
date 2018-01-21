@@ -1,8 +1,8 @@
 import argparse
 import os
-
+from joblib import Parallel, delayed
 import simulators
-from bin.coadd_bhm_analysis import main as anaylyse_main
+from bin.coadd_bhm_analysis import main as analyse_main
 from bin.coadd_bhm_db import main as db_main
 from simulators.bhm_script import main as bhm_script_main
 from simulators.fake_simulator import main as fake_generator
@@ -34,21 +34,15 @@ def _parser():
                         help='SNR value. int', default=None, type=int)
     parser.add_argument('-r', '--replace',
                         help='Replace old fake spectra.', action="store_true")
+    parser.add_argument('-j', '--n_jobs',
+                        help='Number of parallel jobs.', type=int, default=4)
+    parser.add_argument('-b', '--betasigma',
+                        help='Use beta_sigma SNR estimate.', action="store_true")
     return parser.parse_args()
 
 
-def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=False):
+def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=False, n_jobs=4, betasigma=False):
     chips = range(1, 5)
-
-    # star = "FullTest"
-    # num = 1
-    # teff_1 = 5600
-    # logg1 = 4.5
-    # feh1 = 0.0
-    # gamma = 15
-    # noise = 100
-    # suffix = "_test_suffix"
-    mode = "bhm"
 
     starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh}
     make_fake_parameter_file(starinfo)
@@ -59,17 +53,21 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=Fa
                    replace=replace, noplots=True, mode="bhm")
 
     # bhm_script
-    for chip in chips:
-        bhm_script_main(star=star, obsnum=num, chip=chip, suffix=suffix)
+    # for chip in chips:
+    #    bhm_script_main(star=star, obsnum=num, chip=chip, suffix=suffix, betasigma=betasigma)
+
+    Parallel(n_jobs=n_jobs)(
+        delayed(bhm_script_main)(star=star, obsnum=num, chip=chip, suffix=suffix, betasigma=betasigma)
+        for chip in chips)
 
     # Generate db
     db_main(star=star, obsnum=num, suffix=suffix, move=True, replace=True)
 
     # Selected Analysis
-    # anaylyse_main(star=star, obsnum=num, suffix=suffix, mode="smallest_chi2")
-    # anaylyse_main(star=star, obsnum=num, suffix=suffix, mode="compare_spectra")
-    anaylyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
-    # anaylyse_main(star=star, obsnum=num, suffix=suffix, mode="contrast")
+    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="smallest_chi2")
+    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="compare_spectra")
+    analyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
+    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="contrast")
 
     print("Noise level =", noise)
 
