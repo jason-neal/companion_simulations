@@ -145,7 +145,7 @@ def bhm_helper_function(star, obsnum, chip, skip_params=False):
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="bhm")
 
 
-def get_model_pars(params, method="close"):
+def get_bh_model_pars(params, method="close"):
     method = method.lower()
 
     host_params = [params["temp"], params["logg"], params["fe_h"]]

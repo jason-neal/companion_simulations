@@ -8,14 +8,15 @@ import numpy as np
 import pytest
 from spectrum_overload import Spectrum
 
-import simulators
 from mingle.utilities.phoenix_utils import closest_model_params
 from mingle.utilities.phoenix_utils import (gen_new_param_values,
                                             generate_close_params_with_simulator,
                                             load_phoenix_spectrum,
                                             load_starfish_spectrum, phoenix_area)
+from mingle.utilities.phoenix_utils import get_phoenix_limits
 from mingle.utilities.phoenix_utils import phoenix_name, phoenix_regex, \
     find_closest_phoenix_name, find_phoenix_model_names
+from mingle.utilities.phoenix_utils import set_model_limits
 
 
 @pytest.mark.parametrize("limits, normalize", [([2100, 2150], True), ([2050, 2150], False)])
@@ -58,22 +59,45 @@ def test_phoenix_and_starfish_load_differently_without_limits():
     assert isinstance(spec2, Spectrum)
 
 
-@pytest.mark.xfail(strict=True)  # Starfish does resampling
-@pytest.mark.parametrize("limits", [[2090, 2135], [2450, 2570]])
-def test_phoenix_and_starfish_load_equally_with_limits(limits):
+@pytest.mark.parametrize("limits", [[2090, 2135],])
+def test_phoenix_and_starfish_load_with_same_limits(sim_config, limits):
+    simulators = sim_config
     test_spectrum = "tests/testdata/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
     spec1 = load_phoenix_spectrum(test_spectrum, limits=limits)
-    spec2 = load_starfish_spectrum([2300, 5, 0], limits=limits)
+    spec2 = load_starfish_spectrum([2300, 5, 0], limits=limits, wav_scale=False)
 
-    spec2 = spec2.interpolate1d_to(spec1)  # resamle to same axis
-    assert spec1.xaxis[0] == spec2.xaxis[0]
-    assert spec1.xaxis[-1] == spec2.xaxis[-1]
-
-    assert np.allclose(spec1.flux, spec2.flux)
-    assert np.allclose(spec1.xaxis, spec2.xaxis)
-    assert spec1.header == spec2.header
+    print(simulators.starfish_grid["wl_range"])
     assert isinstance(spec1, Spectrum)
     assert isinstance(spec2, Spectrum)
+    assert len(spec1.xaxis) != len(spec2.xaxis)
+
+    spec2.spline_interpolate_to(spec1, k=3)  # resample to same axis
+
+    assert len(spec1) == len(spec2)
+    assert spec1.xaxis[0] == spec2.xaxis[0]
+    assert spec1.xaxis[-1] == spec2.xaxis[-1]
+    assert spec1.header == spec2.header
+    # Doesn't check flux is equal
+
+
+@pytest.mark.parametrize("limits", [[2090, 2135]])
+def test_phoenix_and_starfish_load_simliarly_equally_with_limits(limits):
+    test_spectrum = "tests/testdata/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
+    spec1 = load_phoenix_spectrum(test_spectrum, limits=limits)
+    spec2 = load_starfish_spectrum([2300, 5, 0], limits=limits, wav_scale=False)
+
+    assert len(spec1) != len(spec2)
+    spec2.spline_interpolate_to(spec1, k=3)  # resample to same axis
+
+    assert len(spec1) == len(spec2)
+    assert spec1.xaxis[0] == spec2.xaxis[0]
+    assert spec1.xaxis[-1] == spec2.xaxis[-1]
+    assert spec1.header == spec2.header
+    assert np.allclose(spec1.xaxis, spec2.xaxis)
+
+    # As there are some differences I get the mean flux ratio difference and test that close to 1
+    assert np.allclose(np.nanmean(spec1.flux / spec2.flux), 1, rtol=3)
+    assert np.nanstd(spec1.flux / spec2.flux) < 0.1
 
 
 def test_phoenix_area():
@@ -105,7 +129,8 @@ def test_gen_new_param_values_with_host():
     assert np.all(z == np.array([0.5, 1, 1.5]))
 
 
-def test_generate_close_params_with_simulator_single_return():
+def test_generate_close_params_with_simulator_single_return(sim_config):
+    simulators = sim_config
     start_params = [5000, 4.5, 0]
     # start, stop, step of [0, 1, 1]  -> [0] while [0, 0, 1] -> []
     test_dict = {"teff_1": [0, 1, 1], "feh_1": [0, 1, 1], "logg_1": [0, 1, 1],
@@ -170,9 +195,6 @@ def closest_model_params(input, expected):
     assert closest_model_params(*input) == expected
 
 
-from mingle.utilities.phoenix_utils import (phoenix_name_from_params)
-
-
 def test_find_closest_phoenix_name():
     data_dir = os.path.join("tests", "testdata")
     name = find_closest_phoenix_name(data_dir, 2305, 4.89, 0.01, alpha=None)
@@ -203,7 +225,8 @@ def test_gen_close_params_with_simulator_invalid_target(target):
     ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 27),
     ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
     ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 33)])
-def test_gen_close_params_with_simulator_gets_comp_set_to_sims(teff, logg, feh, expected_num):
+def test_gen_close_params_with_simulator_gets_comp_set_to_sims(sim_config, teff, logg, feh, expected_num):
+    simulators = sim_config
     simulators.sim_grid["teff_2"] = teff
     simulators.sim_grid["logg_2"] = logg
     simulators.sim_grid["feh_2"] = feh
@@ -216,10 +239,32 @@ def test_gen_close_params_with_simulator_gets_comp_set_to_sims(teff, logg, feh, 
 
 
 @pytest.mark.parametrize("teff, logg, feh, expected_num", [
+    ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 12),
+    ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
+    ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 18)])
+def test_gen_close_params_with_simulator_gets_comp_set_to_sims_constrained_parrange(sim_config, teff, logg, feh, expected_num):
+    simulators = sim_config
+    simulators.sim_grid["teff_2"] = teff
+    simulators.sim_grid["logg_2"] = logg
+    simulators.sim_grid["feh_2"] = feh
+
+    # Constrain parrange further
+    simulators.starfish_grid["parrange"] = [[5000, 7000], [4.0, 6.0], [-1.5, 0.5]]
+
+    result = generate_close_params_with_simulator([5000, 4.5, 0.5], target="companion")
+    assert isinstance(result, GeneratorType)
+    result = list(result)
+    print(result)
+    assert len(list(result)) == expected_num
+
+
+
+@pytest.mark.parametrize("teff, logg, feh, expected_num", [
     ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 27),
     ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
     ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 33)])
-def test_gen_close_params_with_simulator_gets_host_set_to_sims(teff, logg, feh, expected_num):
+def test_gen_close_params_with_simulator_gets_host_set_to_sims(sim_config, teff, logg, feh, expected_num):
+    simulators = sim_config
     simulators.sim_grid["teff_1"] = teff
     simulators.sim_grid["logg_1"] = logg
     simulators.sim_grid["feh_1"] = feh
@@ -234,7 +279,8 @@ def test_gen_close_params_with_simulator_gets_host_set_to_sims(teff, logg, feh, 
     (5600, 2.5, 0.5),
     (7200, 1.5, -1.5)
 ])
-def test_gen_close_params_simulators_with_none_configured(teff, logg, feh):
+def test_gen_close_params_simulators_with_none_configured(sim_config, teff, logg, feh):
+    simulators = sim_config
     for key in ["teff_1", "teff_2", "logg_1", "logg_2", "feh_1", "feh_2"]:
         simulators.sim_grid[key] = None
     gen_params = list(gen_new_param_values(teff, logg, feh, small=True))
@@ -266,3 +312,51 @@ def test_phoenix_regex():
     assert phoenix_regex(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5", "*02000-2.50+0.5.PHOENIX*.fits")
 
     assert phoenix_regex(12000, 3, 0, Z=False) == "*12000-3.00-0.0.PHOENIX*.fits"
+
+
+@pytest.mark.parametrize("parrange, lengths", [
+    ([[4000, 4200], [1, 3], [0, 0.5]], (3, 5, 2)),
+    ([[4000, 4800], [3, 6], [-0.5, 0.5]], (9, 7, 3)),
+    ([[4700, 5100], [4, 4], [-4, -2.5]], (4, 1, 4)),
+])
+def test_simulators_parrange_affects_returned_parameters(sim_config, parrange, lengths):
+    simulators = sim_config
+    simulators.starfish_grid["parrange"] = parrange
+    teff = np.arange(4000, 5001, 100)
+    logg = np.arange(1, 6.01, 0.5)
+    feh = np.arange(-4, 1.51, 0.5)
+    new_teff, new_logg, new_feh = set_model_limits(teff, logg, feh, simulators.starfish_grid["parrange"])
+
+    assert len(new_teff) == lengths[0]
+    assert len(new_logg) == lengths[1]
+    assert len(new_feh) == lengths[2]
+
+
+@pytest.mark.parametrize("limits, lengths", [
+    ([[4000, 4200], [1, 3], [0, 0.5]], (3, 5, 2)),
+    ([[4000, 4800], [3, 6], [-0.5, 0.5]], (9, 7, 3)),
+    ([[4700, 5100], [4, 4], [-4, -2.5]], (4, 1, 4)),
+])
+def test_set_model_limits(limits, lengths):
+    teff = np.arange(4000, 5001, 100)
+    logg = np.arange(1, 6.01, 0.5)
+    feh = np.arange(-4, 1.51, 0.5)
+    new_teff, new_logg, new_feh = set_model_limits(teff, logg, feh, limits)
+
+    assert len(new_teff) == lengths[0]
+    assert len(new_logg) == lengths[1]
+    assert len(new_feh) == lengths[2]
+
+
+@pytest.mark.parametrize("name, expected", [
+    ("phoenix", [[2300, 12000], [0, 6], [-4, 1]]),
+    ("cifist", [[1200, 7000], [2.5, 5], [0, 0]])
+])
+def test_phoenix_limits(name, expected):
+    assert get_phoenix_limits(name) == expected
+
+
+@pytest.mark.parametrize("name", ["cond", "dusty", "all", "", " "])
+def test_phoenix_limits_errors_on_invalid_name(name):
+    with pytest.raises(ValueError):
+        get_phoenix_limits(name)

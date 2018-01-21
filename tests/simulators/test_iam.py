@@ -29,7 +29,8 @@ def test_iam_helper_function(star, obs, chip):
 
 
 @pytest.mark.xfail()
-def test_iam_wrapper(host, comp, tmpdir):
+def test_iam_wrapper(sim_config, host, comp, tmpdir):
+    simulators = sim_config
     simulators.paths["output_dir"] = str(tmpdir)
     host_params = [5600, 4.5, 0.0]
     comp_params = [[2300, 4.5, 0.0], [2400, 4.5, 0.0]]
@@ -49,7 +50,8 @@ def test_iam_wrapper(host, comp, tmpdir):
 
 
 @pytest.mark.xfail()
-def test_iam_wrapper_without_prefix(host, comp, tmpdir):
+def test_iam_wrapper_without_prefix(sim_config, host, comp, tmpdir):
+    simulators = sim_config
     simulators.paths["output_dir"] = str(tmpdir)
     host_params = [5600, 4.5, 0.0]
     comp_params = [[2300, 4.5, 0.0], [2400, 4.5, 0.0]]
@@ -78,7 +80,8 @@ def test_continuum_alpha(chip):
     assert np.allclose(alpha, [2])
 
 
-def test_setup_dirs_creates_dirs(tmpdir):
+def test_setup_dirs_creates_dirs(sim_config, tmpdir):
+    simulators = sim_config
     simulators.paths["output_dir"] = str(tmpdir)
     star = "TestStar"
     assert not tmpdir.join(star.upper(), "iam").check(dir=True)
