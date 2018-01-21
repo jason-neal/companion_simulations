@@ -384,12 +384,33 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
     new_loggs = new_loggs[(new_loggs >= parrange[1][0]) * (new_loggs <= parrange[1][1])]
     new_metals = new_metals[(new_metals >= parrange[2][0]) * (new_metals <= parrange[2][1])]
 
+    dim = len(new_temps) * len(new_loggs) * len(new_metals)
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals,
+                                                        simulators.starfish_grid["parrange"])
+    dim_2 = len(new_temps) * len(new_loggs) * len(new_metals)
+    if dim_2 < dim:
+        # Warning in-case you do not remember about parrange limits.
+        logging.warning("Some models were cut out using the 'parrange' limits.")
 
     check_inputs(new_temps)
     check_inputs(new_loggs)
     check_inputs(new_metals)
     for t, l, m in itertools.product(new_temps, new_loggs, new_metals):
         yield [t, l, m]
+
+
+def set_model_limits(temps, loggs, metals, limits):
+    """Apply limits to list of models
+
+    limits format = [[temp1, temp2][log-1, logg2][feh_1, feh_2]
+    """
+    new_temps = temps[(temps >= limits[0][0]) * (temps <= limits[0][1])]
+    new_loggs = loggs[(loggs >= limits[1][0]) * (loggs <= limits[1][1])]
+    new_metals = metals[(metals >= limits[2][0]) * (metals <= limits[2][1])]
+
+    if len(temps) > len(new_temps) | len(loggs) > len(new_loggs) | len(metals) > len(new_metals):
+        logging.warning("Some models were removed using the 'parrange' limits.")
+    return new_temps, new_loggs, new_metals
 
 
 def generate_bhm_config_params(params, limits="phoenix"):
@@ -431,6 +452,8 @@ def generate_bhm_config_params(params, limits="phoenix"):
     new_loggs = new_loggs[(new_loggs >= parrange[1][0]) * (new_loggs <= parrange[1][1])]
     new_metals = new_metals[(new_metals >= parrange[2][0]) * (new_metals <= parrange[2][1])]
 
+    new_temps, new_loggs, new_metals = set_model_limits(new_temps, new_loggs, new_metals,
+                                                        simulators.starfish_grid["parrange"])
     check_inputs(new_temps)
     check_inputs(new_loggs)
     check_inputs(new_metals)

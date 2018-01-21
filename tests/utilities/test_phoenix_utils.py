@@ -16,6 +16,7 @@ from mingle.utilities.phoenix_utils import (gen_new_param_values,
                                             load_starfish_spectrum, phoenix_area)
 from mingle.utilities.phoenix_utils import phoenix_name, phoenix_regex, \
     find_closest_phoenix_name, find_phoenix_model_names
+from mingle.utilities.phoenix_utils import set_model_limits
 
 
 @pytest.mark.parametrize("limits, normalize", [([2100, 2150], True), ([2050, 2150], False)])
@@ -270,3 +271,36 @@ def test_phoenix_regex():
     assert phoenix_regex(2000, 2.5, 0.5, Z=True) == os.path.join("Z+0.5", "*02000-2.50+0.5.PHOENIX*.fits")
 
     assert phoenix_regex(12000, 3, 0, Z=False) == "*12000-3.00-0.0.PHOENIX*.fits"
+
+@pytest.mark.parametrize("parrange, lengths", [
+    ([[4000, 4200], [1, 3], [0, 0.5]], (3, 5, 2)),
+    ([[4000, 4800], [3, 6], [-0.5, 0.5]], (9, 7, 3)),
+    ([[4700, 5100], [4, 4], [-4, -2.5]], (4, 1, 4)),
+])
+def test_simulators_parrange_affects_returned_parameters(sim_config, parrange, lengths):
+    simulators = sim_config
+    simulators.starfish_grid["parrange"] = parrange
+    teff = np.arange(4000, 5001, 100)
+    logg = np.arange(1, 6.01, 0.5)
+    feh = np.arange(-4, 1.51, 0.5)
+    new_teff, new_logg, new_feh = set_model_limits(teff, logg, feh, simulators.starfish_grid["parrange"])
+
+    assert len(new_teff) == lengths[0]
+    assert len(new_logg) == lengths[1]
+    assert len(new_feh) == lengths[2]
+
+
+@pytest.mark.parametrize("limits, lengths", [
+    ([[4000, 4200], [1, 3], [0, 0.5]], (3, 5, 2)),
+    ([[4000, 4800], [3, 6], [-0.5, 0.5]], (9, 7, 3)),
+    ([[4700, 5100], [4, 4], [-4, -2.5]], (4, 1, 4)),
+])
+def test_set_model_limits(limits, lengths):
+    teff = np.arange(4000, 5001, 100)
+    logg = np.arange(1, 6.01, 0.5)
+    feh = np.arange(-4, 1.51, 0.5)
+    new_teff, new_logg, new_feh = set_model_limits(teff, logg, feh, limits)
+
+    assert len(new_teff) == lengths[0]
+    assert len(new_logg) == lengths[1]
+    assert len(new_feh) == lengths[2]
