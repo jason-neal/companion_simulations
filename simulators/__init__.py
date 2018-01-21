@@ -41,6 +41,7 @@ data = config["data"]
 outdir = config["outdir"]
 plotdir = config["plotdir"]
 spec_version = config.get("spec_version", None)
+betasigma = config["betasigma"]
 
 # Check the sim_grid parameters are not empty
 for key in sim_grid:

@@ -47,3 +47,10 @@ def test_spectrum_error_inverse_snr(star, obsnum, chip):
 ])
 def test_spectrum_error_error_off(star, obsnum, chip):
     assert spectrum_error(star, obsnum, chip, error_off=True) is None
+
+
+def test_betasigma_params_from_config(sim_config):
+    simulators = sim_config
+
+    assert simulators.betasigma["N"] == 4
+    assert simulators.betasigma["j"] == 1

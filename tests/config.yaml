@@ -48,3 +48,9 @@ paths:
 
 # Valid values [tell_corr, h2o_tell_corr, berv_mask, berv_corr, h2o_berv_corr, h2o_berv_mask]
 spec_version: berv_mask
+
+
+# Betasigma noise estimation parameters
+betasigma:
+    N: 4
+    j: 1

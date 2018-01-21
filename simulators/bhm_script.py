@@ -75,7 +75,9 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     # Determine Spectrum Errors
     try:
         if betasigma:
-            errors, derrors = betasigma_error(obs_spec)
+            N = simulators.betasigma.get("N", 5)
+            j = simulators.betasigma.get("j", 2)
+            errors, derrors = betasigma_error(obs_spec, N=N, j=j)
             logging.info("Beta-Sigma error value = {:6.5f}".format(errors))
             logging.info("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
         else:
