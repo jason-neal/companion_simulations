@@ -114,19 +114,58 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     elif mode == "contrast":
         contrast_bhm_results(db_table, params)
     elif mode == "all":
-        host_parameters_reduced_gamma(db_table, params)
-        get_column_limits(db_table, params)
-        host_parameters(db_table, params)
-        display_arbitrary_norm_values(db_table, params)
-        smallest_chi2_values(db_table, params)
-        gamma_plot(db_table, params)
-        parabola_plots(db_table, params)
-        contours(db_table, params)
-        test_figure(db_table, params)
-        chi2_parabola_plots(db_table, params)
-        compare_spectra(db_table, params)
-        contrast_bhm_results(db_table, params)
-        display_bhm_xcorr_values(db_table, params)
+        try:
+            host_parameters_reduced_gamma(db_table, params)
+        except:
+            pass
+        try:
+            get_column_limits(db_table, params)
+        except:
+            pass
+        try:
+            host_parameters(db_table, params)
+        except:
+            pass
+        try:
+            display_arbitrary_norm_values(db_table, params)
+        except:
+            pass
+        try:
+            smallest_chi2_values(db_table, params)
+        except:
+            pass
+        try:
+            gamma_plot(db_table, params)
+        except:
+            pass
+        try:
+            parabola_plots(db_table, params)
+        except:
+            pass
+        try:
+            contours(db_table, params)
+        except:
+            pass
+        try:
+            test_figure(db_table, params)
+        except:
+            pass
+        try:
+            chi2_parabola_plots(db_table, params)
+        except:
+            pass
+        try:
+            compare_spectra(db_table, params)
+        except:
+            pass
+        try:
+            contrast_bhm_results(db_table, params)
+        except:
+            pass
+        try:
+            display_bhm_xcorr_values(db_table, params)
+        except:
+            pass
     else:
         warnings.warn("Incorrect Mode in bhm analysis")
     print("Done")
