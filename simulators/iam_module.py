@@ -133,13 +133,13 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             mod1_spec, mod2_spec = \
                 prepare_iam_model_spectra(params1, params2, limits=rv_limits,
                                           area_scale=area_scale, wav_scale=wav_scale)
-
             # Estimated flux ratio from models
             inherent_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
 
             # Combine model spectra with iam model
             mod1_spec.plot(label=params1)
             mod2_spec.plot(label=params2)
+            plt.close()
 
             if fudge or (fudge is not None):
                 fudge_factor = float(fudge)
@@ -152,8 +152,8 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 fname = os.path.join(simulators.paths["output_dir"],
                                      obs_spec.header["OBJECT"].upper(), "iam", "fudgeplots",
                                      "{1}_fudged_model_spectra_factor={0}_num={2}_iter_{3}.png".format(fudge_factor,
-                                                                                              fudge_prefix,
-                                                                                              num, jj))
+                                                                                                       fudge_prefix,
+                                                                                                       num, jj))
                 plt.savefig(fname)
                 plt.close()
                 warnings.warn("Using a fudge factor = {0}".format(fudge_factor))

@@ -75,14 +75,18 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     # Determine Spectrum Errors
     try:
         if betasigma:
+            print("DOING BETASIGMA ERRORS")
             N = simulators.betasigma.get("N", 5)
             j = simulators.betasigma.get("j", 2)
             errors, derrors = betasigma_error(obs_spec, N=N, j=j)
+            print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
             logging.info("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
         else:
+            print("NOT DOING BETASIGMA ERRORS")
             errors = spectrum_error(star, obsnum, chip, error_off=error_off)
             logging.info("File obtained error value = {}".format(errors))
     except KeyError as e:
+        print("ERRORS Failed so set to None")
         errors = None
 
     bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=renormalize,
