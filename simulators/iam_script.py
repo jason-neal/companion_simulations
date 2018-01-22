@@ -131,11 +131,11 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
            "{2} model iterations\n\n").format(rv_iter * model_iter, rv_iter, model_iter))
 
     # IAM Analysis
-    chi2_grids = iam_analysis(obs_spec, model1_pars, model2_pars, rvs,
-                                  gammas, verbose=verbose, norm=renormalize,
-                                  prefix=output_prefix, errors=errors,
-                                  area_scale=area_scale, wav_scale=wav_scale,
-                                  norm_method=norm_method, fudge=fudge)
+    iam_analysis(obs_spec, model1_pars, model2_pars, rvs,
+                 gammas, verbose=verbose, norm=renormalize,
+                 prefix=output_prefix, errors=errors,
+                 area_scale=area_scale, wav_scale=wav_scale,
+                 norm_method=norm_method, fudge=fudge)
 
     print("\nNow use bin/coadd_chi2_db.py")
     return 0

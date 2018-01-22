@@ -85,16 +85,9 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     except KeyError as e:
         errors = None
 
-    chi2_grids = bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=renormalize,
-                              wav_scale=wav_scale, prefix=output_prefix, norm_method=norm_method)
+    bhm_analysis(obs_spec, model_pars, gammas, errors=errors, verbose=False, norm=renormalize,
+                 wav_scale=wav_scale, prefix=output_prefix, norm_method=norm_method)
     print("after bhm_analysis")
-
-    (model_chisqr_vals, model_xcorr_vals, model_xcorr_rv_vals,
-     broadcast_chisqr_vals, broadcast_gamma, broadcast_chi2_gamma) = chi2_grids
-
-    # TEFF = np.array([par[0] for par in model_pars])
-    # LOGG = np.array([par[1] for par in model_pars])
-    # FEH = np.array([par[2] for par in model_pars])
 
     # Testing shapes
     print("Finished chi square generation")
