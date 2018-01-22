@@ -4,10 +4,8 @@ from mingle.models.broadcasted_models import two_comp_model
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 
-@pytest.fixture
-def sim_config():
-    # Set reusable default test configuration.
-    import simulators
+def set_simulators(simulators):
+    # Adjust simulator parameters for testing.
     simulators.starfish_grid["raw_path"] = "./tests/testdata/"
     simulators.starfish_grid["hdf5_path"] = "./tests/testdata/PHOENIX_CRIRES_50k_test.hdf5"
     simulators.starfish_grid["parname"] = ["temp", "logg", "Z"]
@@ -18,7 +16,19 @@ def sim_config():
     simulators.paths["spectra"] = "./tests/testdata/handy_spectra/"
     simulators.paths["output_dir"] = "./tests/testdata/Analysis/"
     simulators.spec_version = "berv_mask"
+    simulators.betasigma = {"N": 5, "j": 2}
+
+
+@pytest.fixture
+def sim_config():
+    # Set reusable default test configuration.
+    import simulators
+    # Ideally would get/store initial values and reset with those.
+    set_simulators(simulators)
+
     yield simulators
+    # Clean up
+    set_simulators(simulators)
 
 
 @pytest.fixture
