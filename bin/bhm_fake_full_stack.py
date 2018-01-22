@@ -38,10 +38,15 @@ def _parser():
                         help='Number of parallel jobs.', type=int, default=4)
     parser.add_argument('-b', '--betasigma',
                         help='Use beta_sigma SNR estimate.', action="store_true")
+    parser.add_argument("--renormalize", help="renormalize before chi2", action="store_true")
+    parser.add_argument("-m", "--norm_method", help="Re-normalization method flux to models. Default=scalar",
+                        choices=["scalar", "linear"], default="scalar")
     return parser.parse_args()
 
 
-def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=False, n_jobs=4, betasigma=False):
+def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="",
+         replace=False, n_jobs=4, betasigma=False,
+         renormalize=False, norm_method="scalar"):
     chips = range(1, 5)
 
     starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh}
@@ -57,7 +62,9 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=Fa
     #    bhm_script_main(star=star, obsnum=num, chip=chip, suffix=suffix, betasigma=betasigma)
 
     Parallel(n_jobs=n_jobs)(
-        delayed(bhm_script_main)(star=star, obsnum=num, chip=chip, suffix=suffix, betasigma=betasigma)
+        delayed(bhm_script_main)(star=star, obsnum=num, chip=chip, suffix=suffix,
+                                 renormalize=renormalize, norm_method=norm_method,
+                                 betasigma=betasigma)
         for chip in chips)
 
     # Generate db
