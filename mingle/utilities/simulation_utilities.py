@@ -4,6 +4,7 @@
 # File to contain function necessary for the chi_square simulations
 
 import copy
+import logging
 
 import numpy as np
 
@@ -15,13 +16,17 @@ def add_noise(flux, snr, use_mu=False):
 
     Applies noise based on the flux at each pixel.
     """
-    if use_mu:
-        sigma = np.median(flux) / snr
+    if not snr:
+        logging.warning("Assuming SNR=0 means add no noise")
+        return flux
     else:
-        sigma = np.ones_like(flux) / snr
+        if use_mu:
+            sigma = np.median(flux) / snr
+        else:
+            sigma = np.ones_like(flux) / snr
 
-    # Add normal distributed noise at the snr level.
-    noisy_flux = flux + np.random.normal(0, sigma)
+        # Add normal distributed noise at the snr level.
+        noisy_flux = flux + np.random.normal(0, sigma)
     return noisy_flux
 
 

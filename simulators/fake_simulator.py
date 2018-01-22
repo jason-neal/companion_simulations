@@ -91,8 +91,8 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
         # Add 1 / snr noise to continuum normalized spectra
         iam_grid_models = add_noise(iam_grid_models, noise, use_mu=False)
     else:
-        logging.warning("\n!!!!!!!!!!\n\nNot adding any noise to fake simulation!!!!!!!!!\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-        print("\n!!!!!!!!!!\n\nNot adding any noise to fake simulation!!!!!!!!!\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        logging.warning("\n!!!\n\nNot adding any noise to fake simulation!!\n\n!!!!!\n")
+        print("\n!!!\n\nNot adding any noise to fake simulation!!\n\n!!!!!\n")
 
     if header:
         return wav, iam_grid_models.squeeze(), mod1_spec.header
@@ -118,8 +118,11 @@ def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, hea
 
     logging.debug("number of bhm nans", np.sum(~np.isfinite(bhm_grid_values)))
 
-    if noise is not None:
+    if noise is not None or noise is not 0:
         bhm_grid_values = add_noise(bhm_grid_values, noise)
+    else:
+        logging.warning("\n!!!\n\nNot adding any noise to bhm fake simulation!!!!!\n\n!!!!!\n")
+        print("\n!!!!\n\nNot adding any noise to fake simulation!!!!\n\n!\n")
 
     if header:
         return wav, bhm_grid_values.squeeze(), mod_spec.header
