@@ -47,11 +47,16 @@ def _parser():
                         help='Number of parallel jobs.', type=int, default=4)
     parser.add_argument('-f', '--fudge',
                         help='Fudge factor.', default=None)
+    parser.add_argument("--renormalize", help="renormalize before chi2", action="store_true")
+    parser.add_argument("-m", "--norm_method", help="Re-normalization method flux to models. Default=scalar",
+                        choices=["scalar", "linear"], default="scalar")
     return parser.parse_args()
 
 
 def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
-         noise=False, suffix="", replace=False, independent=False, fudge=None, area_scale=True, n_jobs=4):
+         noise=False, suffix="", replace=False, independent=False,
+         fudge=None, area_scale=True, n_jobs=4,
+         renormalize=False, norm_method="scalar"):
     chips = range(1, 5)
 
     starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh, "comp_temp": teff2}
@@ -68,7 +73,9 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
     # for chip in chips:
     #     iam_script_main(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale)
     Parallel(n_jobs=n_jobs)(
-        delayed(iam_script_main)(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale, betasigma=True)
+        delayed(iam_script_main)(star=star, obsnum=obsnum, chip=chip, suffix=suffix,
+                                 area_scale=area_scale, betasigma=True,
+                                 renormalize=renormalize, norm_method=norm_method)
         for chip in chips)
 
     # Generate db
