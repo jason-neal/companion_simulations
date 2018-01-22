@@ -66,7 +66,14 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="", replace=Fa
     # Selected Analysis
     # analyse_main(star=star, obsnum=num, suffix=suffix, mode="smallest_chi2")
     # analyse_main(star=star, obsnum=num, suffix=suffix, mode="compare_spectra")
-    analyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
+    try:
+        analyse_main(star=star, obsnum=num, suffix=suffix, mode="chi2_parabola")
+    except:
+        pass
+    try:
+        analyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
+    except:
+        pass
     # analyse_main(star=star, obsnum=num, suffix=suffix, mode="contrast")
 
     print("Noise level =", noise)
