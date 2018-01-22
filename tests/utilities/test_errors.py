@@ -49,8 +49,19 @@ def test_spectrum_error_error_off(star, obsnum, chip):
     assert spectrum_error(star, obsnum, chip, error_off=True) is None
 
 
-def test_betasigma_params_from_config(sim_config):
+@pytest.mark.parametrize("N, j", [
+    (4, 1),
+    (3, 2),
+    (0, 1),
+])
+def test_betasigma_params_from_config(sim_config, N, j):
     simulators = sim_config
+    # Default
+    assert simulators.betasigma["N"] == 5
+    assert simulators.betasigma["j"] == 2
 
-    assert simulators.betasigma["N"] == 4
-    assert simulators.betasigma["j"] == 1
+    # Check they can be changed.
+    simulators.betasigma["N"] = N
+    assert simulators.betasigma["N"] == N
+    simulators.betasigma["j"] = j
+    assert simulators.betasigma["j"] == j
