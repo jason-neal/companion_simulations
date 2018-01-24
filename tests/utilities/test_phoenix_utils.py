@@ -63,7 +63,7 @@ def test_phoenix_and_starfish_load_differently_without_limits():
     (2300, 5.0, 0.0),
     (3400, 4.5, 0.0),
     (5200, 4.5, 0.0),
-    (6000, 3.5, -0.5)])
+])
 def test_load_starfish_header_contains_correct_params(teff, logg, feh):
     spec = load_starfish_spectrum([teff, logg, feh], limits=None, hdr=True)
     assert isinstance(spec, Spectrum)
