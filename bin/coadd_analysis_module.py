@@ -299,14 +299,18 @@ def chi2_parabola_plots(table, params):
 
             # Find roots
             if chi2_val == "coadd_chi2":
-                residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
-                min_chi2_par = unique_par[np.argmin(min_chi2)]
-                lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2)
-                upper_bound = newton(residual, (min_chi2_par + unique_par[-1]) / 2)
+                try:
+                    residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
+                    min_chi2_par = unique_par[np.argmin(min_chi2)]
+                    lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2)
+                    upper_bound = newton(residual, (min_chi2_par + unique_par[-1]) / 2)
 
-                print("{0} solution {1} - {2} + {3}".format(chi2_val, min_chi2_par, lower_bound, upper_bound))
-                plt.annotate("{0} -{1} +{2}".format(min_chi2_par, lower_bound, upper_bound), xy=(min_chi2_par, 0),
-                             xytext=(0.5, 0.5), textcoords="figure fraction", arrowprops={"arrowstyle": "<-"})
+                    print("{0} solution {1} - {2} + {3}".format(chi2_val, min_chi2_par, lower_bound, upper_bound))
+                    plt.annotate("{0} -{1} +{2}".format(min_chi2_par, lower_bound, upper_bound), xy=(min_chi2_par, 0),
+                                 xytext=(0.5, 0.5), textcoords="figure fraction", arrowprops={"arrowstyle": "<-"})
+                except:
+                   logging.warning("Could not Annotate the contour plot")
+
         plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
         plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
         plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma")
