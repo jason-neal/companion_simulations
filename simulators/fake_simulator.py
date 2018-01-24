@@ -72,7 +72,6 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
     iam_grid_models = iam_grid_func(wav).squeeze()
     logging.debug("iam_grid_func(wav).squeeze()", iam_grid_models)
     logging.debug("number of nans", np.sum(~np.isfinite(iam_grid_models)))
-    # assert np.all(np.isfinite(iam_grid_models))
     logging.debug("iam_grid_models", iam_grid_models)
 
     logging.debug("Continuum normalizing")
@@ -132,17 +131,19 @@ def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, hea
 
 def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
          independent=False, noise=None, test=False, replace=False,
-         noplots=False, mode="iam", fudge=None, area_scale=True):
+         noplots=False, mode="iam", fudge=None, area_scale=True, suffix=""):
     star = star.upper()
 
     if params1 is not None:
         params_1 = [float(par) for par in params1.split(",")]
     else:
-        raise ValueError("No host parameter given")
+        raise ValueError("No host parameter given. Use '-p'")
 
     if mode == "iam":
         if params2 is not None:
             params_2 = [float(par) for par in params2.split(",")]
+        else:
+            raise ValueError("No companion parameter given. Use '-q', or set '--mode bhm'")
 
         if test:
             testing_noise(star, sim_num, params_1, params_2, gamma, rv,
@@ -204,13 +205,13 @@ def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=
 
 def testing_noise(star, sim_num, params1, params2, gamma, rv,
                   independent=False):
-    x_wav, y_wav = fake_iam_simulation(None, params1, params2, gamma, rv, chip=1,
+    x_wav, y_wav = fake_iam_simulation(None, params1, params2, gamma, rv, limits=[2070, 2180],
                                        independent=independent, noise=None)
 
-    x_wav_1000, y_wav_1000 = fake_iam_simulation(None, params1, params2, gamma, rv, chip=1,
+    x_wav_1000, y_wav_1000 = fake_iam_simulation(None, params1, params2, gamma, rv, limits=[2070, 2180],
                                                  independent=independent, noise=1000)
 
-    x_wav_200, y_wav_200 = fake_iam_simulation(None, params1, params2, gamma, rv, chip=1,
+    x_wav_200, y_wav_200 = fake_iam_simulation(None, params1, params2, gamma, rv, limits=[2070, 2180],
                                                independent=independent, noise=200)
 
     fig, axis = plt.subplots(2, 1, sharex=True)
