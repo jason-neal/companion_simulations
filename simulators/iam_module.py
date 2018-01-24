@@ -270,7 +270,13 @@ def prepare_iam_model_spectra(params1, params2, limits, area_scale=True, wav_sca
                                        flux_rescale=True, wav_scale=wav_scale)
     assert len(mod1_spec.xaxis) > 0 and len(mod2_spec.xaxis) > 0
     assert np.allclose(mod1_spec.xaxis, mod2_spec.xaxis)
-
+    # Check correct models are loaded
+    assert mod1_spec.header["PHXTEFF"] == params1[0]
+    assert mod1_spec.header["PHXLOGG"] == params1[1]
+    assert mod1_spec.header["PHXM_H"] == params1[2]
+    assert mod2_spec.header["PHXTEFF"] == params2[0]
+    assert mod2_spec.header["PHXLOGG"] == params2[1]
+    assert mod2_spec.header["PHXM_H"] == params2[2]
     return mod1_spec, mod2_spec
 
 

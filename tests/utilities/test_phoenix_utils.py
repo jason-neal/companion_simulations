@@ -59,7 +59,22 @@ def test_phoenix_and_starfish_load_differently_without_limits():
     assert isinstance(spec2, Spectrum)
 
 
-@pytest.mark.parametrize("limits", [[2090, 2135],])
+@pytest.mark.parametrize("teff, logg, feh", [
+    (2300, 5.0, 0.0),
+    (3400, 4.5, 0.0),
+    (5200, 4.5, 0.0),
+    (6000, 3.5, -0.5)])
+def test_load_starfish_header_contains_correct_params(teff, logg, feh):
+    spec = load_starfish_spectrum([teff, logg, feh], limits=None, hdr=True)
+    assert isinstance(spec, Spectrum)
+    print(spec.header)
+    assert spec.header["PHXTEFF"] == teff
+    assert spec.header["PHXLOGG"] == logg
+    assert spec.header["PHXM_H"] == feh
+    assert spec.header["PHXALPHA"] == 0.0
+
+
+@pytest.mark.parametrize("limits", [[2090, 2135], ])
 def test_phoenix_and_starfish_load_with_same_limits(sim_config, limits):
     simulators = sim_config
     test_spectrum = "tests/testdata/lte02300-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
@@ -157,7 +172,7 @@ def test_load_starfish_with_header():
     # Test some values from phoenix header
     spec_with_header = load_starfish_spectrum(params, hdr=True, limits=limits)
     print(spec_with_header.header)
-    assert spec_with_header.header["air"] == False
+    assert not spec_with_header.header["air"]  # == False
     assert spec_with_header.header["PHXEOS"] == "ACES"
 
 
@@ -242,7 +257,8 @@ def test_gen_close_params_with_simulator_gets_comp_set_to_sims(sim_config, teff,
     ([-100, 101, 100], [-0.5, 0.51, 0.5], [-0.5, 0.51, 0.5], 12),
     ([0, 100, 100], [0, 1, 1], [0, 1, 1], 1),
     ([-500, 501, 100], [0, 1.01, 0.5], [0, 1, 1], 18)])
-def test_gen_close_params_with_simulator_gets_comp_set_to_sims_constrained_parrange(sim_config, teff, logg, feh, expected_num):
+def test_gen_close_params_with_simulator_gets_comp_set_to_sims_constrained_parrange(sim_config, teff, logg, feh,
+                                                                                    expected_num):
     simulators = sim_config
     simulators.sim_grid["teff_2"] = teff
     simulators.sim_grid["logg_2"] = logg
@@ -256,7 +272,6 @@ def test_gen_close_params_with_simulator_gets_comp_set_to_sims_constrained_parra
     result = list(result)
     print(result)
     assert len(list(result)) == expected_num
-
 
 
 @pytest.mark.parametrize("teff, logg, feh, expected_num", [
