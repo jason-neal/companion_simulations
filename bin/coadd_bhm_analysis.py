@@ -13,6 +13,8 @@ import os
 import sys
 import warnings
 
+import matplotlib.pyplot as plt
+
 import simulators
 from bin.coadd_analysis_script import decompose_database_name, load_sql_table
 from bin.coadd_bhm_analysis_module import (chi2_parabola_plots,
@@ -118,56 +120,70 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
             host_parameters_reduced_gamma(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             get_column_limits(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             host_parameters(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             display_arbitrary_norm_values(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             smallest_chi2_values(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             gamma_plot(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             parabola_plots(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             contours(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             test_figure(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             chi2_parabola_plots(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             compare_spectra(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             contrast_bhm_results(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             display_bhm_xcorr_values(db_table, params)
         except:
             pass
+        plt.close("all")
     else:
         warnings.warn("Incorrect Mode in bhm analysis")
+    plt.close("all")
     print("Done")
     return 0
 

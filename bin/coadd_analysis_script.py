@@ -13,6 +13,7 @@ import os
 import sys
 import warnings
 
+import matplotlib.pyplot as plt
 import sqlalchemy as sa
 
 import simulators
@@ -149,45 +150,55 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
             fix_host_parameters(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             get_column_limits(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             display_arbitrary_norm_values(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             smallest_chi2_values(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             parabola_plots(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             test_figure(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             chi2_parabola_plots(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             compare_spectra(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             contours(db_table, params)
         except:
             pass
+        plt.close("all")
         try:
             contrast_iam_results(db_table, params)
         except:
             pass
+        plt.close("all")
     else:
         warnings.warn("Incorrect Mode in iam analysis")
-
+    plt.close("all")
     print("Done")
     return 0
 
