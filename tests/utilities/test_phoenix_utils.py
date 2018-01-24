@@ -16,7 +16,7 @@ from mingle.utilities.phoenix_utils import (gen_new_param_values,
 from mingle.utilities.phoenix_utils import get_phoenix_limits
 from mingle.utilities.phoenix_utils import phoenix_name, phoenix_regex, \
     find_closest_phoenix_name, find_phoenix_model_names
-from mingle.utilities.phoenix_utils import set_model_limits
+from mingle.utilities.phoenix_utils import set_model_limits, make_grid_parameter
 
 
 @pytest.mark.parametrize("limits, normalize", [([2100, 2150], True), ([2050, 2150], False)])
@@ -360,3 +360,44 @@ def test_phoenix_limits(name, expected):
 def test_phoenix_limits_errors_on_invalid_name(name):
     with pytest.raises(ValueError):
         get_phoenix_limits(name)
+
+
+@pytest.mark.parametrize("param, step_config, expected", [
+    (2000, [-100, 101, 100], [1900, 2000, 2100]),
+    (4.5, [-1, 1.501, 0.5], [3.5, 4.0, 4.5, 5, 5.5, 6]),
+    (-1.5, [-0.5, 0.01, .5], [-2, -1.5]),
+])
+def test_make_grid_parameter(param, step_config, expected):
+    backup = None
+    new_param = make_grid_parameter(param, step_config, backup)
+    assert np.all(new_param == expected)
+
+
+@pytest.mark.parametrize("param, step_config, backup", [
+    (2000, None, [1900, 2000, 2100, 2200]),
+    (4.5, "None", [3.5, 4.0, 4.5, 5, 5.5]),
+    (-1.5, None, [-2, -1.5])])
+def test_make_grid_parameter_with_step_config_none(param, step_config, backup):
+    """Falls back to the backup parameters."""
+    new_param = make_grid_parameter(param, step_config, backup)
+    assert np.all(new_param == backup)
+
+
+@pytest.mark.parametrize("step_config", [
+    [-1, 1, 5],
+    [-1, 0, 1],
+    [1, 2, 7]])
+def test_make_grid_parameter_with_single_invalid_grid(step_config):
+    """step_config ends up with single value that is not 0."""
+    with pytest.raises(ValueError):
+        make_grid_parameter(5000, step_config, None)
+
+
+@pytest.mark.parametrize("step_config", [
+    [-15, -4, 5],
+    [-1, 0, 0.5],
+    [-1, 2, 0.3]])
+def test_make_grid_parameter_only_offset_gives_warning(step_config):
+    """Step grid does not contain zero"""
+    with pytest.warns(UserWarning):
+        make_grid_parameter(10, step_config, None)

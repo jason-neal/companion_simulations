@@ -9,6 +9,7 @@ import glob
 import itertools
 import logging
 import os
+import warnings
 
 import numpy as np
 from Starfish.grid_tools import HDF5Interface
@@ -367,20 +368,9 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
     logg_values = simulators.sim_grid.get(logg_key)
     feh_values = simulators.sim_grid.get(feh_key)
 
-    if teff_values is None or teff_values == "None":
-        new_temps = bk_temps
-    else:
-        new_temps = np.arange(*teff_values) + temp
-
-    if logg_values is None or logg_values == "None":
-        new_loggs = bk_loggs
-    else:
-        new_loggs = np.arange(*logg_values) + logg
-
-    if feh_values is None or feh_values == "None":
-        new_metals = bk_metals
-    else:
-        new_metals = np.arange(*feh_values) + metals
+    new_temps = make_grid_parameter(temp, teff_values, bk_temps)
+    new_loggs = make_grid_parameter(logg, logg_values, bk_loggs)
+    new_metals = make_grid_parameter(metals, feh_values, bk_metals)
 
     phoenix_limits = get_phoenix_limits(limits)
 
@@ -416,6 +406,28 @@ def set_model_limits(temps, loggs, metals, limits):
     return new_temps, new_loggs, new_metals
 
 
+def make_grid_parameter(param, step_config, backup):
+    """Extend parameter grid about param. Using step_config=[start, stop, step].
+
+    param:
+        Value of the parameter to increment from.
+    step_config:
+        [Start, stop, step] or can be None.
+    backup:
+        Pre-calculated values if the step_config is not given in config.yaml.
+        """
+    if step_config is None or step_config == "None":
+        return backup
+    else:
+        values = np.arange(*step_config)
+        if len(values) == 1 and values[0] != 0:
+            print("The configured parameter range is {}".format(values))
+            raise ValueError("Invalid parameter configuration. No single model grid with offset !=0 allowed!")
+        else:
+            if 0 not in values:
+                warnings.warn("The grids do not span the closest parameters. Values={}. Check config".format(values))
+            return param + values
+
 def generate_bhm_config_params(params, limits="phoenix"):
     """Generate teff, logg, Z values given star params and config values.
 
@@ -429,20 +441,11 @@ def generate_bhm_config_params(params, limits="phoenix"):
     teff_values = simulators.sim_grid.get("teff_1")
     logg_values = simulators.sim_grid.get("logg_1")
     feh_values = simulators.sim_grid.get("feh_1")
-
-    if teff_values is None or teff_values == "None":
-        new_temps = bk_temps
-    else:
-        new_temps = np.arange(*teff_values) + temp
-
-    if feh_values is None or feh_values == "None":
-        new_metals = bk_metals
-    else:
-        new_metals = np.arange(*feh_values) + metals
-    if logg_values is None or logg_values == "None":
-        new_loggs = bk_loggs
-    else:
-        new_loggs = np.arange(*logg_values) + logg
+    print(temp, bk_temps)
+    new_temps = make_grid_parameter(temp, teff_values, bk_temps)
+    print(new_temps)
+    new_loggs = make_grid_parameter(logg, logg_values, bk_temps)
+    new_metals = make_grid_parameter(metals, feh_values, bk_temps)
 
     phoenix_limits = get_phoenix_limits(limits)
 
