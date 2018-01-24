@@ -358,7 +358,7 @@ def chi2_parabola_plots(table, params):
                                  xytext=(0.5, 0.5), textcoords="figure fraction", arrowprops={"arrowstyle": "<-"})
                 except:
                     logging.warning("Could not Annotate the contour plot")
-                
+
         plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
         plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
         plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma")

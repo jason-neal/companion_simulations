@@ -339,13 +339,13 @@ def generate_close_params(params, small=True, limits="phoenix"):
 
 
 def get_phoenix_limits(limits="phoenix"):
-   if limits == "phoenix":
+    if limits == "phoenix":
         phoenix_limits = [[2300, 12000], [0, 6], [-4, 1]]
-   elif limits == "cifist":
+    elif limits == "cifist":
         phoenix_limits = [[1200, 7000], [2.5, 5], [0, 0]]
-   else:
-       raise ValueError("Error with phoenix limits. Invalid limits name '{0}'".format(limits))
-   return phoenix_limits
+    else:
+        raise ValueError("Error with phoenix limits. Invalid limits name '{0}'".format(limits))
+    return phoenix_limits
 
 
 def generate_close_params_with_simulator(params, target, small=True, limits="phoenix"):
