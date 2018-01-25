@@ -1,6 +1,6 @@
 import argparse
 import os
-import logging
+
 from joblib import Parallel, delayed
 
 import simulators
@@ -50,39 +50,44 @@ def _parser():
     parser.add_argument("--renormalize", help="renormalize before chi2", action="store_true")
     parser.add_argument("-m", "--norm_method", help="Re-normalization method flux to models. Default=scalar",
                         choices=["scalar", "linear"], default="scalar")
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument("--no-plots", help="Do only the simulation and db creation.", action="store_true")
+    group.add_argument("--only-plots", help="Only do the plots/analysis for these simulations.", action="store_true")
     return parser.parse_args()
 
 
 def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
          noise=False, suffix="", replace=False, independent=False,
          fudge=None, area_scale=True, n_jobs=4,
-         renormalize=False, norm_method="scalar"):
+         renormalize=False, norm_method="scalar", noplots=False, onlyplots=False):
     chips = range(1, 5)
 
-    starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh, "comp_temp": teff2}
-    make_fake_parameter_file(starinfo)
+    if not onlyplots:
+        starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh, "comp_temp": teff2}
+        make_fake_parameter_file(starinfo)
 
-    params1 = "{}, {}, {}".format(teff, logg, feh)
-    params2 = "{}, {}, {}".format(teff2, logg2, feh2)
+        params1 = "{}, {}, {}".format(teff, logg, feh)
+        params2 = "{}, {}, {}".format(teff2, logg2, feh2)
 
-    fake_generator(star=star, sim_num=obsnum, params1=params1, params2=params2, rv=rv, gamma=gamma, noise=noise,
-                   replace=replace, noplots=True, mode="iam", independent=independent, fudge=fudge,
-                   area_scale=area_scale)
+        fake_generator(star=star, sim_num=obsnum, params1=params1, params2=params2, rv=rv, gamma=gamma, noise=noise,
+                       replace=replace, noplots=True, mode="iam", independent=independent, fudge=fudge,
+                       area_scale=area_scale)
 
-    Parallel(n_jobs=n_jobs)(
-        delayed(iam_script_main)(star=star, obsnum=obsnum, chip=chip, suffix=suffix,
-                                 area_scale=area_scale, betasigma=True,
-                                 renormalize=renormalize, norm_method=norm_method)
-        for chip in chips)
+        Parallel(n_jobs=n_jobs)(
+            delayed(iam_script_main)(star=star, obsnum=obsnum, chip=chip, suffix=suffix,
+                                     area_scale=area_scale, betasigma=True,
+                                     renormalize=renormalize, norm_method=norm_method)
+            for chip in chips)
 
-    # Generate db
-    db_main(star=star, obsnum=obsnum, suffix=suffix, move=True, replace=True)
+        # Generate db
+        db_main(star=star, obsnum=obsnum, suffix=suffix, move=True, replace=True)
 
-    # Selected Analysis
-    try:
-        anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="all")
-    except:
-        pass
+    if not noplots:
+        # Selected Analysis
+        try:
+            anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="all")
+        except:
+            pass
 
     print("Noise level =", noise)
 
