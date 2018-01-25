@@ -69,9 +69,6 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
                    replace=replace, noplots=True, mode="iam", independent=independent, fudge=fudge,
                    area_scale=area_scale)
 
-    # iam_script
-    # for chip in chips:
-    #     iam_script_main(star=star, obsnum=obsnum, chip=chip, suffix=suffix, area_scale=area_scale)
     Parallel(n_jobs=n_jobs)(
         delayed(iam_script_main)(star=star, obsnum=obsnum, chip=chip, suffix=suffix,
                                  area_scale=area_scale, betasigma=True,
@@ -82,17 +79,10 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
     db_main(star=star, obsnum=obsnum, suffix=suffix, move=True, replace=True)
 
     # Selected Analysis
-    # anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="smallest_chi2")
-    # anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="compare_spectra")
-    try:
-        anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="chi2_parabola")
-    except:
-        pass
     try:
         anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="all")
     except:
         pass
-    # anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="contrast")
 
     print("Noise level =", noise)
 

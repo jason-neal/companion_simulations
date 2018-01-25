@@ -57,10 +57,6 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="",
     fake_generator(star=star, sim_num=num, params1=params1, gamma=gamma, noise=noise,
                    replace=replace, noplots=True, mode="bhm")
 
-    # bhm_script
-    # for chip in chips:
-    #    bhm_script_main(star=star, obsnum=num, chip=chip, suffix=suffix, betasigma=betasigma)
-
     Parallel(n_jobs=n_jobs)(
         delayed(bhm_script_main)(star=star, obsnum=num, chip=chip, suffix=suffix,
                                  renormalize=renormalize, norm_method=norm_method,
@@ -71,17 +67,10 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="",
     db_main(star=star, obsnum=num, suffix=suffix, move=True, replace=True)
 
     # Selected Analysis
-    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="smallest_chi2")
-    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="compare_spectra")
-    try:
-        analyse_main(star=star, obsnum=num, suffix=suffix, mode="chi2_parabola")
-    except:
-        pass
     try:
         analyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
     except:
         pass
-    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="contrast")
 
     print("Noise level =", noise)
 
