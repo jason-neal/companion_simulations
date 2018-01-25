@@ -213,10 +213,10 @@ def closest_model_params(teff, logg, feh, alpha=None):
 
 def all_aces_params():
     teffs = np.concatenate((np.arange(2300, 7000, 100),
-                            np.arange(7000, 12100, 200)))
-    loggs = np.arange(0, 6.1, 0.5)
-    fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.1, 0.5)))
-    alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if necessary
+                            np.arange(7000, 12001, 200)))
+    loggs = np.arange(0, 6.01, 0.5)
+    fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.01, 0.5)))
+    alphas = np.arange(-0.2, 1.21, 0.2)
     return teffs, loggs, fehs, alphas
 
 
