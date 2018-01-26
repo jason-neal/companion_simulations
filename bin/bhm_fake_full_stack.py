@@ -1,6 +1,8 @@
 import argparse
 import os
+
 from joblib import Parallel, delayed
+
 import simulators
 from bin.coadd_bhm_analysis import main as analyse_main
 from bin.coadd_bhm_db import main as db_main
@@ -41,47 +43,41 @@ def _parser():
     parser.add_argument("--renormalize", help="renormalize before chi2", action="store_true")
     parser.add_argument("-m", "--norm_method", help="Re-normalization method flux to models. Default=scalar",
                         choices=["scalar", "linear"], default="scalar")
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument("--no-plots", help="Do only the simulation and db creation.", action="store_true")
+    group.add_argument("--only-plots", help="Only do the plots/analysis for these simulations.", action="store_true")
     return parser.parse_args()
 
 
 def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="",
          replace=False, n_jobs=4, betasigma=False,
-         renormalize=False, norm_method="scalar"):
+         renormalize=False, norm_method="scalar", noplots=False, onlyplots=False):
     chips = range(1, 5)
 
-    starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh}
-    make_fake_parameter_file(starinfo)
+    if not onlyplots:
+        starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh}
+        make_fake_parameter_file(starinfo)
 
-    params1 = "{}, {}, {}".format(teff, logg, feh)
+        params1 = "{}, {}, {}".format(teff, logg, feh)
 
-    fake_generator(star=star, sim_num=num, params1=params1, gamma=gamma, noise=noise,
-                   replace=replace, noplots=True, mode="bhm")
+        fake_generator(star=star, sim_num=num, params1=params1, gamma=gamma, noise=noise,
+                       replace=replace, noplots=True, mode="bhm")
 
-    # bhm_script
-    # for chip in chips:
-    #    bhm_script_main(star=star, obsnum=num, chip=chip, suffix=suffix, betasigma=betasigma)
+        Parallel(n_jobs=n_jobs)(
+            delayed(bhm_script_main)(star=star, obsnum=num, chip=chip, suffix=suffix,
+                                     renormalize=renormalize, norm_method=norm_method,
+                                     betasigma=betasigma)
+            for chip in chips)
 
-    Parallel(n_jobs=n_jobs)(
-        delayed(bhm_script_main)(star=star, obsnum=num, chip=chip, suffix=suffix,
-                                 renormalize=renormalize, norm_method=norm_method,
-                                 betasigma=betasigma)
-        for chip in chips)
+        # Generate db
+        db_main(star=star, obsnum=num, suffix=suffix, move=True, replace=True)
 
-    # Generate db
-    db_main(star=star, obsnum=num, suffix=suffix, move=True, replace=True)
-
-    # Selected Analysis
-    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="smallest_chi2")
-    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="compare_spectra")
-    try:
-        analyse_main(star=star, obsnum=num, suffix=suffix, mode="chi2_parabola")
-    except:
-        pass
-    try:
-        analyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
-    except:
-        pass
-    # analyse_main(star=star, obsnum=num, suffix=suffix, mode="contrast")
+    if not noplots:
+        # Do Analysis
+        try:
+            analyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
+        except:
+            pass
 
     print("Noise level =", noise)
 
