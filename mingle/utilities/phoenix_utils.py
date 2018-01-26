@@ -12,6 +12,7 @@ import os
 import warnings
 
 import numpy as np
+import Starfish
 from Starfish.grid_tools import HDF5Interface
 from astropy.io import fits
 from spectrum_overload import Spectrum
@@ -127,7 +128,7 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
         The loaded spectrum as Spectrum object.
     """
     # Starfish.grid["btsettl_hdf5_path"], instrument, ranges=Starfish.grid["parrange"]
-    my_hdf5 = HDF5Interface(filename=simulators.grid["btsettl_hdf5_path"], key_name=simulators.grid["key_name"])
+    my_hdf5 = HDF5Interface(filename=Starfish.grid["btsettl_hdf5_path"], key_name=Starfish.grid["key_name"])
     my_hdf5.wl = my_hdf5.wl / 10  # Turn into Nanometer
 
     if hdr:

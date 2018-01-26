@@ -16,6 +16,8 @@ plotdir : plots/
 grid:
   raw_path: "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
   hdf5_path: "/home/jneal/Phd/Codes/companion_simulations/starfish/libraries/PHOENIX_CRIRES_50k.hdf5"
+  btsettle_raw: "/home/jneal/Phd/data/PHOENIX-ALL/BT-SETTL/"
+  btsettl_hdf5_path: "/home/jneal/Phd/Codes/companion_simulations/starfish/libraries/CIFIST_CRIRES_50k.hdf5"
   parname: ["temp", "logg", "Z"]
   key_name: "t{0:.0f}g{1:.1f}z{2:.1f}" # Specifies how the params are stored
   # in the HDF5 file
