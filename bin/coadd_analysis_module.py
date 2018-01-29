@@ -323,20 +323,30 @@ def chi2_parabola_plots(table, params):
             plt.plot(x, parabola(x, *popt), "--")  # , label="parabola")
             plt.xlabel(r"${0}$".format(par))
             plt.ylabel(r"$\Delta \chi^2$ from minimum")
+            plt.ylim([-0.05*np.max(min_chi2), np.max(min_chi2)])
 
             # Find roots
             if chi2_val == "coadd_chi2":
                 try:
                     residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
                     min_chi2_par = unique_par[np.argmin(min_chi2)]
-                    lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2)
-                    upper_bound = newton(residual, (min_chi2_par + unique_par[-1]) / 2)
+                    try:
+                        lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2) - min_chi2_par
+                    except:
+                        lower_bound = np.nan
+                    try:
+                        upper_bound = newton(residual, (min_chi2_par + unique_par[-1]) / 2) - min_chi2_par
+                    except:
+                        upper_bound = np.nan
 
-                    print("{0} solution {1} - {2} + {3}".format(chi2_val, min_chi2_par, lower_bound, upper_bound))
-                    plt.annotate("{0} -{1} +{2}".format(min_chi2_par, lower_bound, upper_bound), xy=(min_chi2_par, 0),
-                                 xytext=(0.5, 0.5), textcoords="figure fraction", arrowprops={"arrowstyle": "<-"})
-                except:
-                   logging.warning("Could not Annotate the contour plot")
+                    print("{0} solution {0: 5.3f} {1:+5.3f} {2:+5.3f}".format(chi2_val, min_chi2_par, lower_bound,
+                                                                              upper_bound))
+                    plt.annotate("{0: 5.3f} {1:+5.3f} {2:+5.3f}".format(min_chi2_par, lower_bound, upper_bound),
+                                 xy=(min_chi2_par, 0),
+                                 xytext=(0.5, 0.5), textcoords="figure fraction", arrowprops={"arrowstyle": "->"})
+                except Exception as e:
+                    print(e)
+                    logging.warning("Could not Annotate the contour plot")
 
         plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
         plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
