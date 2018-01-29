@@ -7,11 +7,10 @@ import yaml
 matplotlib.use('Agg')
 
 __version__ = '0.2'
-__all__ = ["best_host_model_old", "bhm_HD211847", "bhm_module", "bhm_script",
-           "Chisqr_of_HD211847_starfish", "Chisqr_of_observation",
-           "Chisqr_of_observation_HD211847", "iam_module", "iam_script",
-           "Planet_spectral_simulations", "tcm_HD211847", "tcm_HD211847_test_",
-           "tcm_module.py"]
+__all__ = ["bhm_module", "bhm_script",
+           "iam_module", "iam_script",
+           "tcm_script", "tcm_module.py",
+           "common_setup", "fake_simulator",]
 
 # Read the users config.yaml file.
 # If it doesn't exist, print a useful help message
