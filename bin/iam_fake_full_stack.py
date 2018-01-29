@@ -60,7 +60,7 @@ def _parser():
 def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
          noise=False, suffix="", replace=False, independent=False,
          fudge=None, area_scale=True, n_jobs=4,
-         renormalize=False, norm_method="scalar", noplots=False, onlyplots=False):
+         renormalize=False, norm_method="scalar", no_plots=False, only_plots=False):
     chips = range(1, 5)
 
     # Check RV and gamma are inside their defined bounds
@@ -68,7 +68,7 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
     gamma_grid = np.arange(*simulators.sim_grid["gammas"])
     assert gamma > np.min(gamma_grid) and gamma < np.max(gamma_grid)
     assert rv > np.min(rv_grid) and rv < np.max(rv_grid)
-    if not onlyplots:
+    if not only_plots:
         starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh, "comp_temp": teff2}
         make_fake_parameter_file(starinfo)
 
@@ -88,7 +88,7 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
         # Generate db
         db_main(star=star, obsnum=obsnum, suffix=suffix, move=True, replace=True)
 
-    if not noplots:
+    if not no_plots:
         # Selected Analysis
         try:
             anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="all")
