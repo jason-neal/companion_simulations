@@ -7,7 +7,7 @@ import pandas as pd
 import sqlalchemy as sa
 from matplotlib import pyplot as plt
 from matplotlib import rc
-from scipy.optimize import curve_fit, newton
+from scipy.optimize import newton
 from scipy.stats import chi2
 from spectrum_overload import Spectrum
 
@@ -18,24 +18,11 @@ from mingle.utilities.debug_utils import timeit2
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.bhm_module import bhm_helper_function
-
+from bin.coadd_analysis_module import fit_chi2_parabola, parabola, get_npix_values
 
 rc("image", cmap="inferno")
 chi2_names = ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]
 npix_names = ["npix_1", "npix_2", "npix_3", "npix_4", "coadd_npix"]
-
-
-def get_npix_values(table):
-    npix_values = {}
-    df_npix = pd.read_sql(
-        sa.select([table.c[col] for col in npix_names]),
-        table.metadata.bind)
-
-    for col in npix_names:
-        assert len(set(df_npix[col].values)) == 1
-        npix_values[col] = df_npix[col].values[0]
-
-    return npix_values
 
 
 def gamma_plot(table, params):
@@ -292,7 +279,8 @@ def parabola_plots(table, params):
 
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
-            popt, pcov = curve_fit(parabola, unique_par, min_chi2)
+            # popt, pcov = curve_fit(parabola, unique_par, min_chi2)
+            popt, pcov = fit_chi2_parabola(unique_par, min_chi2)
 
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt), "--")
@@ -338,7 +326,8 @@ def chi2_parabola_plots(table, params):
 
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
-            popt, pcov = curve_fit(parabola, unique_par, min_chi2)
+            # popt, pcov = curve_fit(parabola, unique_par, min_chi2)
+            popt, pcov = fit_chi2_parabola(unique_par, min_chi2)
             print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
@@ -397,10 +386,6 @@ def smallest_chi2_values(table, params, num=10):
     visual_inspection(params["star"], params["obsnum"], float(df_min.teff_1), float(df_min.logg_1),
                       float(df_min.feh_1), None, None,
                       None, gamma=float(df_min.gamma), rv=0.0, plot_name=plot_name)
-
-
-def parabola(x, a, b, c):
-    return a * x ** 2 + b * x + c
 
 
 @timeit2

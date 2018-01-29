@@ -246,7 +246,8 @@ def parabola_plots(table, params):
                 min_chi2.append(df_chi2[chi2_val].values[0])
 
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
-            popt, pcov = curve_fit(parabola, unique_par, min_chi2)
+            # popt, pcov = curve_fit(parabola, unique_par, min_chi2)
+            popt, pcov = fit_chi2_parabola(unique_par, min_chi2)
 
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt), "--")
@@ -279,6 +280,21 @@ def slice_k_closest_around_x(x, x0, k):
     return slice[0]
 
 
+def fit_chi2_parabola(x, y, pts=5):
+    """Fix parabola to chi_2 values.
+
+    Limit to the 5 minimum points
+    """
+    x, y = np.asarray(x), np.asarray(y)
+    indicies = np.arange(len(y))
+    loc = np.argmin(y)
+    index = slice_k_closest_around_x(indicies, loc, k=pts)
+    new_x = x[index]
+    new_y = y[index]
+    popt, pcov = curve_fit(parabola, new_x, new_y)
+    return popt, pcov
+
+
 def chi2_parabola_plots(table, params):
     parabola_list = ["teff_2", "gamma", "rv"]
     for par in parabola_list:
@@ -300,10 +316,11 @@ def chi2_parabola_plots(table, params):
 
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
-            popt, pcov = curve_fit(parabola, unique_par, min_chi2)
+            # popt, pcov = curve_fit(parabola, unique_par, min_chi2)
+            popt, pcov = fit_chi2_parabola(unique_par, min_chi2)
             print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
-            plt.plot(x, parabola(x, *popt))  # , label="parabola")
+            plt.plot(x, parabola(x, *popt), "--")  # , label="parabola")
             plt.xlabel(r"${0}$".format(par))
             plt.ylabel(r"$\Delta \chi^2$ from minimum")
 
