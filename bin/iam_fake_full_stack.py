@@ -96,7 +96,7 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
             pass
 
     print("Noise level =", noise)
-
+    return 0
 
 if __name__ == "__main__":
     args = vars(_parser())

@@ -154,6 +154,7 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
     if verbose:
         print("Completed coadd db creation")
 
+    return None
 
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))

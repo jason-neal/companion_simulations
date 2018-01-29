@@ -137,6 +137,7 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
     if verbose:
         print("Completed bhm coadd db creation")
 
+    return None
 
 if __name__ == "__main__":
     args = vars(bhm_parse_args(sys.argv[1:]))

@@ -80,7 +80,7 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="",
             pass
 
     print("Noise level =", noise)
-
+    return 0
 
 if __name__ == "__main__":
     args = vars(_parser())
