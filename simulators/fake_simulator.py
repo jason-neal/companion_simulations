@@ -151,7 +151,6 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
             testing_fake_spectrum(star, sim_num, params_1, params_2, gamma, rv,
                                   independent=False, noise=None)
         else:
-            # chip = None gives full range
             x_wav, y_wav, header = fake_iam_simulation(None, params_1, params_2, gamma, rv,
                                                        independent=independent, noise=noise,
                                                        header=True, fudge=fudge, area_scale=area_scale)
@@ -233,19 +232,19 @@ def testing_noise(star, sim_num, params1, params2, gamma, rv,
 
 def testing_fake_spectrum(star, sim_num, params1, params2, gamma, rv,
                           independent=False, noise=None):
-    x_wav, y_wav = fake_iam_simulation(None, params1, params2, gamma, rv, chip=1,
+    x_wav, y_wav = fake_iam_simulation(None, params1, params2, gamma, rv,
                                        independent=independent, noise=noise)
 
     x_2k, y_2k = fake_iam_simulation(np.linspace(2100, 2140, 2000), params1,
-                                     params2, gamma, rv, chip=1, independent=independent, noise=noise)
+                                     params2, gamma, rv, independent=independent, noise=noise)
 
-    x_1k, y_1k = fake_iam_simulation(np.linspace(2090, 2150, 1000), params1, params2, gamma, rv, chip=1,
+    x_1k, y_1k = fake_iam_simulation(np.linspace(2090, 2150, 1000), params1, params2, gamma, rv,
                                      independent=independent, noise=noise)
 
-    x_30k, y_30k = fake_iam_simulation(np.linspace(2090, 2150, 30000), params1, params2, gamma, rv, chip=1,
+    x_30k, y_30k = fake_iam_simulation(np.linspace(2090, 2150, 30000), params1, params2, gamma, rv,
                                        independent=independent, noise=noise)
 
-    x_5k, y_5k = fake_iam_simulation(np.linspace(2090, 2150, 5000), params1, params2, gamma, rv, chip=1,
+    x_5k, y_5k = fake_iam_simulation(np.linspace(2090, 2150, 5000), params1, params2, gamma, rv,
                                      independent=independent, noise=noise)
 
     print("x", x_wav)
