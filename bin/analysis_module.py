@@ -78,7 +78,7 @@ def parabola_plots(table, params):
         x = np.linspace(unique_par[0], unique_par[-1], 40)
         plt.plot(x, parabola(x, *popt), label="parabola")
         plt.xlabel("{}".format(par))
-        plt.ylabel("Chi2")
+        plt.ylabel(r"$\chi^2$")
         filename = "Parabola_fit_{0}-{1}_{2}_param_{3}.png".format(
             params["star"], params["obsnum"], params["chip"], par)
 

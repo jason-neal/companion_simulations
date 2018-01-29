@@ -285,10 +285,10 @@ def parabola_plots(table, params):
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt), "--")
             plt.xlabel(r"${0}$".format(par))
-            plt.ylabel(r"$\chi^2$")
+            plt.ylabel(r"$\Delta \chi^2_{red}$")
 
         plt.legend()
-        filename = "Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
+        filename = "red_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
             params["star"], params["obsnum"], params["chip"], par, params["suffix"])
 
         plt.savefig(os.path.join(params["path"], "plots", filename))
@@ -320,7 +320,7 @@ def chi2_parabola_plots(table, params):
                         table.c[chi2_val].asc()).limit(3), table.metadata.bind)
                 min_chi2.append(df_chi2[chi2_val].values[0])
 
-            min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
+            # min_chi2 = reduced_chi_squared(min_chi2, params["npix"][npix_val], params["npars"])
 
             min_chi2 = min_chi2 - min(min_chi2)
 
@@ -332,11 +332,12 @@ def chi2_parabola_plots(table, params):
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
             plt.xlabel(r"${0}$".format(par))
-            plt.ylabel(r"$\Delta \chi^2_{red}$ from mimimum")
-
+            plt.ylabel(r"$\Delta \chi^2$ from mimimum")
+            plt.ylim([-0.05 * np.max(min_chi2), np.max(min_chi2)])
             # Find roots
             if chi2_val == "coadd_chi2":
                 try:
+                    warnings.warning("Doing npars sigma limits.")
                     residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
                     min_chi2_par = unique_par[np.argmin(min_chi2)]
                     lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2)
@@ -348,12 +349,15 @@ def chi2_parabola_plots(table, params):
                 except:
                     logging.warning("Could not Annotate the contour plot")
 
-        plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
-        plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
-        plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma")
+        plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma {} par".format(params["npars"]))
+        plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma {} par".format(params["npars"]))
+        plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma {}par".format(params["npars"]))
+        plt.axhline(y=chi2_at_sigma(1, 1), label="1 sigma 1 par", color="k", ls="--")
+        plt.axhline(y=chi2_at_sigma(1, 2), label="2 sigma 1 par", color="k", ls="--")
+        plt.axhline(y=chi2_at_sigma(1, 3), label="3 sigma 1 par", color="k", ls="--")
 
         plt.legend()
-        filename = "red_Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
+        filename = "Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
             params["star"], params["obsnum"], params["chip"], par, params["suffix"])
 
         plt.savefig(os.path.join(params["path"], "plots", filename))
