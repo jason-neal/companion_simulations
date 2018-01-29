@@ -339,7 +339,7 @@ def chi2_parabola_plots(table, params):
                     except:
                         upper_bound = np.nan
 
-                    print("{0} solution {0: 5.3f} {1:+5.3f} {2:+5.3f}".format(chi2_val, min_chi2_par, lower_bound,
+                    print("{0} solution {1: 5.3f} {2:+5.3f} {3:+5.3f}".format(chi2_val, min_chi2_par, lower_bound,
                                                                               upper_bound))
                     plt.annotate("{0: 5.3f} {1:+5.3f} {2:+5.3f}".format(min_chi2_par, lower_bound, upper_bound),
                                  xy=(min_chi2_par, 0),
@@ -405,7 +405,7 @@ def chi2_individual_parabola_plots(table, params):
                 except:
                     upper_bound = np.nan
 
-                print("{0} solution {0: 5.3f} {1:+5.3f} {2:+5.3f}".format(chi2_val, min_chi2_par, lower_bound,
+                print("{0} solution {1: 5.3f} {2:+5.3f} {3:+5.3f}".format(chi2_val, min_chi2_par, lower_bound,
                                                                           upper_bound))
                 plt.annotate("{0: 5.3f} {1:+5.3f} {2:+5.3f}".format(min_chi2_par, lower_bound, upper_bound),
                              xy=(min_chi2_par, 0), xytext=(0.5, 0.5), textcoords="figure fraction",
