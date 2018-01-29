@@ -201,13 +201,13 @@ def test_load_starfish_flux_rescale():
     assert np.allclose(spec.flux, spec_rescaled.flux)
 
 
-@pytest.mark.parametrize("input, expected", [
+@pytest.mark.parametrize("input_params, expected_params", [
     ([2535, 4.53, -0.21], [2500, 4.5, 0.0]),
-    ([7887, 2.91, -1.21], [7900, 3.0, -1.0]),
-    ([10187, 0.51, -2.76], [7900, 0.5, -3.0])
+    ([7887, 2.91, -1.21], [7800, 3.0, -1.0]),
+    ([10187, 0.51, -2.76], [10200, 0.5, -3.0])
 ])
-def closest_model_params(input, expected):
-    assert closest_model_params(*input) == expected
+def test_closest_model_params(input_params, expected_params):
+    assert closest_model_params(*input_params) == expected_params
 
 
 def test_find_closest_phoenix_name():
