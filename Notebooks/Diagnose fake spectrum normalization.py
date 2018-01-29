@@ -21,7 +21,7 @@ from simulators.iam_module import prepare_iam_model_spectra, continuum_alpha
 
 
 def fake_simulation(wav, params1, params2, gamma, rv, chip=None,
-                    limits=[2070, 2180], independent=False, noise=None):
+                    limits=(2070, 2180), independent=False, noise=None):
     """Make a fake spectrum with binary params and radial velocities."""
     mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits)
 

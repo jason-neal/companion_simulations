@@ -48,7 +48,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
+def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180),
                         independent=False, noise=None, header=False, fudge=None, area_scale=True):
     """Make a fake spectrum with binary params and radial velocities."""
     mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits, area_scale=area_scale)
@@ -99,7 +99,7 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=[2070, 2180],
         return wav, iam_grid_models.squeeze()
 
 
-def fake_bhm_simulation(wav, params, gamma, limits=[2070, 2180], noise=None, header=False):
+def fake_bhm_simulation(wav, params, gamma, limits=(2070, 2180), noise=None, header=False):
     """Make a fake spectrum with binary params and radial velocities."""
 
     mod_spec = load_starfish_spectrum(params, limits=limits, hdr=True,
