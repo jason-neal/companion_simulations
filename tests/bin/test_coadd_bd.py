@@ -6,7 +6,7 @@ import pytest
 import sqlalchemy as sa
 
 import simulators
-from bin.coadd_analysis_module import smallest_chi2_values
+from bin.coadd_analysis_module import smallest_chi2_values, slice_k_closest_around_x, parabola, fit_chi2_parabola
 from bin.coadd_analysis_script import load_sql_table, decompose_database_name
 from bin.coadd_chi2_db import main as iam_db_main
 from bin.coadd_chi2_db import parse_args
@@ -295,3 +295,42 @@ def test_analysis_functions_run(func, db_table, db_params):
     assert res is None
     #    assert
     assert False
+
+@pytest.mark.parametrize("k", [3, 5, 7])
+@pytest.mark.parametrize("x0", [10, 25, 30])
+def test_slice_k_closest_around_x(x0, k):
+    x = np.arange(40)
+    index = slice_k_closest_around_x(x, x0, k)
+    print("k", k, "x0", x0)
+    print(index)
+
+    assert np.any(index == x0)
+    assert len(index) == k
+    assert not np.any(index > x0 + k/2)
+    assert not np.any(index < x0 - k/2)
+
+
+@pytest.mark.parametrize("k", [2, 4, 6])
+def test_slice_k_closest_around_x_even_k(k):
+    """Even k are invalid."""
+    with pytest.raises(ValueError):
+        slice_k_closest_around_x(np.arange(10), 5, k)
+
+
+@pytest.mark.parametrize("x0, k, result", [
+    (1, 3, [0, 1, 2]),
+    (1, 5, [0, 1, 2, 3]),
+    (1, 7, [0, 1, 2, 3, 4]),
+    (2, 7, [0, 1, 2, 3, 4, 5]),
+    (1, 3, [0, 1, 2]),
+    (19, 3, [18, 19]),
+    (18, 7, [15, 16, 17, 18, 19]),
+])
+def test_slice_k_closest_around_x_at_ends(x0, k, result):
+    x = np.arange(20)
+    print("x", x)
+    print("k", k, "x0", x0)
+    index = slice_k_closest_around_x(x, x0, k)
+    print(index)
+    print(result)
+    assert np.allclose(index, np.asarray(result))

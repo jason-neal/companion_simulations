@@ -269,6 +269,16 @@ def chi2_at_sigma(df, sigma):
     return chi2(df).isf(1 - sigma_percent[sigma])
 
 
+def slice_k_closest_around_x(x, x0, k):
+    """Get k closest value a around index x."""
+    if k % 2 == 0:
+        raise ValueError("k must be odd.")
+    lcut = x0 - np.floor(k / 2)
+    ucut = x0 + np.floor(k / 2)
+    slice = np.where((lcut <= x) * (x <= ucut))
+    return slice[0]
+
+
 def chi2_parabola_plots(table, params):
     parabola_list = ["teff_2", "gamma", "rv"]
     for par in parabola_list:
