@@ -147,7 +147,7 @@ def fix_host_parameters_reduced_gamma(engine, params, tb_name):
 
     name = "{0}-{1}_{2}_fixed_host_params.png".format(
         params["star"], params["obsnum"], params["chip"])
-    plt.suptitle("Chi**2 Results: {0}-{1}_{2}: {3}".format(params["star"], params["obsnum"], params["chip"]))
+    plt.suptitle("Chi**2 Results: {0}-{1}_{2}".format(params["star"], params["obsnum"], params["chip"]))
     fig.savefig(os.path.join(params["path"], "plots", name))
     plt.close()
 
