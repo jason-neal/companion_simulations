@@ -442,11 +442,9 @@ def generate_bhm_config_params(params, limits="phoenix"):
     teff_values = simulators.sim_grid.get("teff_1")
     logg_values = simulators.sim_grid.get("logg_1")
     feh_values = simulators.sim_grid.get("feh_1")
-    print(temp, bk_temps)
     new_temps = make_grid_parameter(temp, teff_values, bk_temps)
-    print(new_temps)
-    new_loggs = make_grid_parameter(logg, logg_values, bk_temps)
-    new_metals = make_grid_parameter(metals, feh_values, bk_temps)
+    new_loggs = make_grid_parameter(logg, logg_values, bk_loggs)
+    new_metals = make_grid_parameter(metals, feh_values, bk_metals)
 
     phoenix_limits = get_phoenix_limits(limits)
 
