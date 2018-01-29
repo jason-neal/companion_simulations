@@ -2,6 +2,7 @@ import argparse
 import os
 
 from joblib import Parallel, delayed
+import numpy as np
 
 import simulators
 from bin.coadd_analysis_script import main as anaylsis_main
@@ -32,8 +33,8 @@ def _parser():
     parser.add_argument("teff2", help='Temperature of companion.', type=int)
     parser.add_argument("logg2", help='Logg of  companion.', type=float)
     parser.add_argument("feh2", help='Feh of companion.', type=float)
-    parser.add_argument('rv', help='rv radial velocity of companion', type=float, default=0)
     parser.add_argument('gamma', help='Gamma radial velocity', type=float, default=0)
+    parser.add_argument('rv', help='rv radial velocity of companion', type=float, default=0)
     parser.add_argument('-i', "--independent", help='Independent rv of companion', action="store_true")
     parser.add_argument('-s', '--suffix', type=str, default="",
                         help='Extra name identifier.')
@@ -62,6 +63,11 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
          renormalize=False, norm_method="scalar", noplots=False, onlyplots=False):
     chips = range(1, 5)
 
+    # Check RV and gamma are inside their defined bounds
+    rv_grid = np.arange(*simulators.sim_grid["rvs"])
+    gamma_grid = np.arange(*simulators.sim_grid["gammas"])
+    assert gamma > np.min(gamma_grid) and gamma < np.max(gamma_grid)
+    assert rv > np.min(rv_grid) and rv < np.max(rv_grid)
     if not onlyplots:
         starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh, "comp_temp": teff2}
         make_fake_parameter_file(starinfo)
