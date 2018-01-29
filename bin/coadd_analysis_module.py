@@ -362,6 +362,72 @@ def chi2_parabola_plots(table, params):
     plt.close()
 
 
+def chi2_individual_parabola_plots(table, params):
+    parabola_list = ["teff_2", "gamma", "rv"]
+    for par in parabola_list:
+        df = pd.read_sql(sa.select([table.c[par]]), table.metadata.bind)
+        unique_par = list(set(df[par].values))
+        unique_par.sort()
+        print(unique_par)
+
+        for chi2_val, npix_val in zip(chi2_names, npix_names):
+            plt.figure()
+            min_chi2 = []
+            for unique_val in unique_par:
+                df_chi2 = pd.read_sql(
+                    sa.select([table.c[par], table.c[chi2_val]]).where(
+                        table.c[par] == float(unique_val)).order_by(
+                        table.c[chi2_val].asc()).limit(3), table.metadata.bind)
+                min_chi2.append(df_chi2[chi2_val].values[0])
+
+            min_chi2 = min_chi2 - min(min_chi2)
+
+            plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
+
+            # popt, pcov = curve_fit(parabola, unique_par, min_chi2)
+            popt, pcov = fit_chi2_parabola(unique_par, min_chi2)
+            print("params", popt)
+            x = np.linspace(unique_par[0], unique_par[-1], 40)
+            plt.plot(x, parabola(x, *popt))  # , label="parabola")
+            plt.xlabel(r"${0}$".format(par))
+            plt.ylabel(r"$\Delta \chi^2$ from minimum")
+            plt.ylim([-0.05 * np.max(min_chi2), np.max(min_chi2)])
+            # Find roots
+            try:
+                residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
+                min_chi2_par = unique_par[np.argmin(min_chi2)]
+                try:
+                    lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2) - min_chi2_par
+                except:
+                    lower_bound = np.nan
+                try:
+                    upper_bound = newton(residual, (min_chi2_par + unique_par[-1]) / 2) - min_chi2_par
+                except:
+                    upper_bound = np.nan
+
+                print("{0} solution {0: 5.3f} {1:+5.3f} {2:+5.3f}".format(chi2_val, min_chi2_par, lower_bound,
+                                                                          upper_bound))
+                plt.annotate("{0: 5.3f} {1:+5.3f} {2:+5.3f}".format(min_chi2_par, lower_bound, upper_bound),
+                             xy=(min_chi2_par, 0), xytext=(0.5, 0.5), textcoords="figure fraction",
+                             arrowprops={"arrowstyle": "->"})
+            except Exception as e:
+                print(e)
+                logging.warning("Could not Annotate the contour plot")
+
+            plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
+            plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
+            plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma")
+
+            plt.legend()
+            filename = "red_Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}_individual_{5}.png".format(
+                params["star"], params["obsnum"], params["chip"], par, params["suffix"], chi2_val)
+
+            plt.savefig(os.path.join(params["path"], "plots", filename))
+            plt.close()
+            print("Saved individual chi2 parabolas for ", par)
+            plt.close()
+
+
 def smallest_chi2_values(table, params, num=10):
     """Find smallest chi2 in table."""
     chi2_val = "coadd_chi2"
@@ -596,7 +662,6 @@ def contours(table, params):
     # Using teff_1 contour
     for par_limit, contour_param in zip(["gamma", "rv"], ["rv", "gamma"]):
         for chi2_val, npix_val in zip(chi2_names, npix_names):
-
             df_min_chi2 = pd.read_sql(
                 sa.select(table.c).order_by(
                     table.c[chi2_val].asc()).limit(1),

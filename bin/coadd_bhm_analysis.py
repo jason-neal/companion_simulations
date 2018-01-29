@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 import simulators
 from bin.coadd_analysis_script import decompose_database_name, load_sql_table
-from bin.coadd_bhm_analysis_module import (chi2_parabola_plots,
+from bin.coadd_bhm_analysis_module import (chi2_parabola_plots, chi2_individual_parabola_plots,
                                            compare_spectra, contours,
                                            contrast_bhm_results,
                                            display_arbitrary_norm_values,
@@ -111,6 +111,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         display_bhm_xcorr_values(db_table, params)
     elif mode == "chi2_parabola":
         chi2_parabola_plots(db_table, params)
+        chi2_individual_parabola_plots(db_table, params)
     elif mode == "compare_spectra":
         compare_spectra(db_table, params)
     elif mode == "contrast":
@@ -163,6 +164,11 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         plt.close("all")
         try:
             chi2_parabola_plots(db_table, params)
+        except:
+            pass
+        plt.close("all")
+        try:
+            chi2_individual_parabola_plots(db_table, params)
         except:
             pass
         plt.close("all")

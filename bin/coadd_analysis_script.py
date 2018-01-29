@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import sqlalchemy as sa
 
 import simulators
-from bin.coadd_analysis_module import (chi2_parabola_plots, compare_spectra,
+from bin.coadd_analysis_module import (chi2_parabola_plots, chi2_individual_parabola_plots, compare_spectra,
                                        contours, display_arbitrary_norm_values,
                                        fix_host_parameters,
                                        fix_host_parameters_reduced_gamma,
@@ -140,6 +140,7 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         display_arbitrary_norm_values(db_table, params)
     elif mode == "chi2_parabola":
         chi2_parabola_plots(db_table, params)
+        chi2_individual_parabola_plots(db_table, params)
     elif mode == "compare_spectra":
         compare_spectra(db_table, params)
     elif mode == "contrast":
@@ -178,6 +179,11 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         plt.close("all")
         try:
             chi2_parabola_plots(db_table, params)
+        except:
+            pass
+        plt.close("all")
+        try:
+            chi2_individual_parabola_plots(db_table, params)
         except:
             pass
         plt.close("all")
