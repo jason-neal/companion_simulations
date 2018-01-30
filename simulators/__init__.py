@@ -47,4 +47,9 @@ for key in sim_grid:
     if "None" in sim_grid[key]:
         pass
     else:
-        assert len(np.arange(*sim_grid[key])) > 0, "Config.yaml parameters not correct for {}".format(key)
+        try:
+           this_range = np.arange(*sim_grid[key])
+        except TypeError as e:
+            print("key", sim_grid[key], "Check type of grid parameters")
+            raise e
+        assert len(this_range) > 0, "Config.yaml parameters not correct for {}".format(key)
