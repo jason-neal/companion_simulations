@@ -16,13 +16,13 @@ import warnings
 import matplotlib.pyplot as plt
 
 import simulators
-from bin.coadd_analysis_script import decompose_database_name, load_sql_table
+from bin.coadd_analysis_script import decompose_database_name, load_sql_table, get_npix_values
 from bin.coadd_bhm_analysis_module import (chi2_parabola_plots, chi2_individual_parabola_plots,
                                            compare_spectra, contours,
                                            contrast_bhm_results,
                                            display_bhm_xcorr_values,
                                            gamma_plot, get_column_limits,
-                                           get_npix_values, host_parameters,
+                                           host_parameters,
                                            host_parameters_reduced_gamma,
                                            parabola_plots,
                                            smallest_chi2_values, test_figure)
