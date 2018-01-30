@@ -29,10 +29,9 @@ def test_crires_resolution():
 @pytest.mark.parametrize("input, expected", [
     ("[20, 15, 2]", [20., 15., 2.]),
     ("[hello, 15, ]", ["hello", "15", ""]),
-    ("[# comment, 'goes', 'here']", ["# comment", "goes", "here"]),
 ])
 def test_parse_list_string(input, expected):
-    param_file.parse_list_string(input) == expected
+    assert param_file.parse_list_string(input) == expected
 
 
 def test_parse_paramfile():
