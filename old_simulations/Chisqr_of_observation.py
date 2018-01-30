@@ -16,7 +16,7 @@ import multiprocess as mprocess
 import numpy as np
 from mingle.Planet_spectral_simulations import load_PHOENIX_hd30501
 
-from mingle.models.alpha_model import alpha_model2
+from obsolete.models.alpha_model import alpha_model2
 from mingle.utilities.chisqr import parallel_chisqr
 from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
                                                crires_resolution)

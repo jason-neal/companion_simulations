@@ -28,10 +28,10 @@ import scipy.stats
 from joblib import Memory
 from tqdm import tqdm
 
-from mingle.models.alpha_model import alpha_model
+from obsolete.models.alpha_model import alpha_model
 from mingle.utilities.chisqr import chi_squared, parallel_chisqr
 from mingle.utilities.model_convolution import store_convolutions
-from mingle.utilities.simulate_obs import \
+from obsolete.simulate_obs import \
     generate_observations2 as generate_observations
 from mingle.utilities.simulation_utilities import combine_spectra
 from mingle.utilities.spectrum_utils import spectrum_plotter
