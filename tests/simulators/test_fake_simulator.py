@@ -67,7 +67,7 @@ def test_fake_simulator_main_runs_and_creates_files(sim_config, tmpdir, starname
         expected_sim_file = sim_filename(chip)
         assert expected_sim_file.check(file=0)
 
-    result = fake_main(starname, obsnum, "4500, 4.0, -1.0", "2300, 4.5, 0.0", mode=mode)
+    result = fake_main(starname, obsnum, "4500, 5.0, 0.5", "2300, 4.5, 0.0", mode=mode)
 
     # Simulations for each chip were created?
     for chip in range(1, 5):
@@ -104,7 +104,7 @@ def test_fake_iam_simulation_with_wav(params, wav, rv, gamma, limits):
 @pytest.mark.parametrize("params", [(2500, 4.5, 0.0), (2800, 4.5, 0.5)])
 @pytest.mark.parametrize("limits", [[2030, 2180], [2100, 2140]])
 def test_fake_iam_simulation_without_wav(params, limits):
-    fake_wav, fake_flux = fake_iam_simulation(None, [5800, 4.0, -0.5], params2=params, gamma=5, rv=7, limits=limits)
+    fake_wav, fake_flux = fake_iam_simulation(None, [5800, 5.0, -0.5], params2=params, gamma=5, rv=7, limits=limits)
     assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
     assert fake_wav.shape == fake_flux.shape
 
