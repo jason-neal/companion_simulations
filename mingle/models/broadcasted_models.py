@@ -1,4 +1,4 @@
-"""Companion simulate models using Broadcasting."""
+"""Companion simulation models using Broadcasting."""
 import numpy as np
 from scipy.interpolate import interp1d
 
@@ -84,7 +84,6 @@ def two_comp_model_with_transpose(wav, model1, model2, alphas, *, rvs=None, gamm
 def inherent_alpha_model(wav, model1, model2, *, rvs=None, gammas=None, kind="linear"):
     """Make 2 component simulations, broadcasting over, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
-    # alphas = check_broadcastable(alphas)
     rvs = check_broadcastable(rvs)
     gammas = check_broadcastable(gammas)
 
@@ -109,36 +108,3 @@ def inherent_alpha_model(wav, model1, model2, *, rvs=None, gammas=None, kind="li
     # print("locations not finite", np.where(~np.isfinite(m2rv)))
     assert m2rvm1g.shape == (len(model1), len(rvs), len(gammas)), "Dimensions of broadcast not correct"
     return interp1d(wav, m2rvm1g, kind=kind, axis=0, bounds_error=False)  # pass it the wavelength values to return   # return interp1d(wav, m2rvm1g, axis=0)  # pass it the wavelength values to return   #
-
-
-def independent_inherent_alpha_model(wav, model1, model2, *, rvs=None, gammas=None, kind="quadratic"):
-    """Make 2 component simulations, broadcasting over, rv, gamma values.
-
-    Independent RV and Gamma variables.
-    """
-    rvs = check_broadcastable(rvs)
-    gammas = check_broadcastable(gammas)
-
-    # am2 = (model2.T * alphas.T).T  # alpha * Model2 (am2)
-    m2_shifted = np.empty(model2.shape + (len(rvs),))  # m2rv = model2 with rv doppler-shift
-
-    for i, rv in enumerate(rvs):
-        wav_i = (1 + rv / 299792.458) * wav
-        m2_shifted[:, i] = interp1d(wav_i, model2, axis=0, kind=kind, bounds_error=False)(wav)
-    assert np.all(np.isfinite(m2_shifted))
-
-    m1_shifted = np.empty(model1.shape + (len(gammas),))  # m2rvm1g = m2rvm1 with gamma doppler-shift
-    for j, gamma in enumerate(gammas):
-        wav_j = (1 + gamma / 299792.458) * wav
-        m1_shifted[:, j] = interp1d(wav_j, model1, axis=0, kind=kind, bounds_error=False)(wav)
-    assert np.all(np.isfinite(m1_shifted))
-    # print(m2rvm1g.shape)
-    # print(m2rv.shape)
-    # print("m1_shifted", m1_shifted.shape)
-    # print("m2_shifted", m2_shifted.shape)
-    m2rvm1g = (m1_shifted[:, np.newaxis, :] + m2_shifted[:, :, np.newaxis])
-    # print(m2rvm1g.shape)
-    # print("expected shape", (len(model1), len(rvs), len(gammas)))
-    assert m2rvm1g.shape == (len(model1), len(rvs), len(gammas)), "Dimensions of broadcast not correct"
-    assert np.all(np.isfinite(m2rvm1g))
-    return interp1d(wav, m2rvm1g, kind=kind, axis=0, bounds_error=False)  # pass it the wavelength values to return

@@ -18,7 +18,7 @@ from mingle.utilities.Chisqr_of_observation import plot_obs_with_model
 from mingle.utilities.Planet_spectral_simulations import \
     load_PHOENIX_hd211847  # load_PHOENIX_hd30501,
 
-from mingle.models.alpha_model import alpha_model2
+from obsolete.models.alpha_model import alpha_model2
 from mingle.utilities.chisqr import parallel_chisqr
 from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
                                                crires_resolution)

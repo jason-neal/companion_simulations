@@ -17,7 +17,7 @@ from ajplanet import pl_rv_array
 from astropy.io import fits
 from spectrum_overload import Spectrum
 
-from mingle.models.alpha_model import alpha_model2
+from obsolete.models.alpha_model import alpha_model2
 from mingle.utilities.chisqr import parallel_chisqr
 from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
                                                crires_resolution)

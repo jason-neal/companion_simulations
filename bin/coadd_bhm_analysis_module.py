@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging
 import os
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -11,6 +12,7 @@ from scipy.optimize import newton
 from scipy.stats import chi2
 from spectrum_overload import Spectrum
 
+from bin.coadd_analysis_module import fit_chi2_parabola, parabola
 from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.chisqr import reduced_chi_squared
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
@@ -18,7 +20,6 @@ from mingle.utilities.debug_utils import timeit2
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.bhm_module import bhm_helper_function
-from bin.coadd_analysis_module import fit_chi2_parabola, parabola, get_npix_values
 
 rc("image", cmap="inferno")
 chi2_names = ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]
@@ -66,50 +67,6 @@ def gamma_plot(table, params):
 def xshift(x, num):
     """Shift x position slightly."""
     return x + num * (x * 0.1)
-
-
-def display_arbitrary_norm_values(table, params):
-    fig, axarr = plt.subplots(3)
-    for ii, arbnorm in enumerate([r"arbnorm_1", r"arbnorm_2", r"arbnorm_3", r"arbnorm_4"]):
-        df = pd.read_sql(
-            sa.select([table.c.gamma, table.c[arbnorm],
-                       table.c.teff_1]), table.metadata.bind)
-
-        c = axarr[0].scatter(xshift(df["gamma"], ii), df[arbnorm],
-                             c=df[r"teff_1"].values, alpha=0.9, label=arbnorm)
-
-        axarr[0].set_xlabel(r'host rv offset', fontsize=12)
-        axarr[0].set_ylabel(r'Arbitrary norm', fontsize=12)
-        axarr[0].set_title(r'Arbitrary normalization.')
-
-        d = axarr[1].scatter(xshift(df[r"gamma"], ii), df[arbnorm],
-                             c=df[r"teff_1"].values, alpha=0.9, label=arbnorm)
-        axarr[1].set_xlabel(r'$\gamma$ offset', fontsize=12)
-        axarr[1].set_ylabel(r'Arbitrary norm', fontsize=12)
-        axarr[1].set_title(r'$\gamma$.')
-
-        e = axarr[2].scatter(xshift(df[r"teff_1"], ii), df[arbnorm],
-                             c=df[r"gamma"].values, alpha=0.9, label=arbnorm)
-        axarr[2].set_xlabel(r'Companion temperature', fontsize=15)
-        axarr[2].set_ylabel(r'Arbitrary norm ', fontsize=15)
-        axarr[2].set_title(r'Companion Temperature')
-    axarr[0].grid(True)
-    axarr[1].grid(True)
-    axarr[2].grid(True)
-
-    cbar0 = plt.colorbar(c)
-    cbar0.ax.set_ylabel(r" teff_1")
-    cbar1 = plt.colorbar(d)
-    cbar1.ax.set_ylabel(r" teff_1")
-    cbar2 = plt.colorbar(e)
-    cbar1.ax.set_ylabel(r"$\gamma$")
-    fig.tight_layout()
-    fig.suptitle("Arbitrary normalization used, \n slight shift with detetor")
-    name = "{0}-{1}_{2}_plot_arbnormalization_{3}.pdf".format(
-        params["star"], params["obsnum"], params["chip"], params["suffix"])
-    plt.savefig(os.path.join(params["path"], "plots", name))
-    plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
-    plt.close()
 
 
 def display_bhm_xcorr_values(table, params):
@@ -352,9 +309,11 @@ def chi2_parabola_plots(table, params):
                         print(e)
                         upper_bound = np.nan
 
-                    print("{0} solution {1: 5.3} {2:+5.3} {3:+5.3}".format(chi2_val, float(min_chi2_par), float(lower_bound),
+                    print("{0} solution {1: 5.3} {2:+5.3} {3:+5.3}".format(chi2_val, float(min_chi2_par),
+                                                                           float(lower_bound),
                                                                            float(upper_bound)))
-                    plt.annotate("{0: 5.3f} {1:+5.3f} {2:+5.3f}".format(float(min_chi2_par), float(lower_bound), float(upper_bound)),
+                    plt.annotate("{0: 5.3f} {1:+5.3f} {2:+5.3f}".format(float(min_chi2_par), float(lower_bound),
+                                                                        float(upper_bound)),
                                  xy=(min_chi2_par, 0), xytext=(0.4, 0.5), textcoords="figure fraction",
                                  arrowprops={"arrowstyle": "->"})
                 except Exception as e:
@@ -427,8 +386,9 @@ def chi2_individual_parabola_plots(table, params):
                     upper_bound = np.nan
                 print("min_chi2_par", min_chi2_par, type(min_chi2_par), "\nlower_bound", lower_bound, type(lower_bound),
                       "\nupper_bound", upper_bound, type(upper_bound))
-                print("{0} solution {1: 5.3} {2:+5.3} {3:+5.3}".format(chi2_val, float(min_chi2_par), float(lower_bound),
-                                                                                                           float(upper_bound)))
+                print(
+                    "{0} solution {1: 5.3} {2:+5.3} {3:+5.3}".format(chi2_val, float(min_chi2_par), float(lower_bound),
+                                                                     float(upper_bound)))
                 plt.annotate("{0: 5.3f} {1:+5.3f} {2:+5.3f}".format(float(min_chi2_par), (lower_bound), (upper_bound)),
                              xy=(float(min_chi2_par), 0), xytext=(0.4, 0.5), textcoords="figure fraction",
                              arrowprops={"arrowstyle": "->"})

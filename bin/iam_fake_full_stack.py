@@ -35,7 +35,6 @@ def _parser():
     parser.add_argument("feh2", help='Feh of companion.', type=float)
     parser.add_argument('gamma', help='Gamma radial velocity', type=float, default=0)
     parser.add_argument('rv', help='rv radial velocity of companion', type=float, default=0)
-    parser.add_argument('-i', "--independent", help='Independent rv of companion', action="store_true")
     parser.add_argument('-s', '--suffix', type=str, default="",
                         help='Extra name identifier.')
     parser.add_argument('-n', '--noise',
@@ -57,10 +56,9 @@ def _parser():
     return parser.parse_args()
 
 
-def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
-         noise=False, suffix="", replace=False, independent=False,
-         fudge=None, area_scale=True, n_jobs=4,
-         renormalize=False, norm_method="scalar", no_plots=False, only_plots=False):
+def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0, noise=False, suffix="", replace=False,
+         fudge=None, area_scale=True, n_jobs=4, renormalize=False, norm_method="scalar", no_plots=False,
+         only_plots=False):
     chips = range(1, 5)
 
     # Check RV and gamma are inside their defined bounds
@@ -76,7 +74,7 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0,
         params2 = "{}, {}, {}".format(teff2, logg2, feh2)
 
         fake_generator(star=star, sim_num=obsnum, params1=params1, params2=params2, rv=rv, gamma=gamma, noise=noise,
-                       replace=replace, noplots=True, mode="iam", independent=independent, fudge=fudge,
+                       replace=replace, noplots=True, mode="iam", fudge=fudge,
                        area_scale=area_scale)
 
         Parallel(n_jobs=n_jobs)(

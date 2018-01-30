@@ -14,8 +14,8 @@ from mingle.utilities.norm import (arbitrary_minimums, chi2_model_norms,
     ("quadratic", "exponential")])
 def test_local_normalization_methods_work(host, method1, method2):
     x, y = host.xaxis, host.flux
-    norm_1 = local_normalization(x, y, splits=50, method=method1, top=5)
-    norm_2 = local_normalization(x, y, splits=50, method=method2, top=5)
+    norm_1 = local_normalization(x, y, splits=50, method=method1, top=20)
+    norm_2 = local_normalization(x, y, splits=51, method=method2, top=20)
 
     assert not np.allclose(norm_1, norm_2)
 

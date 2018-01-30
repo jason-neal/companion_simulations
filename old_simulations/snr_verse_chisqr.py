@@ -15,7 +15,7 @@ import tqdm
 
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.model_convolution import apply_convolution, store_convolutions
-from mingle.utilities.simulate_obs import generate_noise_observations
+from obsolete.simulate_obs import generate_noise_observations
 from old_simulations.Planet_spectral_simulations import load_PHOENIX_hd30501
 
 

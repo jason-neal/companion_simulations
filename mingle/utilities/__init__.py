@@ -11,4 +11,3 @@ from mingle.utilities.masking import *
 from mingle.utilities.simulation_utilities import *
 from mingle.utilities.spectrum_utils import *
 from mingle.utilities.param_file import *
-from mingle.utilities.simulate_obs import *

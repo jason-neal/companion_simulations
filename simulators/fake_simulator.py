@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import simulators
 from astropy.io import fits
-from mingle.models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
+from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.norm import continuum
 from mingle.utilities.simulation_utilities import spec_max_delta
 from simulators.common_setup import obs_name_template
@@ -32,7 +32,6 @@ def parse_args(args):
     parser.add_argument("-q", '--params2', help='Companion parameters. "teff, logg, feh"', type=str)
     parser.add_argument("-g", "--gamma", help='RV of host.', type=float)
     parser.add_argument('-v', "--rv", help='RV of Companion.', type=float)
-    parser.add_argument("-i", "--independent", help='Independent rv value."', action="store_true")
     parser.add_argument('-s', '--noise',
                         help='SNR value. int', type=float, default=None)
     parser.add_argument('-r', '--replace',
@@ -41,15 +40,14 @@ def parse_args(args):
                         help='Turn plots off.', action="store_true")
     parser.add_argument('-t', '--test',
                         help='Run testing only.', action="store_true")
-    parser.add_argument('--suffix', help='Suffix for file.', type=str)
     parser.add_argument("-m", "--mode", help="Combination mode", choices=["tcm", "bhm", "iam"],
                         default="iam")
     parser.add_argument("-f", "--fudge", help="Fudge value to add", default=None)
     return parser.parse_args(args)
 
 
-def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180),
-                        independent=False, noise=None, header=False, fudge=None, area_scale=True):
+def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180), noise=None, header=False, fudge=None,
+                        area_scale=True):
     """Make a fake spectrum with binary params and radial velocities."""
     mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits, area_scale=area_scale)
 
@@ -57,12 +55,8 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180),
         mod2_spec.flux = mod2_spec.flux * fudge
         warnings.warn("Fudging fake companion by '*{0}'".format(fudge))
     # Combine model spectra with iam model
-    if independent:
-        iam_grid_func = independent_inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
-                                                         rvs=rv, gammas=gamma)
-    else:
-        iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
-                                             rvs=rv, gammas=gamma)
+    iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+                                         rvs=rv, gammas=gamma)
     if wav is None:
         delta = spec_max_delta(mod1_spec, rv, gamma)
         assert np.all(np.isfinite(mod1_spec.xaxis))
@@ -79,7 +73,7 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180),
     # Continuum normalize all iam_gird_models
     def axis_continuum(flux):
         """Continuum to apply along axis with predefined variables parameters."""
-        return continuum(wav, flux, splits=50, method="exponential", top=5)
+        return continuum(wav, flux, splits=20, method="exponential", top=20)
 
     iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
 
@@ -129,10 +123,14 @@ def fake_bhm_simulation(wav, params, gamma, limits=(2070, 2180), noise=None, hea
         return wav, bhm_grid_values.squeeze()
 
 
-def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
-         independent=False, noise=None, test=False, replace=False,
-         noplots=False, mode="iam", fudge=None, area_scale=True, suffix=""):
+def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None, noise=None, test=False, replace=False,
+         noplots=False, mode="iam", fudge=None, area_scale=True):
     star = star.upper()
+
+    if gamma is None:
+        gamma = 0
+    if rv is None:
+        rv = 0
 
     if params1 is not None:
         params_1 = [float(par) for par in params1.split(",")]
@@ -146,19 +144,16 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
             raise ValueError("No companion parameter given. Use '-q', or set '--mode bhm'")
 
         if test:
-            testing_noise(star, sim_num, params_1, params_2, gamma, rv,
-                          independent=False)
-            testing_fake_spectrum(star, sim_num, params_1, params_2, gamma, rv,
-                                  independent=False, noise=None)
+            testing_noise(star, sim_num, params_1, params_2, gamma, rv)
+            testing_fake_spectrum(star, sim_num, params_1, params_2, gamma, rv, noise=None)
         else:
-            x_wav, y_wav, header = fake_iam_simulation(None, params_1, params_2, gamma, rv,
-                                                       independent=independent, noise=noise,
+            x_wav, y_wav, header = fake_iam_simulation(None, params_1, params_2, gamma=gamma, rv=rv, noise=noise,
                                                        header=True, fudge=fudge, area_scale=area_scale)
             fake_spec = Spectrum(xaxis=x_wav, flux=y_wav, header=header)
 
             # save to file
-            save_fake_observation(fake_spec, star, sim_num, params1, params2=params2, gamma=gamma, rv=rv,
-                                  independent=False, noise=None, replace=replace, noplots=noplots)
+            save_fake_observation(fake_spec, star, sim_num, params1, params2=params2, gamma=gamma, rv=rv, noise=None,
+                                  replace=replace, noplots=noplots)
     elif mode == "bhm":
         # Do a bhm simulation
         x_wav, y_wav, header = fake_bhm_simulation(None, params_1, gamma, noise=noise, header=True)
@@ -166,12 +161,14 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
         fake_spec = Spectrum(xaxis=x_wav, flux=y_wav, header=header)
 
         # save to file
-        save_fake_observation(fake_spec, star, sim_num, params1, gamma=gamma,
-                              noise=None, replace=replace, noplots=noplots)
+        save_fake_observation(fake_spec, star, sim_num, params1, gamma=gamma, noise=None, replace=replace,
+                              noplots=noplots)
+
+    return None
 
 
-def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=None, rv=None,
-                          independent=False, noise=None, suffix=None, replace=False, noplots=False):
+def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=None, rv=None, noise=None,
+                          replace=False, noplots=False):
     # Detector limits
     detector_limits = [(2112, 2123), (2127, 2137), (2141, 2151), (2155, 2165)]
     npix = 1024
@@ -190,8 +187,8 @@ def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=
         # name = "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, sim_num, ii + 1)
         name = os.path.join(simulators.paths["spectra"], name)
         # spec.save...
-        hdrkeys = ["OBJECT", "Id_sim", "num", "chip", "snr", "ind_rv", "c_gamma", "cor_rv", "host", "compan"]
-        hdrvals = [star, "Fake simulation data", sim_num, ii + 1, noise, independent, gamma, rv, params1, params2]
+        hdrkeys = ["OBJECT", "Id_sim", "num", "chip", "snr", "c_gamma", "cor_rv", "host", "compan"]
+        hdrvals = [star, "Fake simulation data", sim_num, ii + 1, noise, gamma, rv, params1, params2]
         if os.path.exists(name) and not replace:
             print(name, "Already exists")
         else:
@@ -202,16 +199,12 @@ def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=
             print("Saved fits to {0}".format(name))
 
 
-def testing_noise(star, sim_num, params1, params2, gamma, rv,
-                  independent=False):
-    x_wav, y_wav = fake_iam_simulation(None, params1, params2, gamma, rv, limits=[2070, 2180],
-                                       independent=independent, noise=None)
+def testing_noise(star, sim_num, params1, params2, gamma, rv):
+    x_wav, y_wav = fake_iam_simulation(None, params1, params2, gamma, rv, limits=[2070, 2180], noise=None)
 
-    x_wav_1000, y_wav_1000 = fake_iam_simulation(None, params1, params2, gamma, rv, limits=[2070, 2180],
-                                                 independent=independent, noise=1000)
+    x_wav_1000, y_wav_1000 = fake_iam_simulation(None, params1, params2, gamma, rv, limits=[2070, 2180], noise=1000)
 
-    x_wav_200, y_wav_200 = fake_iam_simulation(None, params1, params2, gamma, rv, limits=[2070, 2180],
-                                               independent=independent, noise=200)
+    x_wav_200, y_wav_200 = fake_iam_simulation(None, params1, params2, gamma, rv, limits=[2070, 2180], noise=200)
 
     fig, axis = plt.subplots(2, 1, sharex=True)
     ax1 = axis[0]
@@ -230,22 +223,16 @@ def testing_noise(star, sim_num, params1, params2, gamma, rv,
     plt.show()
 
 
-def testing_fake_spectrum(star, sim_num, params1, params2, gamma, rv,
-                          independent=False, noise=None):
-    x_wav, y_wav = fake_iam_simulation(None, params1, params2, gamma, rv,
-                                       independent=independent, noise=noise)
+def testing_fake_spectrum(star, sim_num, params1, params2, gamma, rv, noise=None):
+    x_wav, y_wav = fake_iam_simulation(None, params1, params2, gamma, rv, noise=noise)
 
-    x_2k, y_2k = fake_iam_simulation(np.linspace(2100, 2140, 2000), params1,
-                                     params2, gamma, rv, independent=independent, noise=noise)
+    x_2k, y_2k = fake_iam_simulation(np.linspace(2100, 2140, 2000), params1, params2, gamma, rv, noise=noise)
 
-    x_1k, y_1k = fake_iam_simulation(np.linspace(2090, 2150, 1000), params1, params2, gamma, rv,
-                                     independent=independent, noise=noise)
+    x_1k, y_1k = fake_iam_simulation(np.linspace(2090, 2150, 1000), params1, params2, gamma, rv, noise=noise)
 
-    x_30k, y_30k = fake_iam_simulation(np.linspace(2090, 2150, 30000), params1, params2, gamma, rv,
-                                       independent=independent, noise=noise)
+    x_30k, y_30k = fake_iam_simulation(np.linspace(2090, 2150, 30000), params1, params2, gamma, rv, noise=noise)
 
-    x_5k, y_5k = fake_iam_simulation(np.linspace(2090, 2150, 5000), params1, params2, gamma, rv,
-                                     independent=independent, noise=noise)
+    x_5k, y_5k = fake_iam_simulation(np.linspace(2090, 2150, 5000), params1, params2, gamma, rv, noise=noise)
 
     print("x", x_wav)
     print("y", y_wav)
@@ -318,7 +305,7 @@ def append_hdr(hdr, keys=None, values=None, item=0):
             assert len(keys) == len(values), 'Not the same number of keys as values'
             for i, key in enumerate(keys):
                 hdr[key] = values[i]
-                # print(repr(hdr[-2:10]))
+
     return hdr
 
 
@@ -326,6 +313,4 @@ if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
 
-    # with warnings.catch_warnings():
-    #    warnings.filterwarnings('error')
     main(**opts)

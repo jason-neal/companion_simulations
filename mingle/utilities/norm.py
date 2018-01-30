@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def spec_local_norm(spectrum, splits=50, method="quadratic", plot=False, top=20):
+def spec_local_norm(spectrum, splits=20, method="quadratic", plot=False, top=20):
     r"""Apply local normalization on Spectrum object.
 
     Split spectra into many chunks and get the average of top 5\% in each bin.
@@ -19,7 +19,7 @@ def spec_local_norm(spectrum, splits=50, method="quadratic", plot=False, top=20)
     return norm_spectrum
 
 
-def local_normalization(wave, flux, splits=50, method="exponential", plot=False, top=20):
+def local_normalization(wave, flux, splits=20, method="exponential", plot=False, top=20):
     r"""Local minimization for section of Phoenix spectra.
 
     Split spectra into many chunks and get the average of top 5\% in each bin.
@@ -33,7 +33,7 @@ def local_normalization(wave, flux, splits=50, method="exponential", plot=False,
     return flux / norm_flux
 
 
-def get_continuum_points(wave, flux, splits=50, top=20):
+def get_continuum_points(wave, flux, splits=20, top=20):
     """Get continuum points along a spectrum.
 
     This splits a spectrum into "splits" number of bins and calculates
@@ -62,7 +62,7 @@ def get_continuum_points(wave, flux, splits=50, top=20):
     return wave_points, flux_points
 
 
-def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
+def continuum(wave, flux, splits=20, method='scalar', plot=False, top=20):
     """Fit continuum of flux.
 
     top: is number of top points to take median of continuum.
@@ -100,7 +100,7 @@ def continuum(wave, flux, splits=50, method='scalar', plot=False, top=20):
 
 
 # @timeit2
-def chi2_model_norms(wave, obs, models, method='scalar', splits=100, top=20):
+def chi2_model_norms(wave, obs, models, method='scalar', splits=20, top=20):
     """Normalize the obs to the continuum of the models.
 
     Inputs
