@@ -134,6 +134,11 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
          noplots=False, mode="iam", fudge=None, area_scale=True, suffix=""):
     star = star.upper()
 
+    if gamma is None:
+        gamma = 0
+    if rv is None:
+        rv = 0
+
     if params1 is not None:
         params_1 = [float(par) for par in params1.split(",")]
     else:
@@ -151,7 +156,7 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
             testing_fake_spectrum(star, sim_num, params_1, params_2, gamma, rv,
                                   independent=False, noise=None)
         else:
-            x_wav, y_wav, header = fake_iam_simulation(None, params_1, params_2, gamma, rv,
+            x_wav, y_wav, header = fake_iam_simulation(None, params_1, params_2, gamma=gamma, rv=rv,
                                                        independent=independent, noise=noise,
                                                        header=True, fudge=fudge, area_scale=area_scale)
             fake_spec = Spectrum(xaxis=x_wav, flux=y_wav, header=header)
@@ -169,6 +174,7 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
         save_fake_observation(fake_spec, star, sim_num, params1, gamma=gamma,
                               noise=None, replace=replace, noplots=noplots)
 
+    return None
 
 def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=None, rv=None,
                           independent=False, noise=None, suffix=None, replace=False, noplots=False):
