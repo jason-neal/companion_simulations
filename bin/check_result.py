@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from spectrum_overload import Spectrum
 
-from mingle.models.broadcasted_models import (independent_inherent_alpha_model,
-                                              inherent_alpha_model)
+from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error
 from mingle.utilities.masking import spectrum_masking
@@ -42,15 +41,12 @@ def parse_args(args):
                         help='Host rv')
     parser.add_argument("rv", type=float,
                         help='Companion rv')
-    parser.add_argument("-i", "--independent", action="store_true",
-                        help="Independent rv of companion")
     parser.add_argument("-p", "--plot_name", type=str,
                         help="Name of save figure.")
     return parser.parse_args(args)
 
 
-def main(star, obsnum, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, independent=False,
-         plot_name=None):
+def main(star, obsnum, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, plot_name=None):
     fig, axis = plt.subplots(2, 2, figsize=(15, 8), squeeze=False)
 
     for chip, ax in zip(range(1, 5), axis.flatten()):
@@ -80,13 +76,8 @@ def main(star, obsnum, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, 
             companion = load_starfish_spectrum([teff_2, logg_2, feh_2],
                                                limits=[2110, 2165], area_scale=True, hdr=True)
 
-        if independent:
-            joint_model = independent_inherent_alpha_model(host.xaxis, host.flux,
-                                                           companion.flux, gammas=gamma,
-                                                           rvs=rv)
-        else:
-            joint_model = inherent_alpha_model(host.xaxis, host.flux,
-                                               companion.flux, gammas=gamma, rvs=rv)
+        joint_model = inherent_alpha_model(host.xaxis, host.flux,
+                                           companion.flux, gammas=gamma, rvs=rv)
 
         model_spec = Spectrum(xaxis=host.xaxis, flux=joint_model(host.xaxis).squeeze())
         model_spec = model_spec.remove_nans()
@@ -95,7 +86,6 @@ def main(star, obsnum, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, 
         # plot
         obs_spec.plot(axis=ax, label="{}-{}".format(star, obsnum))
         model_spec.plot(axis=ax, linestyle="--", label="Chi-squared model")
-        # ax.plot(model_spec.xaxis, model_spec.flux, label="Mixed model")
         ax.set_xlim([obs_spec.xmin() - 0.5, obs_spec.xmax() + 0.5])
 
         ax.set_title("{} obs {} chip {}".format(star, obsnum, chip))

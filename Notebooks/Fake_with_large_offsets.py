@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from spectrum_overload import Spectrum
 
-from mingle.models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
+from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
@@ -68,25 +68,17 @@ sample_x = np.linspace(2112, 2145, 1024)
 # In[5]:
 
 
-def join_with_broadcast_spectrum(mod1, mod2, rv, gamma, new_x, independent=False):
-    if independent:
-        broadcast_result = independent_inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
-                                                            rvs=rv, gammas=gamma, independent_rv=True)
-    else:
-        broadcast_result = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
-                                                rvs=rv, gammas=gamma, independent_rv=True)
+def join_with_broadcast_spectrum(mod1, mod2, rv, gamma, new_x):
+    broadcast_result = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
+                                                rvs=rv, gammas=gamma)
 
     broadcast_values = broadcast_result(new_x)
     return Spectrum(flux=broadcast_values.squeeze(), xaxis=new_x)
 
 
-def join_with_broadcast(mod1, mod2, rv, gamma, new_x, independent=False):
-    if independent:
-        broadcast_result = independent_inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
-                                                            rvs=rv, gammas=gamma, independent_rv=True)
-    else:
-        broadcast_result = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
-                                                rvs=rv, gammas=gamma, independent_rv=True)
+def join_with_broadcast(mod1, mod2, rv, gamma, new_x):
+    broadcast_result = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
+                                                rvs=rv, gammas=gamma)
     broadcast_values = broadcast_result(new_x)
     return broadcast_values.squeeze()
 
@@ -94,55 +86,50 @@ def join_with_broadcast(mod1, mod2, rv, gamma, new_x, independent=False):
 gammas = np.linspace(-100, 100, 50)
 rvs = np.linspace(-100, 100, 60)
 
-for independent in (True, False):
-    print("independant ", independent)
 
-    print("fake data")
-    fake_data = join_with_broadcast_spectrum(mod1_spec_scaled, mod2_spec_scaled,
-                                             rv, gamma, sample_x, independent=independent)
+print("fake data")
+fake_data = join_with_broadcast_spectrum(mod1_spec_scaled, mod2_spec_scaled,
+                                         rv, gamma, sample_x)
 
-    gamma_grid_data = join_with_broadcast(mod1_spec_scaled, mod2_spec_scaled,
-                                          [-6], gammas, sample_x, independent=independent)
-    rv_grid_data = join_with_broadcast(mod1_spec_scaled, mod2_spec_scaled, rvs,
-                                       [10], sample_x, independent=independent)
-    dual_grid_data = join_with_broadcast(mod1_spec_scaled, mod2_spec_scaled,
-                                         rvs, gammas, sample_x, independent=independent)
+gamma_grid_data = join_with_broadcast(mod1_spec_scaled, mod2_spec_scaled,
+                                      [-6], gammas, sample_x)
+rv_grid_data = join_with_broadcast(mod1_spec_scaled, mod2_spec_scaled, rvs,
+                                   [10], sample_x)
+dual_grid_data = join_with_broadcast(mod1_spec_scaled, mod2_spec_scaled,
+                                     rvs, gammas, sample_x)
 
-    for normalize in (True, False):
-        print("normalizing", normalize)
+for normalize in (True, False):
+    print("normalizing", normalize)
 
-        fake_data.remove_nans()
+    fake_data.remove_nans()
 
-        print(fake_data.flux.shape)
-        print(gamma_grid_data.shape)
-        print(rv_grid_data.shape)
-        print(dual_grid_data.shape)
+    print(fake_data.flux.shape)
+    print(gamma_grid_data.shape)
+    print(rv_grid_data.shape)
+    print(dual_grid_data.shape)
 
-        gamma_chi2 = chi_squared(fake_data.flux[:, np.newaxis], gamma_grid_data)
-        rv_chi2 = chi_squared(fake_data.flux[:, np.newaxis], rv_grid_data)
-        dual_chi2 = chi_squared(fake_data.flux[:, np.newaxis, np.newaxis], dual_grid_data)
+    gamma_chi2 = chi_squared(fake_data.flux[:, np.newaxis], gamma_grid_data)
+    rv_chi2 = chi_squared(fake_data.flux[:, np.newaxis], rv_grid_data)
+    dual_chi2 = chi_squared(fake_data.flux[:, np.newaxis, np.newaxis], dual_grid_data)
 
-        plt.plot(gammas, gamma_chi2)
-        plt.title("gamma chi2")
-        plt.show()
+    plt.plot(gammas, gamma_chi2)
+    plt.title("gamma chi2")
+    plt.show()
 
-        plt.plot(rvs, rv_chi2)
-        plt.title("rv chi2")
-        plt.show()
+    plt.plot(rvs, rv_chi2)
+    plt.title("rv chi2")
+    plt.show()
 
-        gam, rv_grid = np.meshgrid(gammas, rvs)
-        plt.contourf(gam, rv_grid, dual_chi2)
-        plt.title("dual chi2 - gamma {}, rv {}".format(gamma, rv))
-        plt.xlabel("gamma")
-        plt.ylabel("rv")
-        plt.colorbar()
-        if independent:
-            plt.plot(gamma, rv, "rx")
-        else:
-            plt.plot(gamma, gamma + rv, "rx")
-        plt.show()
+    gam, rv_grid = np.meshgrid(gammas, rvs)
+    plt.contourf(gam, rv_grid, dual_chi2)
+    plt.title("dual chi2 - gamma {}, rv {}".format(gamma, rv))
+    plt.xlabel("gamma")
+    plt.ylabel("rv")
+    plt.colorbar()
+    plt.plot(gamma, gamma + rv, "rx")
+    plt.show()
 
-        dof = len(fake_data.xaxis) - 1
+    dof = len(fake_data.xaxis) - 1
 
 # In[ ]:
 

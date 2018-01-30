@@ -10,7 +10,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from mingle.models.broadcasted_models import inherent_alpha_model, independent_inherent_alpha_model
+from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.norm import continuum
 from mingle.utilities.simulation_utilities import spec_max_delta
 from simulators.iam_module import prepare_iam_model_spectra, continuum_alpha
@@ -20,8 +20,7 @@ from simulators.iam_module import prepare_iam_model_spectra, continuum_alpha
 
 
 
-def fake_simulation(wav, params1, params2, gamma, rv, chip=None,
-                    limits=(2070, 2180), independent=False, noise=None):
+def fake_simulation(wav, params1, params2, gamma, rv, chip=None, limits=(2070, 2180), noise=None):
     """Make a fake spectrum with binary params and radial velocities."""
     mod1_spec, mod2_spec = prepare_iam_model_spectra(params1, params2, limits)
 
@@ -34,11 +33,7 @@ def fake_simulation(wav, params1, params2, gamma, rv, chip=None,
         print("inherent flux ratio = {}, chip={}".format(inherent_alpha, chip))
 
     # Combine model spectra with iam model
-    if independent:
-        iam_grid_func = independent_inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
-                                                         rvs=rv, gammas=gamma)
-    else:
-        iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+    iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
                                              rvs=rv, gammas=gamma)
     if wav is None:
         delta = spec_max_delta(mod1_spec, rv, gamma)
@@ -78,16 +73,13 @@ def fake_simulation(wav, params1, params2, gamma, rv, chip=None,
     return wav, iam_grid_models
 
 
-def main(star, sim_num, params1, params2, gamma, rv,
-         independent=False, noise=None, suffix=None):
+def main(star, sim_num, params1, params2, gamma, rv, noise=None, suffix=None):
     params1 = [float(par) for par in params1.split(",")]
     params2 = [float(par) for par in params2.split(",")]
 
-    x_wav, y_wav = fake_simulation(np.linspace(2090, 2150, 2000), params1,
-                                   params2, gamma, rv, chip=1, independent=independent, noise=noise)
+    x_wav, y_wav = fake_simulation(np.linspace(2090, 2150, 2000), params1, params2, gamma, rv, chip=1, noise=noise)
 
-    x, y = fake_simulation(None, params1, params2, gamma, rv, chip=1,
-                           independent=independent, noise=noise)
+    x, y = fake_simulation(None, params1, params2, gamma, rv, chip=1, noise=noise)
     print(x)
 
     plt.plot(x, y, label="Fake simulation")
@@ -131,5 +123,4 @@ params2 = "3000,4.5, 0.0"
 gamma = 20
 rv = -7
 
-main("test", "1", params1, params2, gamma, rv,
-     independent=False, noise=None, suffix=None)
+main("test", "1", params1, params2, gamma, rv, noise=None, suffix=None)

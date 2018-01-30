@@ -107,10 +107,8 @@ def test_fake_iam_simulation_with_wav(params, wav, rv, gamma, limits):
 @pytest.mark.xfail()
 @pytest.mark.parametrize("params", [(2500, 4.5, 0.0), (2800, 4.5, 0.5)])
 @pytest.mark.parametrize("limits", [[2030, 2180], [2100, 2140]])
-@pytest.mark.parametrize("independent", [True, False])
-def test_fake_iam_simulation_without_wav(params, limits, independent):
-    fake_wav, fake_flux = fake_iam_simulation(None, [58000, 4.0, -0.5], params2=params, rv=7,
-                                              gamma=5, limits=limits, independent=independent)
+def test_fake_iam_simulation_without_wav(params, limits):
+    fake_wav, fake_flux = fake_iam_simulation(None, [5800, 4.0, -0.5], params2=params, gamma=5, rv=7, limits=limits)
     assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
     assert fake_wav.shape == fake_flux.shape
 
