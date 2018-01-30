@@ -125,8 +125,8 @@ def test_iam_db_main_single_host_model(sim_config, tmpdir):
 
     for chip in range(1, 5):
         fname = tmpdir.join(star, "iam",
-                             "{0}-{1}_{2}_iam_chisqr_results{3}[{4}_{5}_{6}].csv".format(
-                                 star, obsnum, chip, suffix, teff, logg, feh))
+                            "{0}-{1}_{2}_iam_chisqr_results{3}[{4}_{5}_{6}].csv".format(
+                                star, obsnum, chip, suffix, teff, logg, feh))
         chi2 = chip + (feh + gamma + teff / logg) * (feh2 + rv + teff2 / logg2)
         npix = (985 - chip) * np.ones_like(teff)
 
@@ -136,7 +136,7 @@ def test_iam_db_main_single_host_model(sim_config, tmpdir):
 
     list_files(str(tmpdir))
     expected_db_name = tmpdir.join(star, "iam",
-                                    "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
+                                   "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
     assert expected_db_name.check(file=0)
     # make 4 databases to add together()
     res = iam_db_main(star, obsnum, suffix, replace=False, verbose=True, chunksize=5, move=False)
@@ -201,8 +201,8 @@ def test_iam_db_main_multiple_host_model(sim_config, tmpdir):
     for chip in range(1, 5):
         for t, l, f in itertools.product(teff, logg, feh):
             fname = tmpdir.join(star, "iam",
-                                 "{0}-{1}_{2}_iam_chisqr_results{3}[{4}_{5}_{6}].csv".format(star, obsnum, chip, suffix,
-                                                                                             t, l, f))
+                                "{0}-{1}_{2}_iam_chisqr_results{3}[{4}_{5}_{6}].csv".format(star, obsnum, chip, suffix,
+                                                                                            t, l, f))
             chi2 = chip + (f + gamma + t / l) * (feh2 + rv + teff2 / logg2)
             npix = (985 - chip) * np.ones_like(chi2)
 
@@ -221,7 +221,7 @@ def test_iam_db_main_multiple_host_model(sim_config, tmpdir):
     print("after df.to_csv")
     list_files(str(tmpdir))
     expected_db_name = tmpdir.join(star, "iam",
-                                    "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
+                                   "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
     assert expected_db_name.check(file=0)
     # make 4 databases to add together()
     res = iam_db_main(star, obsnum, suffix, replace=False, verbose=False, chunksize=5,
@@ -296,6 +296,7 @@ def test_analysis_functions_run(capsys, func, db_table, db_params):
     #    assert
     assert False
 
+
 @pytest.mark.parametrize("k", [3, 5, 7])
 @pytest.mark.parametrize("x0", [10, 25, 30])
 def test_slice_k_closest_around_x(x0, k):
@@ -306,8 +307,8 @@ def test_slice_k_closest_around_x(x0, k):
 
     assert np.any(index == x0)
     assert len(index) == k
-    assert not np.any(index > x0 + k/2)
-    assert not np.any(index < x0 - k/2)
+    assert not np.any(index > x0 + k / 2)
+    assert not np.any(index < x0 - k / 2)
 
 
 @pytest.mark.parametrize("k", [2, 4, 6])
