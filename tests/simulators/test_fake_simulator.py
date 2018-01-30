@@ -83,28 +83,24 @@ def test_fake_simulator_main_runs_and_creates_files(sim_config, tmpdir, starname
 @pytest.mark.parametrize("gamma", [-5, 1, 7])
 @pytest.mark.parametrize("limits", [[2070, 2180]])
 def test_fake_iam_simulation_with_passing_wav(params, wav, rv, gamma, limits):
-    fake_wav, fake_flux = fake_iam_simulation(wav, [5000, 4.5, 0.5], params2=params,
-                                              rv=-rv, gamma=gamma, limits=limits)
+    fake_wav, fake_flux = fake_iam_simulation(wav, [5000, 4.5, 0.5], params2=params, gamma=gamma, rv=-rv, limits=limits)
     assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
     assert np.all(fake_wav == wav)
     assert fake_wav.shape == fake_flux.shape
 
 
-@pytest.mark.xfail()
 @pytest.mark.parametrize("params", [(2500, 4.5, 0.0), (2800, 4.5, 0.5)])
 @pytest.mark.parametrize("wav", [np.linspace(2130, 2145, 40)])
 @pytest.mark.parametrize("rv", [5, 2, -6])
 @pytest.mark.parametrize("gamma", [-5, 1, 7])
 @pytest.mark.parametrize("limits", [[2070, 2180]])
 def test_fake_iam_simulation_with_wav(params, wav, rv, gamma, limits):
-    fake_wav, fake_flux = fake_iam_simulation(wav, [5000, 4.5, 0.5], params2=params,
-                                              rv=-rv, gamma=gamma, limits=limits)
+    fake_wav, fake_flux = fake_iam_simulation(wav, [5000, 4.5, 0.5], params2=params, gamma=gamma, rv=-rv, limits=limits)
     assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
     assert np.all(fake_wav == wav)
     assert fake_wav.shape == fake_flux.shape
 
 
-@pytest.mark.xfail()
 @pytest.mark.parametrize("params", [(2500, 4.5, 0.0), (2800, 4.5, 0.5)])
 @pytest.mark.parametrize("limits", [[2030, 2180], [2100, 2140]])
 def test_fake_iam_simulation_without_wav(params, limits):
@@ -113,7 +109,6 @@ def test_fake_iam_simulation_without_wav(params, limits):
     assert fake_wav.shape == fake_flux.shape
 
 
-# @pytest.mark.xfail()
 @pytest.mark.parametrize("wav", [np.linspace(2130, 2145, 40), np.linspace(2147, 2160, 200)])
 @pytest.mark.parametrize("gamma", [-5, 1, 7])
 @pytest.mark.parametrize("limits", [[2070, 2180]])
@@ -124,7 +119,6 @@ def test_fake_bhm_simulation_with_wav(wav, gamma, limits):
     assert fake_wav.shape == fake_flux.shape
 
 
-# @pytest.mark.xfail()
 @pytest.mark.parametrize("limits", [[2030, 2180], [2100, 2140]])
 def test_fake_bhm_simulation_without_wav(limits):
     fake_wav, fake_flux = fake_bhm_simulation(None, [5000, 4.5, 0.5], gamma=5, limits=limits)
