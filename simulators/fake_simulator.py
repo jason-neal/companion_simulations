@@ -41,7 +41,6 @@ def parse_args(args):
                         help='Turn plots off.', action="store_true")
     parser.add_argument('-t', '--test',
                         help='Run testing only.', action="store_true")
-    parser.add_argument('--suffix', help='Suffix for file.', type=str)
     parser.add_argument("-m", "--mode", help="Combination mode", choices=["tcm", "bhm", "iam"],
                         default="iam")
     parser.add_argument("-f", "--fudge", help="Fudge value to add", default=None)
@@ -131,7 +130,7 @@ def fake_bhm_simulation(wav, params, gamma, limits=(2070, 2180), noise=None, hea
 
 def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
          independent=False, noise=None, test=False, replace=False,
-         noplots=False, mode="iam", fudge=None, area_scale=True, suffix=""):
+         noplots=False, mode="iam", fudge=None, area_scale=True):
     star = star.upper()
 
     if gamma is None:
@@ -177,7 +176,7 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None,
     return None
 
 def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=None, rv=None,
-                          independent=False, noise=None, suffix=None, replace=False, noplots=False):
+                          independent=False, noise=None, replace=False, noplots=False):
     # Detector limits
     detector_limits = [(2112, 2123), (2127, 2137), (2141, 2151), (2155, 2165)]
     npix = 1024
