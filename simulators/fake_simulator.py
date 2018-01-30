@@ -73,7 +73,7 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180), n
     # Continuum normalize all iam_gird_models
     def axis_continuum(flux):
         """Continuum to apply along axis with predefined variables parameters."""
-        return continuum(wav, flux, splits=50, method="exponential", top=5)
+        return continuum(wav, flux, splits=20, method="exponential", top=20)
 
     iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
 
