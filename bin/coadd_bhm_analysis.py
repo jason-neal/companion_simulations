@@ -20,7 +20,6 @@ from bin.coadd_analysis_script import decompose_database_name, load_sql_table
 from bin.coadd_bhm_analysis_module import (chi2_parabola_plots, chi2_individual_parabola_plots,
                                            compare_spectra, contours,
                                            contrast_bhm_results,
-                                           display_arbitrary_norm_values,
                                            display_bhm_xcorr_values,
                                            gamma_plot, get_column_limits,
                                            get_npix_values, host_parameters,
@@ -50,7 +49,7 @@ def parse_args(args):
     parser.add_argument("-m", "--mode", default="parabola",
                         help="Analysis mode to choose",
                         choices=["parabola", "fixed_host_params", "param_limits",
-                                 "smallest_chi2", "test", "contour", "arbnorm",
+                                 "smallest_chi2", "test", "contour",
                                  "all", "rvplot", "chi2_parabola", "compare_spectra",
                                  "contrast", "xcorr"])
     return parser.parse_args(args)
@@ -105,8 +104,6 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         test_figure(db_table, params)
     elif mode == "rvplot":
         gamma_plot(db_table, params)
-    elif mode == "arbnorm":
-        display_arbitrary_norm_values(db_table, params)
     elif mode == "xcorr":
         display_bhm_xcorr_values(db_table, params)
     elif mode == "chi2_parabola":
@@ -129,11 +126,6 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         plt.close("all")
         try:
             host_parameters(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
-            display_arbitrary_norm_values(db_table, params)
         except:
             pass
         plt.close("all")

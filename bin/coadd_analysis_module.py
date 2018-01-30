@@ -80,50 +80,6 @@ def xshift(x, num):
     return x + num * (x * 0.1)
 
 
-def display_arbitrary_norm_values(table, params):
-    fig, axarr = plt.subplots(3)
-    for ii, arbnorm in enumerate([r"arbnorm_1", r"arbnorm_2", r"arbnorm_3", r"arbnorm_4"]):
-        df = pd.read_sql(
-            sa.select([table.c.gamma, table.c[arbnorm],
-                       table.c.rv, table.c.teff_2]), table.metadata.bind)
-
-        c = axarr[0].scatter(xshift(df["rv"], ii), df[arbnorm],
-                             c=df[r"teff_2"].values, alpha=0.9, label=arbnorm)
-
-        axarr[0].set_xlabel(r'rv offset', fontsize=12)
-        axarr[0].set_ylabel(r'Arbitrary norm', fontsize=12)
-        axarr[0].set_title(r'Arbitrary normalization.')
-
-        d = axarr[1].scatter(xshift(df[r"gamma"], ii), df[arbnorm],
-                             c=df[r"teff_2"].values, alpha=0.9, label=arbnorm)
-        axarr[1].set_xlabel(r'$\gamma$ offset', fontsize=12)
-        axarr[1].set_ylabel(r'Arbitrary norm', fontsize=12)
-        axarr[1].set_title(r'$\gamma$.')
-
-        e = axarr[2].scatter(xshift(df[r"teff_2"], ii), df[arbnorm],
-                             c=df[r"gamma"].values, alpha=0.9, label=arbnorm)
-        axarr[2].set_xlabel(r'Companion temperature', fontsize=15)
-        axarr[2].set_ylabel(r'Arbitrary norm ', fontsize=15)
-        axarr[2].set_title(r'Companion Temperature')
-    axarr[0].grid(True)
-    axarr[1].grid(True)
-    axarr[2].grid(True)
-
-    cbar0 = plt.colorbar(c)
-    cbar0.ax.set_ylabel(r" teff_2")
-    cbar1 = plt.colorbar(d)
-    cbar1.ax.set_ylabel(r" teff_2")
-    cbar2 = plt.colorbar(e)
-    cbar1.ax.set_ylabel(r"$\gamma$")
-    fig.tight_layout()
-    fig.suptitle("Arbitrary normalization used, \n slight shift with detector")
-    name = "{0}-{1}_{2}_plot_arbnormalization_{3}.pdf".format(
-        params["star"], params["obsnum"], params["chip"], params["suffix"])
-    plt.savefig(os.path.join(params["path"], "plots", name))
-    plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
-    plt.close()
-
-
 @timeit2
 def fix_host_parameters(table, params):
     print("Fixed host analysis.")
