@@ -67,7 +67,8 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0, noise
     assert gamma > np.min(gamma_grid) and gamma < np.max(gamma_grid)
     assert rv > np.min(rv_grid) and rv < np.max(rv_grid)
     if not only_plots:
-        starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh, "comp_temp": teff2}
+        starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh,
+                    "comp_temp": teff2, "comp_logg": logg2, "comp_fe_h": feh2}
         make_fake_parameter_file(starinfo)
 
         params1 = "{}, {}, {}".format(teff, logg, feh)
