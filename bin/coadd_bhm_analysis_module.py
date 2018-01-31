@@ -6,6 +6,7 @@ import warnings
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
+from logutils import BraceMessage as __
 from matplotlib import pyplot as plt
 from matplotlib import rc
 from scipy.optimize import newton
@@ -666,7 +667,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
         plt.savefig(os.path.join(params["path"], "plots", name.replace(".pdf", ".png")))
         plt.close()
     except Exception as e:
-        logging.warning("database_contour did not plot due to \n{0}".format(e))
+        logging.warning(__("database_contour did not plot due to \n{0}", e))
 
 
 def test_figure(table, params):

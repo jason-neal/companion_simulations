@@ -1,11 +1,12 @@
 import logging
 import os
 
-from mingle.utilities.io import get_filenames
 from astropy.io import fits
+from logutils import BraceMessage as __
 from matplotlib import pyplot as plt
 from spectrum_overload import Spectrum
 
+from mingle.utilities.io import get_filenames
 
 
 def load_spectrum(name):
@@ -69,7 +70,7 @@ def select_observation(star, obsnum, chip):
                 "{}/Combined_Nods".format(star, obsnum))
         filenames = get_filenames(path, "CRIRE.*wavecal.tellcorr.fits",
                                   "*_{}.nod.ms.*".format(chip))
-        logging.debug("Filenames from 2017 reductions {}".format(filenames))
+        logging.debug(__("Filenames from 2017 reductions {}", filenames))
         if len(filenames) is not 0:
             crires_name = filenames[0]
         else:

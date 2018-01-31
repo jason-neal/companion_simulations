@@ -6,18 +6,19 @@ import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
-import simulators
 from astropy.io import fits
+from logutils import BraceMessage as __
+from spectrum_overload import Spectrum
+
+import simulators
 from mingle.models.broadcasted_models import inherent_alpha_model
+from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.norm import continuum
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.simulation_utilities import add_noise
 from mingle.utilities.simulation_utilities import spec_max_delta
 from simulators.common_setup import obs_name_template
 from simulators.iam_module import prepare_iam_model_spectra
-from spectrum_overload import Spectrum
-
-from mingle.models.broadcasted_models import one_comp_model
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
-from mingle.utilities.simulation_utilities import add_noise
 
 
 def parse_args(args):
@@ -64,9 +65,9 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180), n
         wav = mod1_spec.xaxis[mask]
 
     iam_grid_models = iam_grid_func(wav).squeeze()
-    logging.debug("iam_grid_func(wav).squeeze()", iam_grid_models)
-    logging.debug("number of nans", np.sum(~np.isfinite(iam_grid_models)))
-    logging.debug("iam_grid_models", iam_grid_models)
+    logging.debug(__("iam_grid_func(wav).squeeze() = {}", iam_grid_models))
+    logging.debug(__("number of nans {}", np.sum(~np.isfinite(iam_grid_models))))
+    logging.debug(__("iam_grid_models = {}", iam_grid_models))
 
     logging.debug("Continuum normalizing")
 
@@ -109,7 +110,7 @@ def fake_bhm_simulation(wav, params, gamma, limits=(2070, 2180), noise=None, hea
 
     bhm_grid_values = bhm_grid_func(wav).squeeze()
 
-    logging.debug("number of bhm nans", np.sum(~np.isfinite(bhm_grid_values)))
+    logging.debug(__("number of bhm nans = {}", np.sum(~np.isfinite(bhm_grid_values))))
 
     if noise is not None or noise is not 0:
         bhm_grid_values = add_noise(bhm_grid_values, noise)

@@ -2,6 +2,8 @@ import logging
 import os
 import warnings
 
+from logutils import BraceMessage as __
+
 import simulators
 from mingle.utilities import parse_paramfile
 
@@ -48,7 +50,7 @@ def obs_name_template():
         spec_version = "berv_mask"
 
     assert spec_version in valid_keys, "spec_versions {} is not valid.".format(spec_version
-                                                                              )
+                                                                               )
     if spec_version == "berv_mask":
         fname = "{0}-{1}-mixavg-tellcorr_{2}_bervcorr_masked.fits"
 
@@ -69,6 +71,6 @@ def obs_name_template():
 
     else:
         raise ValueError("")
-    logging.debug("Filename template from obs_name_template = '{}'".format(fname))
+    logging.debug(__("Filename template from obs_name_template = '{0}'", fname))
 
     return fname

@@ -9,6 +9,7 @@ import logging
 import warnings
 
 import ephem
+from logutils import BraceMessage as __
 from PyAstronomy import pyasl
 from spectrum_overload import Spectrum
 
@@ -85,7 +86,7 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
         nflux, wlprime = pyasl.dopplerShift(wavelength, flux, helcorr_val,
                                             edgeHandling=None, fillValue=None)
 
-        logging.info("RV Size of Heliocenter correction for spectra", helcorr_val)
+        logging.info(__("RV Size of Heliocenter correction for spectra {}", helcorr_val))
         return wlprime, nflux
 
 

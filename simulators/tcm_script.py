@@ -19,6 +19,7 @@ import sys
 
 import numpy as np
 from astropy.io import fits
+from logutils import BraceMessage as __
 
 import simulators
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
@@ -75,7 +76,7 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
 
     obs_name, params, output_prefix = tcm_helper_function(star, obsnum, chip)
 
-    logging.debug("The observation used is ", obs_name, "\n")
+    logging.debug(__("The observation used is {} \n", obs_name))
 
     host_params = [params["temp"], params["logg"], params["fe_h"]]
     comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
@@ -97,16 +98,16 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
     try:
         if betasigma:
             errors = betasigma_error(obs_spec)
-            logging.info("Beta-Sigma error value = {:6.5f}".format(errors))
+            logging.info(__("Beta-Sigma error value = {:6.5f}", errors))
         else:
             errors = spectrum_error(star, obsnum, chip, error_off=error_off)
-            logging.info("File obtained error value = {}".format(errors))
+            logging.info(__("File obtained error value = {}", errors))
     except KeyError as e:
         errors = None
 
     param_iter = len(alphas) * len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
-    logging.info("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
-    logging.debug("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
+    logging.info(__("STARTING tcm_analysis\nWith {0} parameter iterations", param_iter))
+    logging.debug(__("model1_pars = {}, model2_pars = {} ", len(model1_pars), len(model2_pars)))
 
     chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
                               verbose=verbose, norm=renormalize, prefix=output_prefix, wav_scale=wav_scale, norm_method=norm_method)

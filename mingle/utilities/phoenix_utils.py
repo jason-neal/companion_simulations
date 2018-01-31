@@ -11,10 +11,11 @@ import logging
 import os
 import warnings
 
-import numpy as np
 import Starfish
+import numpy as np
 from Starfish.grid_tools import HDF5Interface
 from astropy.io import fits
+from logutils import BraceMessage as __
 from spectrum_overload import Spectrum
 
 # from typing import List
@@ -273,11 +274,11 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None, Z=True):
             phoenix_glob = ("*{0:05d}-{1:4.2f}{2:+4.1f}.PHOENIX*.fits"
                             "").format(closest_teff, closest_logg, closest_feh)
     phoenix_glob = phoenix_glob.replace("+0.0", "-0.0")  # Replace positive 0 metallicity with negative 0
-    logging.debug("New Phoenix_glob {}".format(phoenix_glob))
+    logging.debug(__("New Phoenix_glob {0}", phoenix_glob))
     joint_glob = os.path.join(data_dir, phoenix_glob)
-    logging.debug("Data dir = {}".format(data_dir))
-    logging.debug("Glob path/file {}".format(os.path.join(data_dir, phoenix_glob)))
-    logging.debug(" joint Glob path/file {}".format(joint_glob))
+    logging.debug(__("Data dir = {0}", data_dir))
+    logging.debug(__("Glob path/file {0}", os.path.join(data_dir, phoenix_glob)))
+    logging.debug(__("joint Glob path/file {0}", joint_glob))
 
     files = glob.glob(os.path.join(data_dir, phoenix_glob))
     if len(files) > 1:
@@ -303,7 +304,7 @@ def phoenix_name_from_params(data_dir, params):
     phoenix_model: str
         Filename of phoenix model closest to given parameters.
     """
-    logging.debug("phoenix_from_params Data dir = {}".format(data_dir))
+    logging.debug(__("phoenix_from_params Data dir = {0}", data_dir))
     if isinstance(params, str):
         params = parse_paramfile(params)
     else:
@@ -312,7 +313,6 @@ def phoenix_name_from_params(data_dir, params):
     if isinstance(params, dict):
         if "alpha" not in params.keys():
             params["alpha"] = None
-        logging.debug(params)
         return find_closest_phoenix_name(data_dir, params["temp"], params["logg"], params["fe_h"],
                                          alpha=params["alpha"])
     elif isinstance(params, list):
@@ -429,6 +429,7 @@ def make_grid_parameter(param, step_config, backup):
                 warnings.warn("The grids do not span the closest parameters. Values={}. Check config".format(values))
             return param + values
 
+
 def generate_bhm_config_params(params, limits="phoenix"):
     """Generate teff, logg, Z values given star params and config values.
 
@@ -491,8 +492,8 @@ def find_phoenix_model_names(base_dir, original_model):
         model_name = os.path.split(original_model)[-1]
     except Exception:
         model_name = original_model
-    logging.debug("original_name = {}".format(original_model))
-    logging.debug("model_name = {}".format(model_name))
+    logging.debug(__("Original_name = {0}", original_model))
+    logging.debug(__("model_name = {0}", model_name))
     temp = int(model_name[3:8])
     logg = float(model_name[9:13])
     metals = float(model_name[13:17])

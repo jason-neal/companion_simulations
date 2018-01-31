@@ -4,6 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 import simulators
+from logutils import BraceMessage as __
 from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.norm import chi2_model_norms
@@ -31,7 +32,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         gammas = np.asarray(gammas, dtype=np.float32)
 
     if isinstance(model_pars, list):
-        logging.debug("Number of close model_pars returned {}".format(len(model_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model_pars)))
 
     # Solution Grids to return
     model_chisqr_vals = np.empty(len(model_pars))

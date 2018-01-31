@@ -26,15 +26,16 @@ import multiprocess as mprocess
 import numpy as np
 import scipy.stats
 from joblib import Memory
+from logutils import BraceMessage as __
 from tqdm import tqdm
 
-from obsolete.models.alpha_model import alpha_model
 from mingle.utilities.chisqr import chi_squared, parallel_chisqr
 from mingle.utilities.model_convolution import store_convolutions
-from obsolete.simulate_obs import \
-    generate_observations2 as generate_observations
 from mingle.utilities.simulation_utilities import combine_spectra
 from mingle.utilities.spectrum_utils import spectrum_plotter
+from obsolete.models.alpha_model import alpha_model
+from obsolete.simulate_obs import \
+    generate_observations2 as generate_observations
 from old_simulations.Planet_spectral_simulations import load_PHOENIX_hd30501
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
@@ -136,7 +137,7 @@ def main():
                                                chip_limits=chip_limits)
     convolved_planet_models = store_convolutions(org_bd_spec, resolutions,
                                                  chip_limits=chip_limits)
-    logging.debug("Convolution of models took {} seconds".format(dt.now() - time_init))
+    logging.debug(__("Convolution of models took {} seconds", dt.now() - time_init))
 
     simulated_observations = generate_observations(convolved_star_models,
                                                    convolved_planet_models,
@@ -222,9 +223,8 @@ def main():
 
     # mprocPool.close()
     time_end = dt.now()
-    logging.debug("Multi-Proc chisqr has been completed in "
-          "{} using {}/{} cores.\n".format(time_end - time_init, n_jobs,
-                                           mprocess.cpu_count()))
+    logging.debug(__(("Multi-Proc chisqr has been completed in {} using {}/{} cores.\n"),
+                     time_end - time_init, n_jobs, mprocess.cpu_count()))
 
     with open(os.path.join(path, "parallel_chisquare.pickle"), "wb") as f:
         """Pickle all the necessary parameters to store

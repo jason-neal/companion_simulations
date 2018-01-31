@@ -7,6 +7,7 @@ import sys
 import numpy as np
 import logging
 import simulators
+from logutils import BraceMessage as __
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
@@ -80,11 +81,11 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
             j = simulators.betasigma.get("j", 2)
             errors, derrors = betasigma_error(obs_spec, N=N, j=j)
             print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
-            logging.info("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
+            logging.info(__("Beta-Sigma error value = {:6.5f}+/-{:6.5f}", errors, derrors))
         else:
             print("NOT DOING BETASIGMA ERRORS")
             errors = spectrum_error(star, obsnum, chip, error_off=error_off)
-            logging.info("File obtained error value = {}".format(errors))
+            logging.info(__("File obtained error value = {0}", errors))
     except KeyError as e:
         print("ERRORS Failed so set to None")
         errors = None

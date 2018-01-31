@@ -6,6 +6,7 @@ import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from logutils import BraceMessage as __
 from tqdm import tqdm
 
 import simulators
@@ -37,9 +38,9 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
     gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
-        logging.debug("Number of close model_pars returned {0}".format(len(model1_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model1_pars)))
     if isinstance(model2_pars, list):
-        logging.debug("Number of close model_pars returned {0}".format(len(model2_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model2_pars)))
 
     # Solution Grids to return
     iam_grid_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
@@ -235,7 +236,7 @@ def renormalization(spectrum, model_grid, normalize=False, method="scalar"):
     if normalize:
         if method not in ["scalar", "linear"]:
             raise ValueError("Renormalization method '{}' is not in ['scalar', 'linear']".format(method))
-        logging.info("{} Re-normalizing to observations!".format(method))
+        logging.info(__("{} Re-normalizing to observations!", method))
         norm_flux = chi2_model_norms(spectrum.xaxis, spectrum.flux,
                                      model_grid, method=method)
     else:
@@ -403,7 +404,7 @@ def target_params(params, mode="iam"):
 
     # Specify the companion logg and metallicity in the parameter files.
     if params.get("comp_logg", None) is None:
-        logging.warning("Logg for companion 'comp_logg' is not set for {0}".format(params.get("name", params)))
+        logging.warning(__("Logg for companion 'comp_logg' is not set for {0}", params.get("name", params)))
     comp_logg = params.get("comp_logg", params["logg"])  # Set equal to host if not given
     comp_fe_h = params.get("comp_fe_h", params["fe_h"])  # Set equal to host if not given
     comp_params = [params["comp_temp"], comp_logg, comp_fe_h]

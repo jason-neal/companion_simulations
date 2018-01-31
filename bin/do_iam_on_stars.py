@@ -8,7 +8,7 @@ import logging
 import sys
 
 from joblib import Parallel, delayed
-
+from logutils import BraceMessage as __
 from bin.coadd_analysis_script import main as coadd_analysis
 from bin.coadd_chi2_db import main as coadd_db
 from simulators.iam_script import main
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     star = args.star
     n_jobs = args.pop("n_jobs", 1)
 
-    logging.info("Performing simulations on", star)
+    logging.info(__("Performing simulations on", star))
     obsnums = {"HD30501": ["1", "2a", "2b", "3"], "HD211847": ["1", "2"], "HD4747": ["1"]}
 
 

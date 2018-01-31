@@ -2,13 +2,12 @@
 # Adapted from https://github.com/ajriddle/Work-Files/blob/master/cps_fcns.py.
 
 import numpy as np
-
 from scipy.interpolate import interp1d
 from scipy.optimize import curve_fit
 
 
 def create_cross_correlations(observation, template1, template2):
-    """Create cross corelations c1, c2, c12 to be used for todcor.
+    """Create cross correlations c1, c2, c12 to be used for todcor.
 
     Inputs:
         The 3 spectrum objects.
@@ -55,7 +54,6 @@ def create_cross_correlations(observation, template1, template2):
         t1 = ft1(wv)
         t2 = ft2(wv)
 
-    logging.debug("lenght of s", len(s))
     # Calculate normalized 1-D cross-correlation functions for each order
     # c1 = np.zeros([len(s), 8041])
     # c2 = np.zeros([len(s), 8041])

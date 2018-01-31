@@ -1,12 +1,12 @@
 """best_host_model.py.
 
 Jason Neal
-2nd Janurary 2017
+2nd January 2017
 
 Compare observed spectra to many different phoenix-aces spectral models to find which matches one is best fit by itself.
 
 Need to determine the best RV offset to apply to the spectra.
-Possibly bu sampling a few and then taking average value (they should be all
+Possibly by sampling a few and then taking average value (they should be all
 the same I would think unless the lines changed dramatically).
 
 """
@@ -19,6 +19,7 @@ from datetime import datetime as dt
 import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
+from logutils import BraceMessage as __
 from spectrum_overload import Spectrum
 
 import simulators
@@ -36,7 +37,6 @@ from mingle.utilities.xcorr import xcorr_peak
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
-
 
 model_base_dir = (simulators.starfish_grid["raw_path"])
 wav_dir = simulators.starfish_grid["raw_path"]
@@ -60,17 +60,17 @@ def main():
 
     wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
     wav_model /= 10  # turn into nm
-    logging.debug("Phoenix wav_model = {}".format(wav_model))
+    logging.debug(__("Phoenix wav_model = {0}", wav_model))
 
     closest_model = phoenix_name_from_params(model_base_dir, host_parameters)
     original_model = "Z-0.0/lte05200-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits"
-    logging.debug("closest_model {}".format(closest_model))
-    logging.debug("original_model {}".format(original_model))
+    logging.debug(__("closest_model {0}", closest_model))
+    logging.debug(__("original_model {0}", original_model))
 
     # Function to find the good models I need
     models = find_phoenix_model_names(model_base_dir, original_model)
     if isinstance(models, list):
-        logging.debug("Number of close models returned {}".format(len(models)))
+        logging.debug(__("Number of close models returned {0}", len(models)))
 
     model_chisqr_vals = np.empty_like(models)
     model_xcorr_vals = np.empty_like(models)
@@ -93,7 +93,7 @@ def main():
 
         # Convolve to resolution of instrument
         conv_mod_spectrum = convolve_models([norm_mod_spectrum], obs_resolution, chip_limits=None)[0]
-        # logging.debug(conv_mod_spectrum)
+
         # Find crosscorrelation RV
         # # Should run though all models and find best rv to apply uniformly
         rvoffset, cc_max = xcorr_peak(observed_spectra, conv_mod_spectrum, plot=False)
@@ -126,7 +126,7 @@ def main():
 
     logging.debug(pv("model_xcorr_rv_vals"))
     print("RV at max xcorr =", model_xcorr_rv_vals[xcorr_argmax_indx])
-    # print("Meadian RV val =", np.median(model_xcorr_rv_vals))
+    # print("Median RV val =", np.median(model_xcorr_rv_vals))
     print(pv("model_xcorr_rv_vals[chisqr_argmin_indx]"))
     # print(pv("sp.stats.mode(np.around(model_xcorr_rv_vals))"))
 

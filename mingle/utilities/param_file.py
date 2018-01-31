@@ -2,6 +2,7 @@
 import logging
 import os
 from typing import Dict, List, Union
+from logutils import BraceMessage as __
 
 import simulators
 
@@ -36,8 +37,8 @@ def parse_paramfile(param_file: str, path: str = None) -> Dict[str, Union[str, f
                 if '#' in line:  # Remove comment from end of line
                     line = line.split("#")[0]
                 if line.endswith("="):
-                    logging.warning(("Parameter missing value in {0}.\nLine = {1}."
-                                     " Value set to None.").format(param_file, line))
+                    logging.warning(__(("Parameter missing value in {0}.\nLine = {1}."
+                                     " Value set to None."), param_file, line))
                     line = line + " None"  # Add None value when parameter is missing
                 par, val = line.lower().split('=')
                 par, val = par.strip(), val.strip()
@@ -96,7 +97,7 @@ def parse_obslist(fname, path=None):
     if path is not None:
         fname = os.path.join(path, fname)
     if not os.path.exists(fname):
-        logging.warning("Obs_list file given does not exist. {}".format(fname))
+        logging.warning(__("Obs_list file given does not exist. {0}", fname))
 
     obstimes = list()
     with open(fname, 'r') as f:
@@ -109,5 +110,5 @@ def parse_obslist(fname, path=None):
                 if "." in line:
                     line = line.split(".")[0]   # remove fractions of seconds.
                 obstimes.append(line.strip())
-        logging.debug("obstimes = {}".format(obstimes))
+        logging.debug(__("obstimes = {}", obstimes))
     return obstimes

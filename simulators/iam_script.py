@@ -13,6 +13,7 @@ import sys
 
 import numpy as np
 from joblib import Parallel, delayed
+from logutils import BraceMessage as __
 
 import simulators
 from bin.coadd_analysis_script import main as coadd_analysis
@@ -115,11 +116,11 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
             j = simulators.betasigma.get("j", 2)
             errors, derrors = betasigma_error(obs_spec, N=N, j=j)
             print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
-            logging.info("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
+            logging.info(__("Beta-Sigma error value = {:6.5f}+/-{:6.5f}", errors, derrors))
         else:
             print("NOT DOING BETASIGMA ERRORS")
             errors = spectrum_error(star, obsnum, chip, error_off=error_off)
-            logging.info("File obtained error value = {}".format(errors))
+            logging.info(__("File obtained error value = {}", errors))
     except KeyError as e:
         print("ERRORS Failed so set to None!")
         errors = None
@@ -149,6 +150,7 @@ if __name__ == "__main__":
     def parallelized_main(main_opts, chip):
         main_opts["chip"] = chip
         return main(**main_opts)
+
 
     # Iterate over chips
     if opts["chip"] is None:
