@@ -392,3 +392,25 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
                                                                                                  datetime.datetime.now()))
         plt.savefig(plot_name)
         plt.close(plt.gcf())
+
+
+def target_params(params, mode="iam"):
+    """Extract parameters from dict for each target.
+
+    Includes logic for handling missing companion logg/fe_h.
+    """
+    host_params = [params["temp"], params["logg"], params["fe_h"]]
+
+    # Specify the companion logg and metallicity in the parameter files.
+    if params.get("comp_logg", None) is None:
+        logging.warning("Logg for companion 'comp_logg' is not set for {0}".format(params["name"]))
+    comp_logg = params.get("comp_logg", params["logg"])  # Set equal to host if not given
+    comp_fe_h = params.get("comp_fe_h", params["fe_h"])  # Set equal to host if not given
+    comp_params = [params["comp_temp"], comp_logg, comp_fe_h]
+
+    if mode == "iam":
+        return host_params, comp_params
+    elif mode == "bhm":
+        return host_params
+    else:
+        raise ValueError("Mode={} is invalid".format(mode))

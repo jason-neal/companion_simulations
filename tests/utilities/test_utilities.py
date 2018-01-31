@@ -8,6 +8,7 @@ import simulators
 from mingle.utilities import param_file
 from mingle.utilities.crires_utilities import crires_resolution
 from mingle.utilities.io import get_filenames
+from simulators.iam_module import target_params
 
 
 def test_crires_resolution():
@@ -94,3 +95,28 @@ def test_get_filenames_with_two_regex():
     assert "test_spectrum_utils.py" in results
     assert "test_utilities.py" in results
     assert len(results) == 5
+
+
+@pytest.mark.parametrize("params, mode, expected", [
+    ({"teff_1": 5000, "logg": 4.5, "feh":-0.5,
+      "comp_temp": 2400, "comp_logg": 5, "comp_he_f": 0.5}, "iam", ([5000, 4.5, -0.5], [2400, 5, 0.5])),
+    ({"teff_1": 5000, "logg": 3.5, "feh":0.0, "comp_temp": 2300}, "iam", ([5000, .5, 0.0], [2300, 3.5, 0.0])),
+    ({"teff_1": 4500, "logg": 4.5, "feh":0.0, "comp_logg": 3}, "bhm", [4500, 4.5, 0.0])])
+def test_target_parameters_from_dict(params, mode, expected):
+    result = target_params(params, mode=mode)
+    assert result == expected
+
+def test_target_parameters_with_comp_vals_in_file():
+    target_params(params, model="tcm")
+    assert False
+
+
+def test_target_parameters_comp_not_in_file():
+    target_params(params, model="tcm")
+    assert False
+
+
+@pytest.mark.parametrize("mode", [None, "tcm", ""])
+def test_target_parameters_invalid_mode(mode):
+    with pytest.raises(ValueError):
+        target_params(params, model="tcm")

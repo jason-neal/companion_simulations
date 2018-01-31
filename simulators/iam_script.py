@@ -9,11 +9,9 @@ Using the flux ratio of the spectra themselves.
 
 import argparse
 import logging
-import os
 import sys
 
 import numpy as np
-from astropy.io import fits
 from joblib import Parallel, delayed
 
 import simulators
@@ -27,7 +25,7 @@ from mingle.utilities.phoenix_utils import (closest_model_params,
 from mingle.utilities.simulation_utilities import check_inputs
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import (iam_analysis, iam_helper_function,
-                                   setup_iam_dirs)
+                                   setup_iam_dirs, target_params)
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -93,8 +91,7 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
 
     print("The observation used is ", obs_name, "\n")
 
-    host_params = [params["temp"], params["logg"], params["fe_h"]]
-    comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
+    host_params, comp_params = target_params(params, mode="iam")
 
     closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
     closest_comp_model = closest_model_params(*comp_params)
