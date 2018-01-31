@@ -286,7 +286,7 @@ def find_closest_phoenix_name(data_dir, teff, logg, feh, alpha=None, Z=True):
     return files
 
 
-def phoenix_name_from_params(data_dir, params):
+def phoenix_name_from_params(data_dir, paramfile):
     """Return closest phoenix model given a stellar parameter file.
 
     Obtain temp, metallicity, and logg from parameter file.
@@ -305,24 +305,23 @@ def phoenix_name_from_params(data_dir, params):
         Filename of phoenix model closest to given parameters.
     """
     logging.debug(__("phoenix_from_params Data dir = {0}", data_dir))
-    if isinstance(params, str):
-        params = parse_paramfile(params)
+    if isinstance(paramfile, str):
+        params = parse_paramfile(paramfile)
     else:
-        params = params
+        params = paramfile
 
     if isinstance(params, dict):
         if "alpha" not in params.keys():
             params["alpha"] = None
-        return find_closest_phoenix_name(data_dir, params["temp"], params["logg"], params["fe_h"],
-                                         alpha=params["alpha"])
+        params = [params["temp"], params["logg"], params["fe_h"], params["alpha"]]
+
     elif isinstance(params, list):
         if len(params) == 3:
             params = params + [None]  # for alpha
-        elif len(params) == 4:  # assumes alpha given
-            return find_closest_phoenix_name(data_dir, params[0], params[1], params[2],
-                                             alpha=params[4])
-        else:
+        elif len(params) != 4:
             raise ValueError("Length of parameter list given is not valid, {}".format(len(params)))
+
+    return find_closest_phoenix_name(data_dir, params[0], params[1], params[2], alpha=params[3])
 
 
 def generate_close_params(params, small=True, limits="phoenix"):
