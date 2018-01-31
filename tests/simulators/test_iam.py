@@ -216,6 +216,18 @@ def test_observation_rv_limits(comp):
     assert limits[0] <= np.min(comp.xaxis)
     assert limits[1] >= np.max(comp.xaxis)
 
+
+@pytest.mark.xfail()
+def test_observation_rv_limits_doesnt_give_nans_when_shifted(comp):
+    # Need to take a subset of comp
+    # Calcualte limits for that subset
+    # Create an new subset based on the limits calculated
+    # doppler shift new subset by gamma and rv in all combinations
+    # assert that any combination of interpolation to first subset does not produce nan values.
+    assert False
+    limits = observation_rv_limits(comp, 5, 20)
+
+
 @pytest.mark.parametrize("limits", [
     [2110, 2111],
     [2080, 2195]])
@@ -268,3 +280,25 @@ def test_prepare_iam_model_spectra_with_warnings(limits):
     assert y.xaxis[-1] <= limits[1]
 
 
+@pytest.mark.xfail()
+def test_iam_analysis_save_only():
+    """Test aim_analys returns None.
+
+    Assert that other things happen, such as a file created.
+    might want to limit the simulators grid significantly.
+    """
+    assert False
+    res = iam_analysis(save_only=True)
+    assert res is None
+
+
+@pytest.mark.xfail()
+def test_iam_analysis_save_only():
+    """Test aim_analys returns a numpy array when save_only=False.
+
+    Assert that other things happen, such as a file was created.
+    might want to limit the simulators grid significantly.
+    """
+    assert False
+    res = iam_analysis(save_only=False)
+    assert res is None
