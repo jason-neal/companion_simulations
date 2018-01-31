@@ -1,6 +1,7 @@
 import pytest
 
 from mingle.models.broadcasted_models import two_comp_model
+from mingle.utilities import param_file
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 
 
@@ -54,3 +55,15 @@ def norm_method(request):
 def tcm_model(host, comp):
     return two_comp_model(host.xaxis, host.flux, comp.xaxis, alphas=[0.1, 0.2, 0.3],
                           rvs=[-0.25, 0.25], gammas=[1, 2, 3, 4])
+
+
+@pytest.fixture()
+def params_1():
+    """Load in test_params.data"""
+    return param_file.parse_paramfile("test_params.dat", "tests/testdata")
+
+
+@pytest.fixture()
+def params_2():
+    """Load in test2_params.data"""
+    return param_file.parse_paramfile("test2_params.dat", "tests/testdata")

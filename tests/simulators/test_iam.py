@@ -7,7 +7,8 @@ from spectrum_overload import Spectrum
 import simulators
 from simulators.iam_module import (continuum_alpha, iam_analysis,
                                    iam_helper_function, iam_wrapper,
-                                   setup_iam_dirs, renormalization)
+                                   setup_iam_dirs, renormalization, target_params,
+                                   )
 
 from simulators.iam_script import parse_args
 
@@ -162,3 +163,41 @@ def test_renormalization_off(host, method, model_shape):
 def test_renormalization_with_invalid_method(host, method):
     with pytest.raises(ValueError):
         renormalization(host.flux, host.flux, method=method, normalize=True)
+
+
+@pytest.mark.parametrize("mode", ["bhm", "iam"])
+@pytest.mark.parametrize("params,  expected", [
+    ({"temp": 5000, "logg": 3.5, "fe_h": 0.0, "comp_temp": 2300},
+     ([5000, 3.5, 0.0], [2300, 3.5, 0.0])),
+    ({"temp": 5000, "logg": 4.5, "fe_h": -0.5, "comp_temp": 2400, "comp_logg": 5, "comp_fe_h": 0.5},
+     ([5000, 4.5, -0.5], [2400, 5, 0.5])),
+    ({"temp": 4500, "logg": 4.5, "fe_h": 0.0, "comp_temp": 100, "comp_logg": 3},
+     ([4500, 4.5, 0.0], [100, 3, 0.0]))
+])
+def test_target_parameters_from_dict(params, mode, expected):
+    result = target_params(params, mode=mode)
+    if isinstance(result, tuple):
+        assert np.all(result[0] == expected[0])
+        assert np.all(result[1] == expected[1])
+        assert mode == "iam"
+    else:
+        assert mode == "bhm"
+        assert np.all(result == expected[0])
+
+
+def test_target_parameters_comp_not_in_file(params_1):
+    host, comp = target_params(params_1, mode="iam")
+    assert np.all(host == [5340, 4.65, -0.22])
+    assert np.all(comp == [1733, 4.65, -0.22])
+
+
+def test_target_parameters_with_comp_vals_in_file(params_2):
+    host, comp = target_params(params_2, mode="iam")
+    assert np.all(host == [5340, 4.65, -0.22])
+    assert np.all(comp == [1733, 5.3, -0.4])
+
+
+@pytest.mark.parametrize("mode", [None, "tcm", ""])
+def test_target_parameters_invalid_mode(params_1, mode):
+    with pytest.raises(ValueError):
+        target_params(params_1, mode=mode)

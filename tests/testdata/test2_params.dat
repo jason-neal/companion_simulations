@@ -1,0 +1,42 @@
+# ## HD4747 Single keplerian parameters
+# Some parameter description and units:
+# mean_val - Mean RV motion          (km/s)
+# k1 - semi-major axis of star       (km/s)
+# omega - Argument of periapsis       (deg)
+# tau - reference time  JD-2400000     (JD*)
+# period - orbital period             (day)
+# m_star - Mass of host star        (M_sun)
+# r_star - Radius of star           (R_sun)
+# age - Age of star                   (Gyr)
+# a - Semimajor axis distance.         (AU)
+# msini - Minimum mass of companion (M Jup)
+# m_true - Companion true mass      (M_jup)
+# i - inclination                     (deg)
+# temp - Host star Simbad temperature   (K)
+# fe_h - Host star metalicity         (dex)
+# logg - Host star logg           (cm s^-2)
+# Source - List of sources
+name         = HD4747
+companion    = B
+mean_val     = -0.2149    # -0.0116, + 0.0109
+k1           = 0.7553     # -11.6, 12.4
+omega        = 269.1      # -0.5, 0.6
+eccentricity = 0.740      # 0.002
+tau          = 50463.10   # 1997.04 +- 0.02 year      0.04 = 14 days 14hours  24 minutes
+period       = 13826.2    # 37.88 - 0.78, + 0.86 years
+i            = 66.8       # -6.4, 4.7
+a            = 16.4       # -3.3, +3.9
+msini        = 46.1       #
+m_true       = 60.2       # 3.3
+m_star       = 0.82       # 0.04
+SpT          = G9V
+temp         = 5340       # 40
+comp_temp    = 1733
+fe_h         = -0.22      # 0.04
+comp_fe_h    = -0.4
+logg         = 4.65       # 0.06
+comp_logg    = 5.3
+r_star       =  0.79      # 0.03
+dist         = 18.69      # 0.19
+age          = 3.3        # -1.9. +2.3
+source       = https://arxiv.org/pdf/1604.00398.pdf  Creep 2016
