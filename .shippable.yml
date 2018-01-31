@@ -49,10 +49,18 @@ install:
 
   - cp tests/config.yaml .
 
-script:
-    pytest --cov=. --cov-report term-missing
+build:
+  ci:
+    # Create folders for test and code coverage
+    - mkdir -p shippable/testresults
+    - mkdir -p shippable/codecoverage
 
-after_success:
+    # Run test and code coverage and output results to the right folder
+    - pytest --junitxml=shippable/testresults/nosetests.xml
+    - pytest --cov=. --cov-report=xml:shippable/codecoverage/coverage.xml --durations=10
+    # - pytest --cov=. --cov-report term-missing
+
+# after_success:
   #- coveralls -i
   #- codeclimate-test-reporter
   #- coverage xml -i
