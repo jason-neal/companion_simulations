@@ -4,13 +4,11 @@ import numpy as np
 import pytest
 from spectrum_overload import Spectrum
 
-import simulators
 from simulators.iam_module import (continuum_alpha, iam_analysis,
                                    iam_helper_function, iam_wrapper,
                                    setup_iam_dirs, renormalization, target_params,
                                    observation_rv_limits, prepare_iam_model_spectra,
                                    )
-
 from simulators.iam_script import parse_args
 
 
@@ -215,3 +213,56 @@ def test_observation_rv_limits(comp):
     limits = observation_rv_limits(comp, 5, 20)
     assert limits[0] <= np.min(comp.xaxis)
     assert limits[1] >= np.max(comp.xaxis)
+
+@pytest.mark.parametrize("limits", [
+    [2110, 2111],
+    [2080, 2195]])
+def test_prepare_iam_model_spectra(limits):
+    """Assert spectra with correct parameters returned."""
+    params1 = [5200, 4.5, 0.0]
+    params2 = [2300, 5, 0.0]
+    x, y = prepare_iam_model_spectra(params1, params2, limits=limits)
+    assert isinstance(x, Spectrum)
+    assert isinstance(y, Spectrum)
+    # Check correct models are loaded
+    assert x.header["PHXTEFF"] == params1[0]
+    assert x.header["PHXLOGG"] == params1[1]
+    assert x.header["PHXM_H"] == params1[2]
+    assert y.header["PHXTEFF"] == params2[0]
+    assert y.header["PHXLOGG"] == params2[1]
+    assert y.header["PHXM_H"] == params2[2]
+    assert x.xaxis[0] >= limits[0]
+    assert y.xaxis[0] >= limits[0]
+    assert x.xaxis[-1] <= limits[1]
+    assert y.xaxis[-1] <= limits[1]
+
+
+@pytest.mark.parametrize("limits", [
+    [2110, 2111]])
+def test_prepare_iam_model_spectra_with_warnings(limits):
+    """Assert spectra with correct parameters are returned."""
+    params1 = [5200, 4.5, 0.0]
+    params2 = [2300, 5, 0.0]
+    with pytest.warns(UserWarning) as record:
+        x, y = prepare_iam_model_spectra(params1, params2, limits=limits,
+                                         area_scale=False, wav_scale=False)
+    assert len(record) == 2
+    # Check that the message matches
+    assert record[0].message.args[0] == "Not using area_scale. This is incorrect for paper."
+    assert record[1].message.args[0] == "Not using wav_scale. This is incorrect for paper."
+
+    assert isinstance(x, Spectrum)
+    assert isinstance(y, Spectrum)
+    # Check correct models are loaded
+    assert x.header["PHXTEFF"] == params1[0]
+    assert x.header["PHXLOGG"] == params1[1]
+    assert x.header["PHXM_H"] == params1[2]
+    assert y.header["PHXTEFF"] == params2[0]
+    assert y.header["PHXLOGG"] == params2[1]
+    assert y.header["PHXM_H"] == params2[2]
+    assert x.xaxis[0] >= limits[0]
+    assert y.xaxis[0] >= limits[0]
+    assert x.xaxis[-1] <= limits[1]
+    assert y.xaxis[-1] <= limits[1]
+
+
