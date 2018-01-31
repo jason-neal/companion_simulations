@@ -151,8 +151,10 @@ def test_renormalization_off(host, method, model_shape):
     expected_shape = tuple(1 for _ in model_shape)
     expected_shape = (len(host.flux), *expected_shape[1:])
     models = setup_renomlization_model(host, model_shape)
-
-    result = renormalization(host, models, normalize=False, method=method)
+    with pytest.warns(UserWarning) as record:
+        result = renormalization(host, models, normalize=False, method=method)
+    assert len(record) == 1
+    assert record[0].message.args[0] == "Not Scalar Re-normalizing to observations!"
 
     assert result.ndim == len(model_shape)
     assert result.shape == expected_shape
