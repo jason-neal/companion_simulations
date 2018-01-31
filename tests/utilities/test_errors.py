@@ -65,3 +65,14 @@ def test_betasigma_params_from_config(sim_config, N, j):
     assert simulators.betasigma["N"] == N
     simulators.betasigma["j"] = j
     assert simulators.betasigma["j"] == j
+
+
+def test_snr_file_not_found(sim_config, capsys):
+    simulators = sim_config
+    simulators.paths["spectra"] = "who_knows_where"
+    result = get_snrinfo("HD30501", "1", "5")
+    assert result is None
+
+    out, err = capsys.readouterr()
+    assert "No snr file/data present" in out
+    assert " No such file or directory" in out

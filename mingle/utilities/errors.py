@@ -16,12 +16,14 @@ import simulators
 def get_snrinfo(star, obsnum, chip):
     """Load SNR info from json file."""
     snr_file = os.path.join(simulators.paths["spectra"], "detector_snrs.json")
-    with open(snr_file, "r") as f:
-        snr_data = json.loads(jsmin(f.read()))
     try:
+        with open(snr_file, "r") as f:
+            snr_data = json.loads(jsmin(f.read()))
+
         return snr_data[str(star)][str(obsnum)][str(chip)]
-    except KeyError as e:
-        warnings.warn("No snr data present for {0}-{1}_{2}. "
+    except (KeyError, FileNotFoundError) as e:
+        print(e)
+        print("No snr file/data present for {0}-{1}_{2}. "
                       "Setting error to None instead".format(star, obsnum, chip))
         return None
 

@@ -10,13 +10,15 @@ import simulators
 
 def get_maskinfo(star, obsnum, chip):
     mask_file = os.path.join(simulators.paths["spectra"], "detector_masks.json")
-    with open(mask_file, "r") as f:
-        mask_data = json.loads(jsmin(f.read()))
     try:
+        with open(mask_file, "r") as f:
+            mask_data = json.loads(jsmin(f.read()))
+
         this_mask = mask_data[str(star)][str(obsnum)][str(chip)]
         return this_mask
-    except KeyError:
-        print("No Masking data present for {0}-{1}_{2}".format(star, obsnum, chip))
+    except (KeyError, FileNotFoundError) as e:
+        print(e)
+        print("No Masking file/data present for {0}-{1}_{2}".format(star, obsnum, chip))
         return []
 
 

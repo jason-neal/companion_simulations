@@ -50,3 +50,14 @@ def test_spectrum_masking_50pixel_detector_4(host):
     host = spectrum_masking(host, "HD0", "1", "4")  # Detector 4 but with no recored masks.
     end_len = len(host)
     assert start_len - end_len == 50
+
+
+def test_masking_file_not_found(sim_config, capsys):
+    simulators = sim_config
+    simulators.paths["spectra"] = "who_knows_where"
+    result = get_maskinfo("HD30501", "1", "5")
+    assert result == []
+
+    out, err = capsys.readouterr()
+    assert "No Masking file/data present" in out
+    assert " No such file or directory" in out
