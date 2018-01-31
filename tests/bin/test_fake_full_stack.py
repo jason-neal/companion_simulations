@@ -25,5 +25,5 @@ def test_make_fake_parameter_file_puts_values_in_file(tmpdir, sim_config):
     assert created_file.check(file=0)
     make_fake_parameter_file(info)
     assert created_file.check(file=1)
-    params = parse_paramfile(created_file)
+    params = parse_paramfile(str(created_file))
     assert params == info
