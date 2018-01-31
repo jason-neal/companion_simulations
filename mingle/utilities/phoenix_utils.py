@@ -349,7 +349,7 @@ def get_phoenix_limits(limits="phoenix"):
     return phoenix_limits
 
 
-def generate_close_params_with_simulator(params, target, small=True, limits="phoenix"):
+def generate_close_params_with_simulator(params, target, limits="phoenix"):
     """teff, logg, Z.
 
     "Target" is required to make sure this is used correctly..."""
@@ -358,7 +358,7 @@ def generate_close_params_with_simulator(params, target, small=True, limits="pho
 
     temp, logg, metals = params[0], params[1], params[2]
     # This is the backup if not specified in config file.
-    bk_temps, bk_loggs, bk_metals = gen_new_param_values(temp, logg, metals, small=small)
+    bk_temps, bk_loggs, bk_metals = gen_new_param_values(temp, logg, metals, small=target)
     # print("params", params, target, small, limits)
 
     teff_key = "teff_1" if target == "host" else "teff_2"

@@ -100,10 +100,8 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
     closest_comp_model = closest_model_params(*comp_params)
 
     # Function to find the good models I need from parameters
-    model1_pars = list(generate_close_params_with_simulator(
-        closest_host_model, "host", small="host", limits="phoenix"))
-    model2_pars = list(generate_close_params_with_simulator(
-        closest_comp_model, "companion", small=small, limits="phoenix"))
+    model1_pars = list(generate_close_params_with_simulator(closest_host_model, "host", limits="phoenix"))
+    model2_pars = list(generate_close_params_with_simulator(closest_comp_model, "companion", limits="phoenix"))
 
     # Load observation
     obs_spec = load_spectrum(obs_name)

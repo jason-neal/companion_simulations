@@ -294,20 +294,18 @@ def test_gen_close_params_with_simulator_gets_host_set_to_sims(sim_config, teff,
     (5600, 2.5, 0.5),
     (7200, 1.5, -1.5)
 ])
-def test_gen_close_params_simulators_with_none_configured(sim_config, teff, logg, feh):
+@pytest.mark.parametrize("target", ["host", "companion"])
+def test_gen_close_params_simulators_with_none_configured(sim_config, teff, logg, feh, target):
     simulators = sim_config
     for key in ["teff_1", "teff_2", "logg_1", "logg_2", "feh_1", "feh_2"]:
         simulators.sim_grid[key] = None
-    gen_params = list(gen_new_param_values(teff, logg, feh, small=True))
-    host_close_none = list(generate_close_params_with_simulator([teff, logg, feh],
-                                                                target="host"))
-    comp_close_none = list(generate_close_params_with_simulator([teff, logg, feh],
-                                                                target="companion"))
+
+    param_close_none = list(generate_close_params_with_simulator([teff, logg, feh], target=target))
+    gen_params = list(gen_new_param_values(teff, logg, feh, small=target))
     par_result = []
     for t, l, m in itertools.product(*gen_params):
         par_result.append([t, l, m])
-    assert par_result == host_close_none
-    assert par_result == comp_close_none
+    assert par_result == param_close_none
 
 
 def test_phoenix_name():
