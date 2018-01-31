@@ -32,7 +32,7 @@ import yaml
 def get_sim_grid(path="/home/jneal/Phd/Analysis/sims_variable_params_same_snr/"):
     config_file = os.path.join(path, "config.yaml")
     with open(config_file) as f:
-        config = yaml.load(f)
+        config = yaml.safe_load(f)
     return config["sim_grid"]
 
 sim_grid = get_sim_grid()
