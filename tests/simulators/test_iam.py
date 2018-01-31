@@ -8,6 +8,7 @@ import simulators
 from simulators.iam_module import (continuum_alpha, iam_analysis,
                                    iam_helper_function, iam_wrapper,
                                    setup_iam_dirs, renormalization, target_params,
+                                   observation_rv_limits, prepare_iam_model_spectra,
                                    )
 
 from simulators.iam_script import parse_args
@@ -201,3 +202,16 @@ def test_target_parameters_with_comp_vals_in_file(params_2):
 def test_target_parameters_invalid_mode(params_1, mode):
     with pytest.raises(ValueError):
         target_params(params_1, mode=mode)
+
+
+def test_observation_rv_limits_with_zeros(comp):
+    """Test limits given for zero RV is the same as original"""
+    limits = observation_rv_limits(comp, 0, 0)
+    assert np.all(limits == [np.min(comp.xaxis), np.max(comp.xaxis)])
+
+
+def test_observation_rv_limits(comp):
+    """Test that the limits extend parameter range."""
+    limits = observation_rv_limits(comp, 5, 20)
+    assert limits[0] <= np.min(comp.xaxis)
+    assert limits[1] >= np.max(comp.xaxis)

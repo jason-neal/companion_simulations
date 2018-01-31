@@ -62,16 +62,14 @@ def test_get_host_params(sim_config):
     assert params == (5340, 4.65, -0.22)
 
 
-def test_load_paramfile_returns_parse_paramfile(sim_config):
+def test_load_paramfile_returns_parse_paramfile(sim_config, params_1):
     simulators = sim_config
     star = "test"
-    test_param_file = "test_params.dat"
     simulators.paths["parameters"] = "tests/testdata"
 
-    params = param_file.parse_paramfile(test_param_file, "tests/testdata")
     params2 = param_file.load_paramfile(star)
 
-    assert params == params2
+    assert params_1 == params2
     assert isinstance(params2, dict)
 
 
