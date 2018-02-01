@@ -3,18 +3,18 @@ import os
 
 import numpy as np
 import pandas as pd
+from logutils import BraceMessage as __
 from tqdm import tqdm
 
 import simulators
-from logutils import BraceMessage as __
 from mingle.models.broadcasted_models import two_comp_model
 from mingle.utilities.chisqr import chi_squared
-from mingle.utilities.norm import chi2_model_norms
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs
-from simulators.iam_module import observation_rv_limits
 from simulators.common_setup import setup_dirs, sim_helper_function
+from simulators.iam_module import observation_rv_limits
 from simulators.iam_module import renormalization
+
 
 def setup_tcm_dirs(star):
     setup_dirs(star, mode="tcm")

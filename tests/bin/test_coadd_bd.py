@@ -291,7 +291,7 @@ def test_coadd_chi2_bd_parser():
 @pytest.mark.parametrize("func", [smallest_chi2_values, ])
 def test_analysis_functions_run(capsys, func, db_table, db_params):
     res = func(db_table, db_params)
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert res is None
     #    assert
     assert False

@@ -705,7 +705,6 @@ def compare_spectra(table, params):
 
         gamma = df["gamma"].values
 
-        from simulators.bhm_module import bhm_helper_function
         obs_name, obs_params, output_prefix = bhm_helper_function(params["star"], params["obsnum"], ii + 1)
         print(obs_name)
         obs_spec = load_spectrum(obs_name)

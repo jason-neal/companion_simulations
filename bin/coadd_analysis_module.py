@@ -233,8 +233,8 @@ def slice_k_closest_around_x(x, x0, k):
         raise ValueError("k must be odd.")
     lcut = x0 - np.floor(k / 2)
     ucut = x0 + np.floor(k / 2)
-    slice = np.where((lcut <= x) * (x <= ucut))
-    return slice[0]
+    slice_ = np.where((lcut <= x) * (x <= ucut))
+    return slice_[0]
 
 
 def fit_chi2_parabola(x, y, pts=5):
@@ -764,7 +764,7 @@ def compare_spectra(table, params):
         plt.legend()
 
         fig.tight_layout()
-        name = "{0}-{1}_{2}_min_chi2_spectrum_comparison_{4}.png".format(
+        name = "{0}-{1}_{2}_{3}_min_chi2_spectrum_comparison_{4}.png".format(
             params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
         plt.savefig(os.path.join(params["path"], "plots", name))
         plt.close()

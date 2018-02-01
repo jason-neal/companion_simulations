@@ -73,6 +73,6 @@ def test_snr_file_not_found(sim_config, capsys):
     result = get_snrinfo("HD30501", "1", "5")
     assert result is None
 
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert "No snr file/data present" in out
     assert " No such file or directory" in out

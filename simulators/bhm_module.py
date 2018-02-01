@@ -3,18 +3,18 @@ import os
 
 import numpy as np
 import pandas as pd
-import simulators
 from logutils import BraceMessage as __
+from tqdm import tqdm
+
+import simulators
 from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.chisqr import chi_squared
-from mingle.utilities.norm import chi2_model_norms
+from mingle.utilities.phoenix_utils import generate_bhm_config_params
 from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model_params, generate_close_params
 from mingle.utilities.xcorr import xcorr_peak
 from simulators.common_setup import setup_dirs, sim_helper_function
-from simulators.iam_module import renormalization
-from tqdm import tqdm
-from mingle.utilities.phoenix_utils import generate_bhm_config_params
 from simulators.iam_module import arbitrary_minimums, arbitrary_rescale
+from simulators.iam_module import renormalization
 
 
 def setup_bhm_dirs(star):
@@ -87,7 +87,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
 
         # Take minimum chi-squared value along Arbitrary normalization axis
         bhm_grid_chisquare, arbitrary_norms = arbitrary_minimums(bhm_norm_grid_chisquare, arb_norm)
-        
+
         assert np.any(
             bhm_grid_chisquare_old >= bhm_grid_chisquare), "All chi2 values are not better or same with arbitrary scaling"
 
