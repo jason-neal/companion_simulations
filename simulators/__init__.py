@@ -9,7 +9,7 @@ matplotlib.use('Agg')
 __version__ = '0.2'
 __all__ = ["bhm_module", "bhm_script",
            "iam_module", "iam_script",
-           "tcm_script", "tcm_module.py",
+           "tcm_script", "tcm_module",
            "common_setup", "fake_simulator",]
 
 # Read the users config.yaml file.
