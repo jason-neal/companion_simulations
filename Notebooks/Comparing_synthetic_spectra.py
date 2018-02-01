@@ -45,10 +45,6 @@
 # In[ ]:
 
 
-def load_phoenix(name):
-    
-
-
 # In[20]:
 
 
