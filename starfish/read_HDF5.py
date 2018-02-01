@@ -2,7 +2,6 @@
 # Test reading hdf5 file that I created
 import numpy as np
 
-import Starfish
 from Starfish.grid_tools import HDF5Interface
 
 my_hdf5 = HDF5Interface()

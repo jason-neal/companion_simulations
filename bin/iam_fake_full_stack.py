@@ -1,8 +1,8 @@
 import argparse
 import os
 
-from joblib import Parallel, delayed
 import numpy as np
+from joblib import Parallel, delayed
 
 import simulators
 from bin.coadd_analysis_script import main as anaylsis_main
@@ -91,11 +91,12 @@ def main(star, obsnum, teff, logg, feh, teff2, logg2, feh2, gamma=0, rv=0, noise
         # Selected Analysis
         try:
             anaylsis_main(star=star, obsnum=obsnum, suffix=suffix, mode="all")
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     print("Noise level =", noise)
     return 0
+
 
 if __name__ == "__main__":
     args = vars(_parser())

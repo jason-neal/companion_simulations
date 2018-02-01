@@ -1,16 +1,15 @@
+"""Calculate Errors on the Spectrum.
+
+   For a first go using an fixed SNR of 200 for all observations.
+"""
+
 import json
 import os
-import warnings
 
 import numpy as np
 from jsmin import jsmin
 
 import simulators
-
-"""Calculate Errors on the Spectrum.
-
-   For a first go using an fixed SNR of 200 for all observations.
-"""
 
 
 def get_snrinfo(star, obsnum, chip):
@@ -24,7 +23,7 @@ def get_snrinfo(star, obsnum, chip):
     except (KeyError, FileNotFoundError) as e:
         print(e)
         print("No snr file/data present for {0}-{1}_{2}. "
-                      "Setting error to None instead".format(star, obsnum, chip))
+              "Setting error to None instead".format(star, obsnum, chip))
         return None
 
 

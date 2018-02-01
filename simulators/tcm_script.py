@@ -109,8 +109,8 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
     logging.info(__("STARTING tcm_analysis\nWith {0} parameter iterations", param_iter))
     logging.debug(__("model1_pars = {}, model2_pars = {} ", len(model1_pars), len(model2_pars)))
 
-    chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
-                              verbose=verbose, norm=renormalize, prefix=output_prefix, wav_scale=wav_scale, norm_method=norm_method)
+    tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
+                 verbose=verbose, norm=renormalize, prefix=output_prefix, wav_scale=wav_scale, norm_method=norm_method)
 
     return 0
 

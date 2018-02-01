@@ -76,11 +76,12 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="",
         # Do Analysis
         try:
             analyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     print("Noise level =", noise)
     return 0
+
 
 if __name__ == "__main__":
     args = vars(_parser())

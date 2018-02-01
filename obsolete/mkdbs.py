@@ -66,10 +66,10 @@ def sql_join(star, obsnum, suffix=None, verbose=True, move=False, remove=False):
         # Get first part of name
         try:
             prefix = next(glob.iglob(pattern)).split("_part")[0]
-        except:
+        except Exception as e:
             print("Failing pattern", pattern)
             print("glob, pattern", list(glob.iglob(pattern)))
-            raise
+            raise e
         print(prefix, suffix)
         database_name = 'sqlite:///{0}{1}.db'.format(prefix, suffix)
         engine = sa.create_engine(database_name)

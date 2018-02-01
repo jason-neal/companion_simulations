@@ -122,8 +122,8 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
         try:
             fix_host_parameters_reduced_gamma(db_table, params)
             fix_host_parameters(db_table, params)
-        except:
-            pass
+        except Exception as e:
+            print(e)
     elif mode == "param_limits":
         get_column_limits(db_table, params)
     elif mode == "parabola":

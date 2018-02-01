@@ -108,10 +108,8 @@ def main():
     print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
     print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
     ####
-    chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True,
+    bcast_chisqr_vals = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True,
                               chip=chip, prefix=output_prefix)
-
-    bcast_chisqr_vals = chi2_grids
 
     print("tcm broadcast_chisquare shape", bcast_chisqr_vals.shape)
     print("tcm broadcast_chisquare", bcast_chisqr_vals)

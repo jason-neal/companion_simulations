@@ -237,8 +237,8 @@ def parabola_plots(table, params):
 
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
-            # popt, pcov = curve_fit(parabola, unique_par, min_chi2)
-            popt, pcov = fit_chi2_parabola(unique_par, min_chi2)
+            # popt, _ = curve_fit(parabola, unique_par, min_chi2)
+            popt, _ = fit_chi2_parabola(unique_par, min_chi2)
 
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt), "--")
@@ -284,8 +284,8 @@ def chi2_parabola_plots(table, params):
 
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
-            # popt, pcov = curve_fit(parabola, unique_par, min_chi2)
-            popt, pcov = fit_chi2_parabola(unique_par, min_chi2)
+            # popt, _ = curve_fit(parabola, unique_par, min_chi2)
+            popt, _ = fit_chi2_parabola(unique_par, min_chi2)
             print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
@@ -301,12 +301,12 @@ def chi2_parabola_plots(table, params):
                     min_chi2_par.astype(np.float64)
                     try:
                         lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2) - min_chi2_par
-                    except Exception as e:
+                    except RuntimeError as e:
                         print(e)
                         lower_bound = np.nan
                     try:
                         upper_bound = newton(residual, (min_chi2_par + unique_par[-1]) / 2) - min_chi2_par
-                    except Exception as e:
+                    except RuntimeError as e:
                         print(e)
                         upper_bound = np.nan
 
@@ -361,8 +361,8 @@ def chi2_individual_parabola_plots(table, params):
 
             plt.plot(unique_par, min_chi2, ".-", label=chi2_val)
 
-            # popt, pcov = curve_fit(parabola, unique_par, min_chi2)
-            popt, pcov = fit_chi2_parabola(unique_par, min_chi2)
+            # popt, _ = curve_fit(parabola, unique_par, min_chi2)
+            popt, _ = fit_chi2_parabola(unique_par, min_chi2)
             print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
@@ -377,12 +377,12 @@ def chi2_individual_parabola_plots(table, params):
                 min_chi2_par.astype(np.float64)
                 try:
                     lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2) - min_chi2_par
-                except Exception as e:
+                except RuntimeError as e:
                     print(e)
                     lower_bound = np.nan
                 try:
                     upper_bound = newton(residual, (min_chi2_par + unique_par[-1]) / 2) - min_chi2_par
-                except Exception as e:
+                except RuntimeError as e:
                     print(e)
                     upper_bound = np.nan
                 print("min_chi2_par", min_chi2_par, type(min_chi2_par), "\nlower_bound", lower_bound, type(lower_bound),
