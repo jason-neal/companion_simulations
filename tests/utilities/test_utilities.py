@@ -29,7 +29,7 @@ def test_crires_resolution():
     ("[20, 15, 2]", [20., 15., 2.]),
     ("[hello, 15, ]", ["hello", "15", ""]),
 ])
-def test_parse_list_string(list_str_int, expected):
+def test_parse_list_string(list_str_in, expected):
     assert param_file.parse_list_string(list_str_in) == expected
 
 
