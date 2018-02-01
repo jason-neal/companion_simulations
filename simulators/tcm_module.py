@@ -41,7 +41,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
     args = [model2_pars, alphas, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
               "prefix": prefix, "verbose": verbose, "errors": errors,
-              "wav_scale": wav_scale, norm_method: norm_method}
+              "wav_scale": wav_scale, "norm_method": norm_method}
 
     broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
 
