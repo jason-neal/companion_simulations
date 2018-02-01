@@ -25,12 +25,12 @@ def test_crires_resolution():
     assert res_1 > res_2
 
 
-@pytest.mark.parametrize("input, expected", [
+@pytest.mark.parametrize("list_str_in, expected", [
     ("[20, 15, 2]", [20., 15., 2.]),
     ("[hello, 15, ]", ["hello", "15", ""]),
 ])
-def test_parse_list_string(input, expected):
-    assert param_file.parse_list_string(input) == expected
+def test_parse_list_string(list_str_int, expected):
+    assert param_file.parse_list_string(list_str_in) == expected
 
 
 def test_parse_paramfile():

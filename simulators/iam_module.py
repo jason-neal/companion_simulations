@@ -124,7 +124,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 print(("Starting iteration with parameters: "
                        "{0}={1},{2}={3}").format(num, params1, jj, params2))
 
-            # ### Main Part ###
+            # Main Part
             rv_limits = observation_rv_limits(obs_spec, rvs, gammas)
 
             obs_spec = obs_spec.remove_nans()

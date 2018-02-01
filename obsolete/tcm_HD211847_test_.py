@@ -107,7 +107,7 @@ def main():
 
     print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
     print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
-    ####
+
     bcast_chisqr_vals = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True,
                               chip=chip, prefix=output_prefix)
 

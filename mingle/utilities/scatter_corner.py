@@ -1,19 +1,12 @@
-from __future__ import division
-
 import numpy as np
-
-from pandas.compat import lmap, lrange, range, zip
+from pandas.compat import lrange, zip
 from pandas.core.dtypes.missing import notnull as notna
-from pandas.io.formats.printing import pprint_thing
-from pandas.plotting._style import _get_standard_colors
 from pandas.plotting._tools import _set_ticks_props, _subplots
-from pandas.util._decorators import deprecate_kwarg
 
 
-# Addapted slightly from pandas scatter matrix. pass plotting if in the corner you dont want to show.
+# Adapted slightly from pandas scatter matrix. pass plotting if in the corner you dont want to show.
 
-def scatter_corner(frame, alpha=0.5, figsize=None, ax=None, grid=False,
-                   diagonal='hist', marker='.', density_kwds=None,
+def scatter_corner(frame, alpha=0.5, figsize=None, ax=None, diagonal='hist', marker='.', density_kwds=None,
                    hist_kwds=None, range_padding=0.05, corner=None, **kwds):
     """
     Draw a matrix of scatter plots.
@@ -25,8 +18,6 @@ def scatter_corner(frame, alpha=0.5, figsize=None, ax=None, grid=False,
     figsize : (float,float), optional
         a tuple (width, height) in inches
     ax : Matplotlib axis object, optional
-    grid : bool, optional
-        setting this to True will show the grid
     diagonal : {'hist', 'kde'}
         pick between 'kde' and 'hist' for
         either Kernel Density Estimation or Histogram

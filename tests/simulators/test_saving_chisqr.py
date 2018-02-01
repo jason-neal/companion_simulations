@@ -8,7 +8,7 @@ from simulators.iam_module import save_full_iam_chisqr
 from simulators.tcm_module import save_full_tcm_chisqr
 
 
-def test_save_full_ima_chisqr(tmpdir):
+def test_save_full_iam_chisqr(tmpdir):
     savename = str(tmpdir.join("saving_test_iam_filename.csv"))
     params_1 = [5000, 4.5, 0.0]
     params_2 = [3000, 3.0, 0.0]
@@ -24,7 +24,7 @@ def test_save_full_ima_chisqr(tmpdir):
                                alpha, rvs, gammas, results, norms, npix)
     assert res is None
 
-    ### Now reload and probe result
+    # Now reload and probe result
     df = pd.read_csv(savename)
 
     assert np.all(df.npix == npix)
@@ -41,7 +41,6 @@ def test_save_full_ima_chisqr(tmpdir):
 def test_save_full_bhm_chisqr(tmpdir):
     savename = str(tmpdir.join("saving_test_bhm_filename.csv"))
     params_1 = [5000, 4.5, 0.0]
-    params_2 = [3000, 3.0, 0.0]
     gammas = np.arange(-2, 4)
     G, = np.meshgrid(gammas, indexing="ij")
     results = G ** 2
@@ -52,7 +51,7 @@ def test_save_full_bhm_chisqr(tmpdir):
                                arbitrary_norms=norms, npix=npix, xcorr_value=xcorr)
     assert res is None
 
-    ### Now reload and probe
+    # Now reload and probe
     df = pd.read_csv(savename)
 
     assert np.all(df.npix.values == npix)
@@ -68,7 +67,6 @@ def test_save_full_bhm_chisqr(tmpdir):
 def test_save_full_bhm_chisqr_with_xcorr_None(tmpdir):
     savename = str(tmpdir.join("saving_test_bhm_filename.csv"))
     params_1 = [5000, 4.5, 0.0]
-    params_2 = [3000, 3.0, 0.0]
     gammas = np.arange(-2, 4)
     G, = np.meshgrid(gammas, indexing="ij")
     results = G ** 2
@@ -78,7 +76,7 @@ def test_save_full_bhm_chisqr_with_xcorr_None(tmpdir):
                                arbitrary_norms=norms, npix=npix, xcorr_value=None)
     assert res is None
 
-    ### Now reload and probe
+    # Now reload and probe
     df = pd.read_csv(savename)
 
     assert np.all(df.npix.values == npix)
@@ -107,7 +105,7 @@ def test_save_full_tcm_chisqr(tmpdir):
                                alphas, rvs, gammas, result_grid, npix)
     assert res is None
 
-    ### Now reload and probe
+    # Now reload and probe
     df = pd.read_csv(savename)
     assert np.all(df.npix.values == npix)
     assert np.allclose(sorted(list(set(df.alpha.values))), alphas)

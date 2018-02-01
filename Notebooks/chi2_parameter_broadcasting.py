@@ -3,7 +3,7 @@
 
 # # Interpolate wavelength on multiple dimensions
 #
-# ### Jason Neal - 19th July 2017
+# Jason Neal - 19th July 2017
 # To try and interpolate N-D data along the first axis.
 #
 # This is to be able to perfrom chisquare analsysis for many parameters.

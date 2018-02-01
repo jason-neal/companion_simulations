@@ -10,7 +10,7 @@
 #    - The nomalization of the observed spectra
 #    - Differences in the continuum normalization affect the chi^2 comparison when using mixed models of two different spectra. 
 #
-# ### Proposed Solution:
+# Proposed Solution:
 #   - equation (1) from [Passegger 2016](https://arxiv.org/pdf/1601.01877.pdf) 
 #           Fobs = F obs * (cont_fit model / cont_fit observation) where con_fit is a linear fit to the spectra.
 # To take out and linear trends in the continuums and correct the amplitude of the continuum.
@@ -293,7 +293,7 @@ plt.show()
 # - Am I treating the cooler M-dwarf spectra correctly in this approach? 
 #
 
-# ### Attempting the Passegger method
+# Attempting the Passegger method
 
 # In[12]:
 
