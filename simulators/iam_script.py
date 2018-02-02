@@ -158,17 +158,21 @@ if __name__ == "__main__":
                                       for chip in range(1, 5))
         print("Finished parallel loops")
         if not sum(res):
+            try:
+                print("\nDoing analysis after simulations!\n")
+                coadd_db(opts["star"], opts["obsnum"], opts["suffix"], replace=True,
+                         verbose=True, move=True)
 
-            print("\nDoing analysis after simulations!\n")
-            coadd_db(opts["star"], opts["obsnum"], opts["suffix"], replace=True,
-                     verbose=True, move=True)
+                coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
+                               echo=False, mode="all", verbose=False, npars=3)
 
-            coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
-                           echo=False, mode="all", verbose=False, npars=3)
+                print("\nFinished the db analysis after iam_script simulations!\n")
+                print("Initial parameters = {}".format(args))
+                sys.exit(0)
+            except Exception as e:
+                print("Unable to correctly do chi2 analysis after iam_script")
+                print(e)
 
-            print("\nFinished the db analysis after iam_script simulations!\n")
-            print("Inital parameters = {}".format(args))
-            sys.exit(0)
         else:
             sys.exit(sum(res))
     else:
