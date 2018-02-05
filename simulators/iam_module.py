@@ -173,6 +173,9 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             iam_grid_models = iam_grid_models / iam_grid_continuum
 
             # RE-NORMALIZATION
+            if chip == 4:
+                # Quadratically renormalize anyway
+                obs_spec = renormalization(obs_spec, iam_grid_models, normalize=True, method="quadratic")
             obs_flux = renormalization(obs_spec, iam_grid_models, normalize=norm, method=norm_method)
 
             if grid_slices:

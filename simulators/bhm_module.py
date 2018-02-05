@@ -72,6 +72,9 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
         # RENORMALIZATION
+        if chip == 4:
+            # Quadratically renormalize anyway
+            obs_spec = renormalization(obs_spec, bhm_grid_values, normalize=True, method="quadratic")
         obs_flux = renormalization(obs_spec, bhm_grid_values, normalize=norm, method=norm_method)
 
         # Simple chi2

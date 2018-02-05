@@ -103,6 +103,9 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
             assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
             # RE-NORMALIZATION
+            if chip == 4:
+                # Quadratically renormalize anyway
+                obs_spec = renormalization(obs_spec, broadcast_values, normalize=True, method="quadratic")
             obs_flux = renormalization(obs_spec, broadcast_values, normalize=norm, method=norm_method)
 
             # sp_chisquare is much faster but don't think I can add masking.
