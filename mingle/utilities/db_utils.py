@@ -29,7 +29,7 @@ class DBExtractor(object):
         col: list of string
         limit: int (optional) default=10000
 
-        Returns as pandas dataframe.
+        Returns as pandas DataFrame.
         """
         if limit is None:
             limit = self.limit
@@ -39,14 +39,14 @@ class DBExtractor(object):
         return df
 
     def fixed_extraction(self, cols, fixed, limit=None):
-        """Table extraction with fixed value contitions.
+        """Table extraction with fixed value conditions.
 
         col: list of string
             Columns to return
         fixed: dict(key, value)
         limit: int (optional) default=10000
 
-        Returns as pandas dataframe.
+        Returns as pandas DataFrame.
         """
         assert isinstance(fixed, dict)
         if limit is None:
