@@ -47,8 +47,8 @@ def parse_args(args):
     parser.add_argument("-m", "--mode", default="parabola",
                         help="Analysis mode to choose",
                         choices=["parabola", "fixed_host_params", "param_limits",
-                                 "smallest_chi2", "test", "contour"
-                                                          "all", "rvplot", "chi2_parabola", "compare_spectra",
+                                 "smallest_chi2", "test", "contour",
+                                 "all", "rvplot", "chi2_parabola", "compare_spectra",
                                  "contrast"])
     return parser.parse_args(args)
 
