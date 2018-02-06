@@ -369,7 +369,7 @@ def chi2_individual_parabola_plots(table, params):
                              arrowprops={"arrowstyle": "->"})
             except Exception as e:
                 print(e)
-                logging.warning("Could not Annotate the contour plot")
+                logging.warning("Could not Annotate the parabola plot")
 
             plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
             plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
