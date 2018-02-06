@@ -664,8 +664,8 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
         fig, ax = plt.subplots()
         c = ax.contourf(x_grid, y_grid, z_grid, alpha=0.5, cmap=plt.cm.inferno)
         # Mark minimum with a +.
-        min_loc = np.argmin(z_grid)
-        plt.plot(x_grid[min_loc], y_grid[min_loc], "r+", markersize=5)
+        min_loci, min_locj = divmod(z_grid.argmin(), z_grid.shape[1])
+        plt.plot(x[min_loci], y[min_locj], "g*", markersize=7)
         cbar = plt.colorbar(c)
         cbar.ax.set_ylabel(zcol)
         ax.set_xlabel(r"$ {0}$".format(xcol), fontsize=15)
