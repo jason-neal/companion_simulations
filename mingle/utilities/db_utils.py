@@ -29,7 +29,7 @@ class DBExtractor(object):
         col: list of string
         limit: int (optional) default=10000
 
-        Returns as pandas dataframe.
+        Returns as pandas DataFrame.
         """
         table_columns = [self.cols[c] for c in columns]
         df = pd.read_sql(
@@ -44,7 +44,7 @@ class DBExtractor(object):
         fixed: dict(key, value)
         limit: int (optional) default=10000
 
-        Returns as pandas dataframe.
+        Returns as pandas DataFrame.
         """
         assert isinstance(fixed, dict)
 

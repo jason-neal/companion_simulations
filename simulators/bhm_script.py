@@ -117,11 +117,15 @@ if __name__ == "__main__":
         main(star, chip=chip, **opts)
 
     if do_after:
-        print("\nDoing analysis after simulations!\n")
-        coadd_db(star, opts["obsnum"], opts["suffix"], replace=True,
-                 verbose=True, move=True)
+        try:
+            print("\nDoing analysis after simulations!\n")
+            coadd_db(star, opts["obsnum"], opts["suffix"], replace=True,
+                     verbose=True, move=True)
 
-        coadd_analysis(star, opts["obsnum"], suffix=opts["suffix"],
-                       echo=False, mode="all", verbose=False, npars=3)
+            coadd_analysis(star, opts["obsnum"], suffix=opts["suffix"],
+                           echo=False, mode="all", verbose=False, npars=3)
 
-        print("\nFinished the db analysis after iam_script simulations!\n")
+            print("\nFinished the db analysis after iam_script simulations!\n")
+        except Exception as e:
+            print("Unable to correctly do chi2 analysis after bhm_script")
+            print(e)
