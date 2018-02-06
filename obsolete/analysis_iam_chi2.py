@@ -38,7 +38,9 @@ def parse_args(args):
                                  "contour_old"])
     return parser.parse_args(args)
 
-from bin.coadd_analysis_script import decompose_database_name, load_sql_table
+
+from mingle.utilities.db_utils import decompose_database_name, load_sql_table
+
 
 def main(database, echo=False, mode="parabola"):
     path, star, obsnum, chip = decompose_database_name(database)

@@ -15,8 +15,7 @@ import numpy as np
 home = "/home/jneal/Phd/Analysis/fake_sims_with_var_teff1"
 import pandas as pd
 import sqlalchemy as sa
-from bin.coadd_analysis_script import load_sql_table
-
+from mingle.utilities.db_utils import load_sql_table
 
 # In[2]:
 

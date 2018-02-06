@@ -3,7 +3,7 @@ import pandas as pd
 import sqlalchemy as sa
 
 import simulators
-from bin.coadd_analysis_script import load_sql_table
+from mingle.utilities.db_utils import load_sql_table
 from bin.coadd_bhm_db import bhm_parse_args
 from bin.coadd_bhm_db import main as bhm_db_main
 from simulators.bhm_module import setup_bhm_dirs

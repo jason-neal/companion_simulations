@@ -16,7 +16,8 @@ import warnings
 import matplotlib.pyplot as plt
 
 import simulators
-from bin.coadd_analysis_script import decompose_database_name, load_sql_table, get_npix_values
+from bin.coadd_analysis_script import get_npix_values
+from mingle.utilities.db_utils import decompose_database_name, load_sql_table
 from bin.coadd_bhm_analysis_module import (chi2_parabola_plots, chi2_individual_parabola_plots,
                                            compare_spectra, contours,
                                            contrast_bhm_results,
