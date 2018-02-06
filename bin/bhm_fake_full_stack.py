@@ -55,7 +55,8 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="",
     chips = range(1, 5)
 
     if not only_plots:
-        starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh}
+        starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh,
+                    "gamma": gamma, "name": star}
         make_fake_parameter_file(starinfo)
 
         params1 = "{}, {}, {}".format(teff, logg, feh)
