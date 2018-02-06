@@ -9,10 +9,10 @@ from logutils import BraceMessage as __
 from matplotlib import pyplot as plt
 from matplotlib import rc
 from scipy.optimize import curve_fit, newton
-from scipy.stats import chi2
 from spectrum_overload import Spectrum
 
 from mingle.models.broadcasted_models import inherent_alpha_model
+from mingle.utilities import chi2_at_sigma
 from mingle.utilities.chisqr import reduced_chi_squared
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.debug_utils import timeit2
@@ -219,16 +219,6 @@ def parabola_plots(table, params):
         plt.close()
         print("saved parabolas for ", par)
     plt.close()
-
-
-def chi2_at_sigma(sigma, df=1):
-    """Use inverse survival function to calculate the chi2 value for significances.
-
-    Updated values from https://en.wikipedia.org/wiki/Normal_distribution#Cumulative_distribution_function
-    """
-    sigma_percent = {0: 0, 1: 0.682689492137, 2: 0.954499736104, 3: 0.997300203937,
-                     4: 0.999936657516, 5: 0.999999426697, 6: 0.999999998027}
-    return chi2(df).isf(1 - sigma_percent[sigma])
 
 
 def slice_k_closest_around_x(x, x0, k):

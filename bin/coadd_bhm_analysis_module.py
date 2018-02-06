@@ -10,7 +10,6 @@ from logutils import BraceMessage as __
 from matplotlib import pyplot as plt
 from matplotlib import rc
 from scipy.optimize import newton
-from scipy.stats import chi2
 from spectrum_overload import Spectrum
 
 from bin.coadd_analysis_module import fit_chi2_parabola, parabola
@@ -254,7 +253,8 @@ def parabola_plots(table, params):
         print("saved parabolas for ", par)
     plt.close()
 
-from bin.coadd_analysis_module import chi2_at_sigma
+
+from mingle.utilities import chi2_at_sigma
 
 
 def chi2_parabola_plots(table, params):
