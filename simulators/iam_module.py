@@ -408,11 +408,11 @@ def target_params(params, mode="iam"):
     # Specify the companion logg and metallicity in the parameter files.
     if params.get("comp_logg", None) is None:
         logging.warning(__("Logg for companion 'comp_logg' is not set for {0}", params.get("name", params)))
-    comp_logg = params.get("comp_logg", params["logg"])  # Set equal to host if not given
-    comp_fe_h = params.get("comp_fe_h", params["fe_h"])  # Set equal to host if not given
-    comp_params = [params["comp_temp"], comp_logg, comp_fe_h]
-
+    print("mode in target params", mode)
     if mode == "iam":
+        comp_logg = params.get("comp_logg", params["logg"])  # Set equal to host if not given
+        comp_fe_h = params.get("comp_fe_h", params["fe_h"])  # Set equal to host if not given
+        comp_params = [params["comp_temp"], comp_logg, comp_fe_h]
         return host_params, comp_params
     elif mode == "bhm":
         return host_params
