@@ -412,7 +412,8 @@ def target_params(params, mode="iam"):
     if mode == "iam":
         comp_logg = params.get("comp_logg", params["logg"])  # Set equal to host if not given
         comp_fe_h = params.get("comp_fe_h", params["fe_h"])  # Set equal to host if not given
-        comp_params = [params["comp_temp"], comp_logg, comp_fe_h]
+        comp_temp = params.get("comp_temp", 999999)  # Will go to largest grid
+        comp_params = [comp_temp, comp_logg, comp_fe_h]
         return host_params, comp_params
     elif mode == "bhm":
         return host_params
