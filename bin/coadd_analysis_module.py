@@ -221,7 +221,7 @@ def parabola_plots(table, params):
     plt.close()
 
 
-def chi2_at_sigma(df, sigma):
+def chi2_at_sigma(sigma, df=1):
     """Use inverse survival function to calculate the chi2 value for significances."""
     sigma_percent = {1: 0.68, 2: 0.90, 3: 0.99}
     return chi2(df).isf(1 - sigma_percent[sigma])
@@ -285,7 +285,7 @@ def chi2_parabola_plots(table, params):
             # Find roots
             if chi2_val == "coadd_chi2":
                 try:
-                    residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
+                    residual = lambda x: parabola(x, *popt) - chi2_at_sigma(1, params["npars"])
                     min_chi2_par = unique_par[np.argmin(min_chi2)]
                     try:
                         lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2) - min_chi2_par
@@ -305,9 +305,9 @@ def chi2_parabola_plots(table, params):
                     print(e)
                     logging.warning("Could not Annotate the contour plot")
 
-        plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
-        plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
-        plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma")
+        plt.axhline(y=chi2_at_sigma(1, params["npars"]), label="1 sigma")
+        plt.axhline(y=chi2_at_sigma(2, params["npars"]), label="2 sigma")
+        plt.axhline(y=chi2_at_sigma(3, params["npars"]), label="3 sigma")
 
         plt.legend()
         filename = "red_Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
@@ -351,7 +351,7 @@ def chi2_individual_parabola_plots(table, params):
             plt.ylim([-0.05 * np.max(min_chi2), np.max(min_chi2)])
             # Find roots
             try:
-                residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
+                residual = lambda x: parabola(x, *popt) - chi2_at_sigma(1, params["npars"])
                 min_chi2_par = unique_par[np.argmin(min_chi2)]
                 try:
                     lower_bound = newton(residual, (min_chi2_par + unique_par[0]) / 2) - min_chi2_par
@@ -371,9 +371,9 @@ def chi2_individual_parabola_plots(table, params):
                 print(e)
                 logging.warning("Could not Annotate the parabola plot")
 
-            plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
-            plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
-            plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma")
+            plt.axhline(y=chi2_at_sigma(1, params["npars"]), label="1 sigma")
+            plt.axhline(y=chi2_at_sigma(2, params["npars"]), label="2 sigma")
+            plt.axhline(y=chi2_at_sigma(3, params["npars"]), label="3 sigma")
 
             plt.legend()
             filename = "red_Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}_individual_{5}.png".format(

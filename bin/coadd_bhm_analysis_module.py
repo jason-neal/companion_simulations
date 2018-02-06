@@ -254,11 +254,7 @@ def parabola_plots(table, params):
         print("saved parabolas for ", par)
     plt.close()
 
-
-def chi2_at_sigma(df, sigma):
-    """Use inverse survival function to calculate the chi2 value for significances."""
-    sigma_percent = {1: 0.68, 2: 0.90, 3: 0.99}
-    return chi2(df).isf(1 - sigma_percent[sigma])
+from bin.coadd_analysis_module import chi2_at_sigma
 
 
 def chi2_parabola_plots(table, params):
@@ -296,7 +292,7 @@ def chi2_parabola_plots(table, params):
             if chi2_val == "coadd_chi2":
                 try:
                     warnings.warning("Doing npars sigma limits.")
-                    residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
+                    residual = lambda x: parabola(x, *popt) - chi2_at_sigma(1, params["npars"])
                     min_chi2_par = unique_par[np.argmin(min_chi2)]
                     min_chi2_par.astype(np.float64)
                     try:
@@ -321,12 +317,12 @@ def chi2_parabola_plots(table, params):
                     print(e)
                     logging.warning("Could not Annotate the contour plot")
 
-        plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma {} par".format(params["npars"]))
-        plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma {} par".format(params["npars"]))
-        plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma {}par".format(params["npars"]))
-        plt.axhline(y=chi2_at_sigma(1, 1), label="1 sigma 1 par", color="k", ls="--")
-        plt.axhline(y=chi2_at_sigma(1, 2), label="2 sigma 1 par", color="k", ls="--")
-        plt.axhline(y=chi2_at_sigma(1, 3), label="3 sigma 1 par", color="k", ls="--")
+        plt.axhline(y=chi2_at_sigma(1, params["npars"]), label="1 sigma {} par".format(params["npars"]))
+        plt.axhline(y=chi2_at_sigma(2, params["npars"]), label="2 sigma {} par".format(params["npars"]))
+        plt.axhline(y=chi2_at_sigma(3, params["npars"]), label="3 sigma {}par".format(params["npars"]))
+        plt.axhline(y=chi2_at_sigma(1, df=1), label="1 sigma 1 par", color="k", ls="--")
+        plt.axhline(y=chi2_at_sigma(2, df=1), label="2 sigma 1 par", color="k", ls="--")
+        plt.axhline(y=chi2_at_sigma(3, df=1), label="3 sigma 1 par", color="k", ls="--")
 
         plt.legend()
         filename = "Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
@@ -372,7 +368,7 @@ def chi2_individual_parabola_plots(table, params):
             # Find roots
 
             try:
-                residual = lambda x: parabola(x, *popt) - chi2_at_sigma(params["npars"], 1)
+                residual = lambda x: parabola(x, *popt) - chi2_at_sigma(1, params["npars"])
                 min_chi2_par = unique_par[np.argmin(min_chi2)]
                 min_chi2_par.astype(np.float64)
                 try:
@@ -397,9 +393,9 @@ def chi2_individual_parabola_plots(table, params):
                 print(e)
                 logging.warning("Could not Annotate the contour plot")
 
-            plt.axhline(y=chi2_at_sigma(params["npars"], 1), label="1 sigma")
-            plt.axhline(y=chi2_at_sigma(params["npars"], 2), label="2 sigma")
-            plt.axhline(y=chi2_at_sigma(params["npars"], 3), label="3 sigma")
+            plt.axhline(y=chi2_at_sigma(1, params["npars"]), label="1 sigma")
+            plt.axhline(y=chi2_at_sigma(2, params["npars"]), label="2 sigma")
+            plt.axhline(y=chi2_at_sigma(3, params["npars"]), label="3 sigma")
 
             plt.legend()
             filename = "Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}_individual_{5}.png".format(
