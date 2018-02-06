@@ -1,8 +1,18 @@
 """Location for database handling codes."""
+import glob
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy import and_
 
+import simulators
+from mingle.utilities import chi2_at_sigma
+from mingle.utilities.param_file import parse_paramfile
+from mingle.utilities.phoenix_utils import closest_model_params
+from simulators.iam_module import target_params
 
 
 class DBExtractor(object):
@@ -155,4 +165,44 @@ class SingleSimReader(object):
         params.update(
             {"teff_1": closest_host_model[0], "logg_1": closest_host_model[1], "feh_1": closest_host_model[2]})
         return params
+
+
+def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None):
+    df_lim = df.copy()
+    for param in lim_params:
+        df_lim = df_lim[df_lim[param] == df_min[param].values[0]]
+
+    dfpivot = df_lim.pivot(xcol, ycol, zcol)
+
+    Y = dfpivot.columns.values
+    X = dfpivot.index.values
+    Z = dfpivot.values
+    print(X, Y, Z.shape)
+
+    x, y = np.meshgrid(X, Y, indexing="ij")
+
+    fig, ax = plt.subplots()
+    c = ax.contourf(x, y, np.log(Z))
+
+    # Chi levels values
+    sigmas = [np.log(Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, df=1)) for sigma in range(1, 6)]
+    print(sigmas, len(sigmas))
+    sigma_labels = {sigmas[sig-1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
+    print(" sigma_labels= ", sigma_labels)
+    c2 = plt.contour(c, levels=sigmas)
+    plt.clabel(c2, fmt=sigma_labels, colors='w', fontsize=14)
+    cbar = plt.colorbar(c)
+    cbar.ax.set_ylabel(zcol)
+    plt.xlabel(xcol)
+    plt.ylabel(ycol)
+
+    if correct:
+        # Correct location of simulation
+        plt.plot(correct[xcol], correct[ycol], "ro", markersize=7)
+
+    # Mark minimum with a +.
+    min_i, min_j = divmod(Z.argmin(), Z.shape[1])
+    plt.plot(X[min_i], Y[min_j], "g*", markersize=7, label="$Min \chi^2$")
+
+    plt.show()
 
