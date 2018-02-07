@@ -325,7 +325,10 @@ def phoenix_name_from_params(data_dir, paramfile):
 
 
 def generate_close_params(params, small=True, limits="phoenix"):
-    """teff, logg, Z."""
+    """teff, logg, Z.
+
+    "small" is a mode selector basically.
+    """
     temp, logg, metals = params[0], params[1], params[2]
 
     new_temps, new_loggs, new_metals = gen_new_param_values(temp, logg, metals, small=small)

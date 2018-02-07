@@ -49,7 +49,6 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(description='tcm')
     parser.add_argument('--chip', help='Chip Number.', default=None)
-    parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
     parser.add_argument("--error_off", help="Turn snr value errors off.", action="store_true")
     parser.add_argument('--disable_wav_scale', action="store_true",
                         help='Disable scaling by wavelength.')
@@ -62,8 +61,8 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scale=False, renormalize=False,
-         norm_method="scalar", betasigma=False):
+def main(chip=None, verbose=False, error_off=False, disable_wav_scale=False, renormalize=False, norm_method="scalar",
+         betasigma=False):
     """Main function."""
     wav_scale = not disable_wav_scale
 
@@ -85,8 +84,8 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
     closest_comp_model = closest_model_params(*comp_params)
 
     # Function to find the good models I need from parameters
-    model1_pars = list(generate_close_params(closest_host_model, small=small))
-    model2_pars = list(generate_close_params(closest_comp_model, small=small))
+    model1_pars = list(generate_close_params(closest_host_model, small=True))
+    model2_pars = list(generate_close_params(closest_comp_model, small=True))
 
     # Load observation
     obs_spec = load_spectrum(obs_name)

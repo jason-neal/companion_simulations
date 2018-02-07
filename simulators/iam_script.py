@@ -59,8 +59,6 @@ def parse_args(args):
                         choices=["scalar", "linear"], default="scalar")
     parser.add_argument("--error_off", help="Turn snr value errors off.",
                         action="store_true")
-    parser.add_argument('-s', '--small', action="store_true",
-                        help='Use smaller subset of parameters.')
     parser.add_argument('-a', '--area_scale', action="store_false",
                         help='Scaling by stellar area. (raise to disable)')
     parser.add_argument('--disable_wav_scale', action="store_true",
@@ -72,9 +70,8 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
-         suffix=None, error_off=False, area_scale=True, disable_wav_scale=False,
-         renormalize=False, norm_method="scalar", fudge=None, betasigma=False):
+def main(star, obsnum, chip=None, parallel=False, verbose=False, suffix=None, error_off=False, area_scale=True,
+         disable_wav_scale=False, renormalize=False, norm_method="scalar", fudge=None, betasigma=False):
     """Main function."""
 
     if fudge is not None:

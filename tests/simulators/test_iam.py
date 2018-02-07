@@ -102,7 +102,6 @@ def test_iam_script_parser():
     assert parsed.star == "HD30501"
     assert parsed.obsnum == "01"
     assert parsed.suffix is None
-    assert parsed.small is False
     assert parsed.n_jobs == 1
     assert parsed.error_off is False
     assert parsed.area_scale is True
@@ -112,12 +111,11 @@ def test_iam_script_parser():
 
 def test_iam_script_parser_toggle():
     args = ["HDswitches", "02", "-c", "4", "-j", "3", "--suffix", "_test",
-            "-n", "-s", "-a", "--disable_wav_scale", "--error_off"]
+            "-n", "-a", "--disable_wav_scale", "--error_off"]
     parsed = parse_args(args)
     assert parsed.star == "HDswitches"
     assert parsed.obsnum == "02"
     assert parsed.suffix == "_test"
-    assert parsed.small is True
     assert parsed.area_scale is False
     assert parsed.n_jobs == 3
     assert parsed.chip == "4"
