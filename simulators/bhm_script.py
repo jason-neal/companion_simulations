@@ -12,7 +12,7 @@ from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.spectrum_utils import load_spectrum
-from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_bh_model_pars
+from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_bhm_model_pars
 from simulators.bhm_module import setup_bhm_dirs
 
 from bin.coadd_bhm_db import main as coadd_db
@@ -60,8 +60,8 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     print("The observation used is ", obs_name, "\n")
 
     # Host Model parameters to iterate over
-    # model_pars = get_bh_model_pars(params, method="close")
-    model_pars = get_bh_model_pars(params, method="config")  # Use config file
+    # model_pars = get_bhm_model_pars(params, method="close")
+    model_pars = get_bhm_model_pars(params, method="config")  # Use config file
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
