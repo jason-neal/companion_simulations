@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
+from matplotlib import colors, ticker, cm
 from sqlalchemy import and_
 
 import simulators
@@ -193,7 +194,7 @@ class SingleSimReader(object):
         return params
 
 
-def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None):
+def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=False, dof=1):
     df_lim = df.copy()
     for param in lim_params:
         df_lim = df_lim[df_lim[param] == df_min[param].values[0]]
@@ -208,13 +209,16 @@ def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None):
     x, y = np.meshgrid(X, Y, indexing="ij")
 
     fig, ax = plt.subplots()
-    c = ax.contourf(x, y, np.log(Z))
+    if logscale:
+        c = ax.contourf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis)
+    else:
+        c = ax.contourf(x, y, Z, cmap=cm.viridis)
 
     # Chi levels values
-    sigmas = [np.log(Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, df=1)) for sigma in range(1, 6)]
-    print(sigmas, len(sigmas))
+    print("Using chisquare dof=", dof)
+    sigmas = [Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, dof=dof) for sigma in range(1, 6)]
     sigma_labels = {sigmas[sig - 1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
-    print(" sigma_labels= ", sigma_labels)
+
     c2 = plt.contour(c, levels=sigmas)
     plt.clabel(c2, fmt=sigma_labels, colors='w', fontsize=14)
     cbar = plt.colorbar(c)

@@ -286,7 +286,7 @@ def chi2_parabola_plots(table, params):
         plt.axhline(y=chi2_at_sigma(1, dof=1), label="1 sigma 1 par", color="k", ls="--")
         plt.axhline(y=chi2_at_sigma(2, dof=1), label="2 sigma 1 par", color="k", ls="--")
         plt.axhline(y=chi2_at_sigma(3, dof=1), label="3 sigma 1 par", color="k", ls="--")
-        
+
         plt.legend()
         filename = "red_Chi2_Parabola_fit_{0}-{1}_{2}_param_{3}_{4}.png".format(
             params["star"], params["obsnum"], params["chip"], par, params["suffix"])

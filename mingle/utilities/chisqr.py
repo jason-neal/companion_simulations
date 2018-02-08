@@ -77,4 +77,5 @@ def chi2_at_sigma(sigma, dof=1):
     """
     sigma_percent = {0: 0, 1: 0.682689492137, 2: 0.954499736104, 3: 0.997300203937,
                      4: 0.999936657516, 5: 0.999999426697, 6: 0.999999998027}
-    return chi2(dof).isf(1 - sigma_percent[sigma])
+    p = 1 - sigma_percent[sigma]  # precentage
+    return chi2(dof).isf(p)
