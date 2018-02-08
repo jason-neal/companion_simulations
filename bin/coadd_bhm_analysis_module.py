@@ -570,21 +570,6 @@ def host_parameters_reduced_gamma_individual(table, params):
         plt.close()
 
 
-def get_column_limits(table, params):
-    print("Database Column Value Ranges")
-    for col in ["teff_1", "logg_1", "feh_1", "gamma",
-                "chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2", "arbnorm_1", "arbnorm_2",
-                "arbnorm_3", "arbnorm_4", "xcorr_1", "xcorr_2",
-                "xcorr_3", "xcorr_4"]:
-        min_df = pd.read_sql(
-            sa.select([table.c[col]]).order_by(table.c[col].asc()).limit(1),
-            table.metadata.bind)
-        max_df = pd.read_sql(
-            sa.select([table.c[col]]).order_by(table.c[col].desc()).limit(1),
-            table.metadata.bind)
-        print("{0:10}\t\t{1:5.3} - {2:5.3}".format(col, float(min_df[col].values[0]), float(max_df[col].values[0])))
-
-
 def contours(table, params):
     for chi2_val, npix_val in zip(chi2_names, npix_names):
         df_min_chi2 = pd.read_sql(

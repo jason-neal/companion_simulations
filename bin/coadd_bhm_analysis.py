@@ -22,11 +22,12 @@ from bin.coadd_bhm_analysis_module import (chi2_parabola_plots, chi2_individual_
                                            compare_spectra, contours,
                                            contrast_bhm_results,
                                            display_bhm_xcorr_values,
-                                           gamma_plot, get_column_limits,
+                                           gamma_plot,
                                            host_parameters,
                                            host_parameters_reduced_gamma,
                                            parabola_plots,
                                            smallest_chi2_values, test_figure)
+from bin.coadd_analysis_module import get_column_limits
 from mingle.utilities.param_file import get_host_params
 from mingle.utilities.phoenix_utils import closest_model_params
 
