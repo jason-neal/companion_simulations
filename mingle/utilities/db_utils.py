@@ -56,10 +56,10 @@ class DBExtractor(object):
             sa.select(table_columns).where(conditions).limit(limit), self.bind)
         return df
 
-    def ordered_extraction(self, orderby, columns=None, limit=-1, asc=True):
+    def ordered_extraction(self, order_by, columns=None, limit=-1, asc=True):
         """Table extraction with fixed value contitions.
 
-        orderby: string
+        order_by: string
             Column name to order by.
         columns: list of strings
             Columns to return, default=None returns all.
@@ -75,19 +75,21 @@ class DBExtractor(object):
         if asc:
             df = pd.read_sql(
                 sa.select(table_columns).order_by(
-                    self.cols[orderby].asc()).limit(limit), self.bind)
+                    self.cols[order_by].asc()).limit(limit), self.bind)
         else:
             df = pd.read_sql(
                 sa.select(table_columns).order_by(
-                    self.cols[orderby].desc()).limit(limit), self.bind)
+                    self.cols[order_by].desc()).limit(limit), self.bind)
         return df
 
-    def fixed_ordered_extraction(self, columns, fixed, order, limit=-1, asc=True):
+    def fixed_ordered_extraction(self, columns, fixed, order_by, limit=-1, asc=True):
         """Table extraction with fixed value contitions.
 
         col: list of string
             Columns to return
         fixed: dict(key, value)
+        order_by: string
+            Column name to order by.
         limit: int (optional) default=10000
 
         Returns as pandas dataframe.
@@ -101,11 +103,11 @@ class DBExtractor(object):
         if asc:
             df = pd.read_sql(
                 sa.select(table_columns).where(conditions).order_by(
-                    self.cols[order].asc()).limit(limit), self.bind)
+                    self.cols[order_by].asc()).limit(limit), self.bind)
         else:
             df = pd.read_sql(
                 sa.select(table_columns).where(conditions).order_by(
-                    self.cols[order].desc()).limit(limit), self.bind)
+                    self.cols[order_by].desc()).limit(limit), self.bind)
         return df
 
     def minimum_value_of(self, column):
