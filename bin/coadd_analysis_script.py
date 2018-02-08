@@ -16,7 +16,8 @@ import warnings
 import matplotlib.pyplot as plt
 
 import simulators
-from bin.coadd_analysis_module import (chi2_parabola_plots, chi2_individual_parabola_plots, compare_spectra,
+from bin.coadd_analysis_module import (chi2_parabola_plots, compare_spectra,
+                                       chi2_individual_parabola_plots,
                                        contours, fix_host_parameters,
                                        fix_host_parameters_reduced_gamma,
                                        get_column_limits, get_npix_values,
