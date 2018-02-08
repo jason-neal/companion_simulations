@@ -56,6 +56,32 @@ class DBExtractor(object):
             sa.select(table_columns).where(conditions).limit(limit), self.bind)
         return df
 
+    def ordered_extraction(self, orderby, columns=None, limit=-1, asc=True):
+        """Table extraction with fixed value contitions.
+
+        orderby: string
+            Column name to order by.
+        columns: list of strings
+            Columns to return, default=None returns all.
+        limit: int (optional) default=10000
+
+        Returns as pandas dataframe.
+        """
+        if columns is not None:
+            table_columns = [self.cols[c] for c in columns]
+        else:
+            table_columns = self.cols
+
+        if asc:
+            df = pd.read_sql(
+                sa.select(table_columns).order_by(
+                    self.cols[orderby].asc()).limit(limit), self.bind)
+        else:
+            df = pd.read_sql(
+                sa.select(table_columns).order_by(
+                    self.cols[orderby].desc()).limit(limit), self.bind)
+        return df
+
     def fixed_ordered_extraction(self, columns, fixed, order, limit=-1, asc=True):
         """Table extraction with fixed value contitions.
 
@@ -91,12 +117,10 @@ class DBExtractor(object):
         return df
 
     def full_extraction(self):
-        return pd.read_sql(
-            sa.select(self.table.c), self.bind)
-
         """Return Full database:"""
         import warnings
         warnings.warn("Loading in a database may cause memory cap issues.")
+        return pd.read_sql(sa.select(self.table.c), self.bind)
 
 
 class SingleSimReader(object):
@@ -187,7 +211,7 @@ def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None):
     # Chi levels values
     sigmas = [np.log(Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, df=1)) for sigma in range(1, 6)]
     print(sigmas, len(sigmas))
-    sigma_labels = {sigmas[sig-1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
+    sigma_labels = {sigmas[sig - 1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
     print(" sigma_labels= ", sigma_labels)
     c2 = plt.contour(c, levels=sigmas)
     plt.clabel(c2, fmt=sigma_labels, colors='w', fontsize=14)
