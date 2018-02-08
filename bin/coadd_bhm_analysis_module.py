@@ -12,6 +12,7 @@ from spectrum_overload import Spectrum
 
 from bin.coadd_analysis_module import fit_chi2_parabola, parabola
 from mingle.models.broadcasted_models import one_comp_model
+from mingle.utilities import chi2_at_sigma
 from mingle.utilities.chisqr import reduced_chi_squared
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.db_utils import DBExtractor
@@ -246,9 +247,6 @@ def parabola_plots(table, params):
     plt.close()
 
 
-from mingle.utilities import chi2_at_sigma
-
-
 def chi2_parabola_plots(table, params):
     extractor = DBExtractor(table)
     parabola_list = ["teff_1", "logg_1", "feh_1", "gamma"]
@@ -256,7 +254,6 @@ def chi2_parabola_plots(table, params):
         df = extractor.simple_extraction(columns=[par])
         unique_par = list(set(df[par].values))
         unique_par.sort()
-        print(unique_par)
 
         for chi2_val, npix_val in zip(chi2_names, npix_names):
             min_chi2 = []
@@ -273,7 +270,7 @@ def chi2_parabola_plots(table, params):
 
             # popt, _ = curve_fit(parabola, unique_par, min_chi2)
             popt, _ = fit_chi2_parabola(unique_par, min_chi2)
-            print("params", popt)
+            # print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
             plt.xlabel(r"${0}$".format(par))
@@ -332,7 +329,6 @@ def chi2_individual_parabola_plots(table, params):
         df = extractor.simple_extraction(columns=[par])
         unique_par = list(set(df[par].values))
         unique_par.sort()
-        print(unique_par)
 
         for chi2_val, npix_val in zip(chi2_names, npix_names):
             min_chi2 = []
@@ -349,7 +345,7 @@ def chi2_individual_parabola_plots(table, params):
 
             # popt, _ = curve_fit(parabola, unique_par, min_chi2)
             popt, _ = fit_chi2_parabola(unique_par, min_chi2)
-            print("params", popt)
+            # print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
             plt.xlabel(r"${0}$".format(par))
@@ -695,7 +691,7 @@ def contrast_bhm_results(table, params):
     extractor = DBExtractor(table)
     star_name = params["star"]
     obsnum = params["obsnum"]
-    __, host_params, __ = bhm_helper_function(star_name, obsnum, 1)
+    ___, host_params, ___ = bhm_helper_function(star_name, obsnum, 1)
     h_temp, h_logg, h_feh = host_params['temp'], host_params['logg'], host_params["fe_h"]
 
     print("Expected Parameters\n---------------------\nteff={0}\tlogg={1}\tfeh={2}".format(h_temp, h_logg, h_feh))

@@ -236,7 +236,6 @@ def chi2_parabola_plots(table, params):
         df = extractor.simple_extraction(columns=[par])
         unique_par = list(set(df[par].values))
         unique_par.sort()
-        print(unique_par)
 
         for chi2_val, npix_val in zip(chi2_names, npix_names):
             min_chi2 = []
@@ -251,7 +250,7 @@ def chi2_parabola_plots(table, params):
 
             # popt, _ = curve_fit(parabola, unique_par, min_chi2)
             popt, _ = fit_chi2_parabola(unique_par, min_chi2)
-            print("params", popt)
+            # print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt), "--")  # , label="parabola")
             plt.xlabel(r"${0}$".format(par))
@@ -305,7 +304,6 @@ def chi2_individual_parabola_plots(table, params):
         df = extractor.simple_extraction(columns=[par])
         unique_par = list(set(df[par].values))
         unique_par.sort()
-        print(unique_par)
 
         for chi2_val, npix_val in zip(chi2_names, npix_names):
             plt.figure()
@@ -321,7 +319,7 @@ def chi2_individual_parabola_plots(table, params):
 
             # popt, _ = curve_fit(parabola, unique_par, min_chi2)
             popt, _ = fit_chi2_parabola(unique_par, min_chi2)
-            print("params", popt)
+            # print("params", popt)
             x = np.linspace(unique_par[0], unique_par[-1], 40)
             plt.plot(x, parabola(x, *popt))  # , label="parabola")
             plt.xlabel(r"${0}$".format(par))
@@ -709,7 +707,7 @@ def contrast_iam_results(table, params):
     extractor = DBExtractor(table)
     star_name = params["star"]
     obsnum = params["obsnum"]
-    __, host_params, __ = iam_helper_function(star_name, obsnum, 1)
+    ___, host_params, ___ = iam_helper_function(star_name, obsnum, 1)
     h_temp, h_logg, h_feh = host_params['temp'], host_params['logg'], host_params["fe_h"]
     c_temp = host_params.get("comp_temp")
 
