@@ -651,25 +651,6 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
         logging.warning(__("database_contour did not plot due to \n{0}", e))
 
 
-def test_figure(table, params):
-    chi2_val = "coadd_chi2"
-    df = pd.read_sql_query(sa.select([table.c.gamma, table.c[chi2_val]]).limit(10000), table.metadata.bind)
-    fig, ax = plt.subplots()
-    red_chi2 = reduced_chi_squared(df[chi2_val], params["npix"]["coadd_npix"], params["npars"])
-    ax.scatter(df["gamma"], red_chi2, s=3, alpha=0.5)
-
-    ax.set_xlabel(r'$\gamma$', fontsize=15)
-    ax.set_ylabel(r"$ Reduced {0}$".format(chi2_val), fontsize=15)
-    ax.set_title(r'$\gamma$ and $\chi^2$.')
-
-    ax.grid(True)
-    fig.tight_layout()
-    name = "{0}-{1}_{2}_red_test_figure_{3}_{4}.pdf".format(
-        params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
-    plt.savefig(os.path.join(params["path"], "plots", name))
-    plt.close()
-
-
 def compare_spectra(table, params):
     """Plot the min chi2 result against the observations."""
     gamma_df = pd.read_sql_query(sa.select([table.c.gamma]), table.metadata.bind)
