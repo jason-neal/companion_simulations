@@ -36,20 +36,18 @@ install:
   - python setup.py build_ext --inplace
   - python setup.py develop
 
-  # Now install companion simulations
   # Test requirements
-  - cd $SHIPPABLE_BUILD_DIR               # Return to original directory
+  - cd $SHIPPABLE_BUILD_DIR  # Return to original directory
   - travis_retry pip install -r test_requirements.txt
   - travis_retry pip install -r requirements.txt
 
-  # Clone spectrum_overload
-  - travis_retry pip install https://github.com/jason-neal/spectrum_overload/archive/develop.zip
-
+  # Now install companion simulations
   - python setup.py install
 
-  - cp tests/config.yaml .
-
 build:
+  pre-ci:
+    - cp tests/config.yaml .
+
   ci:
     # Create folders for test and code coverage
     - mkdir -p shippable/testresults
