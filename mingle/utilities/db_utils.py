@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
+from matplotlib import colors, ticker, cm
 from sqlalchemy import and_
 
 import simulators
@@ -56,12 +57,40 @@ class DBExtractor(object):
             sa.select(table_columns).where(conditions).limit(limit), self.bind)
         return df
 
-    def fixed_ordered_extraction(self, columns, fixed, order, limit=-1, asc=True):
+    def ordered_extraction(self, order_by, columns=None, limit=-1, asc=True):
+        """Table extraction with fixed value contitions.
+
+        order_by: string
+            Column name to order by.
+        columns: list of strings
+            Columns to return, default=None returns all.
+        limit: int (optional) default=10000
+
+        Returns as pandas dataframe.
+        """
+        if columns is not None:
+            table_columns = [self.cols[c] for c in columns]
+        else:
+            table_columns = self.cols
+
+        if asc:
+            df = pd.read_sql(
+                sa.select(table_columns).order_by(
+                    self.cols[order_by].asc()).limit(limit), self.bind)
+        else:
+            df = pd.read_sql(
+                sa.select(table_columns).order_by(
+                    self.cols[order_by].desc()).limit(limit), self.bind)
+        return df
+
+    def fixed_ordered_extraction(self, columns, fixed, order_by, limit=-1, asc=True):
         """Table extraction with fixed value contitions.
 
         col: list of string
             Columns to return
         fixed: dict(key, value)
+        order_by: string
+            Column name to order by.
         limit: int (optional) default=10000
 
         Returns as pandas dataframe.
@@ -75,11 +104,11 @@ class DBExtractor(object):
         if asc:
             df = pd.read_sql(
                 sa.select(table_columns).where(conditions).order_by(
-                    self.cols[order].asc()).limit(limit), self.bind)
+                    self.cols[order_by].asc()).limit(limit), self.bind)
         else:
             df = pd.read_sql(
                 sa.select(table_columns).where(conditions).order_by(
-                    self.cols[order].desc()).limit(limit), self.bind)
+                    self.cols[order_by].desc()).limit(limit), self.bind)
         return df
 
     def minimum_value_of(self, column):
@@ -91,12 +120,10 @@ class DBExtractor(object):
         return df
 
     def full_extraction(self):
-        return pd.read_sql(
-            sa.select(self.table.c), self.bind)
-
         """Return Full database:"""
         import warnings
         warnings.warn("Loading in a database may cause memory cap issues.")
+        return pd.read_sql(sa.select(self.table.c), self.bind)
 
 
 class SingleSimReader(object):
@@ -167,7 +194,7 @@ class SingleSimReader(object):
         return params
 
 
-def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None):
+def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=False, dof=1):
     df_lim = df.copy()
     for param in lim_params:
         df_lim = df_lim[df_lim[param] == df_min[param].values[0]]
@@ -182,13 +209,16 @@ def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None):
     x, y = np.meshgrid(X, Y, indexing="ij")
 
     fig, ax = plt.subplots()
-    c = ax.contourf(x, y, np.log(Z))
+    if logscale:
+        c = ax.contourf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis)
+    else:
+        c = ax.contourf(x, y, Z, cmap=cm.viridis)
 
     # Chi levels values
-    sigmas = [np.log(Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, df=1)) for sigma in range(1, 6)]
-    print(sigmas, len(sigmas))
-    sigma_labels = {sigmas[sig-1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
-    print(" sigma_labels= ", sigma_labels)
+    print("Using chisquare dof=", dof)
+    sigmas = [Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, dof=dof) for sigma in range(1, 6)]
+    sigma_labels = {sigmas[sig - 1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
+
     c2 = plt.contour(c, levels=sigmas)
     plt.clabel(c2, fmt=sigma_labels, colors='w', fontsize=14)
     cbar = plt.colorbar(c)

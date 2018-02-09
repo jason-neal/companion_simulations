@@ -30,7 +30,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def sql_join(pattern, suffix=None, verbose=True, move=False, remove=False):
+def sql_join(pattern, suffix=None, verbose=False, move=False, remove=False):
     """Join data files with names that match a given pattern.
 
     Inputs

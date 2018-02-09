@@ -92,7 +92,7 @@ def continuum_alpha(model1, model2, chip=None):
 
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
-                verbose=True, save_only=True, chip=None, prefix=None, errors=None,
+                verbose=False, save_only=True, chip=None, prefix=None, errors=None,
                 area_scale=True, wav_scale=True, grid_slices=False, norm_method="scalar",
                 fudge=None):
     """Wrapper for iteration loop of iam. params1 fixed, model2_pars are many.

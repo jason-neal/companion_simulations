@@ -19,6 +19,7 @@ import sys
 
 import numpy as np
 from astropy.io import fits
+from joblib import Parallel, delayed
 from logutils import BraceMessage as __
 
 import simulators
@@ -58,6 +59,10 @@ def parse_args(args):
                         choices=["scalar", "linear"], default="scalar")
     parser.add_argument("-b", '--betasigma', help='Use BetaSigma std estimator.',
                         action="store_true")
+    parser.add_argument("-j", "--n_jobs", help="Number of parallel Jobs",
+                        default=1, type=int)
+    parser.add_argument('-v', '--verbose', action="store_true",
+                        help='Turn on Verbose.')
     return parser.parse_args(args)
 
 
@@ -117,12 +122,18 @@ def main(chip=None, verbose=False, error_off=False, disable_wav_scale=False, ren
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
+    n_jobs = opts.pop("n_jobs", 1)
+
+
+    def parallelized_main(main_opts, chip):
+        main_opts["chip"] = chip
+        return main(**main_opts)
+
 
     # Iterate over chips
     if opts["chip"] is None:
-        for chip in range(1, 5):
-            opts["chip"] = chip
-            res = main(**opts)
+        res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
+                                      for chip in range(1, 5))
         sys.exit(res)
     else:
         sys.exit(main(**opts))

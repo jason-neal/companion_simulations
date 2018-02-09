@@ -137,7 +137,7 @@ for file in files:
 
 
 
-These spectra seem to have SNR ~ 300-900 in the continuum from Beta simga estimates.
+# These spectra seem to have SNR ~ 300-900 in the continuum from Beta simga estimates.
 
 
 # In[85]:

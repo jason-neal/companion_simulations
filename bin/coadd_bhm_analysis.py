@@ -16,17 +16,14 @@ import warnings
 import matplotlib.pyplot as plt
 
 import simulators
+from bin.coadd_analysis_module import get_column_limits, test_figure
 from bin.coadd_analysis_script import get_npix_values
-from mingle.utilities.db_utils import decompose_database_name, load_sql_table
 from bin.coadd_bhm_analysis_module import (chi2_parabola_plots, chi2_individual_parabola_plots,
-                                           compare_spectra, contours,
-                                           contrast_bhm_results,
-                                           display_bhm_xcorr_values,
-                                           gamma_plot, get_column_limits,
-                                           host_parameters,
-                                           host_parameters_reduced_gamma,
-                                           parabola_plots,
-                                           smallest_chi2_values, test_figure)
+                                           compare_spectra, contours, contrast_bhm_results,
+                                           display_bhm_xcorr_values, host_parameters,
+                                           host_parameters_reduced_gamma, gamma_plot,
+                                           parabola_plots, smallest_chi2_values)
+from mingle.utilities.db_utils import decompose_database_name, load_sql_table
 from mingle.utilities.param_file import get_host_params
 from mingle.utilities.phoenix_utils import closest_model_params
 
