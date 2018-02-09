@@ -61,6 +61,8 @@ def parse_args(args):
                         action="store_true")
     parser.add_argument("-j", "--n_jobs", help="Number of parallel Jobs",
                         default=1, type=int)
+    parser.add_argument('-v', '--verbose', action="store_true",
+                        help='Turn on Verbose.')
     return parser.parse_args(args)
 
 

@@ -42,6 +42,8 @@ def parse_args(args):
                         help='Disable scaling by wavelength.')
     parser.add_argument("-b", '--betasigma', help='Use BetaSigma std estimator.',
                         action="store_true")
+    parser.add_argument('-v', '--verbose', action="store_true",
+                        help='Turn on Verbose.')
     return parser.parse_args(args)
 
 
@@ -104,6 +106,7 @@ if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
     n_jobs = opts.pop("n_jobs", 1)
+    verbose = opts.pop("verbose", False)
 
 
     def parallelized_main(main_opts, chip):
@@ -118,10 +121,10 @@ if __name__ == "__main__":
             try:
                 print("\nDoing analysis after simulations!\n")
                 coadd_db(opts["star"], opts["obsnum"], opts["suffix"], replace=True,
-                         verbose=True, move=True)
+                         verbose=verbose, move=True)
 
                 coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
-                               echo=False, mode="all", verbose=False, npars=1)
+                               echo=False, mode="all", verbose=verbose, npars=1)
 
                 print("\nFinished the db analysis after bhm_script simulations!\n")
                 print("Initial bhm_script parameters = {}".format(args))

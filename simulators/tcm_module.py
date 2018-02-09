@@ -55,7 +55,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
 
 
 def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
-                errors=None, norm=True, verbose=True, save_only=True,
+                errors=None, norm=True, verbose=False, save_only=True,
                 chip=None, prefix=None, wav_scale=True, norm_method="scalar"):
     """Wrapper for iteration loop of tcm. params1 fixed, model2_pars are many."""
     normalization_limits = [2105, 2185]  # small as possible?
