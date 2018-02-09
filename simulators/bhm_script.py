@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 """Run bhm analysis for HD211847."""
 import argparse
@@ -7,6 +6,7 @@ import sys
 import numpy as np
 import logging
 import simulators
+from joblib import Parallel, delayed
 from logutils import BraceMessage as __
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error, betasigma_error
@@ -28,6 +28,8 @@ def parse_args(args):
     parser.add_argument("star", help='Star name.', type=str)
     parser.add_argument("obsnum", help='Star observation number.')
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
+    parser.add_argument("-j", "--n_jobs", help="Number of parallel Jobs",
+                        default=1, type=int)
     parser.add_argument('-s', '--suffix', type=str, default="",
                         help='Extra name identifier.')
     parser.add_argument("-n", "--renormalize", help="Scalar re-normalize flux to models. Default=False",
@@ -94,38 +96,40 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
                  wav_scale=wav_scale, prefix=output_prefix, norm_method=norm_method)
     print("after bhm_analysis")
 
-    # Testing shapes
-    print("Finished chi square generation")
     print("\nNow use bin/coadd_bhm_db.py")
+    return 0
 
 
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
-    star = opts.pop("star")
+    n_jobs = opts.pop("n_jobs", 1)
 
-    chips = opts.pop("chip")
 
-    if chips is None:
-        chips = range(1, 5)
-        do_after = True
+    def parallelized_main(main_opts, chip):
+        main_opts["chip"] = chip
+        return main(**main_opts)
+
+
+    if opts["chip"] is None:
+        res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
+                                      for chip in range(1, 5))
+        if not sum(res):
+            try:
+                print("\nDoing analysis after simulations!\n")
+                coadd_db(opts["star"], opts["obsnum"], opts["suffix"], replace=True,
+                         verbose=True, move=True)
+
+                coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
+                               echo=False, mode="all", verbose=False, npars=1)
+
+                print("\nFinished the db analysis after bhm_script simulations!\n")
+                print("Initial bhm_script parameters = {}".format(args))
+                sys.exit(0)
+            except Exception as e:
+                print("Unable to correctly do chi2 analysis after bhm_script")
+                print(e)
+        else:
+            sys.exit(sum(res))
     else:
-        do_after = False
-
-    for chip in chips:
-        print("Doing chip {}".format(chip))
-        main(star, chip=chip, **opts)
-
-    if do_after:
-        try:
-            print("\nDoing analysis after simulations!\n")
-            coadd_db(star, opts["obsnum"], opts["suffix"], replace=True,
-                     verbose=True, move=True)
-
-            coadd_analysis(star, opts["obsnum"], suffix=opts["suffix"],
-                           echo=False, mode="all", verbose=False, npars=3)
-
-            print("\nFinished the db analysis after iam_script simulations!\n")
-        except Exception as e:
-            print("Unable to correctly do chi2 analysis after bhm_script")
-            print(e)
+        sys.exit(main(**opts))
