@@ -107,5 +107,3 @@ if __name__ == "__main__":
     opts = {k: args[k] for k in args}
 
     sys.exit(main(**opts))
-    sys.exit(main(star, obsnum, teff_1, logg_1, feh_1, teff_2,
-                  logg_2, feh_2, gamma, rv, **opts))
