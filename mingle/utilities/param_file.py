@@ -68,7 +68,14 @@ def parse_list_string(string: str) -> List[Union[str, float]]:
 def get_host_params(star: str) -> Tuple[float, float, float]:
     """Find host star parameters from param file."""
     params = load_paramfile(star)
-    return params["temp"], params["logg"], params["fe_h"]
+    temp, logg, fe_h = params["temp"], params["logg"], params["fe_h"]
+    if isinstance(temp, list):
+        temp = temp[0]
+    if isinstance(logg, list):
+        temp = temp[0]
+    if isinstance(fe_h, list):
+        temp = temp[0]
+    return float(temp), float(logg), float(fe_h)
 
 
 def load_paramfile(star: str) -> Dict[str, Union[str, float, List[Union[str, float]]]]:
