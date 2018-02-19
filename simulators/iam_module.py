@@ -18,6 +18,7 @@ from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 from simulators.common_setup import setup_dirs, sim_helper_function
 
 from numpy import float64, ndarray
+from spectrum_overload.spectrum import Spectrum
 from typing import Dict, List, Optional, Tuple, Union
 
 
@@ -65,7 +66,7 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
         return iam_grid_chisqr_vals  # Just output the best value for each model pair
 
 
-def continuum_alpha(model1, model2, chip=None):
+def continuum_alpha(model1: Spectrum, model2: Spectrum, chip: Optional[int] = None) -> float64:
     """Inherent flux ratio between the continuum of the two models.
 
     Assumes already scaled by area.
@@ -224,7 +225,8 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             return iam_grid_chisqr_vals
 
 
-def renormalization(spectrum, model_grid, normalize=False, method="scalar"):
+def renormalization(spectrum: Union[ndarray, Spectrum], model_grid: ndarray, normalize: bool = False,
+                    method: Optional[str] = "scalar") -> ndarray:
     """Re-normalize the flux of spectrum to the continuum of the model_grid.
 
        Broadcast out spectrum to match the dimensions of model_grid.
@@ -257,14 +259,18 @@ def renormalization(spectrum, model_grid, normalize=False, method="scalar"):
     return norm_flux
 
 
-def observation_rv_limits(obs_spec, rvs, gammas):
+def observation_rv_limits(obs_spec: Spectrum, rvs: Union[int, List[int]], gammas: Union[int, List[int]]) -> List[
+    float64]:
     """Calculate wavelength limits needed to cover RV shifts used."""
     delta = spec_max_delta(obs_spec, rvs, gammas)
     obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
     return [obs_min - 1.1 * delta, obs_max + 1.1 * delta]
 
 
-def prepare_iam_model_spectra(params1, params2, limits, area_scale=True, wav_scale=True):
+def prepare_iam_model_spectra(params1: Union[List[float], List[Union[int, float]]],
+                              params2: Union[List[float], List[Union[int, float]], Tuple[int, float, float]],
+                              limits: Union[List[float64], Tuple[int, int], List[int]], area_scale: bool = True,
+                              wav_scale: bool = True) -> Tuple[Spectrum, Spectrum]:
     """Load spectra with same settings."""
     if not area_scale:
         warnings.warn("Not using area_scale. This is incorrect for paper.")
@@ -404,7 +410,8 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
         plt.close(plt.gcf())
 
 
-def target_params(params, mode="iam"):
+def target_params(params: Dict[str, Union[str, float, int]], mode: Optional[str] = "iam") -> Union[
+    Tuple[List[Union[int, float]], List[Union[int, float]]], List[Union[int, float]], Tuple[List[float], List[float]]]:
     """Extract parameters from dict for each target.
 
     Includes logic for handling missing companion logg/fe_h.

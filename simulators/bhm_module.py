@@ -153,7 +153,8 @@ def bhm_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_para
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="bhm")
 
 
-def get_bhm_model_pars(params, method="close"):
+def get_bhm_model_pars(params: Dict[str, Union[int, float]], method: str = "close") -> List[
+    List[Union[int64, float64]]]:
     method = method.lower()
 
     host_params = [params["temp"], params["logg"], params["fe_h"]]

@@ -282,7 +282,8 @@ def testing_fake_spectrum(star, sim_num, params1, params2, gamma, rv, noise=None
     plt.show()
 
 
-def export_fits(filename, wavelength, flux, hdr, hdrkeys, hdrvals):
+def export_fits(filename: str, wavelength: ndarray, flux: ndarray, hdr: Header, hdrkeys: List[str],
+                hdrvals: List[Union[str, int, None]]) -> None:
     """Write Telluric Corrected spectra to a fits table file."""
     col1 = fits.Column(name="wavelength", format="E", array=wavelength)  # colums of data
     col2 = fits.Column(name="flux", format="E", array=flux)
@@ -297,7 +298,8 @@ def export_fits(filename, wavelength, flux, hdr, hdrkeys, hdrvals):
     return None
 
 
-def append_hdr(hdr, keys=None, values=None, item=0):
+def append_hdr(hdr: Header, keys: Optional[List[str]] = None, values: Optional[List[Union[str, int, None]]] = None,
+               item: int = 0) -> Header:
     """Append/change parameters to fits hdr.
 
     Can take list or tuple as input of keywords
