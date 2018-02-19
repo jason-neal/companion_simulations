@@ -16,6 +16,7 @@ from simulators.common_setup import setup_dirs, sim_helper_function
 from simulators.iam_module import arbitrary_minimums, arbitrary_rescale
 from simulators.iam_module import renormalization
 
+from numpy import float64, int64, ndarray
 from typing import Dict, List, Optional, Tuple, Union
 
 
@@ -128,8 +129,8 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
             bhm_grid_chisqr_vals, bhm_grid_gamma, full_bhm_grid_chisquare)
 
 
-def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
-                         arbitrary_norms, npix, xcorr_value=None):
+def save_full_bhm_chisqr(name: str, params1: List[Union[int, float]], gammas: ndarray, bhm_grid_chisquare: ndarray,
+                         arbitrary_norms: ndarray, npix: int, xcorr_value: Optional[int] = None) -> None:
     """Save the bhm chisqr values to a cvs."""
     assert gammas.shape == bhm_grid_chisquare.shape
 

@@ -15,6 +15,7 @@ from simulators.common_setup import setup_dirs, sim_helper_function
 from simulators.iam_module import observation_rv_limits
 from simulators.iam_module import renormalization
 
+from numpy import ndarray
 from typing import Dict, List, Tuple, Union
 
 
@@ -131,7 +132,9 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
             return broadcast_chisqr_vals
 
 
-def save_full_tcm_chisqr(filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix, verbose=False):
+def save_full_tcm_chisqr(filename: str, params1: List[Union[int, float]], params2: List[Union[int, float]],
+                         alphas: ndarray, rvs: ndarray, gammas: ndarray, broadcast_chisquare: ndarray, npix: int,
+                         verbose: bool = False) -> None:
     """Save the iterations chisqr values to a cvs."""
     a_grid, r_grid, g_grid = np.meshgrid(alphas, rvs, gammas, indexing='ij')
     assert a_grid.shape == r_grid.shape

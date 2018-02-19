@@ -17,6 +17,7 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 from simulators.common_setup import setup_dirs, sim_helper_function
 
+from numpy import float64, ndarray
 from typing import Dict, List, Optional, Tuple, Union
 
 
@@ -287,8 +288,10 @@ def prepare_iam_model_spectra(params1, params2, limits, area_scale=True, wav_sca
     return mod1_spec, mod2_spec
 
 
-def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
-                         iam_grid_chisquare, arbitrary_norms, npix, verbose=False):
+def save_full_iam_chisqr(filename: str, params1: List[Union[int, float]], params2: List[Union[int, float]],
+                         alpha: Union[int, float64], rvs: Union[ndarray, List[int]], gammas: Union[ndarray, List[int]],
+                         iam_grid_chisquare: ndarray, arbitrary_norms: ndarray, npix: int,
+                         verbose: bool = False) -> None:
     """Save the iterations chisqr values to a cvs."""
     rv_grid, g_grid = np.meshgrid(rvs, gammas, indexing='ij')
     # assert A.shape == rv_grid.shape

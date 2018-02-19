@@ -20,6 +20,10 @@ from mingle.utilities.simulation_utilities import spec_max_delta
 from simulators.common_setup import obs_name_template
 from simulators.iam_module import prepare_iam_model_spectra
 
+from argparse import Namespace
+from astropy.io.fits.header import Header
+from numpy import bool_, float64, ndarray
+from spectrum_overload.spectrum import Spectrum
 from typing import Dict, List, Optional, Tuple, Union
 
 
@@ -170,8 +174,9 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None, noise=N
     return None
 
 
-def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=None, rv=None, noise=None,
-                          replace=False, noplots=False):
+def save_fake_observation(spectrum: Spectrum, star: str, sim_num: int, params1: str, params2: Optional[str] = None,
+                          gamma: Optional[int] = None, rv: Optional[int] = None, noise: None = None,
+                          replace: bool = False, noplots: bool = False) -> None:
     # Detector limits
     detector_limits = [(2112, 2123), (2127, 2137), (2141, 2151), (2155, 2165)]
     npix = 1024
