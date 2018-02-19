@@ -30,6 +30,9 @@ from mingle.utilities.phoenix_utils import closest_model_params, generate_close_
 from mingle.utilities.spectrum_utils import load_spectrum  # , select_observation
 from simulators.tcm_module import (tcm_analysis, tcm_helper_function, setup_tcm_dirs)
 
+from argparse import Namespace
+from typing import List
+
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 
@@ -43,7 +46,7 @@ rvs = np.arange(*simulators.sim_grid["rvs"])
 alphas = np.arange(*simulators.sim_grid["alphas"])
 
 
-def parse_args(args):
+def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
 
     :returns: the args

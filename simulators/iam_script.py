@@ -28,6 +28,9 @@ from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    setup_iam_dirs, target_params)
 
+from argparse import Namespace
+from typing import List
+
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 
@@ -42,7 +45,7 @@ check_inputs(rvs)
 check_inputs(gammas)
 
 
-def parse_args(args):
+def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -145,6 +148,7 @@ if __name__ == "__main__":
     opts = {k: args[k] for k in args}
     n_jobs = opts.pop("n_jobs", 1)
     verbose = opts.pop("verbose", False)
+
 
     def parallelized_main(main_opts, chip):
         main_opts["chip"] = chip

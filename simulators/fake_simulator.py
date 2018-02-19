@@ -20,8 +20,10 @@ from mingle.utilities.simulation_utilities import spec_max_delta
 from simulators.common_setup import obs_name_template
 from simulators.iam_module import prepare_iam_model_spectra
 
+from typing import Dict, List, Optional, Tuple, Union
 
-def parse_args(args):
+
+def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
 
     :returns: the args

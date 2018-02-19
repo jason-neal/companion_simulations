@@ -18,8 +18,11 @@ from simulators.bhm_module import setup_bhm_dirs
 from bin.coadd_bhm_db import main as coadd_db
 from bin.coadd_bhm_analysis import main as coadd_analysis
 
+from argparse import Namespace
+from typing import List
 
-def parse_args(args):
+
+def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
 
     :returns: the args
