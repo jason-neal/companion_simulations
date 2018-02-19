@@ -86,85 +86,90 @@ def main(star, obsnum, suffix=None, echo=False, mode="parabola",
     if verbose:
         print("Mode =", mode)
 
-    if mode == "fixed_host_params":
-        try:
-            fix_host_parameters_reduced_gamma(db_table, params)
-            fix_host_parameters(db_table, params)
-        except Exception as e:
-            print(e)
-    elif mode == "param_limits":
-        get_column_limits(db_table, params)
-    elif mode == "parabola":
-        parabola_plots(db_table, params)
-    elif mode == "smallest_chi2":
-        smallest_chi2_values(db_table, params)
-    elif mode == "contour":
-        contours(db_table, params)
-    elif mode == "test":
-        test_figure(db_table, params)
-    elif mode == "rvplot":
-        rv_plot(db_table, params)
-    elif mode == "chi2_parabola":
-        chi2_parabola_plots(db_table, params)
-        chi2_individual_parabola_plots(db_table, params)
-    elif mode == "compare_spectra":
-        compare_spectra(db_table, params)
-    elif mode == "contrast":
-        contrast_iam_results(db_table, params)
-    elif mode == "all":
-        try:
-            fix_host_parameters_reduced_gamma(db_table, params)
-            fix_host_parameters(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
+    try:
+        if mode == "fixed_host_params":
+            try:
+                fix_host_parameters_reduced_gamma(db_table, params)
+                fix_host_parameters(db_table, params)
+            except Exception as e:
+                print(e)
+        elif mode == "param_limits":
             get_column_limits(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
-            smallest_chi2_values(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
+        elif mode == "parabola":
             parabola_plots(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
-            test_figure(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
-            chi2_parabola_plots(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
-            chi2_individual_parabola_plots(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
-            compare_spectra(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
+        elif mode == "smallest_chi2":
+            smallest_chi2_values(db_table, params)
+        elif mode == "contour":
             contours(db_table, params)
-        except:
-            pass
-        plt.close("all")
-        try:
+        elif mode == "test":
+            test_figure(db_table, params)
+        elif mode == "rvplot":
+            rv_plot(db_table, params)
+        elif mode == "chi2_parabola":
+            chi2_parabola_plots(db_table, params)
+            chi2_individual_parabola_plots(db_table, params)
+        elif mode == "compare_spectra":
+            compare_spectra(db_table, params)
+        elif mode == "contrast":
             contrast_iam_results(db_table, params)
-        except:
-            pass
+        elif mode == "all":
+            try:
+                fix_host_parameters_reduced_gamma(db_table, params)
+                fix_host_parameters(db_table, params)
+            except:
+                pass
+            plt.close("all")
+            try:
+                get_column_limits(db_table, params)
+            except:
+                pass
+            plt.close("all")
+            try:
+                smallest_chi2_values(db_table, params)
+            except:
+                pass
+            plt.close("all")
+            try:
+                parabola_plots(db_table, params)
+            except:
+                pass
+            plt.close("all")
+            try:
+                test_figure(db_table, params)
+            except:
+                pass
+            plt.close("all")
+            try:
+                chi2_parabola_plots(db_table, params)
+            except:
+                pass
+            plt.close("all")
+            try:
+                chi2_individual_parabola_plots(db_table, params)
+            except:
+                pass
+            plt.close("all")
+            try:
+                compare_spectra(db_table, params)
+            except:
+                pass
+            plt.close("all")
+            try:
+                contours(db_table, params)
+            except:
+                pass
+            plt.close("all")
+            try:
+                contrast_iam_results(db_table, params)
+            except:
+                pass
+            plt.close("all")
+        else:
+            warnings.warn("Incorrect Mode in iam analysis")
+    except Exception as e:
+        print(e)
         plt.close("all")
-    else:
-        warnings.warn("Incorrect Mode in iam analysis")
+        return 1
     plt.close("all")
     print("Done")
     return 0

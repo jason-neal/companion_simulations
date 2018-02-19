@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-"""two_compoonent_model.py.
+"""two_component_model.py.
 
 Jason Neal
-2nd Janurary 2017
+2nd January 2017
 
 Compare observed spectra to many different phoenix-aces spectral models to find which matches one is best fit by itself.
 
