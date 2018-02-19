@@ -24,6 +24,9 @@ from mingle.utilities.norm import spec_local_norm
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.simulation_utilities import check_inputs
 
+from typing import Optional, List, Union
+from numpy import (float64, int64)
+
 
 def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
     wav_dir = simulators.starfish_grid["raw_path"]
@@ -177,7 +180,7 @@ def phoenix_area(header):
     return surface_area
 
 
-def closest_model_params(teff, logg, feh, alpha=None):
+def closest_model_params(teff: int, logg: float, feh: float, alpha: Optional[float] = None) -> List[Union[int64, float64]]:
     """Find the closest PHOENIX-ACES model parameters to the stellar parameters given.
 
     Parameters
