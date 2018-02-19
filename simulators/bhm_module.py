@@ -16,8 +16,10 @@ from simulators.common_setup import setup_dirs, sim_helper_function
 from simulators.iam_module import arbitrary_minimums, arbitrary_rescale
 from simulators.iam_module import renormalization
 
+from typing import Dict, List, Optional, Tuple, Union
 
-def setup_bhm_dirs(star):
+
+def setup_bhm_dirs(star: str) -> None:
     setup_dirs(star, mode="bhm")
     return None
 
@@ -145,7 +147,8 @@ def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
     return None
 
 
-def bhm_helper_function(star, obsnum, chip, skip_params=False):
+def bhm_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool = False) -> Tuple[
+    str,  Dict[str, Union[str, float, List[Union[str, float]]]], str]:
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="bhm")
 
 

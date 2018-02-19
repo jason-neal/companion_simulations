@@ -17,13 +17,16 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 from simulators.common_setup import setup_dirs, sim_helper_function
 
+from typing import Dict, List, Optional, Tuple, Union
 
-def iam_helper_function(star, obsnum, chip, skip_params=False):
+
+def iam_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool = False) -> Tuple[
+    str,  Dict[str, Union[str, float, List[Union[str, float]]]], str]:
     """Specifies parameter files and output directories given observation parameters."""
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="iam")
 
 
-def setup_iam_dirs(star):
+def setup_iam_dirs(star: str) -> None:
     basedir = setup_dirs(star, mode="iam")
     os.makedirs(os.path.join(basedir, "grid_plots"), exist_ok=True)
     os.makedirs(os.path.join(basedir, "fudgeplots"), exist_ok=True)

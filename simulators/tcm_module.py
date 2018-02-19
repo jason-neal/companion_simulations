@@ -15,13 +15,16 @@ from simulators.common_setup import setup_dirs, sim_helper_function
 from simulators.iam_module import observation_rv_limits
 from simulators.iam_module import renormalization
 
+from typing import Dict, List, Tuple, Union
 
-def setup_tcm_dirs(star):
+
+def setup_tcm_dirs(star: str) -> None:
     setup_dirs(star, mode="tcm")
     return None
 
 
-def tcm_helper_function(star, obsnum, chip, skip_params=False):
+def tcm_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool = False) -> Tuple[
+    str, Dict[str, Union[str, float, List[Union[str, float]]]], str]:
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="tcm")
 
 
