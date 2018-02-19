@@ -7,8 +7,7 @@ from logutils import BraceMessage as __
 import simulators
 
 
-def parse_paramfile(param_file: str, path: str = None) -> Dict[str, Union[str, float, List[float]]]:
-    # type: (str, str) -> Dict[str, Union[str, float]]
+def parse_paramfile(param_file: str, path: str = None) -> Dict[str, Union[str, float, List[Union[str, float]]]]:
     """Extract orbit and stellar parameters from parameter file.
 
     Parameters
@@ -25,7 +24,7 @@ def parse_paramfile(param_file: str, path: str = None) -> Dict[str, Union[str, f
     """
     if path is not None:
         param_file = os.path.join(path, param_file)
-    parameters = dict()  # type: Dict[str, Union[str, float]]
+    parameters = dict()  # type: Dict[str, Union[str, float, List[Union[str, float]]]]
     if not os.path.exists(param_file):
         raise Exception("Invalid Arguments, expected a file that exists not. {0}".format(param_file))
 
