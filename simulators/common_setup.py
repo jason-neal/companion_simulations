@@ -7,8 +7,10 @@ from logutils import BraceMessage as __
 import simulators
 from mingle.utilities import parse_paramfile
 
+from typing import Dict, Tuple, Union, List
 
-def setup_dirs(star, mode="iam"):
+
+def setup_dirs(star: str, mode: str = "iam") -> str:
     mode = mode.lower()
     assert mode in ["iam", "tcm", "bhm"]
 
@@ -18,7 +20,8 @@ def setup_dirs(star, mode="iam"):
     return basedir
 
 
-def sim_helper_function(star, obsnum, chip, skip_params, mode="iam"):
+def sim_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool, mode: str = "iam") -> Tuple[
+    str, Dict[str, Union[str, float, List[Union[str, float]]]], str]:
     """Help simulations by getting parameters, and observation name, and prefix for any output files."""
     mode = mode.lower()
     if mode not in ["iam", "tcm", "bhm"]:
@@ -37,7 +40,7 @@ def sim_helper_function(star, obsnum, chip, skip_params, mode="iam"):
     return obs_name, params, output_prefix
 
 
-def obs_name_template():
+def obs_name_template() -> str:
     """Make spectrum name based on config file.
 
     Valid values:
