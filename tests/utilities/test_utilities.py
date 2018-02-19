@@ -43,6 +43,16 @@ def test_parse_paramfile():
     assert params["tau"] == 50463.10
 
 
+def test_parse_paramfile_with_errotbarlist():
+    """Some values have error bases as a list of 3 values."""
+    test_param_file = "testerrorbars_params.dat"
+    params = param_file.parse_paramfile(test_param_file, "tests/testdata")
+
+    assert isinstance(params["omega"], list)
+    assert params["mean_val"] == [-0.2149, -0.0116, 0.0109]
+    assert params["k1"] == ['0.7553', '-11.6', 'test']
+
+
 def test_parse_paramfile_errors():
     test_param_file = "noexistent_paramfile.txt"
 
@@ -74,6 +84,7 @@ def test_load_paramfile_returns_parse_paramfile(sim_config, params_1):
 
 
 def test_get_filenames_with_one_regex():
+    # This is a flaky tests if more files are added
     print("cwd", os.getcwd())
     results = get_filenames("tests/testdata/handy_spectra", "detect*")
 
@@ -83,6 +94,7 @@ def test_get_filenames_with_one_regex():
 
 
 def test_get_filenames_with_two_regex():
+    # This is a flaky tests if more files are added
     results = get_filenames("tests/utilities", "test_*", "*_util*")
 
     assert "test_phoenix_utils.py" in results
