@@ -26,7 +26,7 @@ def parse_paramfile(param_file: str, path: Optional[str] = None) -> Dict[
     """
     if path is not None:
         param_file = os.path.join(path, param_file)
-    parameters: Dict[str, Union[str, float, List[Union[str, float]]]] = dict()
+    parameters = dict()  # Dict[str, Union[str, float, List[Union[str, float]]]]
     if not os.path.exists(param_file):
         raise Exception("Invalid Arguments, expected a file that exists not. {0}".format(param_file))
 
