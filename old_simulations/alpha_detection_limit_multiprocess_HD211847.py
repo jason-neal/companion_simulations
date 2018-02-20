@@ -29,7 +29,8 @@ from joblib import Memory
 from tqdm import tqdm
 
 from obsolete.models.alpha_model import alpha_model
-from mingle.utilities.chisqr import chi_squared, parallel_chisqr
+from mingle.utilities.chisqr import chi_squared
+from obsolete.chisqr import parallel_chisqr
 from mingle.utilities.model_convolution import store_convolutions
 from obsolete.simulate_obs import \
     generate_observations2 as generate_observations

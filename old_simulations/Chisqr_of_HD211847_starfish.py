@@ -18,7 +18,7 @@ from astropy.io import fits
 from spectrum_overload import Spectrum
 
 from obsolete.models.alpha_model import alpha_model2
-from mingle.utilities.chisqr import parallel_chisqr
+from obsolete.chisqr import parallel_chisqr
 from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
                                                crires_resolution)
 from mingle.utilities.debug_utils import pv

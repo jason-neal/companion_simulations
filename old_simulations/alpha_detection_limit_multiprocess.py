@@ -29,7 +29,8 @@ from joblib import Memory
 from logutils import BraceMessage as __
 from tqdm import tqdm
 
-from mingle.utilities.chisqr import chi_squared, parallel_chisqr
+from mingle.utilities.chisqr import chi_squared
+from obsolete.chisqr import parallel_chisqr
 from mingle.utilities.model_convolution import store_convolutions
 from mingle.utilities.simulation_utilities import combine_spectra
 from mingle.utilities.spectrum_utils import spectrum_plotter
