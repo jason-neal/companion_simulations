@@ -7,14 +7,17 @@
 
 import logging
 import warnings
+from typing import Dict, Optional, Tuple, Union
 
 import ephem
-from logutils import BraceMessage as __
 from PyAstronomy import pyasl
-from spectrum_overload import Spectrum
+from astropy.io.fits.header import Header
+from logutils import BraceMessage as __
+from numpy import ndarray
+from spectrum_overload.spectrum import Spectrum
 
 
-def barycorr_crires_spectrum(spectrum, extra_offset=None):
+def barycorr_crires_spectrum(spectrum: Spectrum, extra_offset: Optional[Union[int, float]] = None) -> Spectrum:
     """Wrapper to apply barycorr for CRIRES spectra if given a Spectrum object."""
     if spectrum.header.get("BARYDONE", False):
         warnings.warn("Spectrum already berv corrected")
@@ -34,7 +37,8 @@ def barycorr_crires_spectrum(spectrum, extra_offset=None):
     return new_spectrum
 
 
-def barycorr_crires(wavelength, flux, header, extra_offset=None):
+def barycorr_crires(wavelength: ndarray, flux: ndarray, header: Union[Header, Dict[str, bool]],
+                    extra_offset: Optional[Union[int, float]] = None) -> Tuple[ndarray, ndarray]:
     """Calculate Heliocentric correction values and apply to spectrum.
 
     # SHOULD test again with bary and see what the difference is.
@@ -53,7 +57,7 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
         ra = header["RA"]  # CRIRES RA already in degrees
         dec = header["DEC"]  # CRIRES hdr DEC already in degrees
 
-        time = header["DATE-OBS"]  # Observing date  '2012-08-02T08:47:30.8425'
+        time = str(header["DATE-OBS"])  # Observing date  '2012-08-02T08:47:30.8425'
 
         # Convert easily to julian date with ephem
         jd = ephem.julian_date(time.replace("T", " ").split(".")[0])
@@ -90,7 +94,7 @@ def barycorr_crires(wavelength, flux, header, extra_offset=None):
         return wlprime, nflux
 
 
-def crires_resolution(header):
+def crires_resolution(header: Union[Header, Dict[str, Union[str, float, int]]]) -> int:
     """Set CRIRES resolution based on rule of thumb equation from the manual.
 
     resolving_power = 100000 * 0.2 / slit_width
@@ -98,15 +102,14 @@ def crires_resolution(header):
     Warning! The use of adaptive optics is not checked for!!
     # This code has been copied from tapas xml request script.
     """
-    instrument = header["INSTRUME"]
+    instrument = str(header["INSTRUME"])
+    if "CRIRES" not in instrument:
+        raise ValueError('header["INSTRUME"] is not CRIRES')
 
-    slit_width = header["HIERARCH ESO INS SLIT1 WID"]
-    if "CRIRES" in instrument:
-        # print("Resolving Power\nUsing the rule of thumb equation from the
-        # CRIRES manual. \nWarning! The use of adaptive optics is not
-        # checked for!!")
-        resolving_power = 100000 * 0.2 / slit_width
-        resolving_power = int(resolving_power)
-    else:
-        print("Instrument is not CRIRES")
+    slit_width = float(header["HIERARCH ESO INS SLIT1 WID"])
+    # print("Resolving Power\nUsing the rule of thumb equation from the
+    # CRIRES manual. \nWarning! The use of adaptive optics is not
+    # checked for!!")
+    resolving_power = int(100000 * 0.2 / slit_width)
+
     return resolving_power
