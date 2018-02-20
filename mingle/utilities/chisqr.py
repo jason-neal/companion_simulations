@@ -1,10 +1,14 @@
 """Chi-squared calculation."""
 
+from typing import Optional, Union
+
 import numpy as np
+from numpy import float64, ndarray
 from scipy.stats import chi2
+from spectrum_overload.spectrum import Spectrum
 
 
-def chi_squared(observed, expected, error=None, axis=0):
+def chi_squared(observed: ndarray, expected: ndarray, error: Optional[ndarray] = None, axis: int = 0) -> Union[float64, ndarray]:
     """Calculate chi squared.
 
     Same result as as scipy.stats.chisquare
@@ -17,7 +21,7 @@ def chi_squared(observed, expected, error=None, axis=0):
     return chisqr
 
 
-def reduced_chi_squared(chi_squared, N, P):
+def reduced_chi_squared(chi_squared: Union[int, ndarray, float], N: int, P: int) -> Union[ndarray, float]:
     """
     :param chi_squared: Chi squared value
     :param N: (int) number of observations
@@ -27,7 +31,7 @@ def reduced_chi_squared(chi_squared, N, P):
     return chi_squared / (N - P)
 
 
-def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
+def spectrum_chisqr(spectrum_1: Spectrum, spectrum_2: Spectrum, error: None = None) -> Union[float64, ndarray]:
     """Chi squared for spectrum objects."""
     # Spectrum wrapper for chisquare
     # make sure xaxis is the Same
@@ -51,12 +55,12 @@ def spectrum_chisqr(spectrum_1, spectrum_2, error=None):
         raise Exception("TODO: make xaxis equal in chisquare of spectrum")
 
 
-def chi2_at_sigma(sigma, dof=1):
+def chi2_at_sigma(sigma: int, dof: int=1) -> float:
     """Use inverse survival function to calculate the chi2 value for significances.
 
     Updated values from https://en.wikipedia.org/wiki/Normal_distribution#Cumulative_distribution_function
     """
     sigma_percent = {0: 0, 1: 0.682689492137, 2: 0.954499736104, 3: 0.997300203937,
                      4: 0.999936657516, 5: 0.999999426697, 6: 0.999999998027}
-    p = 1 - sigma_percent[sigma]  # precentage
+    p = 1 - sigma_percent[sigma]  # Precentage
     return chi2(dof).isf(p)
