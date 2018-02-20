@@ -1,11 +1,10 @@
 """param_file.py."""
 import logging
 import os
-from logutils import BraceMessage as __
+from typing import Dict, List, Optional, Tuple, Union
 
 import simulators
-
-from typing import Dict, List, Optional, Tuple, Union
+from logutils import BraceMessage as __
 
 
 def parse_paramfile(param_file: str, path: Optional[str] = None) -> Dict[
@@ -26,7 +25,7 @@ def parse_paramfile(param_file: str, path: Optional[str] = None) -> Dict[
     """
     if path is not None:
         param_file = os.path.join(path, param_file)
-    parameters = dict()  # Dict[str, Union[str, float, List[Union[str, float]]]]
+    parameters = dict()  # type: Dict[str, Union[str, float, List[Union[str, float]]]]
     if not os.path.exists(param_file):
         raise Exception("Invalid Arguments, expected a file that exists not. {0}".format(param_file))
 
@@ -72,9 +71,9 @@ def get_host_params(star: str) -> Tuple[float, float, float]:
     if isinstance(temp, list):
         temp = temp[0]
     if isinstance(logg, list):
-        temp = temp[0]
+        logg = logg[0]
     if isinstance(fe_h, list):
-        temp = temp[0]
+        fe_h = fe_h[0]
     return float(temp), float(logg), float(fe_h)
 
 
