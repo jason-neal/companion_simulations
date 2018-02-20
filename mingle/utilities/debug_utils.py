@@ -2,8 +2,10 @@ import inspect
 import os
 import time
 
+from typing import Callable
 
-def pv(name):
+
+def pv(name: str) -> str:
     """Return the command name and the result."""
     if "__" in name:
         raise ValueError("Double underscores not allowed for saftey reasons.")
@@ -12,7 +14,7 @@ def pv(name):
     return '{0}: {1}'.format(name, val)
 
 
-def timeit(method):
+def timeit(method: Callable) -> Callable:
     def timed(*args, **kw):
         ts = time.time()
         result = method(*args, **kw)
@@ -24,19 +26,19 @@ def timeit(method):
     return timed
 
 
-def timeit2(method):
+def timeit2(method: Callable) -> Callable:
     def timed(*args, **kw):
         ts = time.time()
         result = method(*args, **kw)
         te = time.time()
 
-        print('{0} (..., {1}) took {2:2.2f} seconds sec'.format(method.__name__, kw, te - ts))
+        print('{0} (..., {1}) took {2:2.2f} seconds'.format(method.__name__, kw, te - ts))
         return result
 
     return timed
 
 
-def list_files(startpath):
+def list_files(startpath: str) -> None:
     for root, _, files in os.walk(startpath):
         level = root.replace(startpath, '').count(os.sep)
         indent = ' ' * 4 * (level)
