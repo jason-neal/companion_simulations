@@ -4,6 +4,8 @@ try:
 except ImportError:
     from distutils.core import setup
 
+# from setuptools import find_packages
+
 config = {
     'description': 'Companion simulations of Crires spectra.',
     'author': 'Jason Neal',
@@ -22,8 +24,26 @@ config = {
         'dev': ['check-manifest'],
         'test': ['coverage', 'pytest', 'pytest-cov', 'python-coveralls', 'hypothesis'],
     },
-    'packages': ['models', 'utilities'],
-    'scripts': [],
+    'packages': ["mingle", "mingle/models", 'mingle/utilities', 'simulators'],
+    # find_packages("src", exclude=['contrib', 'docs', 'tests']),
+
+    'scripts': ["simulators/bhm_script.py",
+                "simulators/iam_script.py",
+                "simulators/tcm_script.py",
+                # "bin/mkdbs.py",
+                "bin/coadd_analysis_script.py",
+                "bin/coadd_bhm_analysis.py",
+                # "bin/create_fake_obs.py",
+                "bin/check_result.py",
+                "bin/coadd_chi2_db.py",
+                "bin/coadd_bhm_db.py",
+                "bin/do_iam_on_stars.py",
+                # "bin/fully_analyze_star.py",
+                # "bin/create_min_chi2_table.py",
+                "bin/iam_fake_full_stack.py",
+                "bin/bhm_fake_full_stack.py",
+                # "bin/analysis_iam_chi2.py"
+                ],
     'name': 'companion_simulations',
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     "classifiers": [

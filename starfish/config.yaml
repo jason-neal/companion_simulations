@@ -1,0 +1,33 @@
+# YAML configuration script
+
+name: companion_simulations
+
+data:
+  grid_name: "PHOENIX"
+  files: [""]
+  instruments : ["CRIRES_50k"]
+  orders: [1]
+
+outdir : output/
+
+plotdir : plots/
+
+# The parameters defining your raw spectral library live here.
+grid:
+  raw_path: "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+  hdf5_path: "/home/jneal/Phd/Codes/companion_simulations/starfish/libraries/PHOENIX_CRIRES_50k.hdf5"
+  parname: ["temp", "logg", "Z"]
+  key_name: "t{0:.0f}g{1:.1f}z{2:.1f}" # Specifies how the params are stored
+  # in the HDF5 file
+  parrange: [[2200, 9000], [3.0, 6.0], [-1.5, 1.5]]
+  wl_range: [20700, 21800]
+  buffer: 50. # AA
+
+
+chunk_ID: 0
+spectrum_ID: 0
+instrument_ID: 0
+
+
+# Valid values [tell_corr, h2o_tell_corr, berv_mask, berv_corr, h2o_berv_corr, h2o_berv_mask]
+spec_version: berv_mask

@@ -1,0 +1,39 @@
+# ## HD167665 single keplerian parameters
+# Some parameter description and units:
+# mean_val - Mean RV motion          (km/s)
+# k1 - semi-major axis of star       (km/s)
+# omega - Argument of periapsis       (deg)
+# tau - reference time                (JD*)
+# period - orbital period             (day)
+# m_star - Mass of host star        (M_sun)
+# r_star - Radius of star           (R_sun)
+# age - Age of star                   (Gyr)
+# a - Semimajor axis distance.         (AU)
+# msini - Minimum mass of companion (M Jup)
+# m_true - Companion true mass      (M_jup)
+# i - inclination                     (deg)
+# temp - Host star Simbad temperature   (K)
+# fe_h - Host star metalicity         (dex)
+# logg - Host star logg           (cm s^-2)
+name         = HD 167665
+companion    = b
+mean_val     = 8.003
+k1           = 0.6098    # 0.0031
+omega        = 225.0  # 1.1
+eccentricity = 0.337  # 0.005
+tau          = 48140   # 70  # added 40000
+period       = 4385   # 64
+m_star       = 1.09
+msini        = 50.3    # 0.4
+a            = 5.47    # 0.05
+m_true       =
+SpT          = G0 V
+temp         = 6115
+fe_h         = -0.17
+logg         = 4.22
+r_star       =
+dist         = 29.7
+age          =  # 0.7 - 3.6
+7
+
+source       =

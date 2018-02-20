@@ -1,0 +1,49 @@
+# YAML configuration script
+
+name: companion_simulations
+
+data:
+  grid_name: "PHOENIX"
+  files: [""]
+  instruments : ["CRIRES_50k"]
+  orders: [1]
+
+outdir : output/
+
+plotdir : plots/
+
+# The parameters defining your raw spectral library live here.
+grid:
+  raw_path: "/home/jneal/Phd/data/PHOENIX-ALL/PHOENIX/"
+  hdf5_path: "/home/jneal/Phd/Codes/companion_simulations/starfish/libraries/PHOENIX_CRIRES_50k.hdf5"
+  parname: ["temp", "logg", "Z"]
+  key_name: "t{0:.0f}g{1:.1f}z{2:.1f}" # Specifies how the params are stored
+  # in the HDF5 file
+  parrange: [[2200, 7000], [3.0, 6.0], [-1.5, 1.5]]
+  wl_range: [20700, 21000]
+  buffer: 50. # AA
+
+
+chunk_ID: 0
+spectrum_ID: 0
+instrument_ID: 0
+
+
+sim_grid:
+    gammas:  [-20, 20, 1]  # (start, stop, step)
+    rvs: [-20, 20, 1]
+    alphas: [0.01, 0.25, 0.005]
+    teff_1: None
+    teff_2: None
+    feh_1: None
+    feh_2: None
+    logg_1: None
+    logg_2: None
+    arb_norm: [0.95, 1.05, 0.02]   # Arbitrary normalization inside chisquare
+
+paths:
+    parameters: "/home/jneal/Phd/data/parameter_files/"
+
+
+# Valid values [tell_corr, h2o_tell_corr, berv_mask, berv_corr, h2o_berv_corr, h2o_berv_mask]
+spec_version: berv_mask

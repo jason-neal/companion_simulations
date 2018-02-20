@@ -1,0 +1,37 @@
+# ## HD162020 single keplerian parameters
+# Some parameter description and units:
+# mean_val - Mean RV motion          (km/s)
+# k1 - semi-major axis of star       (km/s)
+# omega - Argument of periapsis       (deg)
+# tau - reference time  JD-2400000     (JD*)
+# period - orbital period             (day)
+# m_star - Mass of host star        (M_sun)
+# r_star - Radius of star           (R_sun)
+# age - Age of star                   (Gyr)
+# a - Semimajor axis distance.         (AU)
+# msini - Minimum mass of companion (M Jup)
+# m_true - Companion true mass      (M_jup)
+# i - inclination                     (deg)
+# temp - Host star Simbad temperature   (K)
+# fe_h - Host star metalicity         (dex)
+# logg - Host star logg           (cm s^-2)
+name         = HD 162020
+companion    = b
+mean_val     = −27.328       # 0.002
+k1           = 1.813         # 0.004
+omega        = 28.40         # 0.23
+eccentricity = 0.277         # 0.002
+tau          = 51990.677     # 0.005
+period       = 8.428198      # 0.000056
+m_star       = 0.75
+msini        = 14.4
+a            = 0.074
+m_true       =               #
+SpT          = K3V
+temp         = 4830    # 80
+fe_h         = 0.01   # 0.11
+logg         = 4.76    # 0.25
+r_star       =
+dist         =
+age          = 1.52
+source       = https://www.aanda.org/articles/aa/pdf/2002/28/aa2416.pdf, S. Udry et al.: The CORALIE survey for southern extra-solar planets. VIII.
