@@ -1,4 +1,4 @@
-astropy==2.0.4
+astropy==3.0
 matplotlib==2.1.2
 ephem==3.7.6.0
 joblib==0.11
