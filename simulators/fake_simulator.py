@@ -195,8 +195,8 @@ def save_fake_observation(spectrum: Spectrum, star: str, sim_num: int, params1: 
         # name = "{0}-{1}-mixavg-tellcorr_{2}.fits".format(star, sim_num, ii + 1)
         name = os.path.join(simulators.paths["spectra"], name)
         # spec.save...
-        hdrkeys = ["OBJECT", "Id_sim", "num", "chip", "snr", "c_gamma", "cor_rv", "host", "compan"]
-        hdrvals = [star, "Fake simulation data", sim_num, ii + 1, noise, gamma, rv, params1, params2]
+        hdrkeys = ["OBJECT", "Id_sim", "num", "chip", "snr", "c_gamma", "cor_rv", "host", "compan"]  # type: List[str]
+        hdrvals = [star, "Fake simulation data", sim_num, ii + 1, noise, gamma, rv, params1, params2]  # type: List[Union[str, float, int]]
         if os.path.exists(name) and not replace:
             print(name, "Already exists")
         else:
@@ -283,7 +283,7 @@ def testing_fake_spectrum(star, sim_num, params1, params2, gamma, rv, noise=None
 
 
 def export_fits(filename: str, wavelength: ndarray, flux: ndarray, hdr: Header, hdrkeys: List[str],
-                hdrvals: List[Union[str, int, None]]) -> None:
+                hdrvals: List[Union[str, int, float]]) -> None:
     """Write Telluric Corrected spectra to a fits table file."""
     col1 = fits.Column(name="wavelength", format="E", array=wavelength)  # colums of data
     col2 = fits.Column(name="flux", format="E", array=flux)
@@ -298,7 +298,7 @@ def export_fits(filename: str, wavelength: ndarray, flux: ndarray, hdr: Header, 
     return None
 
 
-def append_hdr(hdr: Header, keys: Optional[List[str]] = None, values: Optional[List[Union[str, int, None]]] = None,
+def append_hdr(hdr: Header, keys: Optional[List[str]] = None, values: Optional[List[Union[str, int, float]]] = None,
                item: int = 0) -> Header:
     """Append/change parameters to fits hdr.
 

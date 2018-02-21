@@ -2,28 +2,26 @@ import datetime
 import logging
 import os
 import warnings
+from typing import Dict, List, Optional, Tuple, Union, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from logutils import BraceMessage as __
-from tqdm import tqdm
-
 import simulators
+from logutils import BraceMessage as __
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale, arbitrary_minimums
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
-from simulators.common_setup import setup_dirs, sim_helper_function
-
 from numpy import float64, ndarray
+from simulators.common_setup import setup_dirs, sim_helper_function
 from spectrum_overload.spectrum import Spectrum
-from typing import Dict, List, Optional, Tuple, Union
+from tqdm import tqdm
 
 
 def iam_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool = False) -> Tuple[
-    str,  Dict[str, Union[str, float, List[Union[str, float]]]], str]:
+    str, Dict[str, Union[str, float, List[Union[str, float]]]], str]:
     """Specifies parameter files and output directories given observation parameters."""
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="iam")
 

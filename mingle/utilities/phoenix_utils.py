@@ -180,7 +180,7 @@ def phoenix_area(header):
     return surface_area
 
 
-def closest_model_params(teff: int, logg: float, feh: float, alpha: Optional[float] = None) -> List[Union[int64, float64]]:
+def closest_model_params(teff: Union[float, int], logg: Union[float, int], feh: Union[float, int], alpha: Optional[Union[float, int]] = None) -> List[Union[int64, float64]]:
     """Find the closest PHOENIX-ACES model parameters to the stellar parameters given.
 
     Parameters
@@ -207,7 +207,7 @@ def closest_model_params(teff: int, logg: float, feh: float, alpha: Optional[flo
     closest_feh = fehs[np.abs(fehs - feh).argmin()]
 
     if alpha is not None:
-        if abs(alpha) > 0.2:
+        if abs(float(alpha)) > 0.2:
             logging.warning("Alpha is outside acceptable range -0.2->0.2")
         closest_alpha = alphas[np.abs(alphas - alpha).argmin()]
 
