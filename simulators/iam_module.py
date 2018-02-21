@@ -410,8 +410,8 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
         plt.close(plt.gcf())
 
 
-def target_params(params: Dict[str, Union[str, float, int]], mode: Optional[str] = "iam") -> Union[
-    Tuple[List[Union[int, float]], List[Union[int, float]]], List[Union[int, float]], Tuple[List[float], List[float]]]:
+def target_params(params: Dict[str, Any], mode: Optional[str] = "iam") -> Tuple[
+    List[Union[int, float]], List[Union[int, float]]]:
     """Extract parameters from dict for each target.
 
     Includes logic for handling missing companion logg/fe_h.
@@ -427,8 +427,8 @@ def target_params(params: Dict[str, Union[str, float, int]], mode: Optional[str]
         comp_fe_h = params.get("comp_fe_h", params["fe_h"])  # Set equal to host if not given
         comp_temp = params.get("comp_temp", 999999)  # Will go to largest grid
         comp_params = [comp_temp, comp_logg, comp_fe_h]
-        return host_params, comp_params
     elif mode == "bhm":
-        return host_params
+        comp_params = []
     else:
         raise ValueError("Mode={} is invalid".format(mode))
+    return host_params, comp_params

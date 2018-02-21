@@ -2,14 +2,12 @@ import os
 
 import numpy as np
 import pytest
-from spectrum_overload import Spectrum
-
-from simulators.iam_module import (continuum_alpha, iam_analysis,
-                                   iam_helper_function, iam_wrapper,
+from simulators.iam_module import (continuum_alpha, iam_helper_function, iam_wrapper,
                                    setup_iam_dirs, renormalization, target_params,
                                    observation_rv_limits, prepare_iam_model_spectra,
                                    )
 from simulators.iam_script import parse_args
+from spectrum_overload import Spectrum
 
 
 @pytest.mark.parametrize("star, obs, chip", [
@@ -164,7 +162,6 @@ def test_renormalization_with_invalid_method(host, method):
         renormalization(host.flux, host.flux, method=method, normalize=True)
 
 
-@pytest.mark.parametrize("mode", ["bhm", "iam"])
 @pytest.mark.parametrize("params,  expected", [
     ({"temp": 5000, "logg": 3.5, "fe_h": 0.0, "comp_temp": 2300},
      ([5000, 3.5, 0.0], [2300, 3.5, 0.0])),
@@ -173,15 +170,24 @@ def test_renormalization_with_invalid_method(host, method):
     ({"temp": 4500, "logg": 4.5, "fe_h": 0.0, "comp_temp": 100, "comp_logg": 3},
      ([4500, 4.5, 0.0], [100, 3, 0.0]))
 ])
-def test_target_parameters_from_dict(params, mode, expected):
-    result = target_params(params, mode=mode)
-    if isinstance(result, tuple):
-        assert np.all(result[0] == expected[0])
-        assert np.all(result[1] == expected[1])
-        assert mode == "iam"
-    else:
-        assert mode == "bhm"
-        assert np.all(result == expected[0])
+def test_target_parameters_from_dict_iam_mode(params, expected):
+    result = target_params(params, mode="iam")
+    assert np.all(result[0] == expected[0])
+    assert np.all(result[1] == expected[1])
+
+
+@pytest.mark.parametrize("params,  expected", [
+    ({"temp": 5000, "logg": 3.5, "fe_h": 0.0, "comp_temp": 2300},
+     ([5000, 3.5, 0.0])),
+    ({"temp": 5000, "logg": 4.5, "fe_h": -0.5, "comp_temp": 2400, "comp_logg": 5, "comp_fe_h": 0.5},
+     ([5000, 4.5, -0.5])),
+    ({"temp": 4500, "logg": 4.5, "fe_h": 0.0, "comp_temp": 100, "comp_logg": 3},
+     ([4500, 4.5, 0.0]))
+])
+def test_target_parameters_from_dict_bhm_mode(params, expected):
+    result = target_params(params, mode="bhm")
+    assert np.all(result[0] == expected)
+    assert np.all(result[1] == [])
 
 
 def test_target_parameters_comp_not_in_file(params_1):
@@ -213,6 +219,7 @@ def test_observation_rv_limits(comp):
     limits = observation_rv_limits(comp, 5, 20)
     assert limits[0] <= np.min(comp.xaxis)
     assert limits[1] >= np.max(comp.xaxis)
+
 
 @pytest.mark.parametrize("limits", [
     [2110, 2111],
@@ -264,5 +271,3 @@ def test_prepare_iam_model_spectra_with_warnings(limits):
     assert y.xaxis[0] >= limits[0]
     assert x.xaxis[-1] <= limits[1]
     assert y.xaxis[-1] <= limits[1]
-
-

@@ -169,7 +169,7 @@ class SingleSimReader(object):
         table = load_sql_table(dbname, verbose=False, echo=False)
         return table
 
-    def params(self):
+    def params(self) -> Dict[str, Union[str, float, List[Union[str, float]]]]:
         """Get params from param file."""
         if simulators.paths["parameters"].startswith("."):
             param_file = os.path.join(self.base, "../", simulators.paths["parameters"],
@@ -177,10 +177,9 @@ class SingleSimReader(object):
         else:
             param_file = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(self.name))
         params = parse_paramfile(param_file, path=None)
-        print(params)
-        print("self mode", self.mode)
+
         if self.mode == "bhm":
-            host_params = target_params(params, mode=self.mode)
+            host_params, _ = target_params(params, mode=self.mode)
             closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
         else:
             host_params, comp_params = target_params(params, mode=self.mode)
