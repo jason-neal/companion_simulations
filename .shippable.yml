@@ -45,10 +45,13 @@ install:
   - python setup.py install
 
 build:
-  pre-ci:
-    - cp tests/config.yaml .
+  # pre-ci:
+  #   - cp tests/config.yaml .
 
   ci:
+    # Use test configuration
+    - cp tests/config.yaml .
+    
     # Create folders for test and code coverage
     - mkdir -p shippable/testresults
     - mkdir -p shippable/codecoverage
