@@ -1,30 +1,33 @@
 """Location for database handling codes."""
 import glob
 import os
+from typing import Tuple, Union, Optional, Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sqlalchemy as sa
-from matplotlib import colors, ticker, cm
-from sqlalchemy import and_
-
 import simulators
+import sqlalchemy as sa
+from matplotlib import ticker, cm
 from mingle.utilities import chi2_at_sigma
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import closest_model_params
+from pandas.core.frame import DataFrame
+from py._path.local import LocalPath
 from simulators.iam_module import target_params
+from sqlalchemy import and_, asc
+from sqlalchemy.sql.schema import Table
 
 
 class DBExtractor(object):
     """Methods for extracting the relevant code out of database table."""
 
-    def __init__(self, table):
+    def __init__(self, table: Table) -> None:
         self.table = table
         self.cols = table.c
         self.bind = self.table.metadata.bind
 
-    def simple_extraction(self, columns, limit=-1):
+    def simple_extraction(self, columns: List[str], limit: int = -1) -> DataFrame:
         """Simple table extraction, cols provided as list
 
         col: list of string
@@ -37,7 +40,7 @@ class DBExtractor(object):
             sa.select(table_columns).limit(limit), self.bind)
         return df
 
-    def fixed_extraction(self, columns, fixed, limit=-1):
+    def fixed_extraction(self, columns: List[str], fixed: Dict[str, Union[int, float]], limit: int = -1) -> DataFrame:
         """Table extraction with fixed value contitions.
 
         col: list of string
@@ -111,7 +114,7 @@ class DBExtractor(object):
                     self.cols[order_by].desc()).limit(limit), self.bind)
         return df
 
-    def minimum_value_of(self, column):
+    def minimum_value_of(self, column: str) -> DataFrame:
         """Return only the entry for the minimum column value, limited to one value.
         """
         selection = self.cols[column]
@@ -142,10 +145,10 @@ class SingleSimReader(object):
         else:
             raise ValueError("Invalid chi2_val.")
 
-    def list_sims(self):
+    def list_sims(self) -> List[str]:
         return glob.glob(os.path.join(self.base, "*"))
 
-    def load_df(self, params=["teff_1", "teff_2", "logg_1", "feh_1"]):
+    def load_df(self, params: List[str] = ["teff_1", "teff_2", "logg_1", "feh_1"]) -> DataFrame:
         params.append(self.chi2_val)
 
         table = self.get_table()
@@ -203,7 +206,6 @@ def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=
     Y = dfpivot.columns.values
     X = dfpivot.index.values
     Z = dfpivot.values
-    print(X, Y, Z.shape)
 
     x, y = np.meshgrid(X, Y, indexing="ij")
 
@@ -236,7 +238,7 @@ def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=
     plt.show()
 
 
-def decompose_database_name(database):
+def decompose_database_name(database: str) -> Tuple[str, str, str, str]:
     """Database names of form */Star_obsnum_chip...db."""
     os.path.split(database)
     path, name = os.path.split(database)
@@ -246,7 +248,8 @@ def decompose_database_name(database):
     return path, star, obsnum, chip
 
 
-def load_sql_table(database, name="chi2_table", echo=False, verbose=False):
+def load_sql_table(database: Union[LocalPath, str], name: str = "chi2_table", echo: bool = False,
+                   verbose: bool = False) -> Table:
     sqlite_db = 'sqlite:///{0}'.format(database)
     try:
         engine = sa.create_engine(sqlite_db, echo=echo)
