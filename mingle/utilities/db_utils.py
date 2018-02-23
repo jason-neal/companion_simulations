@@ -196,10 +196,21 @@ class SingleSimReader(object):
         return params
 
 
-def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=False, dof=1):
+def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame, lim_params: List[str],
+               correct: Optional[Dict[str, float]] = None, logscale: bool = False, dof: int = 1,
+               xlim: Optional[List[Union[float, int]]] = None, ylim: Optional[List[Union[float, int]]] = None) -> None:
     df_lim = df.copy()
     for param in lim_params:
         df_lim = df_lim[df_lim[param] == df_min[param].values[0]]
+
+    if xlim is not None:
+        assert len(xlim) == 2
+        df_lim = df_lim[df_lim[xcol] >= xlim[0]]
+        df_lim = df_lim[df_lim[xcol] <= xlim[1]]
+    if ylim is not None:
+        assert len(ylim) == 2
+        df_lim = df_lim[df_lim[ycol] >= ylim[0]]
+        df_lim = df_lim[df_lim[ycol] <= ylim[1]]
 
     dfpivot = df_lim.pivot(xcol, ycol, zcol)
 
@@ -226,6 +237,10 @@ def df_contour(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=
     cbar.ax.set_ylabel(zcol)
     plt.xlabel(xcol)
     plt.ylabel(ycol)
+    if xlim is not None:
+        plt.xlim(xlim)
+    if ylim is not None:
+        plt.ylim(ylim)
 
     if correct:
         # Correct location of simulation
