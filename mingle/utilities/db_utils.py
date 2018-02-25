@@ -1,22 +1,24 @@
 """Location for database handling codes."""
 import glob
 import os
-from typing import Tuple, Union, Optional, Dict, List
+from itertools import product
+from typing import Tuple, Union, Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import simulators
 import sqlalchemy as sa
 from matplotlib import ticker, cm
+from pandas.core.frame import DataFrame
+from py._path.local import LocalPath
+from sqlalchemy import and_
+from sqlalchemy.sql.schema import Table
+
+import simulators
 from mingle.utilities import chi2_at_sigma
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import closest_model_params
-from pandas.core.frame import DataFrame
-from py._path.local import LocalPath
 from simulators.iam_module import target_params
-from sqlalchemy import and_, asc
-from sqlalchemy.sql.schema import Table
 
 
 class DBExtractor(object):
@@ -242,6 +244,54 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
     if ylim is not None:
         plt.ylim(ylim)
 
+    if correct:
+        # Correct location of simulation
+        plt.plot(correct[xcol], correct[ycol], "ro", markersize=7)
+
+    # Mark minimum with a +.
+    min_i, min_j = divmod(Z.argmin(), Z.shape[1])
+    plt.plot(X[min_i], Y[min_j], "g*", markersize=7, label="$Min \chi^2$")
+
+    plt.show()
+
+
+def df_contour2(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=False, dof=1):
+    # Need to be the minimum chi2 value for the current value of x and y
+    df_lim = df.copy()
+    # for param in lim_params:
+    #     df_lim = df_lim[df_lim[param] == df_min[param].values[0]]
+    new_df = pd.Dataframe()
+    for x, y in product(df_lim[xcol], df_lim[ycol]):
+        df_xy = df[[df_lim[xcol] == x and df_lim[ycol] == y]]
+        new_df.append({xcol: x, ycol: y, zcol: df_xy[zcol].min()})
+
+    # dfpivot = df_lim.pivot(xcol, ycol, zcol)
+    dfpivot = new_df.pivot(xcol, ycol, zcol)
+
+    Y = dfpivot.columns.values
+    X = dfpivot.index.values
+    Z = dfpivot.values
+
+    x, y = np.meshgrid(X, Y, indexing="ij")
+
+    fig, ax = plt.subplots()
+    if logscale:
+        c = ax.contourf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis)
+    else:
+        c = ax.contourf(x, y, Z, cmap=cm.viridis)
+
+    # Chi levels values
+    print("Using chi squared dof=", dof)
+    sigmas = [Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, dof=dof) for sigma in range(1, 6)]
+    sigma_labels = {sigmas[sig - 1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
+
+    c2 = plt.contour(c, levels=sigmas)
+    plt.clabel(c2, fmt=sigma_labels, colors='w', fontsize=14)
+    cbar = plt.colorbar(c)
+    cbar.ax.set_ylabel(zcol)
+    plt.xlabel(xcol)
+    plt.ylabel(ycol)
+    plt.title("Correct minimum $\chi^2$ contour")
     if correct:
         # Correct location of simulation
         plt.plot(correct[xcol], correct[ycol], "ro", markersize=7)
