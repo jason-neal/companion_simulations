@@ -609,7 +609,7 @@ def dataframe_contour(df, xcol, ycol, zcol, params):
         logging.warning(__("database_contour did not plot due to \n{0}", e))
 
 
-def compare_spectra(table, params):
+def compare_spectra(table, params, save=True):
     """Plot the min chi2 result against the observations."""
     extractor = DBExtractor(table)
     gamma_df = extractor.simple_extraction(columns=["gamma"])
@@ -680,11 +680,11 @@ def compare_spectra(table, params):
         fig.tight_layout()
         name = "{0}-{1}_{2}_{3}_bhm_min_chi2_spectrum_comparison_{4}.png".format(
             params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
-        plt.savefig(os.path.join(params["path"], "plots", name))
+        if save:
+            plt.savefig(os.path.join(params["path"], "plots", name))
+        else:
+            plt.show()
         plt.close()
-
-        plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation")
-        plt.show()
 
 
 def contrast_bhm_results(table, params):
