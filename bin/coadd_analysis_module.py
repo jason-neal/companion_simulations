@@ -734,3 +734,71 @@ def contrast_iam_results(table, params):
                            df["alpha_2"].values[0],
                            df["alpha_3"].values[0],
                            df["alpha_4"].values[0]])))
+
+
+def compare_spectra_dect1(table, params, save=True, chi2_val="chi2_1", mode="iam"):
+    """Plot the min chi2 result against the observations."""
+    extractor = DBExtractor(table)
+    df = extractor.minimum_value_of(chi2_val)
+    df = df[["teff_1", "logg_1", "feh_1", "gamma",
+             "teff_2", "logg_2", "feh_2", "rv", chi2_val]]
+
+    params1 = [df["teff_1"].values[0], df["logg_1"].values[0], df["feh_1"].values[0]]
+    params1 = [float(param1) for param1 in params1]
+    gamma = df["gamma"].values
+
+    if mode == "iam":
+        params2 = [df["teff_2"].values[0], df["logg_2"].values[0], df["feh_2"].values[0]]
+        params2 = [float(param2) for param2 in params2]
+        rv = df["rv"].values
+
+    try:
+        obs_name = params["obs_name"]
+    except:
+        from simulators.iam_module import iam_helper_function
+        obs_name, obs_params, output_prefix = iam_helper_function(params["star"], params["obsnum"], 1)
+
+    obs_spec = load_spectrum(obs_name)
+
+    normalization_limits = [obs_spec.xaxis[0] - 5, obs_spec.xaxis[-1] + 5]
+
+    mod1 = load_starfish_spectrum(params1, limits=normalization_limits,
+                                  hdr=True, normalize=False, area_scale=True,
+                                  flux_rescale=True)
+    if mode == "iam":
+        mod2 = load_starfish_spectrum(params2, limits=normalization_limits,
+                                      hdr=True, normalize=False, area_scale=True,
+                                      flux_rescale=True)
+
+        grid_func = inherent_alpha_model(mod1.xaxis, mod1.flux, mod2.flux,
+                                         rvs=rv, gammas=gamma)
+    elif mode == "bhm":
+        from mingle.models.broadcasted_models import one_comp_model
+        grid_func = one_comp_model(mod1.xaxis, mod1.flux, gammas=gamma)
+
+    grid_model = grid_func(obs_spec.xaxis).squeeze()
+    grid_model_full = grid_func(mod1.xaxis).squeeze()
+
+    model_spec_full = Spectrum(flux=grid_model_full, xaxis=mod1.xaxis)
+    model_spec = Spectrum(flux=grid_model, xaxis=obs_spec.xaxis)
+
+    model_spec = model_spec.remove_nans()
+    model_spec = model_spec.normalize(method="exponential")
+    model_spec_full = model_spec_full.remove_nans()
+    model_spec_full = model_spec_full.normalize(method="exponential")
+
+    fig, ax = plt.subplots(1, 1)
+    plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation")
+    plt.plot(model_spec.xaxis, model_spec.flux, label="Minimum \chi^2 model")
+    plt.plot(model_spec_full.xaxis, model_spec_full.flux, "--", label="Model_full_res")
+
+    plt.legend()
+
+    fig.tight_layout()
+    name = "{0}-{1}_{2}_{3}_min_chi2_spectrum_comparison_{4}.png".format(
+        params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
+    if save:
+        plt.savefig(os.path.join(params["path"], "plots", name))
+    else:
+        plt.show()
+    plt.close()
