@@ -2,7 +2,7 @@
 import glob
 import os
 from itertools import product
-from typing import Tuple, Union, Dict, List
+from typing import Tuple, Union, Dict, List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from matplotlib import ticker, cm
 from pandas.core.frame import DataFrame
 from py._path.local import LocalPath
-from sqlalchemy import and_
+from sqlalchemy import and_, asc
 from sqlalchemy.sql.schema import Table
 
 import simulators
@@ -19,6 +19,8 @@ from mingle.utilities import chi2_at_sigma
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.phoenix_utils import closest_model_params
 from simulators.iam_module import target_params
+
+odd_chi2s = ["chi2_123"]
 
 
 class DBExtractor(object):
@@ -29,6 +31,21 @@ class DBExtractor(object):
         self.cols = table.c
         self.bind = self.table.metadata.bind
 
+    @staticmethod
+    def chi2_columns(columns: List[str]):
+        """Fixing columns to extract if a different chi2 is requested."""
+        if any([True for col in columns if col in odd_chi2s]):
+            columns = [x for x in columns if x not in odd_chi2s]
+            columns = columns + ["chi2_1", "chi2_2", "chi2_3"]
+        return columns
+
+    @staticmethod
+    def combine_chi2(df: DataFrame, columns: List[str]) -> DataFrame:
+        """Fixing columns to extract if a different chi2 is requested."""
+        if "chi2_123" in columns:
+            df["chi2_123"] = df[["chi2_1", "chi2_2", "chi2_3"]].sum(axis=1)
+        return df
+
     def simple_extraction(self, columns: List[str], limit: int = -1) -> DataFrame:
         """Simple table extraction, cols provided as list
 
@@ -37,10 +54,12 @@ class DBExtractor(object):
 
         Returns as pandas DataFrame.
         """
-        table_columns = [self.cols[c] for c in columns]
+        new_columns = self.chi2_columns(columns)
+        table_columns = [self.cols[c] for c in new_columns]
         df = pd.read_sql(
             sa.select(table_columns).limit(limit), self.bind)
-        return df
+
+        return self.combine_chi2(df, columns)
 
     def fixed_extraction(self, columns: List[str], fixed: Dict[str, Union[int, float]], limit: int = -1) -> DataFrame:
         """Table extraction with fixed value contitions.
@@ -53,16 +72,17 @@ class DBExtractor(object):
         Returns as pandas DataFrame.
         """
         assert isinstance(fixed, dict)
-
-        table_columns = [self.cols[c] for c in columns]
+        new_columns = self.chi2_columns(columns)
+        table_columns = [self.cols[c] for c in new_columns]
 
         conditions = and_(self.cols[key] == value for key, value in fixed.items())
 
         df = pd.read_sql(
             sa.select(table_columns).where(conditions).limit(limit), self.bind)
-        return df
+        return self.combine_chi2(df, columns)
 
-    def ordered_extraction(self, order_by, columns=None, limit=-1, asc=True):
+    def ordered_extraction(self, order_by: str, columns: Optional[List[str]] = None, limit: int = -1,
+                           asc: bool = True) -> DataFrame:
         """Table extraction with fixed value contitions.
 
         order_by: string
@@ -74,7 +94,8 @@ class DBExtractor(object):
         Returns as pandas dataframe.
         """
         if columns is not None:
-            table_columns = [self.cols[c] for c in columns]
+            new_columns = self.chi2_columns(columns)
+            table_columns = [self.cols[c] for c in new_columns]
         else:
             table_columns = self.cols
 
@@ -86,9 +107,11 @@ class DBExtractor(object):
             df = pd.read_sql(
                 sa.select(table_columns).order_by(
                     self.cols[order_by].desc()).limit(limit), self.bind)
-        return df
+        return self.combine_chi2(df, columns)
 
-    def fixed_ordered_extraction(self, columns, fixed, order_by, limit=-1, asc=True):
+    def fixed_ordered_extraction(self, columns: List[str], fixed: Dict[str, Union[int, float]], order_by: str,
+                                 limit: int = -1,
+                                 asc: bool = True) -> DataFrame:
         """Table extraction with fixed value contitions.
 
         col: list of string
@@ -101,8 +124,8 @@ class DBExtractor(object):
         Returns as pandas dataframe.
         """
         assert isinstance(fixed, dict)
-
-        table_columns = [self.cols[c] for c in columns]
+        new_columns = self.chi2_columns(columns)
+        table_columns = [self.cols[c] for c in new_columns]
 
         conditions = and_(self.cols[key] == value for key, value in fixed.items())
 
@@ -114,17 +137,26 @@ class DBExtractor(object):
             df = pd.read_sql(
                 sa.select(table_columns).where(conditions).order_by(
                     self.cols[order_by].desc()).limit(limit), self.bind)
-        return df
+        return self.combine_chi2(df, columns)
 
     def minimum_value_of(self, column: str) -> DataFrame:
         """Return only the entry for the minimum column value, limited to one value.
         """
-        selection = self.cols[column]
-        df = pd.read_sql(
-            sa.select(self.cols).order_by(selection.asc()).limit(1), self.bind)
+        if column in odd_chi2s:
+            if column == "chi2_123":
+                selection = sa.sql.expression.label(column, self.cols["coadd_chi2"] - self.cols["chi2_4"])
+            else:
+                raise NotImplementedError("column {} is not catered for".format(column))
+            columns = self.cols + [selection]
+            df = pd.read_sql(
+                sa.select(columns).order_by(asc(column)).limit(1), self.bind)
+        else:
+            selection = self.cols[column]
+            df = pd.read_sql(
+                sa.select(self.cols).order_by(selection.asc()).limit(1), self.bind)
         return df
 
-    def full_extraction(self):
+    def full_extraction(self) -> DataFrame:
         """Return Full database:"""
         import warnings
         warnings.warn("Loading in a database may cause memory cap issues.")
@@ -134,15 +166,18 @@ class DBExtractor(object):
 class SingleSimReader(object):
     def __init__(self, base=".",
                  name="BSBHMNOISE",
-                 prefix="", mode="bhm", chi2_val="coadd_chi2"):
+                 prefix="", mode="bhm", chi2_val="coadd_chi2", suffix="", obsnum="") -> None:
         self.base = base
         self.name = name.upper()
+        self.suffix = suffix
         self.prefix = prefix.upper()
+        self.obsnum = obsnum
+
         if mode in ["iam", "tcm", "bhm"]:
             self.mode = mode
         else:
             raise ValueError("Invalid SimReader mode")
-        if chi2_val in ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2"]:
+        if chi2_val in ["chi2_1", "chi2_2", "chi2_3", "chi2_4", "coadd_chi2", "chi2_123"]:
             self.chi2_val = chi2_val
         else:
             raise ValueError("Invalid chi2_val.")
@@ -154,7 +189,6 @@ class SingleSimReader(object):
         params.append(self.chi2_val)
 
         table = self.get_table()
-        # print(table.c)
         params = [table.c[p] for p in params]
         dbdf = pd.read_sql(sa.select(params).order_by(table.c[self.chi2_val].asc()), table.metadata.bind)
 
@@ -163,13 +197,19 @@ class SingleSimReader(object):
         dbdf[c] = dbdf[c].apply(pd.to_numeric, errors='coerce', axis=0)
         return dbdf
 
-    def get_table(self):
-        starname = self.name
-        directory = os.path.join(self.base, starname, self.mode)
-        # print(directory)
-        dbs = glob.glob(os.path.join(directory, "*_coadd_{}_chisqr_results.db".format(self.mode)))
-        # print(dbs)
-        assert len(dbs) == 1, print(len(dbs))
+    def get_table(self) -> Table:
+        directory = os.path.join(self.base, self.name, self.mode)
+        looking_for = "{0}*{1}*_coadd_{2}_chisqr_results{3}.db".format(self.name, self.obsnum, self.mode, self.suffix)
+        print("looking in ", directory, "for\n", looking_for)
+        dbs = glob.glob(os.path.join(
+            directory, looking_for))
+        try:
+            assert len(dbs) == 1, "len(dbs)={} not 1".format(len(dbs))
+        except AssertionError as e:
+            print("check number of databases found (should be 1)")
+            print(dbs, len(dbs))
+            raise e
+
         dbname = dbs[0]
         table = load_sql_table(dbname, verbose=False, echo=False)
         return table
@@ -229,7 +269,6 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
         c = ax.contourf(x, y, Z, cmap=cm.viridis)
 
     # Chi levels values
-    print("Using chisquare dof=", dof)
     sigmas = [Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, dof=dof) for sigma in range(1, 6)]
     sigma_labels = {sigmas[sig - 1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
 
@@ -245,12 +284,15 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
         plt.ylim(ylim)
 
     if correct:
-        # Correct location of simulation
-        plt.plot(correct[xcol], correct[ycol], "ro", markersize=7)
+        # Mark the "correct" location for the minimum chi squared
+        try:
+            plt.plot(correct[xcol], correct[ycol], "ro", markersize=10)
+        except:
+            pass
 
     # Mark minimum with a +.
     min_i, min_j = divmod(Z.argmin(), Z.shape[1])
-    plt.plot(X[min_i], Y[min_j], "g*", markersize=7, label="$Min \chi^2$")
+    plt.plot(X[min_i], Y[min_j], "y*", markersize=10, label="$Min \chi^2$")
 
     plt.show()
 
@@ -260,10 +302,36 @@ def df_contour2(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale
     df_lim = df.copy()
     # for param in lim_params:
     #     df_lim = df_lim[df_lim[param] == df_min[param].values[0]]
-    new_df = pd.Dataframe()
-    for x, y in product(df_lim[xcol], df_lim[ycol]):
-        df_xy = df[[df_lim[xcol] == x and df_lim[ycol] == y]]
-        new_df.append({xcol: x, ycol: y, zcol: df_xy[zcol].min()})
+    new_df = pd.DataFrame(columns=[xcol, ycol, zcol])
+    import datetime
+    startx = datetime.datetime.now()
+    print("Starting loop at", startx)
+
+    x_values = df_lim[xcol].unique()
+    y_values = df_lim[ycol].unique()
+    print(len(df_lim))
+    for x, y in product(x_values, y_values):
+        # print("xval", x, "yval", y)
+        df_xy = df.loc[(df_lim[xcol] == x) | (df_lim[ycol] == y)]
+        new_df = new_df.append({xcol: x, ycol: y, zcol: df_xy[zcol].min()}, ignore_index=True)
+
+    print("time to finishd", datetime.datetime.now() - startx)
+    print(new_df.head())
+
+    # df groupby
+    groupstartx = datetime.datetime.now()
+    grouped_df = df_lim.groupby([xcol, ycol])[[xcol, ycol, zcol]]
+    print("grouped df", grouped_df.head())
+
+
+    print("time for groupby", datetime.datetime.now()-groupstartx)
+    print("len(new-df)", len(new_df))
+    print("len(grouped-df", len(grouped_df))
+
+    print("min loop", new_df.loc[new_df[zcol] == min(new_df[zcol])])
+    # print("min grouped", grouped_df.loc[grouped_df[zcol] == min(grouped_df[zcol])])
+
+    #
 
     # dfpivot = df_lim.pivot(xcol, ycol, zcol)
     dfpivot = new_df.pivot(xcol, ycol, zcol)
