@@ -4,7 +4,7 @@ from joblib import memory
 from scipy.interpolate import interp1d
 
 
-@memory.cache()
+@memory.cache
 def one_comp_model(wav, model1, *, gammas=None):
     """Make 1 component simulations, broadcasting over gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
@@ -21,7 +21,7 @@ def one_comp_model(wav, model1, *, gammas=None):
     return interp1d(wav, m1g, axis=0)  # pass it the wavelength values to return
 
 
-@memory.cache()
+@memory.cache
 def check_broadcastable(var):
     # My version of broadcastable with 1s on the right
     var = np.atleast_2d(var)
@@ -32,7 +32,7 @@ def check_broadcastable(var):
     return var
 
 
-@memory.cache()
+@memory.cache
 def two_comp_model(wav, model1, model2, *, alphas=None, rvs=None, gammas=None, kind="quadratic"):
     """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
@@ -59,7 +59,7 @@ def two_comp_model(wav, model1, model2, *, alphas=None, rvs=None, gammas=None, k
     return interp1d(wav, am2rvm1g, kind=kind, bounds_error=False, axis=0)  # pass it the wavelength values to return
 
 
-@memory.cache()
+@memory.cache
 def two_comp_model_with_transpose(wav, model1, model2, alphas, *, rvs=None, gammas=None):
     """Make 2 component simulations, broadcasting over alpha, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
@@ -86,7 +86,7 @@ def two_comp_model_with_transpose(wav, model1, model2, alphas, *, rvs=None, gamm
     return interp1d(wav, am2rvm1g, axis=0)  # pass it the wavelength values to return
 
 
-@memory.cache()
+@memory.cache
 def inherent_alpha_model(wav, model1, model2, *, rvs=None, gammas=None, kind="linear"):
     """Make 2 component simulations, broadcasting over, rv, gamma values."""
     # Enable single scalar inputs (turn to 1d np.array)
