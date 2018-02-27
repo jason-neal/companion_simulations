@@ -634,7 +634,7 @@ def test_figure(table, params):
     plt.close()
 
 
-def compare_spectra(table, params):
+def compare_spectra(table, params, save=True):
     """Plot the min chi2 result against the observations."""
     extractor = DBExtractor(table)
     for ii, chi2_val in enumerate(chi2_names[0:-2]):
@@ -696,11 +696,11 @@ def compare_spectra(table, params):
         fig.tight_layout()
         name = "{0}-{1}_{2}_{3}_min_chi2_spectrum_comparison_{4}.png".format(
             params["star"], params["obsnum"], params["chip"], chi2_val, params["suffix"])
-        plt.savefig(os.path.join(params["path"], "plots", name))
+        if save:
+            plt.savefig(os.path.join(params["path"], "plots", name))
+        else:
+            plt.show()
         plt.close()
-
-        plt.plot(obs_spec.xaxis, obs_spec.flux, label="Observation")
-        plt.show()
 
 
 def contrast_iam_results(table, params):
