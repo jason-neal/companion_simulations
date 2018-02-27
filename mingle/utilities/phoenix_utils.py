@@ -35,8 +35,6 @@ def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
     flux = fits.getdata(phoenix_name)
     spec = Spectrum(flux=flux, xaxis=wav_model)
 
-    # Limit to K band
-    spec.wav_select(2070, 2350)
     if normalize:
         spec = spec_local_norm(spec, method="exponential")
 
@@ -53,7 +51,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
     ----------
     params: list
         Model parameters [teff, logg, Z]
-    limits= List[float, float] default=None
+    limits: List[float, float] default=None
         Wavelength limits.
     hdr: bool
        Include the model header. Default False.
@@ -115,7 +113,7 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
     ----------
     params: list
         Model parameters [teff, logg, Z]
-    limits= List[float, float] default=None
+    limits: List[float, float] default=None
         Wavelength limits.
     hdr: bool
        Include the model header. Default False.
@@ -297,7 +295,7 @@ def phoenix_name_from_params(data_dir, paramfile):
     ----------
     data_dir: str
         Directory to phoenix models.
-    params: str or dict, or list
+    paramfile: str or dict, or list
         Parameter filename if a string is given.
         Dictionary of parameters if dict is provided, or
         list of parameters in the correct order.
@@ -345,6 +343,7 @@ def generate_close_params(params, small=True, limits="phoenix"):
 
 
 def get_phoenix_limits(limits="phoenix"):
+    """Return synthetic library limits for each parameter"""
     if limits == "phoenix":
         phoenix_limits = [[2300, 12000], [0, 6], [-4, 1]]
     elif limits == "cifist":
