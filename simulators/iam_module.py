@@ -223,6 +223,83 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             return iam_grid_chisqr_vals
 
 
+def iam_chi2_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None, errors=None,
+                         area_scale=True, wav_scale=True, norm=False,
+                         norm_method="scalar", fudge=None, arb_norm=False):
+    """Main part of iam wrapper that does loading chi^2 computation."""
+
+    obs_flux, iam_grid_models = iam_magic_sauce(obs_spec, params1, params2, rv1, rv2,
+                                                chip=chip, area_scale=area_scale,
+                                                wav_scale=wav_scale, norm=norm, norm_method=norm_method,
+                                                fudge=fudge, arb_norm=arb_norm)
+
+    # Calculate Chi-squared
+    iam_chisquare = chi_squared(obs_flux, iam_grid_models, error=errors)
+
+    # Take minimum chi-squared value along Arbitrary normalization axis
+    if arb_norm:
+        iam_chisquare, _ = arbitrary_minimums(iam_chisquare, None)
+
+    # npix = obs_flux.shape[0]  # Number of pixels used
+    print(iam_chisquare.shape)
+    assert iam_chisquare.shape == (len(rv1), len(rv2))
+
+    return iam_chisquare
+
+
+def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
+                    area_scale=True, wav_scale=True, norm=False,
+                    norm_method="scalar", fudge=None, arb_norm=False):
+    """Cleanned up magic sauce."""
+    rv_limits = observation_rv_limits(obs_spec, rv1, rv2)
+
+    obs_spec = obs_spec.remove_nans()
+    assert ~np.any(np.isnan(obs_spec.flux)), "Observation has nan"
+
+    # Load phoenix models and scale by area and wavelength limit
+    mod1_spec, mod2_spec = \
+        prepare_iam_model_spectra(params1, params2, limits=rv_limits,
+                                  area_scale=area_scale, wav_scale=wav_scale)
+
+    if fudge or (fudge is not None):
+        fudge_factor = float(fudge)
+        mod2_spec.flux *= fudge_factor  # Fudge factor multiplication
+        warnings.warn("Using a fudge factor = {0}".format(fudge_factor))
+
+    iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
+                                         rvs=rv2, gammas=rv1)
+    iam_grid_models = iam_grid_func(obs_spec.xaxis)
+    #print(iam_grid_models.shape)
+
+    # Continuum normalize all iam_grid_models
+    def axis_continuum(flux):
+        """Continuum to apply along axis with predefined variables parameters."""
+        return continuum(obs_spec.xaxis, flux, splits=20, method="exponential", top=20)
+
+    iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
+    #print(iam_grid_continuum.shape)
+    iam_grid_models = iam_grid_models / iam_grid_continuum
+    #print(iam_grid_models.shape)
+    # RE-NORMALIZATION
+    if chip == 4:
+        # Quadratically renormalize anyway
+        obs_spec = renormalization(obs_spec, iam_grid_models, normalize=True, method="quadratic")
+    obs_flux = renormalization(obs_spec, iam_grid_models, normalize=norm, method=norm_method)
+
+    old_shape = iam_grid_models.shape
+
+    # Arbitrary_normalization of observation
+    if arb_norm:
+        iam_grid_models, arb_norm = arbitrary_rescale(iam_grid_models,
+                                                      *simulators.sim_grid["arb_norm"])
+        # print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
+        assert iam_grid_models.shape == (*old_shape, len(arb_norm))
+        obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match arb_norm
+
+    assert obs_flux.shape == iam_grid_models.shape
+    return obs_flux, iam_grid_models
+
+
 def renormalization(spectrum: Union[ndarray, Spectrum], model_grid: ndarray, normalize: bool = False,
                     method: Optional[str] = "scalar") -> ndarray:
     """Re-normalize the flux of spectrum to the continuum of the model_grid.
