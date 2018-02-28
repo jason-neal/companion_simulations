@@ -209,9 +209,9 @@ def test_target_parameters_invalid_mode(params_1, mode):
 
 
 def test_observation_rv_limits_with_zeros(comp):
-    """Test limits given for zero RV is the same as original"""
+    """Test limits given for zero RVs equal to  min delta of 1km/s"""
     limits = observation_rv_limits(comp, 0, 0)
-    assert np.all(limits == [np.min(comp.xaxis), np.max(comp.xaxis)])
+    assert np.all(limits == [np.min(comp.xaxis) - 1.1, np.max(comp.xaxis) + 1.1])
 
 
 def test_observation_rv_limits(comp):

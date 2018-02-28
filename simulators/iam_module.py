@@ -261,6 +261,8 @@ def observation_rv_limits(obs_spec: Spectrum, rvs: Union[int, List[int]], gammas
     float64]:
     """Calculate wavelength limits needed to cover RV shifts used."""
     delta = spec_max_delta(obs_spec, rvs, gammas)
+    if delta < 1:
+        delta = 1  # Default to avoid any interpolation errors for zero RV.
     obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
     return [obs_min - 1.1 * delta, obs_max + 1.1 * delta]
 
