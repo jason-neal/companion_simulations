@@ -4,7 +4,7 @@ import os
 from joblib import Memory
 from scipy.interpolate import interp1d
 
-joblib_dir = "~/.tmp/joblib"
+joblib_dir = "/home/jneal/.tmp/joblib"
 os.makedirs(joblib_dir, exist_ok=True)
 memory = Memory(cachedir=joblib_dir)
 
