@@ -121,7 +121,7 @@ def chi2_model_norms(wave, obs, models, method='scalar', splits=20, top=20):
     different
     """
     if np.any(np.isnan(models)):
-        raise ValueError("NaNS are not allowed in models during normalization, "
+        raise ValueError("NaNs are not allowed in models during normalization, "
                          "check evaluated wavelength.")
 
     obs_continuum = continuum(wave, obs, splits=splits, method=method, top=top)
@@ -159,11 +159,14 @@ def arbitrary_rescale(model_grid, start, stop, step):
     return new_models, arb_norm
 
 
-def arbitrary_minimums(model_grid, last_axis):
+def arbitrary_minimums(model_grid, last_axis=None):
     """Find the minimum value along the last dimension."""
     min_locations = np.argmin(model_grid, axis=-1)
     new_model_grid = np.min(model_grid, axis=-1)
-    axis_values = np.asarray(last_axis)[min_locations]
+    if last_axis is None:
+        axis_values = None
+    else:
+        axis_values = np.asarray(last_axis)[min_locations]
 
     return new_model_grid, axis_values
 
