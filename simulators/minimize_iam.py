@@ -39,25 +39,10 @@ def main(star, obsnum, chip):
     _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
 
     # Determine Spectrum Errors
-    try:
-        N = simulators.betasigma.get("N", 5)
-        j = simulators.betasigma.get("j", 2)
-        errors, derrors = betasigma_error(obs_spec, N=N, j=j)
-        print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
-        logging.info(__("Beta-Sigma error value = {:6.5f}+/-{:6.5f}", errors, derrors))
-
-    except KeyError as e:
-        print("ERRORS Failed so set to None!")
-        errors = None
-
-    # Create Minimizing function
-    def iam_chi2():
-        chi2_value = 0
-
-        return chi2_value
-
-    # Minimize function
-    from lmfit import Parameters, minimize
+    N = simulators.betasigma.get("N", 5)
+    j = simulators.betasigma.get("j", 2)
+    errors, derrors = betasigma_error(obs_spec, N=N, j=j)
+    print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
 
     params = Parameters()
     params.add()
