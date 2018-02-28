@@ -1,9 +1,16 @@
 import logging
 
+# Minimize function
+import lmfit
+import matplotlib.pyplot as plt
+import numpy as np
+from lmfit import Parameters, fit_report, Minimizer
 from logutils import BraceMessage as __
+from spectrum_overload import Spectrum
 
 import simulators
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
+from mingle.utilities.debug_utils import timeit2
 from mingle.utilities.errors import betasigma_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import (closest_model_params)
@@ -16,6 +23,7 @@ logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 
 
+@timeit2
 def main(star, obsnum, chip):
     star = star.upper()
     setup_iam_dirs(star)
@@ -44,19 +52,38 @@ def main(star, obsnum, chip):
     j = simulators.betasigma.get("j", 2)
     errors, derrors = betasigma_error(obs_spec, N=N, j=j)
     print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
+    logging.info(__("Beta-Sigma error value = {:6.5f}+/-{:6.5f}", errors, derrors))
 
     params = Parameters()
-    params.add()
-    params.add('teff_1', value=closest_host_model[0], min=2300, max=7000, vary=True, brute_step=100)
-    params.add('teff_2', value=closest_comp_model[0], min=2300, max=7000, vary=True, brute_step=100)
-    params.add('logg_1', value=closest_host_model[1], min=-0, max=6, vary=False, brute_step=0.5)
-    params.add('logg_2', value=closest_comp_model[1], min=-0, max=6, vary=False, brute_step=0.5)
+
+    params.add('teff_1', value=closest_host_model[0], min=5600, max=5800, vary=False, brute_step=100)
+    params.add('teff_2', value=closest_comp_model[0], min=3000, max=3400, vary=True, brute_step=100)
+    params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
+    params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
     params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
-    params.add('rv_1', value=0, min=-50, max=50, vary=True)
-    params.add('rv_2', value=0, min=-50, max=50, vary=True)
+    params.add('rv_1', value=7, min=-20, max=20, vary=True, brute_step=0)
+    params.add('rv_2', value=1.5, min=-10, max=10, vary=True, brute_step=0)
 
-    minimize(iam_chi2, params)
+    print("Initial Values")
+    # params.pretty_print()
+    kws = {"chip": chip, "norm": True, "norm_method": "linear",
+           "area_scale": True, "wav_scale": True, "fudge": None, "arb_norm": False}
+
+    # Least-squares fit to the spectrum.
+    mini = Minimizer(func_array, params, fcn_args=(obs_spec.xaxis, obs_spec.flux, errors), fcn_kws=kws)
+    # Evaluate 20 pointes on each axis and keep all points candiadates
+    result = mini.minimize(method="brute", Ns=20, keep="all")
+
+    print("Results")
+    result.params.pretty_print()
+
+    print("Chi2", result.chisqr)
+    print("Reduced Chi2", result.redchi)
+    # ci = lmfit.conf_interval(mini, result)
+    # lmfit.printfuncs.report_ci(ci)
+    print("Fit report", fit_report(result.params))
+
 
 
 def func_chi2(pars, obs_wav, obs_flux, chip=None, norm=True, norm_method="scalar",
