@@ -141,7 +141,7 @@ def min_chi2_corner_plot(star, filename):
     plt.close()
 
 
-# TODO common function to determine observations and chips for different stars  (like here)
+
 if __name__ == "__main__":
     args = parse_args(sys.argv[1:])
     star = args.star

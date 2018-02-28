@@ -175,7 +175,6 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
             mod1_spec = load_starfish_spectrum(params1, limits=normalization_limits, hdr=True, normalize=True)
             mod2_spec = load_starfish_spectrum(params2, limits=normalization_limits, hdr=True, normalize=True)
 
-            # TODO WHAT IS THE MAXIMUM (GAMMA + RV POSSIBLE? LIMIT IT TO THAT SHIFT?
 
             # Wavelength selection
             mod1_spec.wav_select(np.min(obs_spec.xaxis) - 5,
