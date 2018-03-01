@@ -22,6 +22,7 @@ from simulators.iam_module import target_params
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
+from simulators.minimize_iam import load_observation
 
 
 @timeit2
@@ -30,40 +31,23 @@ def main(star, obsnum, chip):
     setup_bhm_dirs(star)
 
     # Setup comparision spectra
-    obs_name, params, output_prefix = bhm_helper_function(star, obsnum, chip)
-    # if suffix is not None:
-    #    output_prefix = output_prefix + str(suffix)
+    obs_spec, errors, obs_params = load_observation(star, obsnum, chip)
 
-    print("The observation used is ", obs_name, "\n")
-
-    host_params, comp_params = target_params(params, mode="iam")
+    host_params, comp_params = target_params(obs_params, mode="iam")
 
     closest_host_model = closest_model_params(*host_params)
     closest_comp_model = closest_model_params(*comp_params)
 
-    # Load observation
-    obs_spec = load_spectrum(obs_name)
-    # Mask out bad portion of observed spectra
-    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
-    # Barycentric correct spectrum
-    _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
-
-    # Determine Spectrum Errors
-    N = simulators.betasigma.get("N", 5)
-    j = simulators.betasigma.get("j", 2)
-    errors, derrors = betasigma_error(obs_spec, N=N, j=j)
-    print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
-
     params = Parameters()
 
     params.add('teff_1', value=closest_host_model[0], min=5600, max=5800, vary=True, brute_step=100)
-    params.add('teff_2', value=closest_comp_model[0], min=3000, max=3400, vary=False, brute_step=100)
+    #  params.add('teff_2', value=closest_comp_model[0], min=3000, max=3400, vary=False, brute_step=100)
     params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
-    params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
+    # params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
-    params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
+    # params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
     params.add('rv_1', value=7, min=-20, max=20, vary=True, brute_step=0)
-    params.add('rv_2', value=1.5, min=-10, max=10, vary=True, brute_step=0)
+    # params.add('rv_2', value=1.5, min=-10, max=10, vary=True, brute_step=0)
 
     # result = brute_solve_iam(params, obs_spec, errors, chip, Ns=20)
     result = brute_solve_bhm(params, obs_spec, errors, chip, Ns=20)
@@ -79,7 +63,7 @@ def main(star, obsnum, chip):
 
 def brute_solve_bhm(params, obs_spec, errors, chip, Ns=20):
     kws = {"chip": chip, "norm": True, "norm_method": "linear",
-           "area_scale": True, "wav_scale": True, "fudge": None, }
+           "area_scale": True, "wav_scale": True, "fudge": None}
 
     # Least-squares fit to the spectrum.
     mini = Minimizer(bhm_func_array, params, fcn_args=(obs_spec.xaxis, obs_spec.flux, errors), fcn_kws=kws)

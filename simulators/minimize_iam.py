@@ -24,22 +24,10 @@ logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 
 
-@timeit2
-def main(star, obsnum, chip):
-    star = star.upper()
-    setup_iam_dirs(star)
-
-    # Setup comparision spectra
+def load_observation(star, obsnum, chip):
     obs_name, params, output_prefix = iam_helper_function(star, obsnum, chip)
-    # if suffix is not None:
-    #    output_prefix = output_prefix + str(suffix)
 
     print("The observation used is ", obs_name, "\n")
-
-    host_params, comp_params = target_params(params, mode="iam")
-
-    closest_host_model = closest_model_params(*host_params)
-    closest_comp_model = closest_model_params(*comp_params)
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
@@ -53,6 +41,20 @@ def main(star, obsnum, chip):
     j = simulators.betasigma.get("j", 2)
     errors, derrors = betasigma_error(obs_spec, N=N, j=j)
     print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
+    return obs_spec, errors, params
+
+@timeit2
+def main(star, obsnum, chip):
+    star = star.upper()
+    setup_iam_dirs(star)
+
+    # Setup comparision spectra
+    obs_spec, errors, obs_params = load_observation(star, obsnum, chip)
+
+    host_params, comp_params = target_params(obs_params, mode="iam")
+
+    closest_host_model = closest_model_params(*host_params)
+    closest_comp_model = closest_model_params(*comp_params)
 
     params = Parameters()
 
