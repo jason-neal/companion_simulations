@@ -5,7 +5,7 @@ import warnings
 from logutils import BraceMessage as __
 
 import simulators
-from mingle.utilities import parse_paramfile
+from mingle.utilities import parse_paramfile, load_spectrum, spectrum_masking, barycorr_crires_spectrum, betasigma_error
 
 from typing import Dict, Tuple, Union, List
 
@@ -77,3 +77,23 @@ def obs_name_template() -> str:
     logging.debug(__("Filename template from obs_name_template = '{0}'", fname))
 
     return fname
+
+
+def load_observation_with_errors(star, obsnum, chip, mode="iam"):
+    obs_name, params, output_prefix = sim_helper_function(star, obsnum, chip, skip_params=False, mode=mode)
+
+    print("The observation used is ", obs_name, "\n")
+
+    # Load observation
+    obs_spec = load_spectrum(obs_name)
+    # Mask out bad portion of observed spectra
+    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
+    # Barycentric correct spectrum
+    _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
+
+    # Determine Spectrum Errors
+    N = simulators.betasigma.get("N", 5)
+    j = simulators.betasigma.get("j", 2)
+    errors, derrors = betasigma_error(obs_spec, N=N, j=j)
+    print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
+    return obs_spec, errors, params

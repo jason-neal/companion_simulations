@@ -5,44 +5,18 @@ import lmfit
 import matplotlib.pyplot as plt
 import numpy as np
 from lmfit import Parameters, fit_report, Minimizer
-from logutils import BraceMessage as __
 from spectrum_overload import Spectrum
 from mingle.utilities.param_utils import closest_obs_params
 
 import simulators
-from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.debug_utils import timeit2
-from mingle.utilities.errors import betasigma_error
-from mingle.utilities.masking import spectrum_masking
-from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import iam_chi2_magic_sauce, iam_magic_sauce
 from simulators.minimize_bhm import brute_solve_bhm
-from simulators.iam_module import (iam_helper_function,
-                                   setup_iam_dirs)
-from simulators.common_setup import sim_helper_function
+from simulators.iam_module import (setup_iam_dirs)
+from simulators.common_setup import load_observation_with_errors
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
-
-
-def load_observation(star, obsnum, chip, mode="iam"):
-    obs_name, params, output_prefix = sim_helper_function(star, obsnum, chip, skip_params=False, mode=mode)
-
-    print("The observation used is ", obs_name, "\n")
-
-    # Load observation
-    obs_spec = load_spectrum(obs_name)
-    # Mask out bad portion of observed spectra
-    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
-    # Barycentric correct spectrum
-    _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
-
-    # Determine Spectrum Errors
-    N = simulators.betasigma.get("N", 5)
-    j = simulators.betasigma.get("j", 2)
-    errors, derrors = betasigma_error(obs_spec, N=N, j=j)
-    print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
-    return obs_spec, errors, params
 
 
 @timeit2
@@ -51,7 +25,7 @@ def main(star, obsnum, chip):
     setup_iam_dirs(star)
 
     # Setup comparision spectra
-    obs_spec, errors, obs_params = load_observation(star, obsnum, chip)
+    obs_spec, errors, obs_params = load_observation_with_errors(star, obsnum, chip)
 
     closest_host_model, closest_comp_model = closest_obs_params(obs_params, mode="iam")
 
@@ -81,7 +55,7 @@ def main(star, obsnum, chip):
     spec_list, error_list = [], []
     chips = [1, 2, 3, 4]
     for chip in [1, 2, 3]:
-        obs_spec, errors, obs_params = load_observation(star, obsnum, chip)
+        obs_spec, errors, obs_params = load_observation_with_errors(star, obsnum, chip)
         spec_list.append(obs_spec)
         error_list.append(errors)
 

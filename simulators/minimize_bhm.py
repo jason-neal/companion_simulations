@@ -22,7 +22,7 @@ from mingle.utilities.param_utils import closest_obs_params, closest_model_param
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
-from simulators.minimize_iam import load_observation
+from simulators.common_setup import load_observation_with_errors
 
 
 @timeit2
@@ -31,7 +31,7 @@ def main(star, obsnum, chip):
     setup_bhm_dirs(star)
 
     # Setup comparision spectra
-    obs_spec, errors, obs_params = load_observation(star, obsnum, chip, mode="bhm")
+    obs_spec, errors, obs_params = load_observation_with_errors(star, obsnum, chip, mode="bhm")
 
     closest_host_model = closest_obs_params(obs_params, mode="bhm")
 
