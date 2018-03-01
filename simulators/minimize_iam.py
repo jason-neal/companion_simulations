@@ -73,7 +73,7 @@ def brute_solve_iam(params, obs_spec, errors, chip, Ns=20):
         minimize_flux = obs_spec.flux
 
     kws = {"chip": chip, "norm": True, "norm_method": "linear",
-           "area_scale": True, "wav_scale": True, "fudge": None, "arb_norm": False}
+           "area_scale": True, "wav_scale": True, "fudge": None}
 
     # Least-squares fit to the spectrum.
     mini = Minimizer(func_array, params, fcn_args=(minimize_wav, minimize_flux, errors), fcn_kws=kws)
@@ -136,11 +136,11 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
     if isinstance(chip, list):
         # Do multiple chips at once, append them together
         assert len(chip) == len(obs_wav)
-        assert obs_flux.shape == obs_wav.shape
+        assert len(obs_flux) == len(obs_wav)
 
-        flux = np.empty()
-        model = np.empty()
-        error_array = np.empty()
+        flux = np.empty((1,))
+        model = np.empty((1,))
+        error_array = np.empty((1,))
 
         for ii, c in enumerate(chip):
             flux_ii, model_ii = iam_magic_sauce(Spectrum(xaxis=obs_wav[ii], flux=obs_flux[ii]),
