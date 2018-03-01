@@ -177,7 +177,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
 
             # RE-NORMALIZATION
             if chip == 4:
-                # Quadratically renormalize anyway
+                # Quadratically re-normalize anyway
                 obs_spec = renormalization(obs_spec, iam_grid_models, normalize=True, method="quadratic")
             obs_flux = renormalization(obs_spec, iam_grid_models, normalize=norm, method=norm_method)
 
@@ -233,6 +233,15 @@ def iam_chi2_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None, errors
                                                 wav_scale=wav_scale, norm=norm, norm_method=norm_method,
                                                 fudge=fudge, arb_norm=arb_norm)
 
+    # Arbitrary_normalization of observation
+    if arb_norm:
+        old_shape = iam_grid_models.shape
+        iam_grid_models, arb_norm = arbitrary_rescale(iam_grid_models,
+                                                      *simulators.sim_grid["arb_norm"])
+        # print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
+        assert iam_grid_models.shape == (*old_shape, len(arb_norm))
+        obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match arb_norm
+
     # Calculate Chi-squared
     iam_chisquare = chi_squared(obs_flux, iam_grid_models, error=errors)
 
@@ -249,8 +258,8 @@ def iam_chi2_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None, errors
 
 def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
                     area_scale=True, wav_scale=True, norm=False,
-                    norm_method="scalar", fudge=None, arb_norm=False):
-    """Cleanned up magic sauce."""
+                    norm_method="scalar", fudge=None):
+    """Cleaned up magic sauce."""
     rv_limits = observation_rv_limits(obs_spec, rv1, rv2)
 
     obs_spec = obs_spec.remove_nans()
@@ -269,7 +278,7 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
     iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
                                          rvs=rv2, gammas=rv1)
     iam_grid_models = iam_grid_func(obs_spec.xaxis)
-    #print(iam_grid_models.shape)
+    # print(iam_grid_models.shape)
 
     # Continuum normalize all iam_grid_models
     def axis_continuum(flux):
@@ -282,19 +291,9 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
     #print(iam_grid_models.shape)
     # RE-NORMALIZATION
     if chip == 4:
-        # Quadratically renormalize anyway
+        # Quadratically re-normalize anyway
         obs_spec = renormalization(obs_spec, iam_grid_models, normalize=True, method="quadratic")
     obs_flux = renormalization(obs_spec, iam_grid_models, normalize=norm, method=norm_method)
-
-    old_shape = iam_grid_models.shape
-
-    # Arbitrary_normalization of observation
-    if arb_norm:
-        iam_grid_models, arb_norm = arbitrary_rescale(iam_grid_models,
-                                                      *simulators.sim_grid["arb_norm"])
-        # print("Arbitrary Normalized iam_grid_model shape.", iam_grid_models.shape)
-        assert iam_grid_models.shape == (*old_shape, len(arb_norm))
-        obs_flux = np.expand_dims(obs_flux, -1)  # expand on last axis to match arb_norm
 
     assert obs_flux.shape == iam_grid_models.shape
     return obs_flux, iam_grid_models

@@ -112,7 +112,7 @@ def func_chi2(pars, obs_wav, obs_flux, chip=None, norm=True, norm_method="scalar
 
 
 def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_method="scalar",
-               area_scale=True, wav_scale=True, fudge=None, arb_norm=False):
+               area_scale=True, wav_scale=True, fudge=None):
     """Calculate binary model chi^2 for given parameters and observation"""
     # unpack parameters: extract .value attribute for each parameter
     parvals = pars.valuesdict()
@@ -125,20 +125,22 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
     rv_1 = np.asarray([parvals['rv_1']])
     rv_2 = np.asarray([parvals['rv_2']])
 
+    arb_norm = parvals.get("arb_norm", 1)  # 1 if not provided
+
     obs_flux2, iam_flux = iam_magic_sauce(Spectrum(xaxis=obs_wav, flux=obs_flux),
                                           [teff_1, logg_1, feh_1],
                                           [teff_2, logg_2, feh_2],
                                           rv_1, rv_2,
                                           chip=chip, norm_method=norm_method,
                                           area_scale=area_scale, norm=norm,
-                                          wav_scale=wav_scale, fudge=fudge, arb_norm=arb_norm)
-    residual = iam_flux - obs_flux2
+                                          wav_scale=wav_scale, fudge=fudge)
+    residual = iam_flux - (obs_flux2 * arb_norm)
     # Scale to make chi-square sensible.
     return residual / errors
 
 
 def func_all_chips_array(pars, obs_wav, obs_flux, errors, norm=True, norm_method="scalar",
-                         area_scale=True, wav_scale=True, fudge=None, arb_norm=False):
+                         area_scale=True, wav_scale=True, fudge=None):
     """Calculate binary model chi^2 for given parameters and observation"""
     # unpack parameters: extract .value attribute for each parameter
     parvals = pars.valuesdict()
@@ -158,7 +160,7 @@ def func_all_chips_array(pars, obs_wav, obs_flux, errors, norm=True, norm_method
                                           rv_1, rv_2,
                                           chip=chip, norm_method=norm_method,
                                           area_scale=area_scale, norm=norm,
-                                          wav_scale=wav_scale, fudge=fudge, arb_norm=arb_norm)
+                                          wav_scale=wav_scale, fudge=fudge)
     residual = iam_flux - obs_flux2
     # Scale to make chi-square sensible.
     return residual / errors
