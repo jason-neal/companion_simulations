@@ -3,6 +3,7 @@ matplotlib==2.1.2
 ephem==3.7.6.0
 joblib==0.11
 jsmin==2.2.2
+lmfit
 numba==0.37.0
 numpy==1.14.0
 multiprocess==0.70.5
