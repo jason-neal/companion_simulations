@@ -43,6 +43,7 @@ def load_observation(star, obsnum, chip):
     print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
     return obs_spec, errors, params
 
+
 @timeit2
 def main(star, obsnum, chip):
     star = star.upper()
@@ -78,13 +79,32 @@ def main(star, obsnum, chip):
 
     print("Fit report", fit_report(result.params))
 
+    # All chip version
+    spec_list, error_list = [], []
+    chips = [1, 2, 3, 4]
+    for chip in [1, 2, 3]:
+        obs_spec, errors, obs_params = load_observation(star, obsnum, chip)
+        spec_list.append(obs_spec)
+        error_list.append(errors)
+
+    brute_solve_iam(params, spec_list, error_list, chips)
+
 
 def brute_solve_iam(params, obs_spec, errors, chip, Ns=20):
+    if isinstance(obs_spec, list):
+        minimize_wav = [obs.xaxis for obs in obs_spec]
+        minimize_flux = [obs.flux for obs in obs_spec]
+        assert len(minimize_flux) == len(errors)
+        assert len(minimize_wav) == len(chip)
+    else:
+        minimize_wav = obs_spec.xaxis
+        minimize_flux = obs_spec.flux
+
     kws = {"chip": chip, "norm": True, "norm_method": "linear",
            "area_scale": True, "wav_scale": True, "fudge": None, "arb_norm": False}
 
     # Least-squares fit to the spectrum.
-    mini = Minimizer(func_array, params, fcn_args=(obs_spec.xaxis, obs_spec.flux, errors), fcn_kws=kws)
+    mini = Minimizer(func_array, params, fcn_args=(minimize_wav, minimize_flux, errors), fcn_kws=kws)
     # Evaluate 20 points on each axis and keep all points candidates
     result = mini.minimize(method="brute", Ns=Ns, keep="all")
 
@@ -93,6 +113,7 @@ def brute_solve_iam(params, obs_spec, errors, chip, Ns=20):
 
     print("Chi2", result.chisqr)
     print("Reduced Chi2", result.redchi)
+    # conf_interval does not work with brute force method
     # ci = lmfit.conf_interval(mini, result)
     # lmfit.printfuncs.report_ci(ci)
     print("Fit report", fit_report(result.params))
@@ -140,16 +161,41 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
 
     arb_norm = parvals.get("arb_norm", 1)  # 1 if not provided
 
-    obs_flux2, iam_flux = iam_magic_sauce(Spectrum(xaxis=obs_wav, flux=obs_flux),
-                                          [teff_1, logg_1, feh_1],
-                                          [teff_2, logg_2, feh_2],
-                                          rv_1, rv_2,
-                                          chip=chip, norm_method=norm_method,
-                                          area_scale=area_scale, norm=norm,
-                                          wav_scale=wav_scale, fudge=fudge)
-    residual = iam_flux - (obs_flux2 * arb_norm)
+    if isinstance(chip, list):
+        # Do multiple chips at once, append them together
+        assert len(chip) == len(obs_wav)
+        assert obs_flux.shape == obs_wav.shape
+
+        flux = np.empty()
+        model = np.empty()
+        error_array = np.empty()
+
+        for ii, c in enumerate(chip):
+            flux_ii, model_ii = iam_magic_sauce(Spectrum(xaxis=obs_wav[ii], flux=obs_flux[ii]),
+                                                [teff_1, logg_1, feh_1],
+                                                [teff_2, logg_2, feh_2],
+                                                rv_1, rv_2,
+                                                chip=c, norm_method=norm_method,
+                                                area_scale=area_scale, norm=norm,
+                                                wav_scale=wav_scale, fudge=fudge)
+            flux = np.concatenate((flux, flux_ii))
+            model = np.concatenate((model, model_ii))
+            error_array = np.concatenate((error_array, errors[ii] * np.ones_like(flux_ii)))
+        errors = error_array
+    else:
+        flux, model = iam_magic_sauce(Spectrum(xaxis=obs_wav, flux=obs_flux),
+                                      [teff_1, logg_1, feh_1],
+                                      [teff_2, logg_2, feh_2],
+                                      rv_1, rv_2,
+                                      chip=chip, norm_method=norm_method,
+                                      area_scale=area_scale, norm=norm,
+                                      wav_scale=wav_scale, fudge=fudge)
+
+    residual = model - (flux * arb_norm)
+
     # Scale to make chi-square sensible.
-    return residual / errors
+    scaled_residual = residual / errors
+    return scaled_residual
 
 
 def func_all_chips_array(pars, obs_wav, obs_flux, errors, norm=True, norm_method="scalar",
