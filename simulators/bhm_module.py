@@ -129,6 +129,40 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
             bhm_grid_chisqr_vals, bhm_grid_gamma, full_bhm_grid_chisquare)
 
 
+
+def bhm_magic_sauce(obs_spec, params, rv1, chip=None,
+                    wav_scale=True, norm=False,
+                    norm_method="scalar"):
+    """Main guts of bhm"""
+
+    normalization_limits = [2105, 2185]  # small as possible?
+
+    mod_spec = load_starfish_spectrum(params, limits=normalization_limits, hdr=True,
+                                      normalize=True, wav_scale=wav_scale)
+
+    # Wavelength selection
+    mod_spec.wav_select(np.min(obs_spec.xaxis) - 5,
+                        np.max(obs_spec.xaxis) + 5)  # +- 5nm of obs
+
+    obs_spec = obs_spec.remove_nans()
+
+    # One component model with broadcasting over gammas
+    bhm_grid_func = one_comp_model(mod_spec.xaxis, mod_spec.flux, gammas=rv1)
+    bhm_grid_values = bhm_grid_func(obs_spec.xaxis)
+
+    assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
+
+    # RENORMALIZATION
+    if chip == 4:
+        # Quadratically re-normalize anyway
+        obs_spec = renormalization(obs_spec, bhm_grid_values, normalize=True, method="quadratic")
+    obs_flux = renormalization(obs_spec, bhm_grid_values, normalize=norm, method=norm_method)
+
+
+    assert obs_flux.shape() == bhm_grid_values.shape()
+    return obs_flux, bhm_grid_values
+
+
 def save_full_bhm_chisqr(name: str, params1: List[Union[int, float]], gammas: ndarray, bhm_grid_chisquare: ndarray,
                          arbitrary_norms: ndarray, npix: int, xcorr_value: Optional[int] = None) -> None:
     """Save the bhm chisqr values to a cvs."""
