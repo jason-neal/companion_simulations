@@ -16,6 +16,7 @@ from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import (closest_model_params)
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import iam_chi2_magic_sauce, iam_magic_sauce
+from simulators.minimize_bhm import brute_solve_bhm
 from simulators.iam_module import (iam_helper_function,
                                    setup_iam_dirs, target_params)
 
@@ -52,7 +53,6 @@ def main(star, obsnum, chip):
     j = simulators.betasigma.get("j", 2)
     errors, derrors = betasigma_error(obs_spec, N=N, j=j)
     print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
-    logging.info(__("Beta-Sigma error value = {:6.5f}+/-{:6.5f}", errors, derrors))
 
     params = Parameters()
 
@@ -65,25 +65,36 @@ def main(star, obsnum, chip):
     params.add('rv_1', value=7, min=-20, max=20, vary=True, brute_step=0)
     params.add('rv_2', value=1.5, min=-10, max=10, vary=True, brute_step=0)
 
-    print("Initial Values")
-    # params.pretty_print()
-    kws = {"chip": chip, "norm": True, "norm_method": "linear",
-           "area_scale": True, "wav_scale": True, "fudge": None, "arb_norm": False}
-
-    # Least-squares fit to the spectrum.
-    mini = Minimizer(func_array, params, fcn_args=(obs_spec.xaxis, obs_spec.flux, errors), fcn_kws=kws)
-    # Evaluate 20 pointes on each axis and keep all points candiadates
-    result = mini.minimize(method="brute", Ns=20, keep="all")
+    result = brute_solve_iam(params, obs_spec, errors, chip, Ns=20)
+    result_bhm = brute_solve_bhm(params, obs_spec, errors, chip, Ns=20)
 
     print("Results")
     result.params.pretty_print()
 
     print("Chi2", result.chisqr)
     print("Reduced Chi2", result.redchi)
+
+    print("Fit report", fit_report(result.params))
+
+
+def brute_solve_iam(params, obs_spec, errors, chip, Ns=20):
+    kws = {"chip": chip, "norm": True, "norm_method": "linear",
+           "area_scale": True, "wav_scale": True, "fudge": None, "arb_norm": False}
+
+    # Least-squares fit to the spectrum.
+    mini = Minimizer(func_array, params, fcn_args=(obs_spec.xaxis, obs_spec.flux, errors), fcn_kws=kws)
+    # Evaluate 20 points on each axis and keep all points candidates
+    result = mini.minimize(method="brute", Ns=Ns, keep="all")
+
+    print("Results")
+    # result.params.pretty_print()
+
+    print("Chi2", result.chisqr)
+    print("Reduced Chi2", result.redchi)
     # ci = lmfit.conf_interval(mini, result)
     # lmfit.printfuncs.report_ci(ci)
     print("Fit report", fit_report(result.params))
-
+    return result
 
 
 def func_chi2(pars, obs_wav, obs_flux, chip=None, norm=True, norm_method="scalar",
