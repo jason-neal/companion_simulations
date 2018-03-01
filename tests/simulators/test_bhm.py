@@ -3,8 +3,8 @@ import os
 import pytest
 
 import simulators
-from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
-from simulators.bhm_module import (bhm_helper_function, get_bhm_model_pars, setup_bhm_dirs)
+from mingle.utilities.param_utils import closest_model_params, get_bhm_model_pars, generate_close_params
+from simulators.bhm_module import (bhm_helper_function, setup_bhm_dirs)
 from simulators.bhm_script import parse_args
 
 

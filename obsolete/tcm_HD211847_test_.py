@@ -27,9 +27,8 @@ from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.debug_utils import timeit2  # pv,
 from mingle.utilities.norm import chi2_model_norms  # , renormalize_observation
-from mingle.utilities.phoenix_utils import (closest_model_params,
-                                            generate_close_params,
-                                            load_starfish_spectrum)
+from mingle.utilities.phoenix_utils import (load_starfish_spectrum)
+from mingle.utilities.param_utils import closest_model_params, generate_close_params
 from old_simulations.Chisqr_of_observation import load_spectrum  # , select_observation
 from simulators.tcm_module import save_full_chisqr, tcm_helper_function
 

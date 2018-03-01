@@ -17,8 +17,7 @@ from sqlalchemy.sql.schema import Table
 import simulators
 from mingle.utilities import chi2_at_sigma
 from mingle.utilities.param_file import parse_paramfile
-from mingle.utilities.phoenix_utils import closest_model_params
-from simulators.iam_module import target_params
+from mingle.utilities.param_utils import target_params, closest_model_params
 
 odd_chi2s = ["chi2_123"]
 

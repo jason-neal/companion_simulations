@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import warnings
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -486,25 +486,3 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
         plt.close(plt.gcf())
 
 
-def target_params(params: Dict[str, Any], mode: Optional[str] = "iam") -> Tuple[
-    List[Union[int, float]], List[Union[int, float]]]:
-    """Extract parameters from dict for each target.
-
-    Includes logic for handling missing companion logg/fe_h.
-    """
-    host_params = [params["temp"], params["logg"], params["fe_h"]]
-
-    # Specify the companion logg and metallicity in the parameter files.
-    if params.get("comp_logg", None) is None:
-        logging.warning(__("Logg for companion 'comp_logg' is not set for {0}", params.get("name", params)))
-    print("mode in target params", mode)
-    if mode == "iam":
-        comp_logg = params.get("comp_logg", params["logg"])  # Set equal to host if not given
-        comp_fe_h = params.get("comp_fe_h", params["fe_h"])  # Set equal to host if not given
-        comp_temp = params.get("comp_temp", 999999)  # Will go to largest grid
-        comp_params = [comp_temp, comp_logg, comp_fe_h]
-    elif mode == "bhm":
-        comp_params = []
-    else:
-        raise ValueError("Mode={} is invalid".format(mode))
-    return host_params, comp_params

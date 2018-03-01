@@ -25,7 +25,7 @@ from bin.coadd_bhm_analysis_module import (chi2_parabola_plots, chi2_individual_
                                            parabola_plots, smallest_chi2_values)
 from mingle.utilities.db_utils import decompose_database_name, load_sql_table
 from mingle.utilities.param_file import get_host_params
-from mingle.utilities.phoenix_utils import closest_model_params
+from mingle.utilities.param_utils import closest_model_params
 
 
 def parse_args(args):

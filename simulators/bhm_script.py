@@ -12,7 +12,8 @@ from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.spectrum_utils import load_spectrum
-from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_bhm_model_pars
+from simulators.bhm_module import bhm_analysis, bhm_helper_function
+from mingle.utilities.param_utils import get_bhm_model_pars
 from simulators.bhm_module import setup_bhm_dirs
 
 from bin.coadd_bhm_db import main as coadd_db
@@ -56,7 +57,7 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     wav_scale = not disable_wav_scale
     star = star.upper()
     setup_bhm_dirs(star)
-    # Define the broadcasted gamma grid
+    # Define the broadcast gamma grid
     gammas = np.arange(*simulators.sim_grid["gammas"])
     # print("bhm gammas", gammas)
 

@@ -21,8 +21,7 @@ from bin.coadd_chi2_db import main as coadd_db
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
-from mingle.utilities.phoenix_utils import (closest_model_params,
-                                            generate_close_params_with_simulator)
+from mingle.utilities.param_utils import closest_obs_params, generate_close_params_with_simulator
 from mingle.utilities.simulation_utilities import check_inputs
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import (iam_analysis, iam_helper_function,

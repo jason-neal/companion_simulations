@@ -9,14 +9,13 @@ from tqdm import tqdm
 import simulators
 from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.chisqr import chi_squared
-from mingle.utilities.phoenix_utils import generate_bhm_config_params
-from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model_params, generate_close_params
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.xcorr import xcorr_peak
 from simulators.common_setup import setup_dirs, sim_helper_function
 from simulators.iam_module import arbitrary_minimums, arbitrary_rescale
 from simulators.iam_module import renormalization
 
-from numpy import float64, int64, ndarray
+from numpy import ndarray
 from typing import Dict, List, Optional, Tuple, Union
 
 
@@ -187,18 +186,3 @@ def bhm_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_para
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="bhm")
 
 
-def get_bhm_model_pars(params: Dict[str, Union[int, float]], method: str = "close") -> List[
-    List[Union[int64, float64]]]:
-    method = method.lower()
-
-    host_params = [params["temp"], params["logg"], params["fe_h"]]
-    closest_host_model = closest_model_params(*host_params)
-    if method == "config":
-        model_pars = list(generate_bhm_config_params(closest_host_model))
-    elif method == "close":
-        # Model parameters to try iterate over.
-        model_pars = list(generate_close_params(closest_host_model, small=True))
-    else:
-        raise ValueError("The method '{0}' is not valid".format(method))
-
-    return model_pars

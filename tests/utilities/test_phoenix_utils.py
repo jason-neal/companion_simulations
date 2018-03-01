@@ -8,15 +8,13 @@ import numpy as np
 import pytest
 from spectrum_overload import Spectrum
 
-from mingle.utilities.phoenix_utils import closest_model_params
-from mingle.utilities.phoenix_utils import (gen_new_param_values,
-                                            generate_close_params_with_simulator,
-                                            load_phoenix_spectrum,
+from mingle.utilities.param_utils import closest_model_params, generate_close_params_with_simulator, \
+    gen_new_param_values, make_grid_parameter
+from mingle.utilities.phoenix_utils import (load_phoenix_spectrum,
                                             load_starfish_spectrum, phoenix_area)
-from mingle.utilities.phoenix_utils import get_phoenix_limits
+from mingle.utilities.limits import get_phoenix_limits, set_model_limits
 from mingle.utilities.phoenix_utils import phoenix_name, phoenix_regex, \
     find_closest_phoenix_name, find_phoenix_model_names
-from mingle.utilities.phoenix_utils import set_model_limits, make_grid_parameter
 
 
 @pytest.mark.parametrize("limits, normalize", [([2100, 2150], True), ([2050, 2150], False)])

@@ -24,9 +24,8 @@ import simulators
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.debug_utils import pv
 from mingle.utilities.param_file import parse_paramfile
-from mingle.utilities.phoenix_utils import (closest_model_params,
-                                            generate_close_params,
-                                            load_starfish_spectrum)
+from mingle.utilities.phoenix_utils import (load_starfish_spectrum)
+from mingle.utilities.param_utils import closest_model_params, generate_close_params
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.bhm_module import bhm_analysis
 

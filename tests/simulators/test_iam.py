@@ -3,9 +3,9 @@ import os
 import numpy as np
 import pytest
 from simulators.iam_module import (continuum_alpha, iam_helper_function, iam_wrapper,
-                                   setup_iam_dirs, renormalization, target_params,
-                                   observation_rv_limits, prepare_iam_model_spectra,
+                                   setup_iam_dirs, renormalization, observation_rv_limits, prepare_iam_model_spectra,
                                    )
+from mingle.utilities.param_utils import target_params
 from simulators.iam_script import parse_args
 from spectrum_overload import Spectrum
 
