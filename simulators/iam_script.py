@@ -25,7 +25,7 @@ from mingle.utilities.param_utils import closest_obs_params, generate_close_para
 from mingle.utilities.simulation_utilities import check_inputs
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import (iam_analysis, iam_helper_function,
-                                   setup_iam_dirs, target_params)
+                                   setup_iam_dirs)
 
 from argparse import Namespace
 from typing import List
@@ -93,10 +93,7 @@ def main(star, obsnum, chip=None, parallel=False, verbose=False, suffix=None, er
 
     print("The observation used is ", obs_name, "\n")
 
-    host_params, comp_params = target_params(params, mode="iam")
-
-    closest_host_model = closest_model_params(*host_params)  # unpack temp, logg, fe_h with *
-    closest_comp_model = closest_model_params(*comp_params)
+    closest_host_model, closest_comp_model = closest_obs_params(params, mode="iam")
 
     # Function to find the good models I need from parameters
     model1_pars = list(generate_close_params_with_simulator(closest_host_model, "host", limits="phoenix"))

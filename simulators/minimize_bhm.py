@@ -13,12 +13,12 @@ from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.debug_utils import timeit2
 from mingle.utilities.errors import betasigma_error
 from mingle.utilities.masking import spectrum_masking
-from mingle.utilities.phoenix_utils import (closest_model_params)
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import iam_magic_sauce
 from simulators.bhm_module import bhm_magic_sauce
 from simulators.bhm_module import (bhm_helper_function, setup_bhm_dirs)
-from simulators.iam_module import target_params
+
+from mingle.utilities.param_utils import closest_obs_params, closest_model_params
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -33,10 +33,7 @@ def main(star, obsnum, chip):
     # Setup comparision spectra
     obs_spec, errors, obs_params = load_observation(star, obsnum, chip)
 
-    host_params, comp_params = target_params(obs_params, mode="iam")
-
-    closest_host_model = closest_model_params(*host_params)
-    closest_comp_model = closest_model_params(*comp_params)
+    closest_host_model = closest_obs_params(obs_params, mode="bhm")
 
     params = Parameters()
 
