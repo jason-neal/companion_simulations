@@ -19,13 +19,14 @@ from simulators.iam_module import iam_chi2_magic_sauce, iam_magic_sauce
 from simulators.minimize_bhm import brute_solve_bhm
 from simulators.iam_module import (iam_helper_function,
                                    setup_iam_dirs)
+from simulators.common_setup import sim_helper_function
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
 
 
-def load_observation(star, obsnum, chip):
-    obs_name, params, output_prefix = iam_helper_function(star, obsnum, chip)
+def load_observation(star, obsnum, chip, mode="iam"):
+    obs_name, params, output_prefix = sim_helper_function(star, obsnum, chip, skip_params=False, mode=mode)
 
     print("The observation used is ", obs_name, "\n")
 

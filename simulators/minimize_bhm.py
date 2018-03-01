@@ -31,7 +31,7 @@ def main(star, obsnum, chip):
     setup_bhm_dirs(star)
 
     # Setup comparision spectra
-    obs_spec, errors, obs_params = load_observation(star, obsnum, chip)
+    obs_spec, errors, obs_params = load_observation(star, obsnum, chip, mode="bhm")
 
     closest_host_model = closest_obs_params(obs_params, mode="bhm")
 
