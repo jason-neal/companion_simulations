@@ -75,7 +75,7 @@ def parse_args(args: List[str]) -> Namespace:
     return parser.parse_args(args)
 
 
-def main(star, obsnum, chip=None, parallel=False, verbose=False, suffix=None, error_off=False, area_scale=True,
+def main(star, obsnum, chip=None, verbose=False, suffix=None, error_off=False, area_scale=True,
          disable_wav_scale=False, renormalize=False, norm_method="scalar", fudge=None, betasigma=False):
     """Main function."""
 
