@@ -122,6 +122,18 @@ def test_iam_script_parser_toggle():
     assert parsed.error_off is True
 
 
+@pytest.mark.parametrize("flag, result", [
+    ("-v", False),   # Not and -x flag
+    ("-x", True),
+    ("--strict_mask", True)])
+def test_iam_parser_toggle_strict_mask(flag, result):
+    args = ["HDswitches", "02", flag]
+    parsed = parse_args(args)
+    assert parsed.star == "HDswitches"
+    assert parsed.obsnum == "02"
+    assert parsed.strict_mask is result
+
+
 def setup_renomlization_model(spectrum, model_shape):
     flux = spectrum.flux
     while flux.ndim < len(model_shape):

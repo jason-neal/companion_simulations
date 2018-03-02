@@ -1,6 +1,8 @@
+import numpy as np
 import pytest
 
 from mingle.utilities.masking import get_maskinfo, spectrum_masking
+from mingle.utilities.masking import strict_masks
 
 
 @pytest.mark.parametrize("star, obsnum, chip, expected", [
@@ -61,3 +63,48 @@ def test_masking_file_not_found(sim_config, capsys):
     out, _ = capsys.readouterr()
     assert "No Masking file/data present" in out
     assert " No such file or directory" in out
+
+
+@pytest.mark.parametrize("star, obsnum, chip", [
+    ("HD30501", "1", "1"),
+    ("HD30501", "2a", "2"),
+    ("HD30501", "2b", "3"),
+    ("HD30501", "3", "4"),
+])
+def test_strict_masking(host, star, obsnum, chip):
+    host1 = spectrum_masking(host, star, obsnum, chip)
+    host2 = spectrum_masking(host, star, obsnum, chip, stricter=True)
+    # host2 has more removed
+    assert len(host1) > len(host2)
+    # Check for no wavelenghts present in masked regions
+    for mask in strict_masks:
+        print(mask)
+        condition = (host2.xaxis > mask[0]) & (host2.xaxis < mask[-1])
+        print(condition)
+        assert not np.any(condition)
+
+@pytest.mark.parametrize("star, obsnum, chip", [
+    ("HD30501", "1", "1"),
+    ("HD30501", "2a", "2"),
+    ("HD30501", "2b", "3"),
+])
+def test_strict_masking_leaves_something(host, star, obsnum, chip):
+    host2 = spectrum_masking(host, star, obsnum, chip, stricter=True)
+    assert len(host2) > 0
+
+
+@pytest.mark.parametrize("star, obsnum, chip", [
+   ("HD30501", "3", "4"),
+])
+def test_strict_masking_does_not_leave_something_in_chip_4(host, star, obsnum, chip):
+    host2 = spectrum_masking(host, star, obsnum, chip, stricter=True)
+    assert len(host2) == 0
+
+
+@pytest.mark.parametrize("mask_values", strict_masks)
+def test_strict_masks(mask_values):
+    """Test all mask provided are sequential"""
+    assert mask_values[0] < mask_values[1]
+    # and only a tuple of 2 values
+    assert isinstance(mask_values, tuple)
+    assert len(mask_values) == 2

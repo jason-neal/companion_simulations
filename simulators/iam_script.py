@@ -155,8 +155,9 @@ if __name__ == "__main__":
 
     # Iterate over chips
     if opts["chip"] is None:
+        chip_nums = 3 if opts.get("strict_mask", False) else 4
         res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
-                                      for chip in range(1, 5))
+                                      for chip in range(1, chip_nums + 1))
         print("Finished parallel loops")
         if not sum(res):
             try:
@@ -172,7 +173,7 @@ if __name__ == "__main__":
                 sys.exit(0)
             except Exception as e:
                 print("Unable to correctly do chi2 analysis after iam_script")
-                print(e)
+                raise e
 
         else:
             sys.exit(sum(res))
