@@ -35,7 +35,8 @@ def setup_iam_dirs(star: str) -> None:
 
 def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
                  verbose=False, norm=False, save_only=True, chip=None,
-                 prefix=None, errors=None, area_scale=False, wav_scale=True, norm_method="scalar", fudge=None):
+                 prefix=None, errors=None, area_scale=False, wav_scale=True,
+                 norm_method="scalar", fudge=None):
     """Run two component model over all model combinations."""
     rvs = check_inputs(rvs)
     gammas = check_inputs(gammas)
