@@ -53,8 +53,9 @@ def test_tcm_script_parser_toggle():
     assert parsed.error_off is True
     assert parsed.disable_wav_scale is True
 
+
 @pytest.mark.parametrize("flag, result", [
-    ("-v", False),   # Not and -x flag
+    ("-v", False),  # Not and -x flag
     ("-x", True),
     ("--strict_mask", True)])
 def test_tcm_parser_toggle_strict_mask(flag, result):
