@@ -120,8 +120,9 @@ if __name__ == "__main__":
 
 
     if opts["chip"] is None:
+        chip_nums = 3 if opts.get("strict_mask", False) else 4
         res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
-                                      for chip in range(1, 5))
+                                      for chip in range(1, chip_nums + 1))
         if not sum(res):
             try:
                 print("\nDoing analysis after simulations!\n")
