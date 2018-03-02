@@ -83,6 +83,23 @@ def test_strict_masking(host, star, obsnum, chip):
         print(condition)
         assert not np.any(condition)
 
+@pytest.mark.parametrize("star, obsnum, chip", [
+    ("HD30501", "1", "1"),
+    ("HD30501", "2a", "2"),
+    ("HD30501", "2b", "3"),
+])
+def test_strict_masking_leaves_something(host, star, obsnum, chip):
+    host2 = spectrum_masking(host, star, obsnum, chip, stricter=True)
+    assert len(host2) > 0
+
+
+@pytest.mark.parametrize("star, obsnum, chip", [
+   ("HD30501", "3", "4"),
+])
+def test_strict_masking_does_not_leave_something_in_chip_4(host, star, obsnum, chip):
+    host2 = spectrum_masking(host, star, obsnum, chip, stricter=True)
+    assert len(host2) == 0
+
 
 @pytest.mark.parametrize("mask_values", strict_masks)
 def test_strict_masks(mask_values):

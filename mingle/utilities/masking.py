@@ -67,9 +67,9 @@ def stricter_spectrum_masking(spec):
     xaxis = spec.xaxis
     flux = spec.flux
     for mask in strict_masks:
-        mask_bool = [(xaxis > mask[0]) & (xaxis < mask[-1])]
-        xaxis = xaxis[mask_bool]
-        flux = flux[mask_bool]
+        mask_bool = (xaxis > mask[0]) & (xaxis < mask[-1])
+        xaxis = xaxis[~mask_bool]
+        flux = flux[~mask_bool]
         # Slicing of a Spectrum should take out having to handle the other kwargs here.
     return Spectrum(xaxis=xaxis, flux=flux, header=spec.header, calibrated=spec.calibrated,
                     interp_method=spec.interp_method)
