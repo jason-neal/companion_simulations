@@ -38,23 +38,26 @@ def spectrum_masking(spec, star, obsnum, chip, stricter=False):
     if stricter:
         # Add manual masks to reduce mismatch
         new_spec = stricter_spectrum_masking(spec)
+    else:
+        new_spec = spec
 
     return new_spec
 
 
 # Nanometers Masks to HD211847
-strict_masks = [(2114, 2115),
-         (2127.5, 2128.8),
-         (2132.4, 2132.8),
-         (2137.8, 2138.4),
-         (2154, 2166),
-         (2119.1, 2119.6),
-         (2122.9, 2123.2),
-         (2117.8, 2118.2),
-         (2120.3, 2120.5),
-         (2147, 2153),
-         (2118.5, 2118.8)
-         ]
+strict_masks = [(2114.0, 2115.0),
+                (2127.5, 2128.8),
+                (2132.4, 2132.8),
+                (2137.8, 2138.4),
+                (2154.0, 2166.0),
+                (2119.1, 2119.6),
+                (2122.9, 2123.2),
+                (2117.8, 2118.2),
+                (2120.3, 2120.5),
+                (2147.0, 2153.0),
+                (2118.5, 2118.8)
+                ]
+
 
 def stricter_spectrum_masking(spec):
     """Apply rigorious cuts in wavelength where largest mismatch occurs.
@@ -68,4 +71,5 @@ def stricter_spectrum_masking(spec):
         xaxis = xaxis[mask_bool]
         flux = flux[mask_bool]
         # Slicing of a Spectrum should take out having to handle the other kwargs here.
-    return Spectrum(xaxis=xaxis, flux=flux, header=spec.header, calibrated=spec.calibrated, interp_method=interp_method)
+    return Spectrum(xaxis=xaxis, flux=flux, header=spec.header, calibrated=spec.calibrated,
+                    interp_method=spec.interp_method)
