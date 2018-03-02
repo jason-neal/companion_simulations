@@ -66,11 +66,13 @@ def parse_args(args: List[str]) -> Namespace:
                         default=1, type=int)
     parser.add_argument('-v', '--verbose', action="store_true",
                         help='Turn on Verbose.')
+    parser.add_argument('-x', '--strict_mask', action="store_true",
+                        help='Apply extra strict masking.')
     return parser.parse_args(args)
 
 
 def main(chip=None, verbose=False, error_off=False, disable_wav_scale=False, renormalize=False, norm_method="scalar",
-         betasigma=False):
+         betasigma=False, strict_mask=False):
     """Main function."""
     wav_scale = not disable_wav_scale
 
@@ -98,7 +100,7 @@ def main(chip=None, verbose=False, error_off=False, disable_wav_scale=False, ren
     # Load observation
     obs_spec = load_spectrum(obs_name)
     # Mask out bad portion of observed spectra
-    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
+    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip, stricter=strict_mask)
     # Barycentric correct spectrum
     _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
     # Determine Spectrum Errors
