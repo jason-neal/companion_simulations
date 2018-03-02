@@ -177,7 +177,7 @@ if __name__ == "__main__":
                 sys.exit(0)
             except Exception as e:
                 print("Unable to correctly do chi2 analysis after iam_script")
-                print(e)
+                raise e
 
         else:
             sys.exit(sum(res))

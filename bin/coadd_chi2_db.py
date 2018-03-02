@@ -48,7 +48,8 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
         simulators.paths["output_dir"], star, "iam",
         "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obsnum, chip, suffix))
         for chip in range(1, 5)]
-    print(patterns)
+    if verbose:
+        print(patterns)
     if (sum(1 for _ in glob.iglob(patterns[0]))) == 0:
         print("Patterns were not found")
         patterns = [os.path.join(
@@ -56,7 +57,9 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
             "{0}-{1}_{2}_iam_chisqr_results{3}*.csv".format(star, obsnum, chip, suffix))
             for chip in range(1, 5)]
 
-    print("new Patterns", patterns)
+    if verbose:
+        print("new Patterns", patterns)
+
     if sum(sum(1 for _ in glob.iglob(pattern)) for pattern in patterns) == 0:
         raise ValueError("Issue with patterns finding for {0} obs {1}".format(star, obsnum))
 
@@ -66,7 +69,8 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
         "{0}-{1}_coadd_iam_chisqr_results{2}.db".format(star, obsnum, suffix))
 
     # print("Replace", replace)
-    print("os.path.isfile(coadd_database)", os.path.isfile(coadd_database))
+    if verbose:
+        print("os.path.isfile(coadd_database)", os.path.isfile(coadd_database))
     if os.path.isfile(coadd_database):
         if replace:
             os.remove(coadd_database)
@@ -84,9 +88,18 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
     # get list of patterns. and sort in order for loading in.
     detector_files = [sorted(glob.glob(pattern)) for pattern in patterns]
 
+    detector_flag = False
+    if len(detector_files[-1]) == 0:
+        for f in detector_files:
+            for fi in f:
+                assert "_4_" not in fi, "Assumed that chip 4 was missing"
+        # duplicate the last column to make 4, replace the chi2 later.
+        detector_files[-1] = detector_files[-2]
+        detector_flag = True
+
     i, j = 0, 1
     for num, files in enumerate(zip(*detector_files)):
-        assert len(files) == 4
+        assert len(files) == 4, "Need 4 .csv files."
         f_0 = files[0]
 
         if "[" in f_0:
@@ -113,6 +126,14 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
             except StopIteration:
                 break
 
+            if detector_flag:
+                # if detector 4 was missing set to zeros
+                dect4 = chunks[3]
+                dect4['npix'] = dect4['npix'] * 0
+                dect4['chi2'] = dect4['chi2'] * 0
+                dect4['arbnorm'] = dect4['arbnorm'] * 0
+                chunks[3] = dect4
+
             joint_12 = pd.merge(chunks[0], chunks[1], how="outer", suffixes=["_1", "_2"],
                                 on=['teff_2', 'logg_2', 'feh_2', 'rv', 'gamma'])
             joint_34 = pd.merge(chunks[2], chunks[3], how="outer", suffixes=["_3", "_4"],
@@ -125,7 +146,6 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
             pd_joint["coadd_npix"] = pd_joint["npix_1"] + pd_joint["npix_2"] + pd_joint["npix_3"] + pd_joint["npix_4"]
 
             if pd_joint.isnull().values.any():
-                print(pd_joint)
                 assert not pd_joint.isnull().values.any(), "There are nans in the joint DataFrame!!!"
 
             # Adding host parameters
@@ -142,6 +162,8 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
                 print("Indicies = ", i, j)
 
         if move:
+            if detector_flag:
+                files = files[:-1]
             for f in files:
                 f_split = os.path.split(f)  # ["head", "tail"]
                 new_f = os.path.join(f_split[0], "processed_csv", f_split[1])
@@ -155,6 +177,7 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
         print("Completed coadd db creation")
 
     return None
+
 
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
