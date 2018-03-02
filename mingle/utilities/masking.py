@@ -6,6 +6,7 @@ import os
 from jsmin import jsmin
 
 import simulators
+from spectrum_overload import Spectrum
 
 
 def get_maskinfo(star, obsnum, chip):
@@ -22,7 +23,7 @@ def get_maskinfo(star, obsnum, chip):
         return []
 
 
-def spectrum_masking(spec, star, obsnum, chip):
+def spectrum_masking(spec, star, obsnum, chip, stricter=False):
     chip_masks = get_maskinfo(star, obsnum, chip)
     if int(chip) == 4:
         # Ignore first 50 pixels of detector 4
@@ -33,4 +34,38 @@ def spectrum_masking(spec, star, obsnum, chip):
         if len(mask_limits) is not 2:
             raise ValueError("Mask limits in mask file are incorrect for {0}-{1}_{2}".format(star, obsnum, chip))
         spec.wav_select(*mask_limits)  # Wavelengths to include
-    return spec
+
+    if stricter:
+        # Add manual masks to reduce mismatch
+        new_spec = stricter_spectrum_masking(spec)
+
+    return new_spec
+
+
+# Nanometers Masks to HD211847
+strict_masks = [(2114, 2115),
+         (2127.5, 2128.8),
+         (2132.4, 2132.8),
+         (2137.8, 2138.4),
+         (2154, 2166),
+         (2119.1, 2119.6),
+         (2122.9, 2123.2),
+         (2117.8, 2118.2),
+         (2120.3, 2120.5),
+         (2147, 2153),
+         (2118.5, 2118.8)
+         ]
+
+def stricter_spectrum_masking(spec):
+    """Apply rigorious cuts in wavelength where largest mismatch occurs.
+
+    This should change the sigma contours.
+    """
+    xaxis = spec.xaxis
+    flux = spec.flux
+    for mask in strict_masks:
+        mask_bool = [(xaxis > mask[0]) & (xaxis < mask[-1])]
+        xaxis = xaxis[mask_bool]
+        flux = flux[mask_bool]
+        # Slicing of a Spectrum should take out having to handle the other kwargs here.
+    return Spectrum(xaxis=xaxis, flux=flux, header=spec.header, calibrated=spec.calibrated, interp_method=interp_method)
