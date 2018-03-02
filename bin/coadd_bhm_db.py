@@ -28,7 +28,7 @@ def bhm_parse_args(args):
     parser.add_argument('-r', '--replace', action="store_true",
                         help='Overwrite the database if already exists.')
     parser.add_argument('-c', '--chunksize', default=1000, type=int,
-                        help='Chinksize for reading in csv files.')
+                        help='Chunksize for reading in csv files.')
     parser.add_argument("-m", '--move', action="store_true",
                         help='Move original files after joining (default=False).')
 
