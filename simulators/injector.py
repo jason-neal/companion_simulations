@@ -100,7 +100,8 @@ def injector_wrapper(star, obsnum, chip, Ns=20):
 
             # This is doing the injection
             # This currently does not renomalize the host due to the addition.
-            injected_chip = obs_spec + mod2_spec_norm
+            # injected_chip = obs_spec[ii] + mod2_spec_norm
+            injected_chip = obs_spec[ii]  # + 0
             warnings.warn("Have not injected the companion.")
             injected_spec.append(injected_chip)
 
