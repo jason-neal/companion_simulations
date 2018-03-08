@@ -76,7 +76,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20):
                                            flux_rescale=True, wav_scale=True) for lim in rv_limits]
 
     def inject(teff_2):
-        params.add('teff_2', value=teff_2, min=teff_2 - 1000, max=teff_2 + 1000, vary=True, brute_step=100)
+        params.add('teff_2', value=teff_2, min=max([teff_2-1000, 2300]), max=min([teff_2 + 1000, 7000]), vary=True, brute_step=100)
 
         # Add companion to observation
         print("Have not added the companion here")
