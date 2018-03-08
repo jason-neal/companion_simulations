@@ -23,7 +23,7 @@ def target_params(params: Dict[str, Any], mode: Optional[str] = "iam") -> Tuple[
 
     # Specify the companion logg and metallicity in the parameter files.
     if params.get("comp_logg", None) is None:
-        logging.warning(__("Logg for companion 'comp_logg' is not set for {0}", params.get("name", params)))
+        logging.warning(__("Logg for companion 'comp_logg' is not set for {0}. Setting equal to host logg", params.get("name", params)))
     print("mode in target params", mode)
     if mode == "iam":
         comp_logg = params.get("comp_logg", params["logg"])  # Set equal to host if not given
