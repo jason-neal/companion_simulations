@@ -1,17 +1,20 @@
 import argparse
+import sys
+import warnings
 from argparse import Namespace
-import numpy as np
 from typing import List, Union, Any
-import sys, os
-from mingle.utilities.debug_utils import timeit
+
+import numpy as np
 from lmfit import Parameters
 from spectrum_overload import Spectrum
-from simulators.iam_module import observation_rv_limits
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
-from simulators.minimize_iam import brute_solve_iam
-from simulators.common_setup import load_observation_with_errors
-from mingle.utilities.param_utils import closest_obs_params
+
 from mingle.models.broadcasted_models import inherent_alpha_model
+from mingle.utilities.debug_utils import timeit
+from mingle.utilities.param_utils import closest_obs_params
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from simulators.common_setup import load_observation_with_errors
+from simulators.iam_module import observation_rv_limits
+from simulators.minimize_iam import brute_solve_iam
 
 
 def parse_args(args: List[str]) -> Namespace:
@@ -72,8 +75,8 @@ def injector_wrapper(star, obsnum, chip, Ns=20):
                                        params["rv_2"].value) for obs in obs_spec]
 
     mod1_spec = [load_starfish_spectrum(closest_host_model, limits=lim,
-                                           hdr=True, normalize=False, area_scale=True,
-                                           flux_rescale=True, wav_scale=True) for lim in rv_limits]
+                                        hdr=True, normalize=False, area_scale=True,
+                                        flux_rescale=True, wav_scale=True) for lim in rv_limits]
 
     def inject(teff_2):
         params.add('teff_2', value=teff_2, min=max([teff_2-1000, 2300]), max=min([teff_2 + 1000, 7000]), vary=True, brute_step=100)
@@ -89,7 +92,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20):
                                                area_scale=True, flux_rescale=True, wav_scale=True)
 
             iam_grid_func = inherent_alpha_model(mod1_spec[ii].xaxis, mod1_spec[ii].flux, mod2_spec.flux,
-                                             rvs=params["rv_2"].value, gammas=params["rv_1"].value)
+                                                 rvs=params["rv_2"].value, gammas=params["rv_1"].value)
             synthetic_model = iam_grid_func(obs_spec[ii].xaxis)
             continuum = Spectrum(xaxis=obs_spec[ii].xaxis, flux=synthetic_model).continuum()
 
@@ -98,6 +101,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20):
             # This is doing the injection
             # This currently does not renomalize the host due to the addition.
             injected_chip = obs_spec + mod2_spec_norm
+            warnings.warn("Have not injected the companion.")
             injected_spec.append(injected_chip)
 
         return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns)
