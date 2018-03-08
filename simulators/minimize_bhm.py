@@ -60,7 +60,7 @@ def main(star, obsnum, chip):
 
 def brute_solve_bhm(params, obs_spec, errors, chip, Ns=20):
     kws = {"chip": chip, "norm": True, "norm_method": "linear",
-           "area_scale": True, "wav_scale": True, "fudge": None}
+           "wav_scale": True, "fudge": None}
 
     # Least-squares fit to the spectrum.
     mini = Minimizer(bhm_func_array, params, fcn_args=(obs_spec.xaxis, obs_spec.flux, errors), fcn_kws=kws)
