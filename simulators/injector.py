@@ -147,9 +147,10 @@ def main(star, obsnum, **kwargs):
 
 def is_recovered(injected_value: Union[float, int], injector_result: Any, dof: int = 1) -> bool:
     """Is the recovered chi^2 min value within 1-sigma for injected_value."""
+    from mingle.utilities.chisqr import chi2_at_sigma
     recovered_chi2 = injector_result
     warnings.warn("Need to collapse injector_result onto the teff axis.")
-    one_sigma = 1
+    one_sigma = chi2_at_sigma(1, dof=dof)
     indicies = np.nonzero(recovered_chi2 < min(recovered_chi2) + one_sigma)
     values_inside_one_sigma = recovered_chi2[indicies]
 
