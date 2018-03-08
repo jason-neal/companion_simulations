@@ -150,9 +150,9 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
                                                 chip=c, norm_method=norm_method,
                                                 area_scale=area_scale, norm=norm,
                                                 wav_scale=wav_scale, fudge=fudge)
-            flux = np.concatenate((flux, flux_ii))
-            model = np.concatenate((model, model_ii))
-            error_array = np.concatenate((error_array, errors[ii] * np.ones_like(flux_ii)))
+            flux = np.concatenate((flux, flux_ii.squeeze()))
+            model = np.concatenate((model, model_ii.squeeze()))
+            error_array = np.concatenate((error_array, errors[ii] * np.ones_like(flux_ii.squeeze())))
         errors = error_array
     else:
         flux, model = iam_magic_sauce(Spectrum(xaxis=obs_wav, flux=obs_flux),
