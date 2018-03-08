@@ -138,9 +138,9 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
         assert len(chip) == len(obs_wav)
         assert len(obs_flux) == len(obs_wav)
 
-        flux = np.empty((1,))
-        model = np.empty((1,))
-        error_array = np.empty((1,))
+        flux = np.empty((0,))
+        model = np.empty((0,))
+        error_array = np.empty((0,))
 
         for ii, c in enumerate(chip):
             flux_ii, model_ii = iam_magic_sauce(Spectrum(xaxis=obs_wav[ii], flux=obs_flux[ii]),
