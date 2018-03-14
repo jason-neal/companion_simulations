@@ -271,7 +271,7 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
         prepare_iam_model_spectra(params1, params2, limits=rv_limits,
                                   area_scale=area_scale, wav_scale=wav_scale)
 
-    if fudge or (fudge is not None):
+    if (fudge != 0) and (fudge is not None):
         fudge_factor = float(fudge)
         mod2_spec.flux *= fudge_factor  # Fudge factor multiplication
         warnings.warn("Using a fudge factor = {0}".format(fudge_factor))
