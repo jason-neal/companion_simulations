@@ -82,6 +82,17 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
     # get list of patterns. and sort in order for loading in.
     detector_files = [sorted(glob.glob(pattern)) for pattern in patterns]
     # print(detector_files)
+
+    detector_flag = False
+    if len(detector_files[-1]) == 0:
+        for f in detector_files:
+            for fi in f:
+                assert "_4_" not in fi, "Assumed that chip 4 was missing"
+        # duplicate the last column to make 4, replace the chi2 later.
+        detector_files[-1] = detector_files[-2]
+        detector_flag = True
+
+
     i, j = 0, 1
     for num, files in enumerate(zip(*detector_files)):
         assert len(files) == 4
@@ -97,6 +108,14 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
                             for k, l in ((0, 1), (1, 2), (2, 3))])
             except StopIteration:
                 break
+
+            if detector_flag:
+                # if detector 4 was missing set to zeros
+                dect4 = chunks[3]
+                dect4['npix'] = dect4['npix'] * 0
+                dect4['chi2'] = dect4['chi2'] * 0
+                dect4['arbnorm'] = dect4['arbnorm'] * 0
+                chunks[3] = dect4
 
             joint_12 = pd.merge(chunks[0], chunks[1], how="outer", suffixes=["_1", "_2"],
                                 on=['teff_1', 'logg_1', 'feh_1', 'gamma'])
@@ -124,6 +143,8 @@ def main(star, obsnum, suffix, replace=False, verbose=False, chunksize=1000, mov
                 print("Indicies = ", i, j)
 
         if move:
+            if detector_flag:
+                files = files[:-1]
             for f in files:
                 f_split = os.path.split(f)  # ["head", "tail"]
                 new_f = os.path.join(f_split[0], "processed_csv", f_split[1])
