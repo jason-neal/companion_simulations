@@ -4,7 +4,7 @@ ephem==3.7.6.0
 joblib==0.11
 jsmin==2.2.2
 numba==0.37.0
-numpy==1.14.1
+numpy==1.14.2
 multiprocess==0.70.5
 pandas==0.22.0
 scipy==1.0.0
