@@ -1,19 +1,19 @@
+import argparse
 import logging
+import sys
+from argparse import Namespace
+from typing import List
 
 # Minimize function
-import lmfit
-import matplotlib.pyplot as plt
 import numpy as np
 from lmfit import Parameters, fit_report, Minimizer
-from spectrum_overload import Spectrum
-from mingle.utilities.param_utils import closest_obs_params
-
-import simulators
 from mingle.utilities.debug_utils import timeit2
-from simulators.iam_module import iam_chi2_magic_sauce, iam_magic_sauce
-from simulators.minimize_bhm import brute_solve_bhm
-from simulators.iam_module import (setup_iam_dirs)
+from mingle.utilities.param_utils import closest_obs_params
 from simulators.common_setup import load_observation_with_errors
+from simulators.iam_module import iam_chi2_magic_sauce, iam_magic_sauce
+from simulators.iam_module import (setup_iam_dirs)
+from simulators.minimize_bhm import brute_solve_bhm
+from spectrum_overload import Spectrum
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -163,7 +163,8 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
                                       chip=chip, norm_method=norm_method,
                                       area_scale=area_scale, norm=norm,
                                       wav_scale=wav_scale, fudge=fudge)
-
+        flux = flux.squeeze()
+        model = model.squeeze()
     residual = model - (flux * arb_norm)
 
     # Scale to make chi-square sensible.
@@ -171,13 +172,29 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
     return scaled_residual
 
 
+def parse_args(args: List[str]) -> Namespace:
+    """Take care of all the argparse stuff.
 
+    :returns: the args
+    """
+    parser = argparse.ArgumentParser(description='Minimize iam script.')
+    parser.add_argument("-s", "--star", help='Star name.', type=str, default="HD211847")
+    parser.add_argument("-o", "--obsnum", help='Star observation number.', type=str, default="2")
+    parser.add_argument("-c", "--chip", help='Star chip number.', default=1)
+    # parser.add_argument("-m", "--strict_mask", help="Use strict masking", action="store_true")
+    # parser.add_argument('-v', '--verbose', action="store_true",
+    #                    help='Turn on Verbose.')
+    return parser.parse_args(args)
 
 
 if __name__ == "__main__":
-    star = "HD211847"
-    obsnum = 1
-    chip = 1
-    main(star, obsnum, chip)
+    args = vars(parse_args(sys.argv[1:]))
+    opts = {k: args[k] for k in args}
+    main(**opts)
+
+    # star = "HD211847"
+    # obsnum = 1
+    # chip = 1
+    # main(star, obsnum, chip)
 
     print("Done")
