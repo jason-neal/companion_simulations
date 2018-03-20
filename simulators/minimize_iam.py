@@ -31,8 +31,8 @@ def main(star, obsnum, chip):
 
     params = Parameters()
 
-    params.add('teff_1', value=closest_host_model[0], min=5600, max=5800, vary=False, brute_step=100)
-    params.add('teff_2', value=closest_comp_model[0], min=3000, max=3400, vary=True, brute_step=100)
+    params.add('teff_1', value=closest_host_model[0], min=closest_host_model[0]-100, max=closest_host_model[0]+100, vary=False, brute_step=100)
+    params.add('teff_2', value=closest_comp_model[0], min=closest_comp_model[0]-600, max=closest_comp_model[0]+600, vary=True, brute_step=100)
     params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
@@ -150,6 +150,7 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
                                                 chip=c, norm_method=norm_method,
                                                 area_scale=area_scale, norm=norm,
                                                 wav_scale=wav_scale, fudge=fudge)
+
             flux = np.concatenate((flux, flux_ii.squeeze()))
             model = np.concatenate((model, model_ii.squeeze()))
             error_array = np.concatenate((error_array, errors[ii] * np.ones_like(flux_ii.squeeze())))
