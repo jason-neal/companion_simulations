@@ -71,7 +71,7 @@ def brute_solve_bhm(params, obs_spec, errors, chip, Ns=20):
 
 
 def bhm_func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_method="scalar",
-                   wav_scale=True, fudge=None):
+                   wav_scale=True):
     """Calculate binary model chi^2 for given parameters and observation"""
     # unpack parameters: extract .value attribute for each parameter
     parvals = pars.valuesdict()
@@ -87,10 +87,10 @@ def bhm_func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_m
 
     obs_flux2, bhm_flux = bhm_magic_sauce(Spectrum(xaxis=obs_wav, flux=obs_flux),
                                           [teff_1, logg_1, feh_1],
-                                          rv_1, rv_2,
+                                          rv_1,
                                           chip=chip, norm_method=norm_method,
                                           norm=norm,
-                                          wav_scale=wav_scale, fudge=fudge)
+                                          wav_scale=wav_scale)
     residual = bhm_flux - obs_flux2
     # Scale to make chi-square sensible.
     return residual / errors

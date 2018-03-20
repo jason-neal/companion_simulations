@@ -31,6 +31,7 @@ config = {
                 "simulators/iam_script.py",
                 "simulators/tcm_script.py",
                 # "bin/mkdbs.py",
+                "simulators/minimize_bhm.py",
                 "bin/coadd_analysis_script.py",
                 "bin/coadd_bhm_analysis.py",
                 # "bin/create_fake_obs.py",
