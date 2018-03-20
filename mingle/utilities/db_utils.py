@@ -353,8 +353,9 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
     # plt.show()
 
 
-def df_contour2(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=False, dof=1):
-    # Need to be the minimum chi2 value for the current value of x and y
+def df_contour2(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=False, dof=1,
+                xlim: Optional[List[Union[float, int]]] = None, ylim: Optional[List[Union[float, int]]] = None):
+    """Need to be the minimum chi2 value for the current value of x and y"""
     df_lim = df.copy()
     # for param in lim_params:
     #     df_lim = df_lim[df_lim[param] == df_min[param].values[0]]
@@ -379,15 +380,12 @@ def df_contour2(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale
     grouped_df = df_lim.groupby([xcol, ycol])[[xcol, ycol, zcol]]
     print("grouped df", grouped_df.head())
 
-
-    print("time for groupby", datetime.datetime.now()-groupstartx)
+    print("time for groupby", datetime.datetime.now() - groupstartx)
     print("len(new-df)", len(new_df))
     print("len(grouped-df", len(grouped_df))
 
     print("min loop", new_df.loc[new_df[zcol] == min(new_df[zcol])])
     # print("min grouped", grouped_df.loc[grouped_df[zcol] == min(grouped_df[zcol])])
-
-    #
 
     # dfpivot = df_lim.pivot(xcol, ycol, zcol)
     dfpivot = new_df.pivot(xcol, ycol, zcol)
@@ -398,23 +396,31 @@ def df_contour2(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale
 
     x, y = np.meshgrid(X, Y, indexing="ij")
 
-    fig, ax = plt.subplots()
-    if logscale:
-        c = ax.contourf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis)
-    else:
-        c = ax.contourf(x, y, Z, cmap=cm.viridis)
+    # fig, ax = plt.subplots()
+    ax = plt.gca()
+    try:
+        if logscale:
+            c = ax.contourf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis)
+        else:
+            c = ax.contourf(x, y, Z, cmap=cm.viridis)
+    except TypeError as e:
+        print("Check the axis limits applied")
+        raise e
 
     # Chi levels values
     print("Using chi squared dof=", dof)
-    sigmas = [Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, dof=dof) for sigma in range(1, 6)]
-    sigma_labels = {sigmas[sig - 1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
+    sigma_nums = range(5, 6)
+    sigmas = [Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, dof=dof) for sigma in sigma_nums]
+    sigma_labels = {sigma_val: "${}-\sigma$".format(sig) for sigma_val, sig in zip(sigmas, sigma_nums)}
 
-    c2 = plt.contour(c, levels=sigmas)
+    c2 = plt.contour(c, levels=sigmas, colors="w", linewidths=1)
     plt.clabel(c2, fmt=sigma_labels, colors='w', fontsize=14)
     cbar = plt.colorbar(c)
-    cbar.ax.set_ylabel(zcol)
-    plt.xlabel(xcol)
-    plt.ylabel(ycol)
+
+    cbar.ax.set_ylabel(label_conversions.get(zcol, "$\chi^2$"))
+    plt.xlabel(label_conversions[xcol])
+    plt.ylabel(label_conversions[ycol])
+
     plt.title("Correct minimum $\chi^2$ contour")
     if correct:
         # Correct location of simulation
@@ -423,8 +429,12 @@ def df_contour2(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale
     # Mark minimum with a +.
     min_i, min_j = divmod(Z.argmin(), Z.shape[1])
     plt.plot(X[min_i], Y[min_j], "g*", markersize=7, label="$Min \chi^2$")
+    if xlim is not None:
+        plt.xlim(xlim)
+    if ylim is not None:
+        plt.ylim(ylim)
 
-    plt.show()
+    # plt.show()
 
 
 def decompose_database_name(database: str) -> Tuple[str, str, str, str]:
