@@ -46,7 +46,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main(star, obsnum, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, plot_name=None):
+def main(star, obsnum, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, plot_name=None, show=True):
     fig, axis = plt.subplots(2, 2, figsize=(15, 8), squeeze=False)
 
     for chip, ax in zip(range(1, 5), axis.flatten()):
@@ -93,7 +93,11 @@ def main(star, obsnum, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, 
     plt.tight_layout()
 
     if plot_name is None:
-        fig.show()
+        if show:
+            # Hack for paper
+            fig.show()
+        else:
+            return fig
     else:
         if not (plot_name.endswith(".png") or plot_name.endswith(".pdf")):
             raise ValueError("plot_name does not end with .pdf or .png")
