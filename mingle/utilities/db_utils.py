@@ -21,6 +21,16 @@ from mingle.utilities.param_utils import target_params, closest_model_params
 
 odd_chi2s = ["chi2_123"]
 
+label_conversions = {"gamma": "$\mathrm{rv}_1$",
+                     "rv": "$\mathrm{rv}_2$",
+                     "teff_1": "$\mathrm{Teff}_1$",
+                     "teff_2": "$\mathrm{Teff}_2$",
+                     "logg_1": "$\mathrm{logg}_1$",
+                     "logg_2": "$\mathrm{logg}_2$",
+                     "feh_1": "$\mathrm{[Fe/H]}_1$",
+                     "feh_2": "$\mathrm{[Fe/H]}_2$",
+                     }
+
 
 class DBExtractor(object):
     """Methods for extracting the relevant code out of database table."""
@@ -239,7 +249,8 @@ class SingleSimReader(object):
 
 def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame, lim_params: List[str],
                correct: Optional[Dict[str, float]] = None, logscale: bool = False, dof: int = 1,
-               xlim: Optional[List[Union[float, int]]] = None, ylim: Optional[List[Union[float, int]]] = None) -> None:
+               xlim: Optional[List[Union[float, int]]] = None, ylim: Optional[List[Union[float, int]]] = None,
+               grid: bool = False, **kwargs) -> None:
     df_lim = df.copy()
     for param in lim_params:
         df_lim = df_lim[df_lim[param] == df_min[param].values[0]]
@@ -261,39 +272,85 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
 
     x, y = np.meshgrid(X, Y, indexing="ij")
 
-    fig, ax = plt.subplots()
-    if logscale:
-        c = ax.contourf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis)
-    else:
-        c = ax.contourf(x, y, Z, cmap=cm.viridis)
-
+    ax = plt.gca()
+    print(Z.shape)
     # Chi levels values
-    sigmas = [Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, dof=dof) for sigma in range(1, 6)]
-    sigma_labels = {sigmas[sig - 1]: "${}-\sigma$".format(sig) for sig in range(1, 6)}
+    sigma_nums = range(5, 6)
+    sigmas = [Z.ravel()[Z.argmin()] + chi2_at_sigma(sigma, dof=dof) for sigma in sigma_nums]
+    sigma_labels = {sigma_val: "${}-\sigma$".format(sig) for sigma_val, sig in zip(sigmas, sigma_nums)}
 
-    c2 = plt.contour(c, levels=sigmas)
-    plt.clabel(c2, fmt=sigma_labels, colors='w', fontsize=14)
+    try:
+        if grid:
+            if logscale:
+                c = ax.pcolormeshf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis, linewidth=0,rasterized=True)
+            #  c = ax.contour(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis)
+            else:
+                half_step_x = np.unique(np.diff(x, axis=0).ravel())[0] / 2
+                half_step_y = np.unique(np.diff(y, axis=1).ravel())[0] / 2
+
+                newx = tuple(d + 1 for d in x.shape)
+                newy = tuple(d + 1 for d in y.shape)
+                # duplicate last row and column
+                x2 = np.append(x, 2 * half_step_x + x[[-1], :], axis=0)
+                y2 = np.append(y, y[[-1], :], axis=0)
+                Z2 = np.append(Z, Z[[-1], :], axis=0)
+                x2 = np.append(x2, x2[:, [-1]], axis=1)
+                y2 = np.append(y2, 2 * half_step_y + y2[:, [-1]], axis=1)
+                Z2 = np.append(Z2, Z2[:, [-1]], axis=1)
+                assert x2.shape == newx
+                assert y2.shape == newy
+                assert y2.shape == Z2.shape
+                # c = ax.pcolormesh(x - half_step_x, y - half_step_y, Z, cmap=cm.viridis)
+                c = ax.pcolormesh(x2 - half_step_x, y2 - half_step_y, Z2, cmap=cm.viridis, linewidth=0,rasterized=True)
+                #c = ax.imshow(x2 - half_step_x, y2 - half_step_y, Z2, cmap=cm.viridis, linewidth=0)
+            #  c = ax.contour(x, y, Z, cmap=cm.viridis)
+            c.set_edgecolor('face')
+            c2 = plt.contour(x, y, Z, levels=sigmas, colors="w", linewidths=1)
+        else:
+            if logscale:
+                c = ax.contourf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis)
+            else:
+                c = ax.contourf(x, y, Z, cmap=cm.viridis)
+            c2 = plt.contour(x, y, Z, levels=sigmas, colors="w", linewidths=1)
+    except TypeError as e:
+        print("Check the axis limits applied")
+        raise e
+
+    # plt.clabel(c2, fmt=sigma_labels, colors='w', fontsize=14)
     cbar = plt.colorbar(c)
-    cbar.ax.set_ylabel(zcol)
-    plt.xlabel(xcol)
-    plt.ylabel(ycol)
-    if xlim is not None:
-        plt.xlim(xlim)
-    if ylim is not None:
-        plt.ylim(ylim)
+
+    cbar.ax.set_ylabel(label_conversions.get(zcol, "$\chi^2$"))
+    plt.xlabel(label_conversions[xcol])
+    plt.ylabel(label_conversions[ycol])
+    if grid:
+        if xlim is not None:
+            if xlim[-1] < 0:
+                xlim = [xlim[0], xlim[1] - half_step_x]
+            plt.xlim(xlim)
+        if ylim is not None:
+            if ylim[-1] < 0:
+                ylim = [ylim[0], ylim[1] - half_step_y]
+            plt.ylim(ylim)
+    else:
+        if xlim is not None:
+            plt.xlim(xlim)
+        if ylim is not None:
+            plt.ylim(ylim)
+
+    ms = kwargs.get("ms", 5)
 
     if correct:
         # Mark the "correct" location for the minimum chi squared
         try:
-            plt.plot(correct[xcol], correct[ycol], "ro", markersize=10)
+            plt.plot(correct[xcol], correct[ycol], "ro", markersize=ms)
         except:
             pass
 
     # Mark minimum with a +.
     min_i, min_j = divmod(Z.argmin(), Z.shape[1])
-    plt.plot(X[min_i], Y[min_j], "y*", markersize=10, label="$Min \chi^2$")
+    plt.plot(X[min_i], Y[min_j], "y*", markersize=ms, label="$min \chi^2$")
 
-    plt.show()
+    # plt.show()
 
 
 def df_contour2(df, xcol, ycol, zcol, df_min, lim_params, correct=None, logscale=False, dof=1):
