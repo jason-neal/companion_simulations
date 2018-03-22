@@ -9,7 +9,7 @@
 # 
 # 
 
-# In[147]:
+# In[1]:
 
 
 from astropy.io import fits
@@ -20,33 +20,33 @@ import numpy as np
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[43]:
+# In[2]:
 
 
 file = "/home/jneal/.handy_spectra/HD30501-1-mixavg-tellcorr_1_bervcorr.fits"
 
 data = fits.getdata(file)
-
-plt.plot(data["wavelength"], data["flux"])
+wave_i, flux_i = data["wavelength"], data["flux"]
+plt.plot(wave_i, flux_i)
 
 plt.show()
 
 
-# In[61]:
+# In[3]:
 
 
 def betasigma_spectra(file, Nmax=5, j=1, arb=False, returnMAD=True):
     data = fits.getdata(file)
     xi, yi = data["wavelength"], data["flux"]
 
-    mdiff = np.max(np.abs(np.diff(flux)))
+    mdiff = np.max(np.abs(np.diff(yi)))
     print("""Maximum absolute difference between consecutive
         values of flux: """, mdiff)
 
-    nd = len(flux)
+    nd = len(yi)
     print("Number of 'data points': ", nd)
     print()
-    print("Very Rough std = {}".format(np.std(flux)))
+    print("Very Rough std = {}".format(np.std(yi)))
 
     # Create class instance for equidistant sampling
     if arb:
@@ -96,7 +96,7 @@ def betasigma_spectra(file, Nmax=5, j=1, arb=False, returnMAD=True):
     plt.show()
 
 
-# In[64]:
+# In[4]:
 
 
 files = ["/home/jneal/.handy_spectra/HD30501-1-mixavg-tellcorr_1_bervcorr.fits",
@@ -112,10 +112,10 @@ for file in files:
     print("j=1")
     betasigma_spectra(file, j=2)
     print("j=3")
-    betasigma_spectra(file, j=2)
+    betasigma_spectra(file, j=3)
 
 
-# In[63]:
+# In[5]:
 
 
 files = ["/home/jneal/.handy_spectra/HD30501-1-mixavg-tellcorr_3_bervcorr.fits",
@@ -133,21 +133,13 @@ for file in files:
     
 
 
-# In[65]:
-
-
-
+# 
 # These spectra seem to have SNR ~ 300-900 in the continuum from Beta simga estimates.
 
-
-# In[85]:
-
+# In[9]:
 
 
-def cross_check():
-    pass
-
-def Betasigma_check(y, N, j, **kwargs):
+def Betasigma_check(yi, N, j, **kwargs):
     "Checks adjacent orders for consistency"
     bseq = pyasl.BSEqSamp()
     smad, dsmad = bseq.betaSigma(yi, N, j, **kwargs)
@@ -160,7 +152,7 @@ def Betasigma_check(y, N, j, **kwargs):
         print(N, "and", N+1, "are not conisitent")
         
         
-def Betasigma_j_check(y, N, j,**kwargs):
+def Betasigma_j_check(yi, N, j,**kwargs):
     "Checks adjacent orders for consistency"
     bseq = pyasl.BSEqSamp()
     smad, dsmad = bseq.betaSigma(yi, N, j, **kwargs)
@@ -173,19 +165,19 @@ def Betasigma_j_check(y, N, j,**kwargs):
         print(N, "and", N+1, "are not conisitent")
 
 
-# In[93]:
+# In[10]:
 
 
-Betasigma_check(flux, 4, j=1, returnMAD=True)
+Betasigma_check(flux_i, 4, j=1, returnMAD=True)
 
 
-# In[99]:
+# In[11]:
 
 
-Betasigma_j_check(flux, 4, j=3, returnMAD=True)
+Betasigma_j_check(flux_i, 4, j=3, returnMAD=True)
 
 
-# In[154]:
+# In[15]:
 
 
 def betasigma_plot(flux, arb=False, **kwargs):
@@ -210,6 +202,7 @@ def betasigma_plot(flux, arb=False, **kwargs):
             if arb:
                 smad, dsmad = bsarb.betaSigma(xi, yi, N, j, returnMAD=returnMAD)
             else:
+                bseq = pyasl.BSEqSamp()
                 smad, dsmad = bseq.betaSigma(yi, N, j, **kwargs)
         # Save result
             smads.append(smad)
@@ -222,13 +215,14 @@ def betasigma_plot(flux, arb=False, **kwargs):
         else:
              plt.title(r"Equidistant sampling $\beta\sigma$")
     plt.legend(ncol=len(js))
+    plt.tight_layout()
     plt.show()
     
 
-betasigma_plot(flux, returnMAD=True)
+betasigma_plot(flux_i, returnMAD=True)
 
 
-# In[158]:
+# In[16]:
 
 
 files = ["/home/jneal/.handy_spectra/HD30501-1-mixavg-tellcorr_1_bervcorr_masked.fits",
