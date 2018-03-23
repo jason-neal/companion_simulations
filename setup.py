@@ -43,6 +43,7 @@ config = {
                 "bin/iam_fake_full_stack.py",
                 "bin/bhm_fake_full_stack.py",
                 # "bin/analysis_iam_chi2.py"
+                "bin/radius_ratio.py",
                 ],
     'name': 'companion_simulations',
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
