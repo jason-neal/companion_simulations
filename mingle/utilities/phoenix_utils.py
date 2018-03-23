@@ -159,19 +159,79 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
 
 
 def phoenix_area(header):
-    """In units of Gigameters.
-    Returns
-    -------
+    """Calculate Surface area for PHOENIX model.
+
+    Input
+    -----
+    header: Header, dict-like
+        PHOENIX header
+
+    Return
+    ------
     surface_area: float
-        Stellar effective surface area. in Gm**2
+        Stellar effective surface area in Gm**2.
     """
     if header is None:
         raise ValueError("Header should not be None.")
     # BUNIT 	'erg/s/cm^2/cm' 	Unit of flux
     # PHXREFF 	67354000000.0	[cm] Effective stellar radius
-    radius = header["PHXREFF"] * 1e-11  # cm to Gm
-    surface_area = np.pi * radius ** 2  # towards Earth
+    radius = phoenix_radius(header)
+    surface_area = np.pi * radius ** 2  # Towards Earth
     return surface_area
+
+
+def phoenix_radius(header):
+    """Get PHOENIX effective radius.
+
+    Input
+    -----
+    header: Header, dict-like
+        PHOENIX header
+
+    Returns
+    -------
+    PHXREFF: float
+        Effective radius PHXREFF area in Gm
+
+    """
+    radius = header["PHXREFF"] * 1e-11  # cm to Gm
+    return radius
+
+
+def closest_model_params(teff: Union[float, int], logg: Union[float, int], feh: Union[float, int], alpha: Optional[Union[float, int]] = None) -> List[Union[int64, float64]]:
+    """Find the closest PHOENIX-ACES model parameters to the stellar parameters given.
+
+    Parameters
+    ----------
+    teff: float
+    logg: float
+    feh: float
+    alpha: float (optional)
+
+    Returns
+    -------
+    params: list of floats
+        Parameters for the closest matching model.
+
+    """
+    teffs = np.concatenate((np.arange(2300, 7000, 100),
+                            np.arange(7000, 12100, 200)))
+    loggs = np.arange(0, 6.1, 0.5)
+    fehs = np.concatenate((np.arange(-4, -2, 1), np.arange(-2, 1.1, 0.5)))
+    alphas = np.arange(-0.2, 0.3, 0.2)  # use only these alpha values if necessary
+
+    closest_teff = teffs[np.abs(teffs - teff).argmin()]
+    closest_logg = loggs[np.abs(loggs - logg).argmin()]
+    closest_feh = fehs[np.abs(fehs - feh).argmin()]
+
+    if alpha is not None:
+        if abs(float(alpha)) > 0.2:
+            logging.warning("Alpha is outside acceptable range -0.2->0.2")
+        closest_alpha = alphas[np.abs(alphas - alpha).argmin()]
+
+        return [closest_teff, closest_logg, closest_feh, closest_alpha]
+    else:
+        return [closest_teff, closest_logg, closest_feh]
 
 
 def all_aces_params():
