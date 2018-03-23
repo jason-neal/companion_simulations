@@ -8,15 +8,12 @@ import numpy as np
 import pytest
 from spectrum_overload import Spectrum
 
-from mingle.utilities.phoenix_utils import closest_model_params
-from mingle.utilities.phoenix_utils import (gen_new_param_values,
-                                            generate_close_params_with_simulator,
-                                            load_phoenix_spectrum,
-                                            load_starfish_spectrum, phoenix_area)
-from mingle.utilities.phoenix_utils import get_phoenix_limits
-from mingle.utilities.phoenix_utils import phoenix_name, phoenix_regex, \
-    find_closest_phoenix_name, find_phoenix_model_names
-from mingle.utilities.phoenix_utils import set_model_limits, make_grid_parameter
+from mingle.utilities.phoenix_utils import closest_model_params, make_grid_parameter
+from mingle.utilities.phoenix_utils import get_phoenix_limits, set_model_limits
+from mingle.utilities.phoenix_utils import (gen_new_param_values, generate_close_params_with_simulator,
+                                            load_phoenix_spectrum, phoenix_name, phoenix_regex,
+                                            load_starfish_spectrum, phoenix_area, phoenix_radius,
+                                            find_closest_phoenix_name, find_phoenix_model_names)
 
 
 @pytest.mark.parametrize("limits, normalize", [([2100, 2150], True), ([2050, 2150], False)])
@@ -124,6 +121,18 @@ def test_phoenix_area():
 
     with pytest.raises(KeyError):
         phoenix_area({"Not_PHXREFF": 42})
+
+
+@pytest.mark.parametrize("phxreff, result", [(1e11, 1), (5, 5 / 1e11)])
+def test_phoenix_radius(phxreff, result):
+    """Test radius gets the PHXREFF and scales by 1e-11."""
+    test_header = {"PHXREFF": phxreff}  # Dict-like header
+    assert np.allclose(phoenix_radius(test_header), result)
+
+
+def test_phoenix_radius_needs_phxreff():
+    with pytest.raises(KeyError):
+        phoenix_radius({"Not_PHXREFF": 42})
 
 
 def test_gen_new_param_values():

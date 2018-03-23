@@ -163,19 +163,43 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
 
 
 def phoenix_area(header):
-    """In units of Gigameters.
-    Returns
-    -------
+    """Calculate Surface area for PHOENIX model.
+
+    Input
+    -----
+    header: Header, dict-like
+        PHOENIX header
+
+    Return
+    ------
     surface_area: float
-        Stellar effective surface area. in Gm**2
+        Stellar effective surface area in Gm**2.
     """
     if header is None:
         raise ValueError("Header should not be None.")
     # BUNIT 	'erg/s/cm^2/cm' 	Unit of flux
     # PHXREFF 	67354000000.0	[cm] Effective stellar radius
-    radius = header["PHXREFF"] * 1e-11  # cm to Gm
-    surface_area = np.pi * radius ** 2  # towards Earth
+    radius = phoenix_radius(header)
+    surface_area = np.pi * radius ** 2  # Towards Earth
     return surface_area
+
+
+def phoenix_radius(header):
+    """Get PHOENIX effective radius.
+
+    Input
+    -----
+    header: Header, dict-like
+        PHOENIX header
+
+    Returns
+    -------
+    PHXREFF: float
+        Effective radius PHXREFF area in Gm
+
+    """
+    radius = header["PHXREFF"] * 1e-11  # cm to Gm
+    return radius
 
 
 def closest_model_params(teff: Union[float, int], logg: Union[float, int], feh: Union[float, int], alpha: Optional[Union[float, int]] = None) -> List[Union[int64, float64]]:
