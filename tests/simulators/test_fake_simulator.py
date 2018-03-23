@@ -67,7 +67,7 @@ def test_fake_simulator_main_runs_and_creates_files(sim_config, tmpdir, starname
         expected_sim_file = sim_filename(chip)
         assert expected_sim_file.check(file=0)
 
-    result = fake_main(starname, obsnum, "4500, 5.0, 0.5", "2300, 4.5, 0.0", mode=mode)
+    result = fake_main(starname, obsnum, "4500, 5.0, 0.5", "2300, 4.5, 0.0", mode=mode, noplots=True)
 
     # Simulations for each chip were created?
     for chip in range(1, 5):
