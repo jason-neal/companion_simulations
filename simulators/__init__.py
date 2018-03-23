@@ -4,7 +4,7 @@ import matplotlib
 import numpy as np
 import yaml
 
-matplotlib.use('Agg')
+# matplotlib.use('Agg') # Non-graphical backend
 
 __version__ = '0.2'
 __all__ = ["bhm_module", "bhm_script",

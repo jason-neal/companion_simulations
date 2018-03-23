@@ -72,10 +72,12 @@ def parse_args(args: List[str]) -> Namespace:
                         action="store_true")
     parser.add_argument('-v', '--verbose', action="store_true",
                         help='Turn on Verbose.')
+    parser.add_argument('-x', '--strict_mask', action="store_true",
+                        help='Apply extra strict masking.')
     return parser.parse_args(args)
 
 
-def main(star, obsnum, chip=None, parallel=False, verbose=False, suffix=None, error_off=False, area_scale=True,
+def main(star, obsnum, chip=None, verbose=False, suffix=None, error_off=False, area_scale=True, strict_mask=False,
          disable_wav_scale=False, renormalize=False, norm_method="scalar", fudge=None, betasigma=False):
     """Main function."""
 
@@ -106,7 +108,7 @@ def main(star, obsnum, chip=None, parallel=False, verbose=False, suffix=None, er
     # Load observation
     obs_spec = load_spectrum(obs_name)
     # Mask out bad portion of observed spectra
-    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip)
+    obs_spec = spectrum_masking(obs_spec, star, obsnum, chip, stricter=strict_mask)
     # Barycentric correct spectrum
     _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
 
@@ -157,8 +159,9 @@ if __name__ == "__main__":
 
     # Iterate over chips
     if opts["chip"] is None:
+        chip_nums = 3 if opts.get("strict_mask", False) else 4
         res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
-                                      for chip in range(1, 5))
+                                      for chip in range(1, chip_nums + 1))
         print("Finished parallel loops")
         if not sum(res):
             try:
@@ -174,7 +177,7 @@ if __name__ == "__main__":
                 sys.exit(0)
             except Exception as e:
                 print("Unable to correctly do chi2 analysis after iam_script")
-                print(e)
+                raise e
 
         else:
             sys.exit(sum(res))

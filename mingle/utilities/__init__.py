@@ -1,6 +1,6 @@
 import matplotlib
 
-matplotlib.use('Agg')
+# matplotlib.use('Agg') # Non-graphical backend
 
 from mingle.utilities.chisqr import *
 from mingle.utilities.crires_utilities import *
