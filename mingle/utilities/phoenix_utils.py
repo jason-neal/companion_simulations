@@ -9,9 +9,11 @@ import glob
 import itertools
 import logging
 import os
+from typing import Union, Optional, List
 
 import Starfish
 import numpy as np
+from numpy import int64, float64
 from Starfish.grid_tools import HDF5Interface
 from astropy.io import fits
 from logutils import BraceMessage as __
@@ -198,7 +200,8 @@ def phoenix_radius(header):
     return radius
 
 
-def closest_model_params(teff: Union[float, int], logg: Union[float, int], feh: Union[float, int], alpha: Optional[Union[float, int]] = None) -> List[Union[int64, float64]]:
+def closest_model_params(teff: Union[float, int], logg: Union[float, int], feh: Union[float, int],
+                         alpha: Optional[Union[float, int]] = None) -> List[Union[int64, float64]]:
     """Find the closest PHOENIX-ACES model parameters to the stellar parameters given.
 
     Parameters
