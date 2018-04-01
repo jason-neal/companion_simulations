@@ -3,8 +3,8 @@ import os
 import pytest
 
 import simulators
-from simulators.tcm_module import (tcm_helper_function, setup_tcm_dirs)
-from simulators.tcm_script import parse_args
+from obsolete.simulations.tcm_module import (tcm_helper_function, setup_tcm_dirs)
+from obsolete.simulations.tcm_script import parse_args
 
 
 @pytest.mark.parametrize("star, obs, chip", [

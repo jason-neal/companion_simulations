@@ -31,7 +31,7 @@ from mingle.utilities.phoenix_utils import (closest_model_params,
                                             generate_close_params,
                                             load_starfish_spectrum)
 from obsolete.simulations.Chisqr_of_observation import load_spectrum  # , select_observation
-from simulators.tcm_module import save_full_chisqr, tcm_helper_function
+from obsolete.simulations.tcm_module import save_full_chisqr, tcm_helper_function
 
 # from spectrum_overload import Spectrum
 

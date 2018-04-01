@@ -28,7 +28,7 @@ from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
 from mingle.utilities.spectrum_utils import load_spectrum  # , select_observation
-from simulators.tcm_module import (tcm_analysis, tcm_helper_function, setup_tcm_dirs)
+from obsolete.simulations.tcm_module import (tcm_analysis, tcm_helper_function, setup_tcm_dirs)
 
 from argparse import Namespace
 from typing import List
