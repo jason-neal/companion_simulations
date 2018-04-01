@@ -3,7 +3,6 @@
 
 # File to contain function necessary for the chi_square simulations
 
-import copy
 import logging
 
 import numpy as np
@@ -28,28 +27,6 @@ def add_noise(flux, snr, use_mu=False):
         # Add normal distributed noise at the snr level.
         noisy_flux = flux + np.random.normal(0, sigma)
     return noisy_flux
-
-
-def combine_spectra(star, planet, alpha):
-    """Combine the Spectrum objects "star" and "planet".
-
-    Strength ratio of alpha
-    spec = star + planet * alpha
-
-    """
-    star = copy.copy(star)
-    planet = copy.copy(planet)
-
-    if np.all(star.xaxis == planet.xaxis):  # make sure wavelengths even first
-        pass
-    else:
-        planet.interpolate1d_to(star)
-    # combined_spectrum = star + (planet*alpha)
-    # Combined spectra with proper normalization
-    norm_factor = 1 / (1 + alpha)
-    combined_spectrum = (star + (planet * alpha)) * norm_factor
-
-    return combined_spectrum
 
 
 def spec_max_delta(obs_spec, rvs, gammas):

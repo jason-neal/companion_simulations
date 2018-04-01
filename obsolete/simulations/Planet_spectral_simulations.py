@@ -14,7 +14,7 @@ import numpy as np
 from astropy.io import fits
 from spectrum_overload import Spectrum
 
-from mingle.utilities.simulation_utilities import combine_spectra
+from obsolete.models.alpha_model import combine_spectra
 from mingle.utilities.phoenix_utils import load_starfish_spectrum, spec_local_norm
 from mingle.utilities.spectrum_utils import spectrum_plotter
 from mingle.utilities.debug_utils import pv

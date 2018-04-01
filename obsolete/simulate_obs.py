@@ -5,8 +5,7 @@ from collections import defaultdict
 
 from joblib import Memory
 
-from mingle.utilities.simulation_utilities import combine_spectra
-from obsolete.models.alpha_model import alpha_model
+from obsolete.models.alpha_model import alpha_model, combine_spectra
 import simulators
 
 cachedir = os.path.join(simulators.paths["output_dir"], ".simulation_cache")

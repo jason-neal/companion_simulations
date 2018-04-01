@@ -27,7 +27,8 @@ from tqdm import tqdm
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.model_convolution import apply_convolution, store_convolutions
 from obsolete.simulate_obs import generate_observations
-from old_simulations.Planet_spectral_simulations import combine_spectra, load_PHOENIX_hd30501
+from obsolete.simulations.Planet_spectral_simulations import load_PHOENIX_hd30501
+from obsolete.models.alpha_model import combine_spectra
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
