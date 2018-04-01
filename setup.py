@@ -29,7 +29,7 @@ config = {
 
     'scripts': ["simulators/bhm_script.py",
                 "simulators/iam_script.py",
-                "simulators/tcm_script.py",
+                # "simulators/tcm_script.py",
                 # "bin/mkdbs.py",
                 "bin/coadd_analysis_script.py",
                 "bin/coadd_bhm_analysis.py",
