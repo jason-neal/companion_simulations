@@ -27,7 +27,8 @@ def test_iam_helper_function(star, obs, chip):
 
 
 @pytest.mark.xfail()
-def test_iam_wrapper(sim_config, host, comp, tmpdir):
+@pytest.mark.parametrize("save_only", [True, False])
+def test_iam_wrapper(sim_config, host, comp, tmpdir, save_only):
     simulators = sim_config
     simulators.paths["output_dir"] = str(tmpdir)
     host_params = [5600, 4.5, 0.0]
@@ -43,8 +44,13 @@ def test_iam_wrapper(sim_config, host, comp, tmpdir):
 
     result = iam_wrapper(0, host_params, comp_params, obs_spec=obs_spec,
                          gammas=[0, 1, 2], rvs=[-1, 1], norm=True,
-                         save_only=True, chip=1, prefix=tmpdir.join("TEST_file"))
-    assert result is None
+                         save_only=save_only, chip=1, prefix=tmpdir.join("TEST_file"))
+    if save_only:
+        assert result is None
+    else:
+        assert result is not None
+
+    assert False
 
 
 @pytest.mark.xfail()
