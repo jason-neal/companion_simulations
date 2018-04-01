@@ -217,7 +217,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
 
             save_full_iam_chisqr(save_filename, params1, params2,
                                  inherent_alpha, rvs, gammas,
-                                 iam_grid_chisquare, arbitrary_norms, npix, verbose=verbose)
+                                 iam_grid_chisquare, arbitrary_norms, npix)
         if save_only:
             return None
         else:
@@ -295,8 +295,7 @@ def prepare_iam_model_spectra(params1: Union[List[float], List[Union[int, float]
 
 def save_full_iam_chisqr(filename: str, params1: List[Union[int, float]], params2: List[Union[int, float]],
                          alpha: Union[int, float64], rvs: Union[ndarray, List[int]], gammas: Union[ndarray, List[int]],
-                         iam_grid_chisquare: ndarray, arbitrary_norms: ndarray, npix: int,
-                         verbose: bool = False) -> None:
+                         iam_grid_chisquare: ndarray, arbitrary_norms: ndarray, npix: int) -> None:
     """Save the iterations chisqr values to a cvs."""
     rv_grid, g_grid = np.meshgrid(rvs, gammas, indexing='ij')
     # assert A.shape == rv_grid.shape
@@ -336,8 +335,6 @@ def save_full_iam_chisqr(filename: str, params1: List[Union[int, float]], params
         # Add header at the top only
         df[columns].to_csv(filename, sep=',', mode="a", index=False, header=True)
 
-    if verbose:
-        print("Saved chi-squared values to {0}".format(filename))
     return None
 
 
