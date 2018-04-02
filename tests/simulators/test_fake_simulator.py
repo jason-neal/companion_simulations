@@ -5,6 +5,9 @@ from simulators.fake_simulator import fake_bhm_simulation, fake_iam_simulation
 from simulators.fake_simulator import main as fake_main
 from simulators.fake_simulator import parse_args
 
+from simulators.fake_simulator import append_hdr
+
+from simulators.common_setup import obs_name_template
 
 def test_fake_simulator_parser():
     args = ["HD30501", "01", "-p", "2300, 4.5, -3.0", "--params2", "2100, 3.5, 0.0", "-g", "10"]
@@ -41,11 +44,12 @@ def test_fake_simulator_parser_toggle():
 
 
 def test_fake_sim_main_with_no_params1_returns_error():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="No host parameter given. Use '-p'"):
         fake_main("hdtest", 1, params1=None, params2=[5800, 4.0, -0.5], rv=7, gamma=5, mode="iam")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="No host parameter given. Use '-p'"):
         fake_main("hdtest2", 2, params1=None, gamma=7, mode="bmh")
+
 
 @pytest.mark.parametrize("starname, obsnum",
                          [("teststar", 1),
@@ -60,7 +64,8 @@ def test_fake_simulator_main_runs_and_creates_files(sim_config, tmpdir, starname
     starname_up = starname.upper()
 
     def sim_filename(chip):
-        return tmpdir.join("{0}-{1}-mixavg-tellcorr_{2}_bervcorr_masked.fits".format(starname_up, obsnum, chip))
+        template = obs_name_template()
+        return tmpdir.join(template.format(starname_up, obsnum, chip))
 
     # Simulations for each chip don't exist yet?
     for chip in range(1, 5):
@@ -75,6 +80,37 @@ def test_fake_simulator_main_runs_and_creates_files(sim_config, tmpdir, starname
         assert expected_sim_file.check(file=1)
 
     assert result is None
+
+
+@pytest.mark.parametrize("starname, obsnum",
+                         [("teststar", 1),
+                          ("SECONDTEST", 9)])
+def test_fake_simulator_iam_with_params2_None(sim_config, tmpdir, starname, obsnum):
+    """Params 2 = None errors if mode is iam"""
+    simulators = sim_config
+    simulators.paths["output_dir"] = str(tmpdir)
+    simulators.paths["parameters"] = str(tmpdir)
+    simulators.paths["spectra"] = str(tmpdir)
+    starname_up = starname.upper()
+
+    def sim_filename(chip):
+        template = obs_name_template()
+        return tmpdir.join(template.format(starname_up, obsnum, chip))
+
+    # Simulations for each chip don't exist yet?
+    for chip in range(1, 5):
+        expected_sim_file = sim_filename(chip)
+        assert expected_sim_file.check(file=0)
+
+    with pytest.raises(ValueError, match="No companion parameter given. Use '-q', or set '--mode bhm'"):
+        fake_main(starname, obsnum, "4500, 5.0, 0.5", params2=None, mode="iam", noplots=True)
+
+    # Simulations for each chip were not created?
+    for chip in range(1, 5):
+        expected_sim_file = sim_filename(chip)
+        assert expected_sim_file.check(file=0)
+
+
 
 
 @pytest.mark.parametrize("params", [(2500, 4.5, 0.0), (2800, 4.5, 0.5)])
@@ -96,6 +132,21 @@ def test_fake_iam_simulation_with_passing_wav(params, wav, rv, gamma, limits):
 @pytest.mark.parametrize("limits", [[2070, 2180]])
 def test_fake_iam_simulation_with_wav(params, wav, rv, gamma, limits):
     fake_wav, fake_flux = fake_iam_simulation(wav, [5000, 4.5, 0.5], params2=params, gamma=gamma, rv=-rv, limits=limits)
+    assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
+    assert np.all(fake_wav == wav)
+    assert fake_wav.shape == fake_flux.shape
+
+
+@pytest.mark.parametrize("fudge", [1, .98, 1.02])
+def test_fake_iam_simulation_with_fudge(fudge):
+    params = (2800, 4.5, 0.5)
+    wav = np.linspace(2130, 2145, 40)
+    rv = 2
+    gamma = -5
+    limits = [2070, 2180]
+    with pytest.warns(UserWarning, match="Fudging fake companion by '*{0}'".format(fudge)):
+        fake_wav, fake_flux = fake_iam_simulation(wav, [5000, 4.5, 0.5], params2=params, gamma=gamma, rv=-rv,
+                                                  limits=limits, fudge=fudge)
     assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
     assert np.all(fake_wav == wav)
     assert fake_wav.shape == fake_flux.shape
@@ -124,3 +175,26 @@ def test_fake_bhm_simulation_without_wav(limits):
     fake_wav, fake_flux = fake_bhm_simulation(None, [5000, 4.5, 0.5], gamma=5, limits=limits)
     assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
     assert fake_wav.shape == fake_flux.shape
+
+
+@pytest.mark.parametrize("keys, values", [
+    (["one", "two", "three"], [4, 5, 6]),
+    (["telescope", "size", "location", "cost"], ["NZLT", 9000, "NZD", 1000000.1])
+])
+def test_append_header(keys, values):
+    old_hdr = {}  # Header are dict-like
+    new_hdr = append_hdr(old_hdr, keys, values)
+    for key, value in zip(keys, values):
+        assert new_hdr[key] == value
+
+
+def test_append_header_single_values():
+    old_hdr = {}  # Header are dict-like
+    new_hdr = append_hdr(old_hdr, "key", "value")
+    assert new_hdr["key"] == "value"
+
+
+
+def test_append_header_unequal_values():
+    with pytest.raises(AssertionError, match="Not the same number of keys as values"):
+        append_hdr({}, ["one", "two", "three"], [1, 2, 3, 4])
