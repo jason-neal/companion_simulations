@@ -11,6 +11,10 @@ from simulators.fake_simulator import main as fake_generator
 from simulators.iam_script import main as iam_script_main
 
 
+os.makedirs(simulators.paths["spectra"], exist_ok=True)  # Check is valid location
+os.makedirs(simulators.paths["parameters"], exist_ok=True)  # Check is valid location
+
+
 def make_fake_parameter_file(info):
     name = os.path.join(simulators.paths["parameters"], "{}_params.dat".format(info["star"].upper()))
 

@@ -53,6 +53,9 @@ def parse_args(args: List[str]) -> Namespace:
     return parser.parse_args(args)
 
 
+os.makedirs(simulators.paths["spectra"], exist_ok=True)  # Check is valid location
+
+
 def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180), noise=None, header=False, fudge=None,
                         area_scale=True):
     """Make a fake spectrum with binary params and radial velocities."""
