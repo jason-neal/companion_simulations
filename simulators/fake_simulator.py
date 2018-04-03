@@ -3,28 +3,26 @@ import logging
 import os
 import sys
 import warnings
+from argparse import Namespace
+from typing import Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from astropy.io import fits
-from logutils import BraceMessage as __
-from spectrum_overload import Spectrum
-
 import simulators
+from astropy.io import fits
+from astropy.io.fits.header import Header
+from logutils import BraceMessage as __
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.norm import continuum
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import add_noise
 from mingle.utilities.simulation_utilities import spec_max_delta
+from numpy import bool_, float64, ndarray
 from simulators.common_setup import obs_name_template
 from simulators.iam_module import prepare_iam_model_spectra
-
-from argparse import Namespace
-from astropy.io.fits.header import Header
-from numpy import bool_, float64, ndarray
+from spectrum_overload import Spectrum
 from spectrum_overload.spectrum import Spectrum
-from typing import Dict, List, Optional, Tuple, Union
 
 
 def parse_args(args: List[str]) -> Namespace:
