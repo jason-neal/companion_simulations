@@ -341,15 +341,21 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
 
     if correct:
         # Mark the "correct" location for the minimum chi squared
+        errorbars = kwargs.get("errorbars", None)
         try:
-            plt.plot(correct[xcol], correct[ycol], "ro", markersize=ms)
+            if errorbars is not None:
+                plt.errorbar(correct[xcol], correct[ycol],
+                             xerr=errorbars[xcol], yerr=errorbars[ycol], ecolor="r", fmt="ro", markersize=ms)
+            else:
+                plt.plot(correct[xcol], correct[ycol], "ro", markersize=ms)
         except:
+            raise
             pass
 
     # Mark minimum with a +.
     min_i, min_j = divmod(Z.argmin(), Z.shape[1])
     plt.plot(X[min_i], Y[min_j], "y*", markersize=ms, label="$min \chi^2$")
-
+    print("Contour minimum values = {0} {1}, {2}{3}".format(xcol, X[min_i], ycol, Y[min_j]))
     # plt.show()
 
 
