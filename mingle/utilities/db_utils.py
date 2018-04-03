@@ -342,12 +342,13 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
     if correct:
         # Mark the "correct" location for the minimum chi squared
         errorbars = kwargs.get("errorbars", None)
+        red_alpha=1
         try:
             if errorbars is not None:
                 plt.errorbar(correct[xcol], correct[ycol],
-                             xerr=errorbars[xcol], yerr=errorbars[ycol], ecolor="r", fmt="ro", markersize=ms)
+                             xerr=errorbars[xcol], yerr=errorbars[ycol], ecolor="r", fmt="ro", markersize=ms, alpha=red_alpha)
             else:
-                plt.plot(correct[xcol], correct[ycol], "ro", markersize=ms)
+                plt.plot(correct[xcol], correct[ycol], "ro", markersize=ms, alpha=red_alpha)
         except:
             raise
             pass
