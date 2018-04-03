@@ -115,7 +115,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
 
             # Doppler shift companion
             injection = mod2_spec.copy()
-            injection.doppler_shift(params["rv_2"].value - params["rv_1"].value)
+            injection.doppler_shift(params["rv_2"].value + params["rv_1"].value)
 
             # Normalize by synthetic continuum
             injection.spline_interpolate_to(continuum)
@@ -196,6 +196,7 @@ def main(star, obsnum, **kwargs):
             loop_injection_temp.append(middle_value)
             # loop_recovered_temp.append(recovered)
             loop_recovered_temp.append(injector_result.params["teff_2"].value)
+            print(injector_result.fit_report())
         else:
             print("Exiting while loop due to len(temps)={}".format(len(injection_temps)))
 
