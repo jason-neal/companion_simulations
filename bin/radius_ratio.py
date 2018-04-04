@@ -34,7 +34,8 @@ def parse_args(args):
 def main(teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, **kwargs):
     from simulators.iam_module import prepare_iam_model_spectra
     from mingle.utilities.phoenix_utils import phoenix_radius
-    wav_limits = [2110, 2160]
+    wav_limits = [kwargs.get("lower_wav", 2110), kwargs.get("lower_wav", 2160)]
+    # wav_limits = [2110, 2160]
     host, companion = prepare_iam_model_spectra([teff_1, logg_1, feh_1],
                                                 [teff_2, logg_2, feh_2],
                                                 limits=wav_limits, area_scale=True, wav_scale=True)
