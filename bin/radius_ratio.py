@@ -1,6 +1,8 @@
 """Script to calculate radius ratio and flux ratio between synthetic spectra."""
 import argparse
 import sys
+
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -61,6 +63,13 @@ def main(teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, **kwargs):
         # This is equivalent to loading models straight without modification
         mean_ratio = np.mean(flux_ratio / r_ratio ** 2)
         print("Relative  Flux ratio  f_1/f_2 = {0: 7.06}".format(mean_ratio))
+
+    plot_name = kwargs.get("plot_name", None)
+    if plot_name is not None:
+        host.plot(label="Host")
+        companion.plot(label="Companion")
+        plt.legend()
+        plt.savefig(plot_name)
 
 
 if __name__ == "__main__":
