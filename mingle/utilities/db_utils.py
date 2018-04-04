@@ -356,7 +356,7 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
     # Mark minimum with a +.
     min_i, min_j = divmod(Z.argmin(), Z.shape[1])
     plt.plot(X[min_i], Y[min_j], "y*", markersize=ms, label="$min \chi^2$")
-    print("Contour minimum values = {0} {1}, {2}{3}".format(xcol, X[min_i], ycol, Y[min_j]))
+    print("Contour minimum values = {0} {1}, {2} {3}".format(xcol, X[min_i], ycol, Y[min_j]))
     # plt.show()
 
 
