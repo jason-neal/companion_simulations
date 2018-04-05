@@ -63,7 +63,7 @@ def main(star, obsnum, chip):
     brute_solve_iam(params, spec_list, error_list, chips)
 
 
-def brute_solve_iam(params, obs_spec, errors, chip, Ns=20):
+def brute_solve_iam(params, obs_spec, errors, chip, Ns=20, norm_method="linear"):
     if isinstance(obs_spec, list):
         minimize_wav = [obs.xaxis for obs in obs_spec]
         minimize_flux = [obs.flux for obs in obs_spec]
@@ -73,7 +73,7 @@ def brute_solve_iam(params, obs_spec, errors, chip, Ns=20):
         minimize_wav = obs_spec.xaxis
         minimize_flux = obs_spec.flux
 
-    kws = {"chip": chip, "norm": True, "norm_method": "linear",
+    kws = {"chip": chip, "norm": True, "norm_method": norm_method,
            "area_scale": True, "wav_scale": True, "fudge": None}
 
     # Least-squares fit to the spectrum.
@@ -144,6 +144,7 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
         error_array = np.empty((0,))
 
         for ii, c in enumerate(chip):
+            # Create the binary model from params
             flux_ii, model_ii = iam_magic_sauce(Spectrum(xaxis=obs_wav[ii], flux=obs_flux[ii]),
                                                 [teff_1, logg_1, feh_1],
                                                 [teff_2, logg_2, feh_2],
