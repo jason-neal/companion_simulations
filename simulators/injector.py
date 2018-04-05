@@ -89,6 +89,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
                                         hdr=True, normalize=False, area_scale=True,
                                         flux_rescale=True, wav_scale=True) for lim in rv_limits]
 
+    # Currying a function two only take 1 parameter.
     def inject(teff_2):
         """Incjector function that just takes a temperature."""
         params.add('teff_2', value=teff_2, min=max([teff_2 - 800, 2300]), max=min([teff_2 + 801, 7001]), vary=True,
@@ -161,26 +162,25 @@ def main(star, obsnum, **kwargs):
     injection_temps = np.arange(2300, 5001, 100)
     binary_search = kwargs.get("binary", False)
     if binary_search:
-        print("before first")
+        print("Doing first")
         first = injection_temps[0]
         first_injector_result = injector(first)
         loop_injection_temp.append(first)
         loop_recovered_temp.append(first_injector_result.params["teff_2"].value)
-        # show_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=strict_mask)
-        print("done first")
+
+        print("Doing Last")
         last = injection_temps[-1]
         last_injector_result = injector(last)
         loop_injection_temp.append(last)
         loop_recovered_temp.append(last_injector_result.params["teff_2"].value)
-        # show_brute_solution(last_injector_result, star, obsnum, chip, strict_mask=strict_mask)
-        print("Done last")
+
         assert not is_recovered(first, first_injector_result)
         # assert is_recovered(last, last_injector_result)
 
         # Try binary search
         print("Starting Binary search")
         while len(injection_temps) > 2:
-            print("in while loop")
+
             print("temp left = ", injection_temps)
             middle_value = int(injection_temps[int(np.floor(len(injection_temps) / 2))])
             print("doing middle value = ", middle_value)
@@ -209,9 +209,9 @@ def main(star, obsnum, **kwargs):
         show_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=strict_mask)
         show_brute_solution(last_injector_result, star, obsnum, chip, strict_mask=strict_mask)
 
-        print("showing candidates")
+        print("Showing candidates")
         print(first_injector_result.show_candidates(0))
-        print(first_injector_result.show_candidates(1))
+
         print("TODO: Adjust the grid.")
         injector_result = first_injector_result
     else:
@@ -230,7 +230,9 @@ def main(star, obsnum, **kwargs):
 
     plt.title("injector! logg_2 = {0} comp_logg = {1}".format(injector_result.params["logg_2"].value, comp_logg))
     plt.savefig(kwargs.get("plot_name", "Test_recovery_plot.pdf"))
+
     plt.show()
+
     return first_injector_result
 
 
@@ -258,6 +260,7 @@ def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_r
             recovered =True
         else:
             recovered = False
+            print("Not recovered within 100K")
         if recovered:
             print("Something was recovered within 100K")
     else:
@@ -271,10 +274,9 @@ def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_r
                                    for num in range(50)
                                    if injector_result.candidates[num].score < (
                                            injector_result.candidates[0].score + one_sigma)]
-        print("recovered_teffs", values_inside_one_sigma)
+        print("Recovered_teffs", values_inside_one_sigma)
         print("one sigma chi^2 = {0}, dof={1}".format(one_sigma, dof))
-        print("Candidate1\n", injector_result.show_candidates(0))
-        print("Candidate2\n", injector_result.show_candidates(1), "\nabove^^injector_result.show_candidates(1) ^^")
+        print("Candidate 1\n", injector_result.show_candidates(0))
 
         # Incorrect scaling
         bad_values_inside_one_sigma = [injector_result.candidates[num].params[param].value
@@ -283,11 +285,11 @@ def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_r
                                                injector_result.candidates[0].score + one_sigma * injector_result.redchi)]
 
         recovered = injected_value in values_inside_one_sigma
-        print("recovered = ", recovered)
         if recovered:
             print("Something was recovered")
         elif injected_value in bad_values_inside_one_sigma:
             warnings.warn("The temp value {} was inside the incorrectly scaled sigma range.".format(injected_value))
+    print("is recovered = ", recovered)
     return recovered
 
 
