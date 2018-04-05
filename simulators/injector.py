@@ -222,12 +222,14 @@ def main(star, obsnum, **kwargs):
         first_injector_result = injector_result
 
     plt.figure()
-    plt.errorbar(loop_injection_temp, loop_recovered_temp, 100*np.ones_like(loop_recovered_temp),  "*")
+    temp_err = 100 * np.ones_like(loop_recovered_temp)
+    plt.errorbar(loop_injection_temp, loop_recovered_temp, yerr=temp_err, fmt="r*")
     plt.plot(loop_injection_temp, loop_injection_temp, "r")
     plt.xlabel("Injected Companion Temp")
     plt.ylabel("Recovered Companion Temp")
 
-    plt.title("logg_2 = {0} comp_logg = {1}".format(injector_result.params["logg_2"].value, comp_logg))
+    plt.title("injector! logg_2 = {0} comp_logg = {1}".format(injector_result.params["logg_2"].value, comp_logg))
+    plt.savefig(kwargs.get("plot_name", "Test_recovery_plot.pdf"))
     plt.show()
     return first_injector_result
 
