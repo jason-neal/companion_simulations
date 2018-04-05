@@ -13,10 +13,11 @@ from typing import Union, Optional, List
 
 import Starfish
 import numpy as np
-from numpy import int64, float64
 from Starfish.grid_tools import HDF5Interface
 from astropy.io import fits
+from joblib import Memory
 from logutils import BraceMessage as __
+from numpy import int64, float64
 from spectrum_overload import Spectrum
 
 # from typing import List
@@ -24,6 +25,11 @@ import simulators
 from mingle.utilities.norm import spec_local_norm
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.param_utils import closest_model_params, gen_new_param_values
+
+joblib_dir = "./tmp/joblib"
+
+os.makedirs(joblib_dir, exist_ok=True)
+memory = Memory(cachedir=joblib_dir)
 
 
 def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
@@ -41,6 +47,7 @@ def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
     return spec
 
 
+@memory.cache
 def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
                            area_scale=False, flux_rescale=False, wav_scale=True):
     """Load spectrum from hdf5 grid file.
@@ -104,6 +111,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
     return spec
 
 
+@memory.cache
 def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_scale=False, flux_rescale=False):
     """Load spectrum from hdf5 grid file.
 
@@ -200,6 +208,7 @@ def phoenix_radius(header):
     return radius
 
 
+@memory.cache
 def closest_model_params(teff: Union[float, int], logg: Union[float, int], feh: Union[float, int],
                          alpha: Optional[Union[float, int]] = None) -> List[Union[int64, float64]]:
     """Find the closest PHOENIX-ACES model parameters to the stellar parameters given.
@@ -237,6 +246,7 @@ def closest_model_params(teff: Union[float, int], logg: Union[float, int], feh: 
         return [closest_teff, closest_logg, closest_feh]
 
 
+@memory.cache
 def all_aces_params():
     teffs = np.concatenate((np.arange(2300, 7000, 100),
                             np.arange(7000, 12001, 200)))
@@ -379,6 +389,7 @@ def find_phoenix_model_names(base_dir, original_model):
     return close_models
 
 
+@memory.cache
 def phoenix_name(teff, logg, feh, alpha=None, Z=False):
     if alpha is not None:
         raise NotImplementedError("Need to add alpha to phoenix name.")
@@ -392,6 +403,7 @@ def phoenix_name(teff, logg, feh, alpha=None, Z=False):
     return name
 
 
+@memory.cache
 def phoenix_regex(teff, logg, feh, alpha=None, Z=False):
     if alpha is not None:
         raise NotImplementedError("Need to add alpha to phoenix name.")

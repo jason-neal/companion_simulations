@@ -7,17 +7,24 @@ from typing import Dict, List, Optional, Tuple, Union
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import simulators
+from joblib import Memory
 from logutils import BraceMessage as __
+from numpy import float64, ndarray
+from spectrum_overload.spectrum import Spectrum
+from tqdm import tqdm
+
+import simulators
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale, arbitrary_minimums
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
-from numpy import float64, ndarray
 from simulators.common_setup import setup_dirs, sim_helper_function
-from spectrum_overload.spectrum import Spectrum
-from tqdm import tqdm
+
+joblib_dir = "./tmp/joblib"
+
+os.makedirs(joblib_dir, exist_ok=True)
+memory = Memory(cachedir=joblib_dir)
 
 
 def iam_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool = False) -> Tuple[
@@ -279,6 +286,7 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
     iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
                                          rvs=rv2, gammas=rv1)
     iam_grid_models = iam_grid_func(obs_spec.xaxis)
+
     # print(iam_grid_models.shape)
 
     # Continuum normalize all iam_grid_models
@@ -287,9 +295,9 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
         return continuum(obs_spec.xaxis, flux, splits=20, method="exponential", top=20)
 
     iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
-    #print(iam_grid_continuum.shape)
+    # print(iam_grid_continuum.shape)
     iam_grid_models = iam_grid_models / iam_grid_continuum
-    #print(iam_grid_models.shape)
+    # print(iam_grid_models.shape)
     # RE-NORMALIZATION
     if chip == 4:
         # Quadratically re-normalize anyway
@@ -334,6 +342,7 @@ def renormalization(spectrum: Union[ndarray, Spectrum], model_grid: ndarray, nor
     return norm_flux
 
 
+@memory.cache
 def observation_rv_limits(obs_spec: Spectrum, rvs: Union[int, List[int]], gammas: Union[int, List[int]]) -> List[
     float64]:
     """Calculate wavelength limits needed to cover RV shifts used."""
@@ -344,6 +353,7 @@ def observation_rv_limits(obs_spec: Spectrum, rvs: Union[int, List[int]], gammas
     return [obs_min - 1.1 * delta, obs_max + 1.1 * delta]
 
 
+@memory.cache
 def prepare_iam_model_spectra(params1: Union[List[float], List[Union[int, float]]],
                               params2: Union[List[float], List[Union[int, float]], Tuple[int, float, float]],
                               limits: Union[List[float64], Tuple[int, int], List[int]], area_scale: bool = True,
@@ -485,5 +495,3 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
                                                                                                  datetime.datetime.now()))
         plt.savefig(plot_name)
         plt.close(plt.gcf())
-
-

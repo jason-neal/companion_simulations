@@ -4,8 +4,14 @@ import warnings
 from typing import Dict, Tuple, Union, List
 
 import simulators
+from joblib import Memory
 from logutils import BraceMessage as __
 from mingle.utilities import parse_paramfile, load_spectrum, spectrum_masking, barycorr_crires_spectrum, betasigma_error
+
+joblib_dir = "./tmp/joblib/common_setup/"
+
+os.makedirs(joblib_dir, exist_ok=True)
+memory = Memory(cachedir=joblib_dir)
 
 
 def setup_dirs(star: str, mode: str = "iam") -> str:
@@ -77,6 +83,7 @@ def obs_name_template() -> str:
     return fname
 
 
+@memory.cache
 def load_observation_with_errors(star, obsnum, chip, mode="iam", strict_mask=False, verbose=False):
     obs_name, params, output_prefix = sim_helper_function(star, obsnum, chip, skip_params=False, mode=mode)
     if verbose:

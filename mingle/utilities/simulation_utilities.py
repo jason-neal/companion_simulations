@@ -5,8 +5,15 @@
 
 import copy
 import logging
+import os
 
 import numpy as np
+from joblib import Memory
+
+joblib_dir = "./tmp/joblib"
+
+os.makedirs(joblib_dir, exist_ok=True)
+memory = Memory(cachedir=joblib_dir)
 
 
 def add_noise(flux, snr, use_mu=False):
@@ -77,6 +84,7 @@ def max_delta(wavelength, rvs, gammas):
     return 2 * round(max(delta), 3)
 
 
+@memory.cache
 def check_inputs(var):
     """Turn inputs into numpy arrays.
 
