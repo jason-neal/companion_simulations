@@ -65,22 +65,22 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
     rv_1 = 7
     rv_2 = 40
     deltarv_1 = 3
-    deltarv_2 = 8
+    deltarv_2 = 3
     rv1_step = 0.5
-    rv2_step = .5
-    # setup parameters
+    rv2_step = 0.5
+
+    # Setup Fixed injection grid parameters
     params = Parameters()
     params.add('teff_1', value=closest_host_model[0], min=5000, max=6000, vary=False, brute_step=100)
     params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
-    if comp_logg is None:
-        params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
-    else:
-        params.add('logg_2', value=comp_logg, min=0, max=6, vary=False, brute_step=0.5)
-    # params.add('logg_2', value=4.5, min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
     params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
     params.add('rv_1', value=rv_1, min=rv_1 - deltarv_1, max=rv_1 + deltarv_1, vary=True, brute_step=rv1_step)
     params.add('rv_2', value=rv_2, min=rv_2 - deltarv_2, max=rv_2 + deltarv_2, vary=True, brute_step=rv2_step)
+    if comp_logg is None:
+        params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
+    else:
+        params.add('logg_2', value=comp_logg, min=0, max=6, vary=False, brute_step=0.5)
 
     rv_limits = [observation_rv_limits(obs, params["rv_1"].value,
                                        params["rv_2"].value) for obs in obs_spec]
