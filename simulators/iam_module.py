@@ -271,7 +271,7 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
     rv_limits = observation_rv_limits(obs_spec, rv1, rv2)
 
     obs_spec = obs_spec.remove_nans()
-    assert ~np.any(np.isnan(obs_spec.flux)), "Observation has nan"
+    assert ~np.any(np.isnan(obs_spec.flux)), "Observation has Nan."
 
     # Load phoenix models and scale by area and wavelength limit
     mod1_spec, mod2_spec = \
@@ -295,9 +295,8 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
         return continuum(obs_spec.xaxis, flux, splits=20, method="exponential", top=20)
 
     iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
-    # print(iam_grid_continuum.shape)
     iam_grid_models = iam_grid_models / iam_grid_continuum
-    # print(iam_grid_models.shape)
+
     # RE-NORMALIZATION
     if chip == 4:
         # Quadratically re-normalize anyway
@@ -342,7 +341,6 @@ def renormalization(spectrum: Union[ndarray, Spectrum], model_grid: ndarray, nor
     return norm_flux
 
 
-@memory.cache
 def observation_rv_limits(obs_spec: Spectrum, rvs: Union[int, List[int]], gammas: Union[int, List[int]]) -> List[
     float64]:
     """Calculate wavelength limits needed to cover RV shifts used."""
