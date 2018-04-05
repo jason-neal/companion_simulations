@@ -197,7 +197,7 @@ def main(star, obsnum, **kwargs):
             loop_injection_temp.append(middle_value)
             # loop_recovered_temp.append(recovered)
             loop_recovered_temp.append(injector_result.params["teff_2"].value)
-            print(injector_result.fit_report())
+            print(fit_report(injector_result))
         else:
             print("Exiting while loop due to len(temps)={}".format(len(injection_temps)))
 
