@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Script to calculate radius ratio and flux ratio between synthetic spectra."""
 import argparse
 import sys
