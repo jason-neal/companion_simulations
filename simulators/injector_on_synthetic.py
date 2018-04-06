@@ -46,8 +46,9 @@ def parse_args(args: List[str]) -> Namespace:
     return parser.parse_args(args)
 
 
-def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=None, plot=False, preloaded=False):
-    """Take the Observation and prepare to inject different temperature companions."""
+def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=None, plot=False,
+                               preloaded=False):
+    """Inject onto a synthetic host spectra. Add noise level of star though."""
     try:
         iter(chip)
     except:
@@ -101,9 +102,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
                    brute_step=100)
         if plot:
             plt.figure()
-        # Add companion to observation
 
-        # Load in the models
         injected_spec = []
         print("Injected Teff value", teff_2)
 
@@ -116,12 +115,20 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
 
             iam_grid_func = inherent_alpha_model(mod1_spec[ii].xaxis, mod1_spec[ii].flux, mod2_spec.flux,
                                                  rvs=params["rv_2"].value, gammas=params["rv_1"].value)
-            synthetic_model = iam_grid_func(obs_spec[ii].xaxis)
-            continuum = Spectrum(xaxis=obs_spec[ii].xaxis, flux=synthetic_model).continuum(method="exponential")
+            synthetic_model = iam_grid_func(obs_spec[ii].xaxis).squeeze()
+            # print("shape1", synthetic_model.shape)
+            synthetic_model = Spectrum(xaxis=obs_spec[ii].xaxis.squeeze(), flux=synthetic_model)
+            # print("shape2", synthetic_model.flux.shape)
+            continuum = synthetic_model.continuum(method="exponential")
+            # print("cont shape", continuum.flux.shape)
+            synthetic_model = synthetic_model / continuum
+            # print("shape3", synthetic_model.flux.shape)
+            synthetic_model.add_noise(1 / error_list[ii])
+            # print("shape4", synthetic_model.flux.shape)
 
             # Doppler shift companion
             injection = mod2_spec.copy()
-            injection.doppler_shift(params["rv_2"].value + params["rv_1"].value)
+            injection.doppler_shift(params["rv_2"].value + params["rv_1"].value)  # This should be + i think
 
             # Normalize by synthetic continuum
             injection.spline_interpolate_to(continuum)
@@ -131,14 +138,17 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
             injected_chip = obs_spec[ii] + injection
             shifted_injection = injection + 1.01 - np.mean(injection.flux)
 
-            # Re-normalzie
+            # Re-normalize
             injected_chip = injected_chip.normalize(method="linear")
             assert not np.any(np.isnan(injection.flux))
 
-            injected_spec.append(injected_chip)
+            # injected spec is the synthetic spectrum instead
+            # injected_spec.append(injected_chip)
+            injected_spec.append(synthetic_model)
             if plot:
                 obs_spec[ii].plot(label="Observation")
-                injected_chip.plot(label="Injected_chip", lw=1, linestyle="--")
+                synthetic_model.plot(label="synthetic model to fit")
+                injected_chip.plot(label="Would be Injected_chip", lw=1, linestyle="--")
                 shifted_injection.plot(label="injected part", lw=1)
                 plt.legend()
         if plot:
@@ -158,38 +168,46 @@ def main(star, obsnum, **kwargs):
     loop_injection_temp = []
     loop_recovered_temp = []
     print("before injector")
-    strict_mask = kwargs.get("strict_mask", False)
+    # strict_mask = kwargs.get("strict_mask", False)
+    strict_mask = True
     grid_recovered = kwargs.get("grid_bound", False)
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
     preloaded = kwargs.get("preloaded", False)
-    injector = injector_wrapper(star, obsnum, chip,
-                                Ns=20, strict_mask=strict_mask,
-                                comp_logg=comp_logg, plot=plot,
-                                preloaded=preloaded)
+    # injector = injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg, plot=plot)
+    injector = synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg,
+                                          plot=plot, preloaded=preloaded)
 
     injection_temps = np.arange(2300, 5001, 100)
     binary_search = kwargs.get("binary", False)
     if binary_search:
-        print("Doing first")
+        print("before first")
         first = injection_temps[0]
         first_injector_result = injector(first)
         loop_injection_temp.append(first)
         loop_recovered_temp.append(first_injector_result.params["teff_2"].value)
-
-        print("Doing Last")
+        # show_synth_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=strict_mask)
+        print("done first")
         last = injection_temps[-1]
         last_injector_result = injector(last)
         loop_injection_temp.append(last)
         loop_recovered_temp.append(last_injector_result.params["teff_2"].value)
+        # show_synth_brute_solution(last_injector_result, star, obsnum, chip, strict_mask=strict_mask)
+        print("Done last")
+        first_recovered = is_recovered(first, first_injector_result)
 
-        assert not is_recovered(first, first_injector_result)
-        # assert is_recovered(last, last_injector_result)
+        # The first one should not be recovered.
+        if first_recovered:
+            show_synth_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=False, preloaded=preloaded)
+
+        assert not first_recovered
+        assert is_recovered(last, last_injector_result)
+        raise RuntimeError("Stop here")
 
         # Try binary search
         print("Starting Binary search")
         while len(injection_temps) > 2:
-
+            print("in while loop")
             print("temp left = ", injection_temps)
             middle_value = int(injection_temps[int(np.floor(len(injection_temps) / 2))])
             print("doing middle value = ", middle_value)
@@ -206,7 +224,6 @@ def main(star, obsnum, **kwargs):
             loop_injection_temp.append(middle_value)
             # loop_recovered_temp.append(recovered)
             loop_recovered_temp.append(injector_result.params["teff_2"].value)
-            print(fit_report(injector_result))
         else:
             print("Exiting while loop due to len(temps)={}".format(len(injection_temps)))
 
@@ -215,10 +232,12 @@ def main(star, obsnum, **kwargs):
         print(first_injector_result.params.pretty_print())
         print(last_injector_result.params.pretty_print())
 
-        show_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=strict_mask, preloaded=preloaded)
-        show_brute_solution(last_injector_result, star, obsnum, chip, strict_mask=strict_mask, preloaded=preloaded)
+        show_synth_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=strict_mask,
+                                  preloaded=preloaded)
+        show_synth_brute_solution(last_injector_result, star, obsnum, chip, strict_mask=strict_mask,
+                                  preloaded=preloaded)
 
-        print("Showing candidates")
+        print("showing candidates")
         print(first_injector_result.show_candidates(0))
 
         print("TODO: Adjust the grid.")
@@ -237,12 +256,9 @@ def main(star, obsnum, **kwargs):
     plt.xlabel("Injected Companion Temp")
     plt.ylabel("Recovered Companion Temp")
 
-    plt.title("Injector: logg_1 = {0} logg_2 = {1}".format(injector_result.params["logg_1"].value,
-                                                           injector_result.params["logg_2"].value))
-    plt.savefig(kwargs.get("plot_name", "Test_recovery_plot.pdf"))
-
+    plt.title(
+        "synthetic injector! logg_2 = {0} comp_logg = {1}".format(injector_result.params["logg_2"].value, comp_logg))
     plt.show()
-
     return first_injector_result
 
 
@@ -254,11 +270,11 @@ def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_r
     injected_value: float
         The input parameter value
     injector_result: lmfit result
-        Lmnift brute result object.
+        Lmfit brute result object.
     grid_recovered: bool
         Flag to set the "criteria 100K" instead of "1sigma". Default False
     param: str
-        The prameter name to check. Default "teff_2"
+        The parameter name to check. Default "teff_2"
     Outputs
     -------
     Recovered: bool
@@ -270,7 +286,6 @@ def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_r
             recovered = True
         else:
             recovered = False
-            print("Not recovered within 100K")
         if recovered:
             print("Something was recovered within 100K")
     else:
@@ -284,9 +299,9 @@ def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_r
                                    for num in range(50)
                                    if injector_result.candidates[num].score < (
                                            injector_result.candidates[0].score + one_sigma)]
-        print("Recovered_teffs", values_inside_one_sigma)
+        print("recovered_teffs", values_inside_one_sigma)
         print("one sigma chi^2 = {0}, dof={1}".format(one_sigma, dof))
-        print("Candidate 1\n", injector_result.show_candidates(0))
+        print("Candidate1\n", injector_result.show_candidates(0))
 
         # Incorrect scaling
         bad_values_inside_one_sigma = [injector_result.candidates[num].params[param].value
@@ -296,22 +311,22 @@ def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_r
                                                    0].score + one_sigma * injector_result.redchi)]
 
         recovered = injected_value in values_inside_one_sigma
+        print("recovered = ", recovered)
         if recovered:
-            print("Something was recovered")
+            print("Something was recovered", injected_value, "==", injector_result.params["teff_2"])
         elif injected_value in bad_values_inside_one_sigma:
             warnings.warn("The temp value {} was inside the incorrectly scaled sigma range.".format(injected_value))
-    print("is recovered = ", recovered)
     return recovered
 
 
-def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded=False):
+def show_synth_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded=False):
     parvals = result.params.valuesdict()
-    teff_1 = round(parvals['teff_1'] / 100) * 100
-    teff_2 = round(parvals['teff_2'] / 100) * 100
-    logg_1 = round(parvals['logg_1'] * 2) / 2
-    logg_2 = round(parvals['logg_2'] * 2) / 2
-    feh_1 = round(parvals['feh_1'] * 2) / 2
-    feh_2 = round(parvals['feh_2'] * 2) / 2
+    teff_1 = parvals['teff_1']
+    teff_2 = parvals['teff_2']
+    logg_1 = parvals['logg_1']
+    logg_2 = parvals['logg_2']
+    feh_1 = parvals['feh_1']
+    feh_2 = parvals['feh_2']
     rv_1 = np.asarray([parvals['rv_1']])
     rv_2 = np.asarray([parvals['rv_2']])
 
@@ -332,10 +347,18 @@ def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded
 
     # Linearlly normalize observation.
     obs_spec = [obs.normalize(method="linear") for obs in obs_spec]
-    # closest_host_model, closest_comp_model = closest_obs_params(obs_params, mode="iam")
+
+    closest_host_model, closest_comp_model = closest_obs_params(obs_params, mode="iam")
+    rv_limits = [observation_rv_limits(obs, rv_1, rv_2) for obs in obs_spec]
+
+    mod1_spec = [load_starfish_spectrum(closest_host_model, limits=lim,
+                                        hdr=True, normalize=False, area_scale=True,
+                                        flux_rescale=True, wav_scale=True) for lim in rv_limits]
+    synth_obs = mod1_spec
+
     plt.figure(figsize=(10, 15))
     for ii, c in enumerate(chip):
-        flux_ii, model_ii = iam_magic_sauce(obs_spec[ii],
+        flux_ii, model_ii = iam_magic_sauce(synth_obs[ii],
                                             [teff_1, logg_1, feh_1],
                                             [teff_2, logg_2, feh_2],
                                             rv_1, rv_2,
@@ -344,17 +367,19 @@ def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded
                                             wav_scale=True, fudge=None, preloaded=preloaded)
         plt.subplot(611 + 2 * ii)
         obs_spec[ii].plot(label="obs")
-        plt.plot(obs_spec[ii].xaxis, flux_ii.squeeze(), label="result")
+        plt.plot(synth_obs[ii].xaxis, flux_ii.squeeze(), label="result")
         plt.legend()
         plt.ylim([0.95, 1.02])
-
+        # TODO: Fix up this plotting
         plt.subplot(611 + 2 * ii + 1)
-        plt.plot(np.concatenate((obs_spec[0].xaxis, obs_spec[1].xaxis, obs_spec[2].xaxis)), result.residual, "*",
-                 label="result_residual")
+        print(result.residual.shape)
+        print(synth_obs[0].xaxis.shape)
+        # plt.plot(np.concatenate((synth_obs[0].xaxis, synth_obs[1].xaxis, synth_obs[2].xaxis)), result.residual, "*",
+        #         label="result_residual")
         # plt.plot(obs_spec[ii].xaxis, obs_spec[ii].flux-flux_ii.squeeze(), label="residual")
-        plt.plot(obs_spec[ii].xaxis, (obs_spec[ii].flux - flux_ii.squeeze()), label="unscaled residual")
-        plt.plot(obs_spec[ii].xaxis, (obs_spec[ii].flux - flux_ii.squeeze()) / error_list[ii], label="scaled residual")
-        plt.xlim([np.min(obs_spec[ii].xaxis), np.max(obs_spec[ii].xaxis)])
+        # plt.plot(synth_obs[ii].xaxis, (synth_obs[ii].flux - flux_ii.squeeze()), label="unscaled residual")
+        # plt.plot(synth_obs[ii].xaxis, (synth_obs[ii].flux - flux_ii.squeeze()) / error_list[ii], label="scaled residual")
+        plt.xlim([np.min(synth_obs[ii].xaxis), np.max(synth_obs[ii].xaxis)])
         plt.title("chip {}".format(c))
         plt.legend()
     plt.show()
@@ -363,9 +388,6 @@ def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
-
-    # preload = False
-    # opts["preload"] = preload
 
     if opts["preloaded"]:
         from mingle.utilities.phoenix_utils import preload_spectra
@@ -381,5 +403,6 @@ if __name__ == "__main__":
 
     print("Found solution for logg 4.5")
     print(fit_report(answer4p5))
+
     print("Found solution for logg 5")
     print(fit_report(answer5))
