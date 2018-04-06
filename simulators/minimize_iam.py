@@ -63,7 +63,7 @@ def main(star, obsnum, chip):
     brute_solve_iam(params, spec_list, error_list, chips)
 
 
-def brute_solve_iam(params, obs_spec, errors, chip, Ns=20, norm_method="linear"):
+def brute_solve_iam(params, obs_spec, errors, chip, Ns=20, norm_method="linear", preloaded=False):
     if isinstance(obs_spec, list):
         minimize_wav = [obs.xaxis for obs in obs_spec]
         minimize_flux = [obs.flux for obs in obs_spec]
@@ -74,7 +74,7 @@ def brute_solve_iam(params, obs_spec, errors, chip, Ns=20, norm_method="linear")
         minimize_flux = obs_spec.flux
 
     kws = {"chip": chip, "norm": True, "norm_method": norm_method,
-           "area_scale": True, "wav_scale": True, "fudge": None}
+           "area_scale": True, "wav_scale": True, "fudge": None, "preloaded":preloaded}
 
     # Least-squares fit to the spectrum.
     mini = Minimizer(func_array, params, fcn_args=(minimize_wav, minimize_flux, errors), fcn_kws=kws)
@@ -119,7 +119,7 @@ def func_chi2(pars, obs_wav, obs_flux, chip=None, norm=True, norm_method="scalar
 
 
 def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_method="scalar",
-               area_scale=True, wav_scale=True, fudge=None):
+               area_scale=True, wav_scale=True, fudge=None, preloaded=False):
     """Calculate binary model chi^2 for given parameters and observation"""
     # unpack parameters: extract .value attribute for each parameter
     parvals = pars.valuesdict()
@@ -151,7 +151,7 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
                                                 rv_1, rv_2,
                                                 chip=c, norm_method=norm_method,
                                                 area_scale=area_scale, norm=norm,
-                                                wav_scale=wav_scale, fudge=fudge)
+                                                wav_scale=wav_scale, fudge=fudge, preloaded=preloaded)
 
             flux = np.concatenate((flux, flux_ii.squeeze()))
             model = np.concatenate((model, model_ii.squeeze()))
@@ -164,7 +164,7 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
                                       rv_1, rv_2,
                                       chip=chip, norm_method=norm_method,
                                       area_scale=area_scale, norm=norm,
-                                      wav_scale=wav_scale, fudge=fudge)
+                                      wav_scale=wav_scale, fudge=fudge, preloaded=preloaded)
         flux = flux.squeeze()
         model = model.squeeze()
     residual = model - (flux * arb_norm)

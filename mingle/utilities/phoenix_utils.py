@@ -9,6 +9,7 @@ import glob
 import itertools
 import logging
 import os
+from itertools import product
 from typing import Union, Optional, List
 
 import Starfish
@@ -30,6 +31,26 @@ joblib_dir = "./tmp/joblib"
 
 os.makedirs(joblib_dir, exist_ok=True)
 memory = Memory(cachedir=joblib_dir)
+
+pre_loaded_spectra = {}
+
+
+def preload_spectra():
+    """Preload all spectra so brute force is quicker."""
+    global pre_loaded_spectra
+    for i, (t, l) in enumerate(product(range(2300, 6000, 100), [4.5, 5.0])):
+        pre_loaded_spectra[(t, l)] = load_starfish_spectrum([t, l, 0.0], limits=[2110, 2165], wav_scale=True,
+                                                            hdr=True, area_scale=True, normalize=False,
+                                                            flux_rescale=True)
+
+
+def get_pre_loaded_spectra(teff, logg):
+    """Preload all spectra so brute force is quicker."""
+    spec = pre_loaded_spectra[(int(teff), float(logg))]
+    id_spec = id(spec)
+    spec_copy = spec.copy()
+    assert id(spec_copy) != id_spec, "IDs are identical so mutable"
+    return spec_copy
 
 
 def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):

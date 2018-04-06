@@ -266,7 +266,7 @@ def iam_chi2_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None, errors
 
 def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
                     area_scale=True, wav_scale=True, norm=False,
-                    norm_method="scalar", fudge=None):
+                    norm_method="scalar", fudge=None, preloaded=False):
     """Cleaned up magic sauce."""
     rv_limits = observation_rv_limits(obs_spec, rv1, rv2)
 
@@ -274,9 +274,21 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
     assert ~np.any(np.isnan(obs_spec.flux)), "Observation has Nan."
 
     # Load phoenix models and scale by area and wavelength limit
-    mod1_spec, mod2_spec = \
-        prepare_iam_model_spectra(params1, params2, limits=rv_limits,
-                                  area_scale=area_scale, wav_scale=wav_scale)
+
+    from mingle.utilities.phoenix_utils import get_pre_loaded_spectra
+    if preloaded:
+        mod1_spec = get_pre_loaded_spectra(params1[0], params1[1])
+        mod1_spec.wav_select(*rv_limits)
+
+        mod1_spec.spline_interpolate_to(np.linspace(mod1_spec.xaxis[0], mod1_spec.xaxis[-1], 1024))
+        mod2_spec = get_pre_loaded_spectra(params2[0], params2[1])
+        mod2_spec.wav_select(*rv_limits)
+        mod2_spec.spline_interpolate_to(np.linspace(mod2_spec.xaxis[0], mod2_spec.xaxis[-1], 1024))
+        print("prelaoded the spectra")
+    else:
+        mod1_spec, mod2_spec = \
+            prepare_iam_model_spectra(params1, params2, limits=rv_limits,
+                                      area_scale=area_scale, wav_scale=wav_scale)
 
     if (fudge != 0) and (fudge is not None):
         fudge_factor = float(fudge)

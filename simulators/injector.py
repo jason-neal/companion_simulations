@@ -36,13 +36,16 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Add plots of each injection.')
     parser.add_argument('-b', '--binary', action="store_true",
                         help='Perform Binary search.')
+    parser.add_argument('-l', '--preloaded', action="store_true",
+                        help='Try preloading spectra.')
     parser.add_argument("-g", '--grid_bound', action="store_true",
                         help='Grid bound search limit')
 
     return parser.parse_args(args)
 
 
-def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=None, plot=False):
+def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=None, plot=False, preloaded=False):
+    """Take the Observation and prepare to inject different temperature companions."""
     try:
         iter(chip)
     except:
@@ -139,7 +142,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
         if plot:
             plt.suptitle("Host= {0}, Injected Temperature = {1}".format(closest_host_model[0], teff_2))
             plt.show(block=False)
-        return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns)
+        return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns, preloaded=preloaded)
 
     print("injector", inject)
 
@@ -157,7 +160,11 @@ def main(star, obsnum, **kwargs):
     grid_recovered = kwargs.get("grid_bound", False)
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
-    injector = injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg, plot=plot)
+    preloaded = kwargs.get("preloaded", False)
+    injector = injector_wrapper(star, obsnum, chip,
+                                Ns=20, strict_mask=strict_mask,
+                                comp_logg=comp_logg, plot=plot,
+                                preloaded=preloaded)
 
     injection_temps = np.arange(2300, 5001, 100)
     binary_search = kwargs.get("binary", False)
@@ -206,8 +213,8 @@ def main(star, obsnum, **kwargs):
         print(first_injector_result.params.pretty_print())
         print(last_injector_result.params.pretty_print())
 
-        show_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=strict_mask)
-        show_brute_solution(last_injector_result, star, obsnum, chip, strict_mask=strict_mask)
+        show_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=strict_mask, preloaded=preloaded)
+        show_brute_solution(last_injector_result, star, obsnum, chip, strict_mask=strict_mask, preloaded=preloaded)
 
         print("Showing candidates")
         print(first_injector_result.show_candidates(0))
@@ -293,7 +300,7 @@ def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_r
     return recovered
 
 
-def show_brute_solution(result, star, obsnum, chip, strict_mask=False):
+def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded=False):
     parvals = result.params.valuesdict()
     teff_1 = round(parvals['teff_1'] / 100) * 100
     teff_2 = round(parvals['teff_2'] / 100) * 100
@@ -330,8 +337,8 @@ def show_brute_solution(result, star, obsnum, chip, strict_mask=False):
                                             rv_1, rv_2,
                                             chip=c, norm_method="linear",
                                             area_scale=True, norm=True,
-                                            wav_scale=True, fudge=None)
-        plt.subplot(611 + 2 * (ii))
+                                            wav_scale=True, fudge=None, preloaded=preloaded)
+        plt.subplot(611 + 2 * ii)
         obs_spec[ii].plot(label="obs")
         plt.plot(obs_spec[ii].xaxis, flux_ii.squeeze(), label="result")
         plt.legend()
@@ -352,8 +359,19 @@ def show_brute_solution(result, star, obsnum, chip, strict_mask=False):
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
+
+    # preload = False
+    # opts["preload"] = preload
+
+    if opts["preloaded"]:
+        from mingle.utilities.phoenix_utils import preload_spectra
+
+        preload_spectra()
+        print("finished preloading")
+
     opts.update(comp_logg=4.5)
     answer4p5 = main(**opts)
+
     opts.update(comp_logg=5.0)
     answer5 = main(**opts)
 
