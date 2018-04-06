@@ -123,12 +123,12 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
     """Calculate binary model chi^2 for given parameters and observation"""
     # unpack parameters: extract .value attribute for each parameter
     parvals = pars.valuesdict()
-    teff_1 = round(parvals['teff_1'] / 100) * 100
-    teff_2 = round(parvals['teff_2'] / 100) * 100
-    logg_1 = round(parvals['logg_1'] * 2) / 2
-    logg_2 = round(parvals['logg_2'] * 2) / 2
-    feh_1 = round(parvals['feh_1'] * 2) / 2
-    feh_2 = round(parvals['feh_2'] * 2) / 2
+    teff_1 = parvals['teff_1']
+    teff_2 = parvals['teff_2']
+    logg_1 = parvals['logg_1']
+    logg_2 = parvals['logg_2']
+    feh_1 = parvals['feh_1']
+    feh_2 = parvals['feh_2']
     rv_1 = np.asarray([parvals['rv_1']])
     rv_2 = np.asarray([parvals['rv_2']])
 

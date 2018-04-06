@@ -306,12 +306,12 @@ def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_r
 
 def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded=False):
     parvals = result.params.valuesdict()
-    teff_1 = round(parvals['teff_1'] / 100) * 100
-    teff_2 = round(parvals['teff_2'] / 100) * 100
-    logg_1 = round(parvals['logg_1'] * 2) / 2
-    logg_2 = round(parvals['logg_2'] * 2) / 2
-    feh_1 = round(parvals['feh_1'] * 2) / 2
-    feh_2 = round(parvals['feh_2'] * 2) / 2
+    teff_1 = parvals['teff_1']
+    teff_2 = parvals['teff_2']
+    logg_1 = parvals['logg_1']
+    logg_2 = parvals['logg_2']
+    feh_1 = parvals['feh_1']
+    feh_2 = parvals['feh_2']
     rv_1 = np.asarray([parvals['rv_1']])
     rv_2 = np.asarray([parvals['rv_2']])
 
