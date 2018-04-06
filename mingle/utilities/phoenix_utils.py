@@ -82,7 +82,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
     hdr: bool
        Include the model header. Default False.
     normalize: bool
-        Locally normalize the spectrum. Default False.
+        Locally normalize the spectrum with an exponential. Default False.
     area_scale: bool
         Multiply by stellar surface area pi*R**2 (towards Earth)
     flux_rescale: bool
