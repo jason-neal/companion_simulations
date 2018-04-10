@@ -284,7 +284,7 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
         mod2_spec = get_pre_loaded_spectra(params2[0], params2[1])
         mod2_spec.wav_select(*rv_limits)
         mod2_spec.spline_interpolate_to(np.linspace(mod2_spec.xaxis[0], mod2_spec.xaxis[-1], 1024))
-        print("prelaoded the spectra")
+        # print("preloaded the spectra")
     else:
         mod1_spec, mod2_spec = \
             prepare_iam_model_spectra(params1, params2, limits=rv_limits,

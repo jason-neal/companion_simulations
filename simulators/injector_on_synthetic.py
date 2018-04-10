@@ -250,8 +250,8 @@ def main(star, obsnum, **kwargs):
         first_injector_result = injector_result
 
     plt.figure()
-    temp_err = 50 * np.ones_like(loop_recovered_temp)
     plt.errorbar(loop_injection_temp, loop_recovered_temp, yerr=temp_err, fmt="r*")
+    temp_err = 100 * np.ones_like(loop_recovered_temp2)
     plt.plot(loop_injection_temp, loop_injection_temp, "r")
     plt.xlabel("Injected Companion Temp")
     plt.ylabel("Recovered Companion Temp")
