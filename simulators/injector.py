@@ -36,8 +36,6 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Turn on Verbose.')
     parser.add_argument('-p', '--plot', action="store_true",
                         help='Add plots of each injection.')
-    parser.add_argument('-b', '--binary', action="store_true",
-                        help='Perform Binary search.')
     parser.add_argument('-l', '--preloaded', action="store_true",
                         help='Try preloading spectra.')
     parser.add_argument("-g", '--grid_bound', action="store_true",
@@ -169,66 +167,13 @@ def main(star, obsnum, **kwargs):
                                 preloaded=preloaded)
 
     injection_temps = np.arange(2300, 5001, 100)
-    binary_search = kwargs.get("binary", False)
-    if binary_search:
-        print("Doing first")
-        first = injection_temps[0]
-        first_injector_result = injector(first)
-        loop_injection_temp.append(first)
-        loop_recovered_temp.append(first_injector_result.params["teff_2"].value)
-
-        print("Doing Last")
-        last = injection_temps[-1]
-        last_injector_result = injector(last)
-        loop_injection_temp.append(last)
-        loop_recovered_temp.append(last_injector_result.params["teff_2"].value)
-
-        assert not is_recovered(first, first_injector_result)
-        # assert is_recovered(last, last_injector_result)
-
-        # Try binary search
-        print("Starting Binary search")
-        while len(injection_temps) > 2:
-
-            print("temp left = ", injection_temps)
-            middle_value = int(injection_temps[int(np.floor(len(injection_temps) / 2))])
-            print("doing middle value = ", middle_value)
-            injector_result = injector(middle_value)
-            recovered = is_recovered(middle_value, injector_result, grid_recovered)
-            if recovered:
-                # remove upper values to search lower half for cut off
-                injection_temps = injection_temps[injection_temps <= middle_value]
-                last_injector_result = injector_result
-            else:
-                # Remove lower half as the middle value is the new lower limit
-                injection_temps = injection_temps[injection_temps >= middle_value]
-                first_injector_result = injector_result
-            loop_injection_temp.append(middle_value)
-            # loop_recovered_temp.append(recovered)
-            loop_recovered_temp.append(injector_result.params["teff_2"].value)
-            print(fit_report(injector_result))
-        else:
-            print("Exiting while loop due to len(temps)={}".format(len(injection_temps)))
-
-        print("Boundary of recovery", injection_temps)
-        print(first_injector_result.params.__dict__)
-        print(first_injector_result.params.pretty_print())
-        print(last_injector_result.params.pretty_print())
-
-        show_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=strict_mask, preloaded=preloaded)
-        show_brute_solution(last_injector_result, star, obsnum, chip, strict_mask=strict_mask, preloaded=preloaded)
-
-        print("Showing candidates")
-        print(first_injector_result.show_candidates(0))
-
-        print("TODO: Adjust the grid.")
-        injector_result = first_injector_result
-    else:
-        for teff2 in injection_temps:
-            injector_result = injector(teff2)
-            loop_injection_temp.append(teff2)
-            loop_recovered_temp.append(injector_result.params["teff_2"])
+    for teff2 in injection_temps:
+        injector_result = injector(teff2)
+        loop_injection_temp.append(teff2)
+        loop_recovered_temp.append(injector_result.params["teff_2"])
         first_injector_result = injector_result
+
+
 
     plt.figure()
     temp_err = 100 * np.ones_like(loop_recovered_temp)
@@ -244,64 +189,6 @@ def main(star, obsnum, **kwargs):
     plt.show()
 
     return first_injector_result
-
-
-def is_recovered(injected_value: Union[float, int], injector_result: Any, grid_recovered=False, param="teff_2") -> bool:
-    """Is the recovered chi^2 min value within 1-sigma for injected_value.
-
-    Inputs:
-    -------
-    injected_value: float
-        The input parameter value
-    injector_result: lmfit result
-        Lmnift brute result object.
-    grid_recovered: bool
-        Flag to set the "criteria 100K" instead of "1sigma". Default False
-    param: str
-        The prameter name to check. Default "teff_2"
-    Outputs
-    -------
-    Recovered: bool
-      True /False if recovered"""
-    if grid_recovered:
-        # Is the recovered temperature within +-100K
-        min_chi2_temp = injector_result.params[param]
-        if (min_chi2_temp <= (injected_value + 100)) and (min_chi2_temp <= (injected_value + 100)):
-            recovered = True
-        else:
-            recovered = False
-            print("Not recovered within 100K")
-        if recovered:
-            print("Something was recovered within 100K")
-    else:
-        from mingle.utilities.chisqr import chi2_at_sigma
-        print("Injected_temp", injected_value)
-        injector_result.redchi
-        print("Reduced chi2", injector_result.redchi)
-        dof = len(injector_result.var_names)
-        one_sigma = chi2_at_sigma(1, dof=dof)
-        values_inside_one_sigma = [injector_result.candidates[num].params[param].value
-                                   for num in range(50)
-                                   if injector_result.candidates[num].score < (
-                                           injector_result.candidates[0].score + one_sigma)]
-        print("Recovered_teffs", values_inside_one_sigma)
-        print("one sigma chi^2 = {0}, dof={1}".format(one_sigma, dof))
-        print("Candidate 1\n", injector_result.show_candidates(0))
-
-        # Incorrect scaling
-        bad_values_inside_one_sigma = [injector_result.candidates[num].params[param].value
-                                       for num in range(50)
-                                       if injector_result.candidates[num].score < (
-                                               injector_result.candidates[
-                                                   0].score + one_sigma * injector_result.redchi)]
-
-        recovered = injected_value in values_inside_one_sigma
-        if recovered:
-            print("Something was recovered")
-        elif injected_value in bad_values_inside_one_sigma:
-            warnings.warn("The temp value {} was inside the incorrectly scaled sigma range.".format(injected_value))
-    print("is recovered = ", recovered)
-    return recovered
 
 
 def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded=False):
@@ -371,7 +258,7 @@ if __name__ == "__main__":
         from mingle.utilities.phoenix_utils import preload_spectra
 
         preload_spectra()
-        print("finished preloading")
+        print("Finished preloading")
 
     opts.update(comp_logg=4.5)
     answer4p5 = main(**opts)
