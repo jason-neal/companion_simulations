@@ -158,7 +158,7 @@ def bhm_magic_sauce(obs_spec, params, rv1, chip=None,
     obs_flux = renormalization(obs_spec, bhm_grid_values, normalize=norm, method=norm_method)
 
 
-    assert obs_flux.shape() == bhm_grid_values.shape()
+    assert obs_flux.shape == bhm_grid_values.shape
     return obs_flux, bhm_grid_values
 
 
