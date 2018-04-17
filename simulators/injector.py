@@ -148,8 +148,12 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
                 obs_spec[ii].plot(label="Observation")
                 injected_chip.plot(label="Un-normalized Injected_chip", lw=1, linestyle="--")
                 injected_chip2.plot(label="Injected_chip", lw=1, linestyle="--")
-                shifted_injection.plot(label="injected part", lw=1)
+                shifted_injection.plot(label="injected part + 1.01", lw=1)
                 plt.legend()
+                from bin.radius_ratio import flux_ratio
+                f_ratio = flux_ratio(params["teff_1"].value, params["logg_1"].value, params["feh_1"].value,
+                                     params["teff_2"].value, params["logg_2"].value, params["feh_2"].value)
+                plt.annotate("Flux ratio F2/F1 = {0:5.03}".format(1/f_ratio), (0.01, 0.2), xycoords="axes fraction")
         if plot:
             plt.suptitle("Host= {0}, Injected Temperature = {1}".format(closest_host_model[0], teff_2))
             plt.show(block=False)
@@ -217,7 +221,7 @@ def main(star, obsnum, **kwargs):
     plt.title("Injector: logg_1 = {0} logg_2 = {1}".format(injector_result.params["logg_1"].value,
                                                            injector_result.params["logg_2"].value))
     plt.savefig(kwargs.get("plot_name", "Test_recovery_plot.pdf"))
-
+    plt.tight_layout()
     plt.show()
 
     return first_injector_result
