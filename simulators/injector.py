@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 import argparse
 import sys
-import warnings
 from argparse import Namespace
-from typing import List, Union, Any
+from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -44,7 +43,8 @@ def parse_args(args: List[str]) -> Namespace:
     return parser.parse_args(args)
 
 
-def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_mask=False, comp_logg=None, plot=False, preloaded=False):
+def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_mask=False, comp_logg=None, plot=False,
+                     preloaded=False):
     """Take the Observation and prepare to inject different temperature companions."""
     try:
         iter(chip)
@@ -67,6 +67,9 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
 
     if rv_1 is None:
         rv_1 = 0
+        rv1_vary = False
+    else:
+        rv1_vary = True
     rv_2 = 10
     deltarv_1 = 2
     deltarv_2 = 10
@@ -82,7 +85,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
     params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
     params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
-    params.add('rv_1', value=rv_1, min=rv_1 - deltarv_1, max=rv_1 + deltarv_1, vary=True, brute_step=rv1_step)
+    params.add('rv_1', value=rv_1, min=rv_1 - deltarv_1, max=rv_1 + deltarv_1, vary=rv1_vary, brute_step=rv1_step)
     params.add('rv_2', value=rv_2, min=rv_2 - deltarv_2, max=rv_2 + deltarv_2, vary=True, brute_step=rv2_step)
     if comp_logg is None:
         params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
@@ -105,7 +108,8 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
         else:
             upper_limit = 601
 
-        params.add('teff_2', value=teff_2, min=max([teff_2 - 600, 2300]), max=min([teff_2 + upper_limit, 7001]), vary=True,
+        params.add('teff_2', value=teff_2, min=max([teff_2 - 600, 2300]), max=min([teff_2 + upper_limit, 7001]),
+                   vary=True,
                    brute_step=100)
         if plot:
             plt.figure()
@@ -136,7 +140,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
             injection = injection / continuum
 
             # Inject the companion
-            injected_chip = obs_spec[ii] + injection
+            injected_chip = obs_spec[ii].copy() + injection
             shifted_injection = injection + 1.01 - np.mean(injection.flux)
 
             # Re-normalzie
