@@ -22,6 +22,10 @@ from simulators.minimize_iam import brute_solve_iam
 error_fudge = 1
 binary_search = False
 
+# RV Grid parameters
+rv_1, deltarv_1, rv1_step = 0, 2, 0.25
+rv_2, deltarv_2, rv2_step = 10, 12, 2
+
 
 def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
@@ -68,12 +72,6 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
     obs_spec = [obs.normalize(method="linear") for obs in obs_spec]
     closest_host_model, closest_comp_model = closest_obs_params(obs_params, mode="iam")
 
-    rv_1 = 7
-    rv_2 = 10
-    deltarv_1 = 2
-    deltarv_2 = 3
-    rv1_step = 0.25
-    rv2_step = 0.5
 
     # Setup Fixed injection grid parameters
     params = Parameters()
