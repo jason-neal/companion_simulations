@@ -17,8 +17,7 @@ import numpy as np
 import pandas as pd
 import glob
 import sqlalchemy as sa
-from mingle.utilities.db_utils import load_sql_table
-
+from bin.coadd_analysis_script import load_sql_table
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
