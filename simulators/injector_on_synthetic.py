@@ -174,13 +174,12 @@ def main(star, obsnum, **kwargs):
     loop_injection_temp = []
     loop_recovered_temp = []
     print("before injector")
-    # strict_mask = kwargs.get("strict_mask", False)
-    strict_mask = True
     grid_recovered = kwargs.get("grid_bound", False)
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
     preloaded = kwargs.get("preloaded", False)
     chip = kwargs.get("chip", [1, 2, 3])
+    strict_mask = kwargs.get("strict_mask", False)
     # injector = injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg, plot=plot)
     injector = synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg,
                                           plot=plot, preloaded=preloaded)
