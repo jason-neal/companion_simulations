@@ -48,6 +48,8 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Grid bound search limit')
     parser.add_argument("--error", default=None, type=int,
                         help='SNR level to add')
+    parser.add_argument("-c", "--chip", default=None, type=str,
+                        help='Chips 2 use e.g. "1, 2, 3"')
     return parser.parse_args(args)
 
 
@@ -169,7 +171,6 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
 @timeit
 def main(star, obsnum, **kwargs):
     """Main function."""
-    chip = [1, 2, 3]
     loop_injection_temp = []
     loop_recovered_temp = []
     print("before injector")
@@ -179,6 +180,7 @@ def main(star, obsnum, **kwargs):
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
     preloaded = kwargs.get("preloaded", False)
+    chip = kwargs.get("chip", [1, 2, 3])
     # injector = injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg, plot=plot)
     injector = synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg,
                                           plot=plot, preloaded=preloaded)
@@ -408,6 +410,10 @@ def show_synth_brute_solution(result, star, obsnum, chip, strict_mask=False, pre
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
+    chip = opts.get("chip")
+    if chip is not None:
+        chip = [int(c) for c in opts["chip"].split(",")]
+        opts["chip"] = chip
 
     if opts["preloaded"]:
         from mingle.utilities.phoenix_utils import preload_spectra
