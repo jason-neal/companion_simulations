@@ -57,6 +57,7 @@ def main(star, obsnum, chip):
     print("Reduced Chi2", result.redchi)
 
     print("Fit report", fit_report(result.params))
+    return result
 
 
 def brute_solve_bhm(params, obs_spec, errors, chip, Ns=20):
@@ -72,7 +73,7 @@ def brute_solve_bhm(params, obs_spec, errors, chip, Ns=20):
 
 
 def bhm_func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_method="scalar",
-                   wav_scale=True):
+                   wav_scale=True, **kwargs):
     """Calculate binary model chi^2 for given parameters and observation"""
     # unpack parameters: extract .value attribute for each parameter
     parvals = pars.valuesdict()
@@ -83,7 +84,7 @@ def bhm_func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_m
     feh_1 = round(parvals['feh_1'] * 2) / 2
     # feh_2 = round(parvals['feh_2'] * 2) / 2
     rv_1 = np.asarray([parvals['rv_1']])
-    rv_2 = np.asarray([parvals['rv_2']])
+#    rv_2 = np.asarray([parvals['rv_2']])
     arb_norm = parvals.get("arb_norm", 1)  # 1 if not provided
 
     obs_flux2, bhm_flux = bhm_magic_sauce(Spectrum(xaxis=obs_wav, flux=obs_flux),
