@@ -256,6 +256,19 @@ def main(star, obsnum, **kwargs):
             loop_recovered_rv1.append(injector_result.params["rv_1"].value)
         first_injector_result = injector_result
 
+    fname = f"{star}_injector_results_logg={comp_logg}_error={error}_chip_{chip}_rv2{rv_2}.txt"
+    with open(fname, "w") as f:
+        f.write("# Injection - recovery results")
+        if error is None:
+            f.write(f"# Noise level = beta-sigma observed\n")
+        else:
+            f.write(f"# Noise level = {error}\n")
+        f.write("input\t output\t rv1\t rv2")
+        for input_, output, rv1, rv2 in zip(loop_injection_temp, loop_recovered_temp2, loop_recovered_rv1,
+                                            loop_recovered_rv2):
+            f.write(f"{input_}\t{output}\t{rv1}\t{rv2}\n")
+
+    # plot the injection-recovery
     plt.figure()
     plt.errorbar(loop_injection_temp, loop_recovered_temp, yerr=temp_err, fmt="r*")
     temp_err = 100 * np.ones_like(loop_recovered_temp2)
