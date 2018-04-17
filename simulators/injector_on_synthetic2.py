@@ -24,7 +24,7 @@ binary_search = False
 
 # RV Grid parameters
 rv_1, deltarv_1, rv1_step = 0, 2, 0.25
-rv_2, deltarv_2, rv2_step = 10, 12, 2
+rv_2, deltarv_2, rv2_step = 12.5, 6, .5
 
 
 def parse_args(args: List[str]) -> Namespace:
