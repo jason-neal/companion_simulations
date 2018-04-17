@@ -125,7 +125,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
             plt.figure()
 
         injected_spec = []
-        print("Injected Teff value", teff_2)
+        print("Injected Teff = ", teff_2)
 
         for ii, c in enumerate(chip):
             if plot:
@@ -136,41 +136,25 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
 
             iam_grid_func = inherent_alpha_model(mod1_spec[ii].xaxis, mod1_spec[ii].flux, mod2_spec.flux,
                                                  rvs=params["rv_2"].value, gammas=params["rv_1"].value)
-            synthetic_model = iam_grid_func(obs_spec[ii].xaxis).squeeze()
-            # print("shape1", synthetic_model.shape)
-            synthetic_model = Spectrum(xaxis=obs_spec[ii].xaxis.squeeze(), flux=synthetic_model)
-            # print("shape2", synthetic_model.flux.shape)
+            synthetic_model_flux = iam_grid_func(chip_waves[ii]).squeeze()
+
+            assert not np.any(np.isnan(
+                synthetic_model_flux)), "There are nans in synthetic model flux. Check wavelengths for interpolation"
+            synthetic_model = Spectrum(xaxis=chip_waves[ii], flux=synthetic_model_flux)
+
             continuum = synthetic_model.continuum(method="exponential")
-            # print("cont shape", continuum.flux.shape)
+
             synthetic_model = synthetic_model / continuum
-            # print("shape3", synthetic_model.flux.shape)
+
             synthetic_model.add_noise(1 / error_list[ii])
-            # print("shape4", synthetic_model.flux.shape)
 
-            # Doppler shift companion
-            injection = mod2_spec.copy()
-            injection.doppler_shift(params["rv_2"].value + params["rv_1"].value)  # This should be + i think
-
-            # Normalize by synthetic continuum
-            injection.spline_interpolate_to(continuum)
-            injection = injection / continuum
-
-            # Inject the companion
-            injected_chip = obs_spec[ii] + injection
-            shifted_injection = injection + 1.01 - np.mean(injection.flux)
-
-            # Re-normalize
-            injected_chip = injected_chip.normalize(method="linear")
-            assert not np.any(np.isnan(injection.flux))
-
-            # injected spec is the synthetic spectrum instead
-            # injected_spec.append(injected_chip)
             injected_spec.append(synthetic_model)
             if plot:
-                obs_spec[ii].plot(label="Observation")
-                synthetic_model.plot(label="synthetic model to fit")
-                injected_chip.plot(label="Would be Injected_chip", lw=1, linestyle="--")
-                shifted_injection.plot(label="injected part", lw=1)
+                # obs_spec[ii].plot(label="Observation")
+                (mod1_spec[ii] / continuum).plot(label="Host contribution")
+                synthetic_model.plot(label="Synthetic binary")
+                # injected_chip.plot(label="Would be Injected_chip", lw=1, linestyle="--")
+                # shifted_injection.plot(label="injected part", lw=1)
                 plt.legend()
         if plot:
             plt.suptitle("Host= {0}, Injected Temperature = {1}".format(closest_host_model[0], teff_2))
