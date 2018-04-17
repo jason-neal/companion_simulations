@@ -75,14 +75,18 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
 
     # Setup Fixed injection grid parameters
     params = Parameters()
-    params.add('teff_1', value=closest_host_model[0], min=5000, max=6000, vary=False, brute_step=100)
-    params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
-    params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
-    params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
+    params.add('teff_1', value=closest_host_model[0], min=4800, max=6600, vary=False, brute_step=100)
+    # params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
+    # params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
+    # params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
+    params.add('logg_1', value=4.5, min=0, max=6, vary=False, brute_step=0.5)
+    params.add('feh_1', value=0.0, min=-2, max=1, vary=False, brute_step=0.5)
+    params.add('feh_2', value=0.0, min=-2, max=1, vary=False, brute_step=0.5)
     params.add('rv_1', value=rv_1, min=rv_1 - deltarv_1, max=rv_1 + deltarv_1, vary=True, brute_step=rv1_step)
     params.add('rv_2', value=rv_2, min=rv_2 - deltarv_2, max=rv_2 + deltarv_2, vary=True, brute_step=rv2_step)
     if comp_logg is None:
-        params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
+        # params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
+        params.add('logg_2', value=5.0, min=0, max=6, vary=False, brute_step=0.5)
     else:
         params.add('logg_2', value=comp_logg, min=0, max=6, vary=False, brute_step=0.5)
 
@@ -96,7 +100,12 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
     # Currying a function two only take 1 parameter.
     def inject(teff_2):
         """Injector function that just takes a temperature."""
-        params.add('teff_2', value=teff_2, min=max([teff_2 - 800, 2300]), max=min([teff_2 + 801, 7001]), vary=True,
+        if teff_2 < 3500:
+            upper_limit = 1401
+        else:
+            upper_limit = 601
+        params.add('teff_2', value=teff_2, min=max([teff_2 - 400, 2300]), max=min([teff_2 + upper_limit, 7001]),
+                   vary=True,
                    brute_step=100)
         if plot:
             plt.figure()
