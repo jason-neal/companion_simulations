@@ -272,15 +272,29 @@ def main(star, obsnum, **kwargs):
 
     # plot the injection-recovery
     plt.figure()
-    plt.errorbar(loop_injection_temp, loop_recovered_temp, yerr=temp_err, fmt="r*")
+    # ax1 = plt.subplot(211)
+    ax1 = plt.subplot(111)
     temp_err = 100 * np.ones_like(loop_recovered_temp2)
-    plt.plot(loop_injection_temp, loop_injection_temp, "r")
-    plt.xlabel("Injected Companion Temp")
-    plt.ylabel("Recovered Companion Temp")
+    ax1.errorbar(loop_injection_temp, loop_recovered_temp2, yerr=temp_err, fmt=".", color="C1")
+    ax1.plot(loop_injection_temp, loop_injection_temp, "r")
+    plt.xlabel("Injected Temperature (K)")
+    plt.ylabel("Recovered Temperature (km/s)")
 
     plt.title(
-        "synthetic injector! logg_2 = {0} comp_logg = {1}".format(injector_result.params["logg_2"].value, comp_logg))
-    plt.show()
+        "synthetic injector: logg_1 = {0} logg_2 = {1}".format(injector_result.params["logg_1"].value,
+                                                               injector_result.params["logg_2"].value))
+
+    # ax2 = plt.subplot(212, sharex=ax1)
+    # plt.plot(loop_injection_temp, loop_recovered_rv1, "C2*", label="rv_1")
+    # plt.axhline(rv_1, color="C1", alpha=0.6)
+    # plt.plot(loop_injection_temp, loop_recovered_rv2, "C3o", label="rv_2")
+    # plt.axhline(rv_2, color="C2", alpha=0.6)
+    # plt.ylabel("Recovered RV (km/s")
+    # plt.xlabel("Injected Temperature (K)")
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.show()
+
     return first_injector_result
 
 
