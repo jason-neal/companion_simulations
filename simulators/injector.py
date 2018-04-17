@@ -44,7 +44,7 @@ def parse_args(args: List[str]) -> Namespace:
     return parser.parse_args(args)
 
 
-def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=None, plot=False, preloaded=False):
+def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_mask=False, comp_logg=None, plot=False, preloaded=False):
     """Take the Observation and prepare to inject different temperature companions."""
     try:
         iter(chip)
@@ -65,16 +65,20 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
     obs_spec = [obs.normalize(method="linear") for obs in obs_spec]
     closest_host_model, closest_comp_model = closest_obs_params(obs_params, mode="iam")
 
-    rv_1 = 7
+    if rv_1 is None:
+        rv_1 = 0
     rv_2 = 10
     deltarv_1 = 2
-    deltarv_2 = 3
+    deltarv_2 = 10
     rv1_step = 0.25
-    rv2_step = 0.5
+    rv2_step = 1
+
+    if teff_1 is None:
+        teff_1 = closest_host_model[0]
 
     # Setup Fixed injection grid parameters
     params = Parameters()
-    params.add('teff_1', value=closest_host_model[0], min=5000, max=6000, vary=False, brute_step=100)
+    params.add('teff_1', value=teff_1, min=5000, max=6000, vary=False, brute_step=100)
     params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
     params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
@@ -95,7 +99,13 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
     # Currying a function two only take 1 parameter.
     def inject(teff_2):
         """Injector function that just takes a temperature."""
-        params.add('teff_2', value=teff_2, min=max([teff_2 - 800, 2300]), max=min([teff_2 + 801, 7001]), vary=True,
+
+        if teff_2 < 3500:
+            upper_limit = 1401
+        else:
+            upper_limit = 601
+
+        params.add('teff_2', value=teff_2, min=max([teff_2 - 600, 2300]), max=min([teff_2 + upper_limit, 7001]), vary=True,
                    brute_step=100)
         if plot:
             plt.figure()
@@ -161,10 +171,20 @@ def main(star, obsnum, **kwargs):
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
     preloaded = kwargs.get("preloaded", False)
+
+    # FIT BEST HOST MODEL TO OBSERVATIONS
+    from simulators.minimize_bhm import main as minimize_bhm
+    result = minimize_bhm(star, obsnum, 1)
+    print(result)
+    print("Teff_1 =", result.params["teff_1"].value)
+    print("rv_1 =", result.params["rv_1"].value)
+    # raise ValueError("Break")
+    # Adding teff_1 and rv_1 to fix those parameters.
     injector = injector_wrapper(star, obsnum, chip,
                                 Ns=20, strict_mask=strict_mask,
                                 comp_logg=comp_logg, plot=plot,
-                                preloaded=preloaded)
+                                preloaded=preloaded, teff_1=result.params["teff_1"].value,
+                                rv_1=result.params["rv_1"].value)
 
     injection_temps = np.arange(2300, 5001, 100)
     for teff2 in injection_temps:
