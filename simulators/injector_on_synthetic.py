@@ -158,9 +158,12 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
                 # injected_chip.plot(label="Would be Injected_chip", lw=1, linestyle="--")
                 # shifted_injection.plot(label="injected part", lw=1)
                 plt.legend()
+
         if plot:
-            plt.suptitle("Host= {0}, Injected Temperature = {1}".format(closest_host_model[0], teff_2))
+            plt.suptitle("Host = {0}, Injected Temperature = {1}".format(closest_host_model[0], teff_2))
             plt.show(block=False)
+
+        assert len(injected_spec) == len(chip), "injected chips not same size as chip."
         return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns, preloaded=preloaded)
 
     print("injector", inject)
@@ -171,21 +174,27 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
 @timeit
 def main(star, obsnum, **kwargs):
     """Main function."""
-    loop_injection_temp = []
-    loop_recovered_temp = []
-    print("before injector")
     grid_recovered = kwargs.get("grid_bound", False)
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
+    binary_search = kwargs.get("binary", False)
     preloaded = kwargs.get("preloaded", False)
+    error = kwargs.get("error", None)  # None means use from the observations
+
     chip = kwargs.get("chip", [1, 2, 3])
+    loop_injection_temp = []
+    loop_recovered_temp2 = []
+    loop_recovered_rv1 = []
+    loop_recovered_rv2 = []
+
     strict_mask = kwargs.get("strict_mask", False)
+
     # injector = injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg, plot=plot)
     injector = synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg,
-                                          plot=plot, preloaded=preloaded)
+                                          plot=plot, preloaded=preloaded, error=error)
 
     injection_temps = np.arange(2300, 5001, 100)
-    binary_search = kwargs.get("binary", False)
+
     if binary_search:
         print("before first")
         first = injection_temps[0]
@@ -427,6 +436,8 @@ if __name__ == "__main__":
     if chip is not None:
         chip = [int(c) for c in opts["chip"].split(",")]
         opts["chip"] = chip
+    else:
+        opts["chip"] = [1, 2, 3]
 
     if opts["preloaded"]:
         from mingle.utilities.phoenix_utils import preload_spectra
