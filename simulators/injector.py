@@ -140,13 +140,14 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
             shifted_injection = injection + 1.01 - np.mean(injection.flux)
 
             # Re-normalzie
-            injected_chip = injected_chip.normalize(method="linear")
+            injected_chip2 = injected_chip.normalize(method="linear")
             assert not np.any(np.isnan(injection.flux))
 
-            injected_spec.append(injected_chip)
+            injected_spec.append(injected_chip2)
             if plot:
                 obs_spec[ii].plot(label="Observation")
-                injected_chip.plot(label="Injected_chip", lw=1, linestyle="--")
+                injected_chip.plot(label="Un-normalized Injected_chip", lw=1, linestyle="--")
+                injected_chip2.plot(label="Injected_chip", lw=1, linestyle="--")
                 shifted_injection.plot(label="injected part", lw=1)
                 plt.legend()
         if plot:
