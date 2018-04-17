@@ -106,12 +106,17 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
     else:
         params.add('logg_2', value=comp_logg, min=0, max=6, vary=False, brute_step=0.5)
 
-    rv_limits = [observation_rv_limits(obs, params["rv_1"].value,
-                                       params["rv_2"].value) for obs in obs_spec]
+    rv_limits = [(2111, 2125), (2127, 2138), (2141, 2153)]
 
     mod1_spec = [load_starfish_spectrum(closest_host_model, limits=lim,
                                         hdr=True, normalize=False, area_scale=True,
                                         flux_rescale=True, wav_scale=True) for lim in rv_limits]
+    # Resample mod1_spec to 1024 pixels only
+    npix = 1024
+    assert len(mod1_spec[0]) != npix
+    chip_waves = [np.linspace(bound[0], bound[1], npix) for bound in chip_bounds]
+    for chip_wave in chip_waves:
+        assert len(chip_wave) == npix
 
     # Currying a function two only take 1 parameter.
     def inject(teff_2):
