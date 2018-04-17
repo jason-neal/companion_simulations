@@ -46,32 +46,46 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Try preloading spectra.')
     parser.add_argument("-g", '--grid_bound', action="store_true",
                         help='Grid bound search limit')
-
+    parser.add_argument("--error", default=None, type=int,
+                        help='SNR level to add')
     return parser.parse_args(args)
 
 
 def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=None, plot=False,
-                               preloaded=False):
+                               preloaded=False, error=None):
     """Inject onto a synthetic host spectra. Add noise level of star though."""
     try:
         iter(chip)
     except:
         # Make iterable
+        assert chip < 4, "Only chips 1 2 and 3"
         chip = [chip]
 
-    spec_list, error_list = [], []
+    chip_bounds, error_list = [], []
+
     for c in chip:
-        obs_spec, errors, obs_params = load_observation_with_errors(star, obsnum, c, strict_mask=strict_mask)
-        spec_list.append(obs_spec)
+        chip_spec, errors, obs_params = load_observation_with_errors(star, obsnum, c, strict_mask=strict_mask)
         error_list.append(errors * error_fudge)
-    obs_spec, errors = spec_list, error_list
-    print("len(obs_spec)", len(obs_spec), "len(chip)", len(chip))
-    assert len(obs_spec) == len(chip)
+        chip_bounds.append((chip_spec.xaxis[0], chip_spec.xaxis[-1]))
+    try:
+        del (chip_spec)
+    except:
+        pass
 
-    # Linearly normalize observation.
-    obs_spec = [obs.normalize(method="linear") for obs in obs_spec]
+    if error is None:
+        errors = error_list
+    else:
+        print("Manually setting error = {}!".format(error))
+        errors = [1. / error for _ in error_list]  # overwrite with given error value
+
+    print("Error values = ", errors)
+    print("len(errors)", len(errors), "len(chip)", len(chip))
+    assert len(errors) == len(chip)
+
     closest_host_model, closest_comp_model = closest_obs_params(obs_params, mode="iam")
-
+    print("\nclosest host model", closest_host_model)
+    print("closest comp model", closest_comp_model)
+    print()
 
     # Setup Fixed injection grid parameters
     params = Parameters()
