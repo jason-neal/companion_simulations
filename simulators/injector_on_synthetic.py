@@ -190,13 +190,17 @@ def main(star, obsnum, **kwargs):
         first = injection_temps[0]
         first_injector_result = injector(first)
         loop_injection_temp.append(first)
-        loop_recovered_temp.append(first_injector_result.params["teff_2"].value)
+        loop_recovered_temp2.append(first_injector_result.params["teff_2"].value)
+        loop_recovered_rv2.append(first_injector_result.params["rv_2"].value)
+        loop_recovered_rv1.append(first_injector_result.params["rv_1"].value)
         # show_synth_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=strict_mask)
         print("done first")
         last = injection_temps[-1]
         last_injector_result = injector(last)
         loop_injection_temp.append(last)
-        loop_recovered_temp.append(last_injector_result.params["teff_2"].value)
+        loop_recovered_temp2.append(last_injector_result.params["teff_2"].value)
+        loop_recovered_rv2.append(last_injector_result.params["rv_2"].value)
+        loop_recovered_rv1.append(last_injector_result.params["rv_1"].value)
         # show_synth_brute_solution(last_injector_result, star, obsnum, chip, strict_mask=strict_mask)
         print("Done last")
         first_recovered = is_recovered(first, first_injector_result)
@@ -204,10 +208,6 @@ def main(star, obsnum, **kwargs):
         # The first one should not be recovered.
         if first_recovered:
             show_synth_brute_solution(first_injector_result, star, obsnum, chip, strict_mask=False, preloaded=preloaded)
-
-        assert not first_recovered
-        assert is_recovered(last, last_injector_result)
-        raise RuntimeError("Stop here")
 
         # Try binary search
         print("Starting Binary search")
@@ -227,8 +227,9 @@ def main(star, obsnum, **kwargs):
                 injection_temps = injection_temps[injection_temps >= middle_value]
                 first_injector_result = injector_result
             loop_injection_temp.append(middle_value)
-            # loop_recovered_temp.append(recovered)
-            loop_recovered_temp.append(injector_result.params["teff_2"].value)
+            loop_recovered_temp2.append(injector_result.params["teff_2"].value)
+            loop_recovered_rv2.append(injector_result.params["rv_2"].value)
+            loop_recovered_rv1.append(injector_result.params["rv_2"].value)
         else:
             print("Exiting while loop due to len(temps)={}".format(len(injection_temps)))
 
@@ -245,13 +246,14 @@ def main(star, obsnum, **kwargs):
         print("showing candidates")
         print(first_injector_result.show_candidates(0))
 
-        print("TODO: Adjust the grid.")
         injector_result = first_injector_result
     else:
         for teff2 in injection_temps:
             injector_result = injector(teff2)
             loop_injection_temp.append(teff2)
-            loop_recovered_temp.append(injector_result.params["teff_2"])
+            loop_recovered_temp2.append(injector_result.params["teff_2"].value)
+            loop_recovered_rv2.append(injector_result.params["rv_2"].value)
+            loop_recovered_rv1.append(injector_result.params["rv_1"].value)
         first_injector_result = injector_result
 
     plt.figure()
