@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import copy
 import sys
 from argparse import Namespace
 from typing import List
@@ -48,8 +49,7 @@ def parse_args(args: List[str]) -> Namespace:
     return parser.parse_args(args)
 
 
-def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=None, plot=False,
-                               preloaded=False, error=None):
+def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=None, plot=False, error=None):
     """Inject onto a synthetic host spectra. Add noise level of star though.
 
     if error is not None it is the SNR level to experiment with"""
@@ -66,7 +66,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
         chip_spec, errors, obs_params = load_observation_with_errors(star, obsnum, c, strict_mask=strict_mask)
         error_list.append(errors * error_fudge)
         chip_bounds.append((chip_spec.xaxis[0], chip_spec.xaxis[-1]))
-        del(chip_spec)
+        del chip_spec
 
     if error is None:
         snr = [1. / err for err in error_list]
@@ -101,7 +101,6 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
     else:
         params.add('logg_2', value=comp_logg, min=0, max=6, vary=False, brute_step=0.5)
 
-    print("params set", params)
     rv_limits = [(2111, 2125), (2127, 2138), (2141, 2153)]
 
     mod1_spec = [load_starfish_spectrum(closest_host_model, limits=lim,
@@ -121,9 +120,10 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
             upper_limit = 1401
         else:
             upper_limit = 601
-        params.add('teff_2', value=teff_2, min=max([teff_2 - 400, 2300]), max=min([teff_2 + upper_limit, 7001]),
-                   vary=True,
-                   brute_step=100)
+        inject_params = copy.deepcopy(params)
+        inject_params.add('teff_2', value=teff_2, min=max([teff_2 - 400, 2300]), max=min([teff_2 + upper_limit, 7001]),
+                          vary=True,
+                          brute_step=100)
         if plot:
             plt.figure()
 
@@ -133,12 +133,12 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
         for ii, c in enumerate(chip):
             if plot:
                 plt.subplot(len(chip), 1, ii + 1)
-            mod2_spec = load_starfish_spectrum([teff_2, params["logg_2"].value, params["feh_2"].value],
+            mod2_spec = load_starfish_spectrum([teff_2, inject_params["logg_2"].value, inject_params["feh_2"].value],
                                                limits=rv_limits[ii], hdr=True, normalize=False,
                                                area_scale=True, flux_rescale=True, wav_scale=True)
 
             iam_grid_func = inherent_alpha_model(mod1_spec[ii].xaxis, mod1_spec[ii].flux, mod2_spec.flux,
-                                                 rvs=params["rv_2"].value, gammas=params["rv_1"].value)
+                                                 rvs=inject_params["rv_2"].value, gammas=inject_params["rv_1"].value)
             synthetic_model_flux = iam_grid_func(chip_waves[ii]).squeeze()
 
             assert not np.any(np.isnan(
@@ -169,13 +169,12 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
 
     print("injector", inject)
 
-    return inject
+    return inject, params
 
 
 @timeit
 def main(star, obsnum, **kwargs):
     """Main function."""
-    grid_recovered = kwargs.get("grid_bound", False)
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
     preloaded = kwargs.get("preloaded", False)
@@ -187,13 +186,16 @@ def main(star, obsnum, **kwargs):
     loop_recovered_rv1 = []
     loop_recovered_rv2 = []
 
-    print("before injector")
+    print("Before injector")
 
     strict_mask = kwargs.get("strict_mask", False)
 
     # injector = injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg, plot=plot)
-    injector = synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg,
-                                          plot=plot, preloaded=preloaded, error=error)
+    injector, initial_params = synthetic_injector_wrapper(star, obsnum, chip, strict_mask=strict_mask,
+                                                          comp_logg=comp_logg,
+                                                          plot=plot, error=error)
+    print("inital params set:")
+    initial_params.pretty_print()
 
     injection_temps = np.arange(2300, 5001, 100)
 
