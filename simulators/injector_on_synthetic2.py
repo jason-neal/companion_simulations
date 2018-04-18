@@ -165,7 +165,8 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
             plt.show(block=False)
 
         assert len(injected_spec) == len(chip), "injected chips not same size as chip."
-        return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns, preloaded=preloaded)
+        # return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns, preloaded=preloaded)
+        return inject_params, injected_spec, errors, chip
 
     print("injector", inject)
 
@@ -201,7 +202,9 @@ def main(star, obsnum, **kwargs):
     injection_temps = np.arange(2300, 5001, 100)
 
     for teff2 in injection_temps:
-        injector_result = injector(teff2)
+        injected_values = injector(teff2)
+        injector_result = brute_solve_iam(*injected_values, Ns=20, preloaded=preloaded)
+        # injector_result = injector(teff2)
         print("Recovered temp = {} K".format(injector_result.params["teff_2"].value))
         loop_injection_temp.append(teff2)
         loop_recovered_temp2.append(injector_result.params["teff_2"].value)
