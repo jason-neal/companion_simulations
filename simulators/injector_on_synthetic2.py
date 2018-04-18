@@ -149,7 +149,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
 
             synthetic_model = synthetic_model / continuum
 
-            synthetic_model.add_noise(1.0 / snr[ii])
+            synthetic_model.add_noise(snr[ii])
 
             injected_spec.append(synthetic_model)
             if plot:
