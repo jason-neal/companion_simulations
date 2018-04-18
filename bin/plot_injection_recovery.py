@@ -15,7 +15,7 @@ rc('text', usetex=True)
 comp_logg = 4.5
 error = None
 
-fname_template = "./{}_injector_results_logg={}_error={}.txt"
+fname_template = "./{0}_injector_results_logg={1}_error={2}{3}.txt"
 
 colors = ["C0", "C1", "C2", "C3", "C4"]
 markers = [".", "^", "o", "*", ">"]
@@ -40,14 +40,14 @@ def f(fig, *args, **kwargs):
     star = kwargs.get("star")
     obs = kwargs.get("obsnum")
     error = kwargs.get("error")
-
+    suffix = kwargs.get("suffix", "")
     ms = kwargs.get("ms", 2)
     lw = kwargs.get("lw", 1)
     ax1 = plt.subplot(111)
 
     for ii, logg in enumerate(loggs):
         print(ii)
-        fname = fname_template.format(star, logg, error)
+        fname = fname_template.format(star, logg, error, suffix)
         input_, output, rv1, rv2 = np.loadtxt(fname, skiprows=2, unpack=True)
         temp_err = 100 * np.ones_like(input_)
         output[output >= 5000] = np.nan
