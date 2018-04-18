@@ -8,6 +8,8 @@ from typing import List, Union, Any
 import matplotlib.pyplot as plt
 import numpy as np
 from lmfit import Parameters, fit_report
+from spectrum_overload import Spectrum
+
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.debug_utils import timeit
 from mingle.utilities.param_utils import closest_obs_params
@@ -16,7 +18,6 @@ from simulators.common_setup import load_observation_with_errors
 from simulators.iam_module import iam_magic_sauce
 from simulators.iam_module import observation_rv_limits
 from simulators.minimize_iam import brute_solve_iam
-from spectrum_overload import Spectrum
 
 # Includes binary search option.
 error_fudge = 1
@@ -71,10 +72,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
         chip_spec, errors, obs_params = load_observation_with_errors(star, obsnum, c, strict_mask=strict_mask)
         error_list.append(errors * error_fudge)
         chip_bounds.append((chip_spec.xaxis[0], chip_spec.xaxis[-1]))
-    try:
-        del (chip_spec)
-    except:
-        pass
+        del chip_spec
 
     if error is None:
         snr = [1. / err for err in error_list]
