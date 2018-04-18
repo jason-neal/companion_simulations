@@ -176,7 +176,6 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
 @timeit
 def main(star, obsnum, **kwargs):
     """Main function."""
-    grid_recovered = kwargs.get("grid_bound", False)
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
     preloaded = kwargs.get("preloaded", False)
@@ -213,12 +212,15 @@ def main(star, obsnum, **kwargs):
 
     fname = f"{star}_injector_results_logg={comp_logg}_error={error}_chip_{chip}_rv2{rv_2}.txt"
     with open(fname, "w") as f:
-        f.write("# Injection - recovery results")
+        f.write("# Injection - recovery results\n")
+        f.write("# Initial_vals:\n")
+        f.write("# teff_1={}, logg_2={}, rv_1={}, rv_2={}\n".format(
+            initial_params[key].value for key in ["teff_1", "logg_2", "rv_1", "rv_2"]))
         if error is None:
             f.write(f"# Noise level = beta-sigma observed\n")
         else:
             f.write(f"# Noise level = {error}\n")
-        f.write("input\t output\t rv1\t rv2")
+        f.write("input\t output\t rv1\t rv2\n")
         for input_, output, rv1, rv2 in zip(loop_injection_temp, loop_recovered_temp2, loop_recovered_rv1,
                                             loop_recovered_rv2):
             f.write(f"{input_}\t{output}\t{rv1}\t{rv2}\n")
