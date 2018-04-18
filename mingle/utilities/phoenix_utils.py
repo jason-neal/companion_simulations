@@ -27,10 +27,10 @@ from mingle.utilities.norm import spec_local_norm
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.param_utils import closest_model_params, gen_new_param_values
 
-joblib_dir = "./tmp/joblib"
+joblib_dir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
 
 os.makedirs(joblib_dir, exist_ok=True)
-memory = Memory(cachedir=joblib_dir)
+memory = Memory(cachedir=joblib_dir, verbose=0)
 
 pre_loaded_spectra = {}
 

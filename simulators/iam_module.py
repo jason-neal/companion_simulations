@@ -21,10 +21,10 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 from simulators.common_setup import setup_dirs, sim_helper_function
 
-joblib_dir = "./tmp/joblib"
+joblib_dir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
 
 os.makedirs(joblib_dir, exist_ok=True)
-memory = Memory(cachedir=joblib_dir)
+memory = Memory(cachedir=joblib_dir, verbose=0)
 
 
 def iam_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool = False) -> Tuple[

@@ -10,10 +10,10 @@ import os
 import numpy as np
 from joblib import Memory
 
-joblib_dir = "./tmp/joblib"
+joblib_dir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
 
 os.makedirs(joblib_dir, exist_ok=True)
-memory = Memory(cachedir=joblib_dir)
+memory = Memory(cachedir=joblib_dir, verbose=0)
 
 
 def add_noise(flux, snr, use_mu=False):

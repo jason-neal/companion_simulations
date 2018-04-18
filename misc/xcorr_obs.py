@@ -18,9 +18,9 @@ from mingle.utilities.phoenix_utils import spec_local_norm
 import simulators
 from mingle.utilities.model_convolution import apply_convolution
 
-cachedir = simulators.paths["output_dir"]
-os.makedirs(cachedir, exist_ok=True)
-memory = Memory(cachedir=cachedir, verbose=0)
+joblib_dir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
+os.makedirs(joblib_dir, exist_ok=True)
+memory = Memory(cachedir=joblib_dir, verbose=0)
 
 
 # find_closest_phoenix(data_dir, teff, logg, feh, alpha=None)

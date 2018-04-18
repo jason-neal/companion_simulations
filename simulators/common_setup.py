@@ -8,10 +8,10 @@ from joblib import Memory
 from logutils import BraceMessage as __
 from mingle.utilities import parse_paramfile, load_spectrum, spectrum_masking, barycorr_crires_spectrum, betasigma_error
 
-joblib_dir = "./tmp/joblib/common_setup/"
+joblib_dir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
 
 os.makedirs(joblib_dir, exist_ok=True)
-memory = Memory(cachedir=joblib_dir)
+memory = Memory(cachedir=joblib_dir, verbose=0)
 
 
 def setup_dirs(star: str, mode: str = "iam") -> str:

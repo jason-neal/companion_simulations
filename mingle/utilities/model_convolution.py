@@ -14,9 +14,9 @@ from spectrum_overload import Spectrum
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 
-cachedir = "/home/jneal/.simulation_cache"
-os.makedirs(cachedir, exist_ok=True)
-memory = Memory(cachedir=cachedir, verbose=0)
+joblib_dir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
+os.makedirs(joblib_dir, exist_ok=True)
+memory = Memory(cachedir=joblib_dir, verbose=0)
 
 
 @memory.cache

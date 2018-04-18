@@ -41,7 +41,7 @@ from old_simulations.Planet_spectral_simulations import load_PHOENIX_hd211847
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")
 
-cachedir = "/home/jneal/.simulation_cache"
+cachedir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
 os.makedirs(cachedir, exist_ok=True)
 memory = Memory(cachedir=cachedir, verbose=0)
 

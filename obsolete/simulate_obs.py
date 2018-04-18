@@ -9,7 +9,7 @@ from mingle.utilities.simulation_utilities import combine_spectra
 from obsolete.models.alpha_model import alpha_model
 import simulators
 
-cachedir = os.path.join(simulators.paths["output_dir"], ".simulation_cache")
+cachedir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
 os.makedirs(cachedir, exist_ok=True)
 memory = Memory(cachedir=cachedir, verbose=0)
 
