@@ -70,7 +70,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
         rv1_vary = False
     else:
         rv1_vary = True
-    rv_2 = 10
+    rv_2 = 25
     deltarv_1 = 2
     deltarv_2 = 10
     rv1_step = 0.25
