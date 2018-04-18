@@ -201,9 +201,9 @@ def main(star, obsnum, **kwargs):
     for teff2 in injection_temps:
         injector_result = injector(teff2)
         loop_injection_temp.append(teff2)
-        loop_recovered_temp.append(injector_result.params["teff_2"])
-        loop_recovered_rv1.append(injector_result.params["rv_1"])
-        loop_recovered_rv2.append(injector_result.params["rv_2"])
+        loop_recovered_temp.append(injector_result.params["teff_2"].value)
+        loop_recovered_rv1.append(injector_result.params["rv_1"].value)
+        loop_recovered_rv2.append(injector_result.params["rv_2"].value)
         first_injector_result = injector_result
 
     filename = f"{star}_real_injector_results_logg={comp_logg}_obs{obsnum}.txt"
