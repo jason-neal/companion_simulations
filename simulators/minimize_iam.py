@@ -81,41 +81,11 @@ def brute_solve_iam(params, obs_spec, errors, chip, Ns=20, norm_method="linear",
     # Evaluate 20 points on each axis and keep all points candidates
     result = mini.minimize(method="brute", Ns=Ns, keep="all")
 
-    print("Results")
-    # result.params.pretty_print()
-
-    print("Chi2", result.chisqr)
-    print("Reduced Chi2", result.redchi)
-    # conf_interval does not work with brute force method
-    # ci = lmfit.conf_interval(mini, result)
-    # lmfit.printfuncs.report_ci(ci)
-    print("Fit report", fit_report(result.params))
+    # print("Results")
+    # print("Chi2", result.chisqr)
+    # print("Reduced Chi2", result.redchi)
+    # print("Fit report", fit_report(result.params))
     return result
-
-
-def func_chi2(pars, obs_wav, obs_flux, chip=None, norm=True, norm_method="scalar",
-              area_scale=True, wav_scale=True, fudge=None, arb_norm=False, errors=None):
-    """Calculate binary model chi^2 for given parameters and observation"""
-    # unpack parameters: extract .value attribute for each parameter
-    parvals = pars.valuesdict()
-    teff_1 = parvals['teff_1']
-    teff_2 = parvals['teff_2']
-    logg_1 = parvals['logg_1']
-    logg_2 = parvals['logg_2']
-    feh_1 = parvals['feh_1']
-    feh_2 = parvals['feh_2']
-    rv_1 = np.asarray([parvals['rv_1']])
-    rv_2 = np.asarray([parvals['rv_2']])
-
-    chi2_value = iam_chi2_magic_sauce(Spectrum(xaxis=obs_wav, flux=obs_flux),
-                                      [teff_1, logg_1, feh_1],
-                                      [teff_2, logg_2, feh_2],
-                                      rv_1, rv_2,
-                                      chip=chip, norm_method=norm_method,
-                                      area_scale=area_scale, norm=norm,
-                                      wav_scale=wav_scale, fudge=fudge,
-                                      arb_norm=arb_norm, errors=errors)
-    return chi2_value
 
 
 def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_method="scalar",
