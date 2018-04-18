@@ -8,8 +8,6 @@ from typing import List, Union, Any
 import matplotlib.pyplot as plt
 import numpy as np
 from lmfit import Parameters, fit_report
-from spectrum_overload import Spectrum
-
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.debug_utils import timeit
 from mingle.utilities.param_utils import closest_obs_params
@@ -18,6 +16,7 @@ from simulators.common_setup import load_observation_with_errors
 from simulators.iam_module import iam_magic_sauce
 from simulators.iam_module import observation_rv_limits
 from simulators.minimize_iam import brute_solve_iam
+from spectrum_overload import Spectrum
 
 error_fudge = 1
 binary_search = False
@@ -55,7 +54,9 @@ def parse_args(args: List[str]) -> Namespace:
 
 def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=None, plot=False,
                                preloaded=False, error=None):
-    """Inject onto a synthetic host spectra. Add noise level of star though."""
+    """Inject onto a synthetic host spectra. Add noise level of star though.
+
+    if error is not None it is the SNR level to experiment with"""
     try:
         iter(chip)
     except:
@@ -75,14 +76,15 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
         pass
 
     if error is None:
+        snr = [1. / err for err in error_list]
         errors = error_list
     else:
         print("Manually setting error = {}!".format(error))
+        snr = [error for _ in error_list]  # overwrite with given error value
         errors = [1. / error for _ in error_list]  # overwrite with given error value
-
     print("Error values = ", errors)
-    print("len(errors)", len(errors), "len(chip)", len(chip))
-    assert len(errors) == len(chip)
+    print("len(snr)", len(snr), "len(chip)", len(chip))
+    assert len(snr) == len(chip)
 
     closest_host_model, closest_comp_model = closest_obs_params(obs_params, mode="iam")
     print("\nclosest host model", closest_host_model)
@@ -154,7 +156,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
 
             synthetic_model = synthetic_model / continuum
 
-            synthetic_model.add_noise(1 / error_list[ii])
+            synthetic_model.add_noise(1.0 / snr[ii])
 
             injected_spec.append(synthetic_model)
             if plot:
