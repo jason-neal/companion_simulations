@@ -213,7 +213,7 @@ def main(star, obsnum, **kwargs):
             loop_recovered_temp.append(injector_result.params["teff_2"].value)
             loop_recovered_rv1.append(injector_result.params["rv_1"].value)
             loop_recovered_rv2.append(injector_result.params["rv_2"].value)
-            first_injector_result = injector_result
+            # first_injector_result = injector_result
 
             f.write(f"{teff2}\t{loop_recovered_temp[-1]}\t{loop_recovered_rv1[-1]}\t{loop_recovered_rv2.append[-1]}\n")
 
@@ -239,7 +239,7 @@ def main(star, obsnum, **kwargs):
     plt.tight_layout()
     plt.show()
 
-    return first_injector_result
+    return 0 # first_injector_result
 
 
 def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded=False):
@@ -317,7 +317,7 @@ if __name__ == "__main__":
     opts.update(comp_logg=5.0)
     answer5 = main(**opts)
 
-    print("Found solution for logg 4.5")
-    print(fit_report(answer4p5))
-    print("Found solution for logg 5")
-    print(fit_report(answer5))
+    # print("Found solution for logg 4.5")
+    # print(fit_report(answer4p5))
+    # print("Found solution for logg 5")
+    # print(fit_report(answer5))
