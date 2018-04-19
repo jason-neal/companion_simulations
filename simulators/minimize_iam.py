@@ -8,13 +8,14 @@ from typing import List
 # Minimize function
 import numpy as np
 from lmfit import Parameters, fit_report, Minimizer
+from spectrum_overload import Spectrum
+
 from mingle.utilities.debug_utils import timeit2
 from mingle.utilities.param_utils import closest_obs_params
 from simulators.common_setup import load_observation_with_errors
-from simulators.iam_module import iam_chi2_magic_sauce, iam_magic_sauce
+from simulators.iam_module import iam_magic_sauce
 from simulators.iam_module import (setup_iam_dirs)
 from simulators.minimize_bhm import brute_solve_bhm
-from spectrum_overload import Spectrum
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -32,8 +33,10 @@ def main(star, obsnum, chip):
 
     params = Parameters()
 
-    params.add('teff_1', value=closest_host_model[0], min=closest_host_model[0]-100, max=closest_host_model[0]+100, vary=False, brute_step=100)
-    params.add('teff_2', value=closest_comp_model[0], min=closest_comp_model[0]-600, max=closest_comp_model[0]+600, vary=True, brute_step=100)
+    params.add('teff_1', value=closest_host_model[0], min=closest_host_model[0] - 100, max=closest_host_model[0] + 100,
+               vary=False, brute_step=100)
+    params.add('teff_2', value=closest_comp_model[0], min=closest_comp_model[0] - 600, max=closest_comp_model[0] + 600,
+               vary=True, brute_step=100)
     params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
@@ -74,7 +77,7 @@ def brute_solve_iam(params, obs_spec, errors, chip, Ns=20, norm_method="linear",
         minimize_flux = obs_spec.flux
 
     kws = {"chip": chip, "norm": True, "norm_method": norm_method,
-           "area_scale": True, "wav_scale": True, "fudge": None, "preloaded":preloaded}
+           "area_scale": True, "wav_scale": True, "fudge": None, "preloaded": preloaded}
 
     # Least-squares fit to the spectrum.
     mini = Minimizer(func_array, params, fcn_args=(minimize_wav, minimize_flux, errors), fcn_kws=kws)
@@ -106,8 +109,10 @@ def func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_metho
 
     if isinstance(chip, list):
         # Do multiple chips at once, append them together
-        assert len(chip) == len(obs_wav)
-        assert len(obs_flux) == len(obs_wav)
+        assert len(chip) == len(obs_wav), "len(chip)={0}, len(obs_wav)={1} should be equal".format(
+            len(chip), len(obs_wav))
+        assert len(obs_flux) == len(obs_wav), "len(obs_flux)={0}, len(obs_wav)={1} should be equal".format(
+            len(obs_flux), len(obs_wav))
 
         flux = np.empty((0,))
         model = np.empty((0,))

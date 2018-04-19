@@ -77,7 +77,8 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
         errors = [1. / error for _ in error_list]  # overwrite with given error value
     print("Error values = ", errors)
     print("len(snr)", len(snr), "len(chip)", len(chip))
-    assert len(snr) == len(chip)
+    assert len(snr) == len(chip), "Should be same lenght: len(snr)={}, len(chip)={}".format(
+        len(snr), len(chip))
 
     closest_host_model, closest_comp_model = closest_obs_params(obs_params, mode="iam")
     print("\nclosest host model", closest_host_model)
@@ -164,7 +165,8 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
             plt.suptitle("Host = {0}, Injected Temperature = {1}".format(closest_host_model[0], teff_2))
             plt.show(block=False)
 
-        assert len(injected_spec) == len(chip), "injected chips not same size as chip."
+        assert len(injected_spec) == len(chip), "Should be same lenght: len(injected_spec)={}, len(chip)={}".format(
+        len(injected_spec), len(chip))
         # return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns, preloaded=preloaded)
         return inject_params, injected_spec, errors, chip
 

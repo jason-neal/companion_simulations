@@ -63,7 +63,8 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
         error_list.append(errors * error_fudge)
     obs_spec, errors = spec_list, error_list
     print("len(obs_spec)", len(obs_spec), "len(chip)", len(chip))
-    assert len(obs_spec) == len(chip)
+    assert len(obs_spec) == len(chip), "len(obs_spec)={0}, len(chip)={1} should be equal".format(
+        len(obs_spec), len(chip))
 
     # Linearly normalize observation.
     obs_spec = [obs.normalize(method="linear") for obs in obs_spec]
