@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import copy
 import sys
 from argparse import Namespace
 from typing import List
@@ -43,8 +44,7 @@ def parse_args(args: List[str]) -> Namespace:
     return parser.parse_args(args)
 
 
-def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_mask=False, comp_logg=None, plot=False,
-                     preloaded=False):
+def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=False, comp_logg=None, plot=False):
     """Take the Observation and prepare to inject different temperature companions."""
     try:
         iter(chip)
@@ -107,10 +107,10 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
             upper_limit = 1401
         else:
             upper_limit = 601
-
-        params.add('teff_2', value=teff_2, min=max([teff_2 - 600, 2300]), max=min([teff_2 + upper_limit, 7001]),
-                   vary=True,
-                   brute_step=100)
+        inject_params = copy.deepcopy(params)
+        inject_params.add('teff_2', value=teff_2, min=max([teff_2 - 600, 2300]), max=min([teff_2 + upper_limit, 7001]),
+                          vary=True,
+                          brute_step=100)
         if plot:
             plt.figure()
         # Add companion to observation
@@ -122,18 +122,18 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
         for ii, c in enumerate(chip):
             if plot:
                 plt.subplot(len(chip), 1, ii + 1)
-            mod2_spec = load_starfish_spectrum([teff_2, params["logg_2"].value, params["feh_2"].value],
+            mod2_spec = load_starfish_spectrum([teff_2, inject_params["logg_2"].value, inject_params["feh_2"].value],
                                                limits=rv_limits[ii], hdr=True, normalize=False,
                                                area_scale=True, flux_rescale=True, wav_scale=True)
 
             iam_grid_func = inherent_alpha_model(mod1_spec[ii].xaxis, mod1_spec[ii].flux, mod2_spec.flux,
-                                                 rvs=params["rv_2"].value, gammas=params["rv_1"].value)
+                                                 rvs=inject_params["rv_2"].value, gammas=inject_params["rv_1"].value)
             synthetic_model = iam_grid_func(obs_spec[ii].xaxis)
             continuum = Spectrum(xaxis=obs_spec[ii].xaxis, flux=synthetic_model).continuum(method="exponential")
 
             # Doppler shift companion
             injection = mod2_spec.copy()
-            injection.doppler_shift(params["rv_2"].value + params["rv_1"].value)
+            injection.doppler_shift(inject_params["rv_2"].value + inject_params["rv_1"].value)
 
             # Normalize by synthetic continuum
             injection.spline_interpolate_to(continuum)
@@ -161,11 +161,12 @@ def injector_wrapper(star, obsnum, chip, Ns=20, teff_1=None, rv_1=None, strict_m
         if plot:
             plt.suptitle("Host= {0}, Injected Temperature = {1}".format(closest_host_model[0], teff_2))
             plt.show(block=False)
-        return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns, preloaded=preloaded)
+        # return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns, preloaded=preloaded)
+        return inject_params, injected_spec, errors, chip
 
     print("injector ", inject)
 
-    return inject
+    return inject, params
 
 
 @timeit
@@ -186,16 +187,18 @@ def main(star, obsnum, **kwargs):
     # FIT BEST HOST MODEL TO OBSERVATIONS
     from simulators.minimize_bhm import main as minimize_bhm
     result = minimize_bhm(star, obsnum, 1)
-    print(result)
+    result.params.pretty_print()
     print("Teff_1 =", result.params["teff_1"].value)
     print("rv_1 =", result.params["rv_1"].value)
 
     # Adding teff_1 and rv_1 to fix those parameters.
-    injector = injector_wrapper(star, obsnum, chip,
-                                Ns=20, strict_mask=strict_mask,
-                                comp_logg=comp_logg, plot=plot,
-                                preloaded=preloaded, teff_1=result.params["teff_1"].value,
-                                rv_1=result.params["rv_1"].value)
+    injector, initial_params = injector_wrapper(star, obsnum, chip,
+                                               strict_mask=strict_mask,
+                                               comp_logg=comp_logg, plot=plot,
+                                               teff_1=result.params["teff_1"].value,
+                                               rv_1=result.params["rv_1"].value)
+    print("inital injector params set:")
+    initial_params.pretty_print()
 
     injection_temps = np.arange(2300, 5001, 100)
 
