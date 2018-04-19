@@ -93,7 +93,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
     params.add('logg_1', value=4.5, min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=0.0, min=-2, max=1, vary=False, brute_step=0.5)
     params.add('feh_2', value=0.0, min=-2, max=1, vary=False, brute_step=0.5)
-    params.add('rv_1', value=rv_1, min=rv_1 - deltarv_1, max=rv_1 + deltarv_1, vary=True, brute_step=rv1_step)
+    params.add('rv_1', value=rv_1, min=rv_1 - deltarv_1, max=rv_1 + deltarv_1, vary=False, brute_step=rv1_step)
     params.add('rv_2', value=rv_2, min=rv_2 - deltarv_2, max=rv_2 + deltarv_2, vary=True, brute_step=rv2_step)
     if comp_logg is None:
         # params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
