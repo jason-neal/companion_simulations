@@ -266,7 +266,7 @@ def iam_chi2_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None, errors
 
 def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
                     area_scale=True, wav_scale=True, norm=False,
-                    norm_method="scalar", fudge=None, preloaded=False):
+                    norm_method="scalar", fudge=None, preloaded=False, **kwargs):
     """Cleaned up magic sauce."""
     rv_limits = observation_rv_limits(obs_spec, rv1, rv2)
 
@@ -299,12 +299,12 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
                                          rvs=rv2, gammas=rv1)
     iam_grid_models = iam_grid_func(obs_spec.xaxis)
 
-    # print(iam_grid_models.shape)
-
     # Continuum normalize all iam_grid_models
+    splits = kwargs.get("splits", 20)
+    top = kwargs.get("top", 10)
     def axis_continuum(flux):
         """Continuum to apply along axis with predefined variables parameters."""
-        return continuum(obs_spec.xaxis, flux, splits=20, method="exponential", top=20)
+        return continuum(obs_spec.xaxis, flux, splits=splits, method="exponential", top=top)
 
     iam_grid_continuum = np.apply_along_axis(axis_continuum, 0, iam_grid_models)
     iam_grid_models = iam_grid_models / iam_grid_continuum
