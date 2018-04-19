@@ -205,7 +205,7 @@ def main(star, obsnum, **kwargs):
         f.write("# Injection - recovery results\n")
         f.write("# Initial_vals:\n")
         f.write("# teff_1={}, logg_2={}, rv_1={}, rv_2={}\n".format(
-            initial_params[key].value for key in ["teff_1", "logg_2", "rv_1", "rv_2"]))
+            *(initial_params[key].value for key in ["teff_1", "logg_2", "rv_1", "rv_2"])))
         if error is None:
             f.write(f"# Noise level = beta-sigma observed\n")
         else:

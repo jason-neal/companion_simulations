@@ -205,7 +205,7 @@ def main(star, obsnum, **kwargs):
         f.write("# Injection - recovery results\n")
         f.write("# Initial_vals:\n")
         f.write("# teff_1={}, logg_2={}, rv_1={}, rv_2={}\n".format(
-            initial_params[key].value for key in ["teff_1", "logg_2", "rv_1", "rv_2"]))
+            *(initial_params[key].value for key in ["teff_1", "logg_2", "rv_1", "rv_2"])))
         if error is None:
             f.write(f"# Noise level = beta-sigma observed\n")
         else:
@@ -222,8 +222,6 @@ def main(star, obsnum, **kwargs):
             loop_recovered_rv1.append(injector_result.params["rv_1"].value)
 
             f.write(f"{teff2}\t{loop_recovered_temp2[-1]}\t{loop_recovered_rv1[-1]}\t{loop_recovered_rv2[-1]}\n")
-
-
 
     # fname = f"{star}_injector_results_logg={comp_logg}_error={error}_chip_{chip}_rv2{rv_2}.txt"
     # with open(fname, "w") as f:
