@@ -198,22 +198,33 @@ def main(star, obsnum, **kwargs):
                                 rv_1=result.params["rv_1"].value)
 
     injection_temps = np.arange(2300, 5001, 100)
-    for teff2 in injection_temps:
-        injector_result = injector(teff2)
-        loop_injection_temp.append(teff2)
-        loop_recovered_temp.append(injector_result.params["teff_2"].value)
-        loop_recovered_rv1.append(injector_result.params["rv_1"].value)
-        loop_recovered_rv2.append(injector_result.params["rv_2"].value)
-        first_injector_result = injector_result
 
     filename = f"{star}_real_injector_results_logg={comp_logg}_obs{obsnum}.txt"
     with open(filename, "w") as f:
         f.write("# Real Injection - recovery results")
         f.write("# ")
-        f.write("input\t output\t rv1\t rv2")
-        for input_, output, rv1, rv2 in zip(loop_injection_temp, loop_recovered_temp, loop_recovered_rv1,
-                                            loop_recovered_rv2):
-            f.write(f"{input_}\t{output}\t{rv1}\t{rv2}\n")
+        f.write("# teff_2 in\t teff_2 out\t rv1\t rv2")
+
+        for teff2 in injection_temps[::-1]:
+            injector_values = injector(teff2)
+
+            injector_result = brute_solve_iam(*injector_values, Ns=20, preloaded=preloaded)
+            loop_injection_temp.append(teff2)
+            loop_recovered_temp.append(injector_result.params["teff_2"].value)
+            loop_recovered_rv1.append(injector_result.params["rv_1"].value)
+            loop_recovered_rv2.append(injector_result.params["rv_2"].value)
+            first_injector_result = injector_result
+
+            f.write(f"{teff2}\t{loop_recovered_temp[-1]}\t{loop_recovered_rv1[-1]}\t{loop_recovered_rv2.append[-1]}\n")
+
+    # filename = f"{star}_real_injector_results_logg={comp_logg}_obs{obsnum}.txt"
+    # with open(filename, "w") as f:
+    #         f.write("# Real Injection - recovery results")
+    #         f.write("# ")
+    #         f.write("input\t output\t rv1\t rv2")
+    #     for input_, output, rv1, rv2 in zip(loop_injection_temp, loop_recovered_temp, loop_recovered_rv1,
+    #                                             loop_recovered_rv2):
+    #           f.write(f"{input_}\t{output}\t{rv1}\t{rv2}\n")
 
     plt.figure()
     temp_err = 100 * np.ones_like(loop_recovered_temp)

@@ -200,16 +200,6 @@ def main(star, obsnum, **kwargs):
 
     injection_temps = np.arange(2300, 5001, 100)
 
-    for teff2 in injection_temps:
-        injected_values = injector(teff2)
-        injector_result = brute_solve_iam(*injected_values, Ns=20, preloaded=preloaded)
-        # injector_result = injector(teff2)
-        print("Recovered temp = {} K".format(injector_result.params["teff_2"].value))
-        loop_injection_temp.append(teff2)
-        loop_recovered_temp2.append(injector_result.params["teff_2"].value)
-        loop_recovered_rv2.append(injector_result.params["rv_2"].value)
-        loop_recovered_rv1.append(injector_result.params["rv_1"].value)
-
     fname = f"{star}_injector_results_logg={comp_logg}_error={error}_chip_{chip}_rv2{rv_2}.txt"
     with open(fname, "w") as f:
         f.write("# Injection - recovery results\n")
@@ -221,9 +211,33 @@ def main(star, obsnum, **kwargs):
         else:
             f.write(f"# Noise level = {error}\n")
         f.write("input\t output\t rv1\t rv2\n")
-        for input_, output, rv1, rv2 in zip(loop_injection_temp, loop_recovered_temp2, loop_recovered_rv1,
-                                            loop_recovered_rv2):
-            f.write(f"{input_}\t{output}\t{rv1}\t{rv2}\n")
+
+        for teff2 in injection_temps[::-1]:
+            injected_values = injector(teff2)
+            injector_result = brute_solve_iam(*injected_values, Ns=20, preloaded=preloaded)
+            # injector_result = injector(teff2)
+            print("Recovered temp = {} K".format(injector_result.params["teff_2"].value))
+            loop_injection_temp.append(teff2)
+            loop_recovered_temp2.append(injector_result.params["teff_2"].value)
+            loop_recovered_rv2.append(injector_result.params["rv_2"].value)
+            loop_recovered_rv1.append(injector_result.params["rv_1"].value)
+
+            f.write(f"{teff2}\t{loop_recovered_temp2[-1]}\t{loop_recovered_rv1[-1]}\t{loop_recovered_rv2[-1]}\n")
+
+    # fname = f"{star}_injector_results_logg={comp_logg}_error={error}_chip_{chip}_rv2{rv_2}.txt"
+    # with open(fname, "w") as f:
+    #     f.write("# Injection - recovery results\n")
+    #     f.write("# Initial_vals:\n")
+    #     f.write("# teff_1={}, logg_2={}, rv_1={}, rv_2={}\n".format(
+    #         initial_params[key].value for key in ["teff_1", "logg_2", "rv_1", "rv_2"]))
+    #     if error is None:
+    #         f.write(f"# Noise level = beta-sigma observed\n")
+    #     else:
+    #         f.write(f"# Noise level = {error}\n")
+    #     f.write("input\t output\t rv1\t rv2\n")
+    #     for input_, output, rv1, rv2 in zip(loop_injection_temp, loop_recovered_temp2, loop_recovered_rv1,
+    #                                         loop_recovered_rv2):
+    #         f.write(f"{input_}\t{output}\t{rv1}\t{rv2}\n")
 
     # plot the injection-recovery
     plt.figure()
