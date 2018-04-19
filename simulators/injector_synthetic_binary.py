@@ -267,7 +267,7 @@ def main(star, obsnum, **kwargs):
 
         injector_result = first_injector_result
     else:
-        for teff2 in injection_temps:
+        for teff2 in injection_temps[::-1]:
             injector_result = injector(teff2)
             loop_injection_temp.append(teff2)
             loop_recovered_temp2.append(injector_result.params["teff_2"].value)
