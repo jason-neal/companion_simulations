@@ -22,6 +22,9 @@ from simulators.minimize_iam import brute_solve_iam
 error_fudge = 1
 binary_search = False
 
+rv_2, deltarv_2, rv2_step = 45, 8, 2
+deltarv_1, rv1_step = 2, 1
+
 
 def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
@@ -71,11 +74,6 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
         rv1_vary = False
     else:
         rv1_vary = True
-    rv_2 = 25
-    deltarv_1 = 2
-    deltarv_2 = 10
-    rv1_step = 0.25
-    rv2_step = 1
 
     if teff_1 is None:
         teff_1 = closest_host_model[0]
@@ -207,9 +205,9 @@ def main(star, obsnum, **kwargs):
 
     filename = f"{star}_real_injector_results_logg={comp_logg}_obs{obsnum}.txt"
     with open(filename, "w") as f:
-        f.write("# Real Injection - recovery results")
-        f.write("# ")
-        f.write("# teff_2 in\t teff_2 out\t rv1\t rv2")
+        f.write("# Real Injection - recovery results\n")
+        f.write("# \n")
+        f.write("# teff_2 in\t teff_2 out\t rv1\t rv2\n")
 
         for teff2 in injection_temps[::-1]:
             injector_values = injector(teff2)
