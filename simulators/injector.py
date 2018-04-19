@@ -156,9 +156,11 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
                 shifted_injection.plot(label="injected part + 1.01", lw=1)
                 plt.legend()
                 from bin.radius_ratio import flux_ratio
-                f_ratio = flux_ratio(params["teff_1"].value, params["logg_1"].value, params["feh_1"].value,
-                                     params["teff_2"].value, params["logg_2"].value, params["feh_2"].value)
-                plt.annotate("Flux ratio F2/F1 = {0:5.03}".format(1/f_ratio), (0.01, 0.2), xycoords="axes fraction")
+                f_ratio = flux_ratio(params["teff_1"].value, inject_params["logg_1"].value,
+                                     inject_params["feh_1"].value,
+                                     inject_params["teff_2"].value, inject_params["logg_2"].value,
+                                     inject_params["feh_2"].value)
+                plt.annotate("Flux ratio F2/F1 = {0:5.03}".format(1 / f_ratio), (0.01, 0.2), xycoords="axes fraction")
         if plot:
             plt.suptitle("Host= {0}, Injected Temperature = {1}".format(closest_host_model[0], teff_2))
             plt.show(block=False)
