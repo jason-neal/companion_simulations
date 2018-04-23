@@ -48,6 +48,8 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Try preloading spectra.')
     parser.add_argument("-g", '--grid_bound', action="store_true",
                         help='Grid bound search limit')
+    parser.add_argument("-d", '--dont_norm', action="store_false",
+                        help='Disable continuum renormalization')
     parser.add_argument("-c", "--chip", default=None, type=str,
                         help='Chips 2 use e.g. "1, 2, 3"')
     return parser.parse_args(args)
@@ -187,6 +189,7 @@ def main(star, obsnum, **kwargs):
     loop_recovered_rv2 = []
     print("before injector")
     strict_mask = kwargs.get("strict_mask", False)
+    norm = kwargs.get("dont_norm", True)
     chip = kwargs.get("chip", [1, 2, 3])
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
@@ -219,7 +222,7 @@ def main(star, obsnum, **kwargs):
         for teff2 in injection_temps[::-1]:
             injector_values = injector(teff2)
 
-            injector_result = brute_solve_iam(*injector_values, Ns=20, preloaded=preloaded)
+            injector_result = brute_solve_iam(*injector_values, Ns=20, preloaded=preloaded, norm=norm)
             loop_injection_temp.append(teff2)
             loop_recovered_temp.append(injector_result.params["teff_2"].value)
             loop_recovered_rv1.append(injector_result.params["rv_1"].value)
@@ -246,11 +249,13 @@ def main(star, obsnum, **kwargs):
 
     plt.title("Injector: logg_1 = {0} logg_2 = {1}".format(injector_result.params["logg_1"].value,
                                                            injector_result.params["logg_2"].value))
-    plt.savefig(kwargs.get("plot_name", "Test_recovery_plot.pdf"))
     plt.tight_layout()
-    plt.show()
+    plt.savefig(
+        kwargs.get("plot_name", f"{star}_real_injector_results_logg={comp_logg}_obs_{obsnum}_rv2_{rv_2}{suffix}.pdf"))
 
-    return 0 # first_injector_result
+    # plt.show()
+
+    return 0  # first_injector_result
 
 
 def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded=False):
@@ -276,8 +281,9 @@ def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded
         spec_list.append(obs_spec)
         error_list.append(errors * error_fudge)  # Errors larger
     obs_spec, errors = spec_list, error_list
-    print("len(obs_spec)", len(obs_spec), "len(chip)", len(chip))
-    assert len(obs_spec) == len(chip)
+
+    assert len(obs_spec) == len(chip), "len(obs_spec)={0}, len(chip)={1} should be equal".format(len(obs_spec),
+                                                                                                 len(chip))
 
     # Linearlly normalize observation.
     obs_spec = [obs.normalize(method="linear") for obs in obs_spec]
@@ -330,8 +336,3 @@ if __name__ == "__main__":
 
     opts.update(comp_logg=5.0)
     answer5 = main(**opts)
-
-    # print("Found solution for logg 4.5")
-    # print(fit_report(answer4p5))
-    # print("Found solution for logg 5")
-    # print(fit_report(answer5))
