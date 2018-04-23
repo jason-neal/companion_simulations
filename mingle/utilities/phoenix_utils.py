@@ -14,18 +14,17 @@ from typing import Union, Optional, List
 
 import Starfish
 import numpy as np
+# from typing import List
+import simulators
 from Starfish.grid_tools import HDF5Interface
 from astropy.io import fits
 from joblib import Memory
 from logutils import BraceMessage as __
-from numpy import int64, float64
-from spectrum_overload import Spectrum
-
-# from typing import List
-import simulators
 from mingle.utilities.norm import spec_local_norm
 from mingle.utilities.param_file import parse_paramfile
 from mingle.utilities.param_utils import closest_model_params, gen_new_param_values
+from numpy import int64, float64
+from spectrum_overload import Spectrum
 
 joblib_dir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
 
@@ -37,8 +36,9 @@ pre_loaded_spectra = {}
 
 def preload_spectra():
     """Preload all spectra so brute force is quicker."""
+    print("Preloading spectra from {}".format(simulators.starfish_grid["hdf5_path"]))
     global pre_loaded_spectra
-    for i, (t, l) in enumerate(product(range(2300, 6000, 100), [4.5, 5.0])):
+    for i, (t, l) in enumerate(product(range(2300, 6601, 100), [4.0, 4.5, 5.0])):
         pre_loaded_spectra[(t, l)] = load_starfish_spectrum([t, l, 0.0], limits=[2110, 2165], wav_scale=True,
                                                             hdr=True, area_scale=True, normalize=False,
                                                             flux_rescale=True)
