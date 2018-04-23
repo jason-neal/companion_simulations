@@ -100,6 +100,8 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
 
     if hdr:
         flux, myhdr = my_hdf5.load_flux_hdr(np.array(params))
+        if myhdr.get("PHXM_H") is None and myhdr.get("PHXFE_H") is not None:
+            myhdr["PHXM_H"] = myhdr.get("PHXFE_H")
         spec = Spectrum(flux=flux, xaxis=my_hdf5.wl, header=myhdr)
     else:
         flux = my_hdf5.load_flux(np.array(params))
@@ -162,6 +164,8 @@ def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_
 
     if hdr:
         flux, myhdr = my_hdf5.load_flux_hdr(np.array(params))
+        if myhdr.get("PHXM_H") is None and myhdr.get("PHXFE_H") is not None:
+            myhdr["PHXM_H"] = myhdr.get("PHXFE_H")
         spec = Spectrum(flux=flux, xaxis=my_hdf5.wl, header=myhdr)
     else:
         flux = my_hdf5.load_flux(np.array(params))
