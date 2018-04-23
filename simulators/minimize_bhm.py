@@ -25,17 +25,15 @@ def main(star, obsnum, chip, params=None, **kwargs):
     obs_spec, errors, obs_params = load_observation_with_errors(star, obsnum, chip, mode="bhm", **kwargs)
 
     closest_host_model = closest_obs_params(obs_params, mode="bhm")
-
-    params = Parameters()
-
-    params.add('teff_1', value=closest_host_model[0], min=5600, max=5800, vary=True, brute_step=100)
-    #  params.add('teff_2', value=closest_comp_model[0], min=3000, max=3400, vary=False, brute_step=100)
-    params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
-    # params.add('logg_2', value=closest_comp_model[1], min=0, max=6, vary=False, brute_step=0.5)
-    params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
-    # params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
-    params.add('rv_1', value=7, min=-20, max=20, vary=True, brute_step=0)
-    # params.add('rv_2', value=1.5, min=-10, max=10, vary=True, brute_step=0)
+    gamma = obs_params["mean_val"]
+    k1 = obs_params["k1"]
+    if params is None:
+        params = Parameters()
+        chm_temp = closest_host_model[0]
+        params.add('teff_1', value=chm_temp, min=chm_temp - 600, max=chm_temp + 801, vary=True, brute_step=100)
+        params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
+        params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
+        params.add('rv_1', value=gamma, min=gamma - 3 * k1, max=gamma + 3 * k1, vary=True, brute_step=0)
 
     # result = brute_solve_iam(params, obs_spec, errors, chip, Ns=20)
     result = brute_solve_bhm(params, obs_spec, errors, chip, Ns=20)
