@@ -7,22 +7,28 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
+import simulators
 from lmfit import Parameters
-from spectrum_overload import Spectrum
-
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.debug_utils import timeit
 from mingle.utilities.param_utils import closest_obs_params
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from simulators.common_setup import load_observation_with_errors
 from simulators.minimize_iam import brute_solve_iam
+from spectrum_overload import Spectrum
 
 error_fudge = 1
 binary_search = False
 
 # RV Grid parameters
 rv_1, deltarv_1, rv1_step = 0, 2, 0.25
-rv_2, deltarv_2, rv2_step = 10, 12, 2
+rv_2, deltarv_2, rv2_step = 100, 15, 1
+
+if "CIFIST" in simulators.starfish_grid["hdf5_path"]:
+    injection_temps = np.arange(1300, 5001, 100)
+    print("Trying BTSETTL")
+else:
+    injection_temps = np.arange(2300, 5001, 100)
 
 
 def parse_args(args: List[str]) -> Namespace:
@@ -44,8 +50,12 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Grid bound search limit')
     parser.add_argument("--error", default=None, type=int,
                         help='SNR level to add')
+    parser.add_argument("-d", '--dont_norm', action="store_false",
+                        help='Disable continuum renormalization')
     parser.add_argument("-c", "--chip", default=None, type=str,
                         help='Chips 2 use e.g. "1, 2, 3"')
+    parser.add_argument("--suffix", default="", type=str,
+                        help='Add a suffix to file')
     return parser.parse_args(args)
 
 
@@ -88,12 +98,20 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
     # Setup Fixed injection grid parameters
     params = Parameters()
     params.add('teff_1', value=closest_host_model[0], min=4800, max=6600, vary=False, brute_step=100)
-    # params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
-    # params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
-    # params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
-    params.add('logg_1', value=4.5, min=0, max=6, vary=False, brute_step=0.5)
-    params.add('feh_1', value=0.0, min=-2, max=1, vary=False, brute_step=0.5)
-    params.add('feh_2', value=0.0, min=-2, max=1, vary=False, brute_step=0.5)
+    # asserts for now
+
+    if closest_host_model[2] != 0.0:
+        import warnings
+        warnings.warn("Closest host model feh is not 0. Setting to zero, star = {}".format(star))
+        closest_host_model[2] = 0.0
+    assert closest_host_model[2] == 0.0
+
+    assert closest_host_model[1] >= 4
+    assert closest_host_model[1] <= 5
+    params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
+    params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
+    params.add('feh_2', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
+
     params.add('rv_1', value=rv_1, min=rv_1 - deltarv_1, max=rv_1 + deltarv_1, vary=False, brute_step=rv1_step)
     params.add('rv_2', value=rv_2, min=rv_2 - deltarv_2, max=rv_2 + deltarv_2, vary=True, brute_step=rv2_step)
     if comp_logg is None:
@@ -102,7 +120,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
     else:
         params.add('logg_2', value=comp_logg, min=0, max=6, vary=False, brute_step=0.5)
 
-    rv_limits = [(2111, 2125), (2127, 2138), (2141, 2153)]
+    rv_limits = [(2110, 2126), (2126, 2139), (2140, 2154)]
 
     mod1_spec = [load_starfish_spectrum(closest_host_model, limits=lim,
                                         hdr=True, normalize=False, area_scale=True,
@@ -121,10 +139,11 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
             upper_limit = 1401
         else:
             upper_limit = 601
+        upper_limit = 1001
+        lower_limit = 1000
         inject_params = copy.deepcopy(params)
-        inject_params.add('teff_2', value=teff_2, min=max([teff_2 - 400, 2300]), max=min([teff_2 + upper_limit, 7001]),
-                          vary=True,
-                          brute_step=100)
+        inject_params.add('teff_2', value=teff_2, min=max([teff_2 - lower_limit, 2300]),
+                          max=min([teff_2 + upper_limit, 7001]), vary=True, brute_step=100)
         if plot:
             plt.figure()
 
@@ -142,8 +161,14 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
                                                  rvs=inject_params["rv_2"].value, gammas=inject_params["rv_1"].value)
             synthetic_model_flux = iam_grid_func(chip_waves[ii]).squeeze()
 
-            assert not np.any(np.isnan(
-                synthetic_model_flux)), "There are nans in synthetic model flux. Check wavelengths for interpolation"
+            count_nan = np.sum(np.isnan(synthetic_model_flux))
+            if count_nan != 0.0:
+                print("mod1_limts = [{},{}]".format(mod1_spec.xaxis[0], mod1_spec.xaxis[-1]))
+                print("mod2_limts = [{},{}]".format(mod2_spec.xaxis[0], mod2_spec.xaxis[-1]))
+                print("rv_limits[ii] = ".format(rv_limits[ii]))
+                print("chip_waves[ii] limits = ".format(chip_waves[ii][0],chip_waves[ii][-1]))
+            assert count_nan == 0.0, f"There are {count_nan} nans in synthetic model flux. Check wavelengths for interpolation"
+
             synthetic_model = Spectrum(xaxis=chip_waves[ii], flux=synthetic_model_flux)
 
             continuum = synthetic_model.continuum(method="exponential")
@@ -166,7 +191,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
             plt.show(block=False)
 
         assert len(injected_spec) == len(chip), "Should be same lenght: len(injected_spec)={}, len(chip)={}".format(
-        len(injected_spec), len(chip))
+            len(injected_spec), len(chip))
         # return brute_solve_iam(params, injected_spec, errors, chip, Ns=Ns, preloaded=preloaded)
         return inject_params, injected_spec, errors, chip
 
@@ -178,20 +203,22 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
 @timeit
 def main(star, obsnum, **kwargs):
     """Main function."""
+    print(f"Injector {star}, {obsnum}, \n{kwargs}")
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
     preloaded = kwargs.get("preloaded", False)
     error = kwargs.get("error", None)  # None means use from the observations
-
     chip = kwargs.get("chip", [1, 2, 3])
+    suffix = kwargs.get("suffix", "")
+    strict_mask = kwargs.get("strict_mask", False)
+    norm = kwargs.get("dont_norm", True)
+
     loop_injection_temp = []
     loop_recovered_temp2 = []
     loop_recovered_rv1 = []
     loop_recovered_rv2 = []
 
     print("Before injector")
-
-    strict_mask = kwargs.get("strict_mask", False)
 
     # injector = injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg, plot=plot)
     injector, initial_params = synthetic_injector_wrapper(star, obsnum, chip, strict_mask=strict_mask,
@@ -200,11 +227,11 @@ def main(star, obsnum, **kwargs):
     print("inital params set:")
     initial_params.pretty_print()
 
-    injection_temps = np.arange(2300, 5001, 100)
-
-    fname = f"{star}_injector_results_logg={comp_logg}_error={error}_chip_{chip}_rv2{rv_2}.txt"
+    fname = f"{star}_synth_injector_results_logg={comp_logg}_error={error}_chip_{chip}_rv2_{rv_2}_{suffix}.txt"
+    print(f"Writing to {fname}")
     with open(fname, "w") as f:
-        f.write("# Injection - recovery results\n")
+        f.write("# Synthetic Injection - recovery results\n")
+        f.write("# kwargs {0}".format(kwargs))
         f.write("# Initial_vals:\n")
         f.write("# teff_1={}, logg_2={}, rv_1={}, rv_2={}\n".format(
             *(initial_params[key].value for key in ["teff_1", "logg_2", "rv_1", "rv_2"])))
@@ -212,19 +239,24 @@ def main(star, obsnum, **kwargs):
             f.write(f"# Noise level = beta-sigma observed\n")
         else:
             f.write(f"# Noise level = {error}\n")
-        f.write("input\t output\t rv1\t rv2\n")
+        f.write("# input\t output\t rv1\t rv2\n")
 
         for teff2 in injection_temps[::-1]:
-            injected_values = injector(teff2)
-            injector_result = brute_solve_iam(*injected_values, Ns=20, preloaded=preloaded)
-            print("Recovered temp = {} K".format(injector_result.params["teff_2"].value))
-            loop_injection_temp.append(teff2)
-            loop_recovered_temp2.append(injector_result.params["teff_2"].value)
-            loop_recovered_rv2.append(injector_result.params["rv_2"].value)
-            loop_recovered_rv1.append(injector_result.params["rv_1"].value)
+            try:
+                injected_values = injector(teff2)
+                injector_result = brute_solve_iam(*injected_values, Ns=20, preloaded=preloaded, norm=norm)
+                print("Recovered temp = {} K".format(injector_result.params["teff_2"].value))
+                loop_injection_temp.append(teff2)
+                loop_recovered_temp2.append(injector_result.params["teff_2"].value)
+                loop_recovered_rv2.append(injector_result.params["rv_2"].value)
+                loop_recovered_rv1.append(injector_result.params["rv_1"].value)
 
-            f.write(f"{teff2}\t{loop_recovered_temp2[-1]}\t{loop_recovered_rv1[-1]}\t{loop_recovered_rv2[-1]}\n")
+                f.write(f"{teff2}\t{loop_recovered_temp2[-1]}\t{loop_recovered_rv1[-1]}\t{loop_recovered_rv2[-1]}\n")
+            except Exception as e:
+                print(teff2, "K - Exception caught", e)
+                raise e
 
+    print(f"Finished writing to {fname}")
     # fname = f"{star}_injector_results_logg={comp_logg}_error={error}_chip_{chip}_rv2{rv_2}.txt"
     # with open(fname, "w") as f:
     #     f.write("# Injection - recovery results\n")
@@ -253,6 +285,7 @@ def main(star, obsnum, **kwargs):
     plt.title(
         "synthetic injector: logg_1 = {0} logg_2 = {1}".format(injector_result.params["logg_1"].value,
                                                                injector_result.params["logg_2"].value))
+    plt.savefig(f"{star}_synth_injector_results_logg={comp_logg}_obs_{obsnum}_rv2_{rv_2}_{suffix}.pdf")
 
     # ax2 = plt.subplot(212, sharex=ax1)
     # plt.plot(loop_injection_temp, loop_recovered_rv1, "C2*", label="rv_1")
@@ -265,7 +298,7 @@ def main(star, obsnum, **kwargs):
     # plt.tight_layout()
     # plt.show()
 
-    return None
+    return 0
 
 
 if __name__ == "__main__":
@@ -282,7 +315,7 @@ if __name__ == "__main__":
         from mingle.utilities.phoenix_utils import preload_spectra
 
         preload_spectra()
-        print("finished preloading")
+        print("Finished preloading")
 
     opts.update(comp_logg=4.5)
     answer4p5 = main(**opts)
