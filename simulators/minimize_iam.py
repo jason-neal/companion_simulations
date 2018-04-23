@@ -65,7 +65,20 @@ def main(star, obsnum, chip):
     brute_solve_iam(params, spec_list, error_list, chips)
 
 
-def brute_solve_iam(params, obs_spec, errors, chip, Ns=20, norm_method="linear", preloaded=False):
+def brute_solve_iam(params, obs_spec, errors, chip, Ns=20, norm=True, norm_method="linear", preloaded=False):
+    """Brute force solve model with lmfit.
+    :param params:
+    :param obs_spec:
+    :param errors:
+    :param chip:
+    :param Ns:
+    :param norm: bool
+        Renormalzie the flux to the model continuum - defaut=True
+    :param norm_method:
+    :param preloaded:
+    :return:
+    """
+
     if isinstance(obs_spec, list):
         minimize_wav = [obs.xaxis for obs in obs_spec]
         minimize_flux = [obs.flux for obs in obs_spec]
@@ -75,7 +88,7 @@ def brute_solve_iam(params, obs_spec, errors, chip, Ns=20, norm_method="linear",
         minimize_wav = obs_spec.xaxis
         minimize_flux = obs_spec.flux
 
-    kws = {"chip": chip, "norm": True, "norm_method": norm_method,
+    kws = {"chip": chip, "norm": norm, "norm_method": norm_method,
            "area_scale": True, "wav_scale": True, "fudge": None, "preloaded": preloaded}
 
     # Least-squares fit to the spectrum.
