@@ -22,7 +22,7 @@ from spectrum_overload import Spectrum
 error_fudge = 1
 binary_search = False
 
-rv_2, deltarv_2, rv2_step = 45, 8, 2
+rv_2, deltarv_2, rv2_step = 100, 20, 1
 deltarv_1, rv1_step = 2, 1
 if "CIFIST" in simulators.starfish_grid["hdf5_path"]:
     injection_temps = np.arange(1300, 5001, 100)
@@ -52,6 +52,8 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Disable continuum renormalization')
     parser.add_argument("-c", "--chip", default=None, type=str,
                         help='Chips 2 use e.g. "1, 2, 3"')
+    parser.add_argument("--suffix", default="", type=str,
+                        help='Add a suffix to file')
     return parser.parse_args(args)
 
 
@@ -70,7 +72,7 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
         spec_list.append(obs_spec)
         error_list.append(errors * error_fudge)
     obs_spec, errors = spec_list, error_list
-    print("len(obs_spec)", len(obs_spec), "len(chip)", len(chip))
+
     assert len(obs_spec) == len(chip), "len(obs_spec)={0}, len(chip)={1} should be equal".format(
         len(obs_spec), len(chip))
 
@@ -89,7 +91,7 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
 
     # Setup Fixed injection grid parameters
     params = Parameters()
-    params.add('teff_1', value=teff_1, min=5000, max=6000, vary=False, brute_step=100)
+    params.add('teff_1', value=teff_1, min=4500, max=7000, vary=False, brute_step=100)
     params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
     params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
@@ -115,8 +117,11 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
             upper_limit = 1401
         else:
             upper_limit = 601
+        upper_limit = 1001
+        lower_limit = 1000
         inject_params = copy.deepcopy(params)
-        inject_params.add('teff_2', value=teff_2, min=max([teff_2 - 600, 2300]), max=min([teff_2 + upper_limit, 7001]),
+        inject_params.add('teff_2', value=teff_2, min=max([teff_2 - lower_limit, 2300]),
+                          max=min([teff_2 + upper_limit, 7001]),
                           vary=True,
                           brute_step=100)
         if plot:
@@ -125,7 +130,7 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
 
         # Load in the models
         injected_spec = []
-        print("Injected Teff value", teff_2)
+        print("Injected Teff = ", teff_2)
 
         for ii, c in enumerate(chip):
             if plot:
@@ -141,7 +146,8 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
 
             # Doppler shift companion
             injection = mod2_spec.copy()
-            injection.doppler_shift(inject_params["rv_2"].value + inject_params["rv_1"].value)
+            rv_2_shift = inject_params["rv_2"].value + inject_params["rv_1"].value
+            injection.doppler_shift(rv_2_shift)
 
             # Normalize by synthetic continuum
             injection.spline_interpolate_to(continuum)
@@ -157,10 +163,12 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
 
             injected_spec.append(injected_chip2)
             if plot:
-                obs_spec[ii].plot(label="Observation")
+                plt.subplot(211)
                 injected_chip.plot(label="Un-normalized Injected_chip", lw=1, linestyle="--")
+                plt.subplot(212)
+                obs_spec[ii].plot(label="Observation")
+                shifted_injection.plot(label="injected part + 1.01", lw=1, linestyle="-.")
                 injected_chip2.plot(label="Injected_chip", lw=1, linestyle="--")
-                shifted_injection.plot(label="injected part + 1.01", lw=1)
                 plt.legend()
                 from bin.radius_ratio import flux_ratio
                 f_ratio = flux_ratio(params["teff_1"].value, inject_params["logg_1"].value,
@@ -182,54 +190,60 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
 @timeit
 def main(star, obsnum, **kwargs):
     """Main function."""
-
-    loop_injection_temp = []
-    loop_recovered_temp = []
-    loop_recovered_rv1 = []
-    loop_recovered_rv2 = []
-    print("before injector")
+    print(f"Injector {star}, {obsnum}, \n{kwargs}")
     strict_mask = kwargs.get("strict_mask", False)
     norm = kwargs.get("dont_norm", True)
     chip = kwargs.get("chip", [1, 2, 3])
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
     preloaded = kwargs.get("preloaded", False)
+    suffix = kwargs.get("suffix", "")
+    loop_injection_temp = []
+    loop_recovered_temp = []
+    loop_recovered_rv1 = []
+    loop_recovered_rv2 = []
+    print("before injector")
 
     # FIT BEST HOST MODEL TO OBSERVATIONS
     from simulators.minimize_bhm import main as minimize_bhm
-    result = minimize_bhm(star, obsnum, 1)
+    result = minimize_bhm(star, obsnum, 1, strict_mask=True)
     result.params.pretty_print()
+    report_fit(result)
     print("Teff_1 =", result.params["teff_1"].value)
     print("rv_1 =", result.params["rv_1"].value)
 
+    # raise UserWarning()
     # Adding teff_1 and rv_1 to fix those parameters.
     injector, initial_params = injector_wrapper(star, obsnum, chip,
-                                               strict_mask=strict_mask,
-                                               comp_logg=comp_logg, plot=plot,
-                                               teff_1=result.params["teff_1"].value,
-                                               rv_1=result.params["rv_1"].value)
+                                                strict_mask=strict_mask,
+                                                comp_logg=comp_logg, plot=plot,
+                                                teff_1=result.params["teff_1"].value,
+                                                rv_1=result.params["rv_1"].value)
     print("inital injector params set:")
     initial_params.pretty_print()
 
-    injection_temps = np.arange(2300, 5001, 100)
-
-    filename = f"{star}_real_injector_results_logg={comp_logg}_obs{obsnum}.txt"
+    filename = f"{star}_real_injector_results_logg={comp_logg}_obs{obsnum}_rv2_{rv_2}{suffix}.txt"
     with open(filename, "w") as f:
         f.write("# Real Injection - recovery results\n")
+        f.write("# kwargs {0}".format(kwargs))
         f.write("# \n")
+        f.write("# Initial_vals:\n")
+        f.write("# teff_1={}, logg_2={}, rv_1={}, rv_2={}\n".format(
+            *(initial_params[key].value for key in ["teff_1", "logg_2", "rv_1", "rv_2"])))
         f.write("# teff_2 in\t teff_2 out\t rv1\t rv2\n")
 
         for teff2 in injection_temps[::-1]:
             injector_values = injector(teff2)
 
             injector_result = brute_solve_iam(*injector_values, Ns=20, preloaded=preloaded, norm=norm)
+            print("Recovered temp = {} K".format(injector_result.params["teff_2"].value))
             loop_injection_temp.append(teff2)
             loop_recovered_temp.append(injector_result.params["teff_2"].value)
             loop_recovered_rv1.append(injector_result.params["rv_1"].value)
             loop_recovered_rv2.append(injector_result.params["rv_2"].value)
             # first_injector_result = injector_result
 
-            f.write(f"{teff2}\t{loop_recovered_temp[-1]}\t{loop_recovered_rv1[-1]}\t{loop_recovered_rv2.append[-1]}\n")
+            f.write(f"{teff2}\t{loop_recovered_temp[-1]}\t{loop_recovered_rv1[-1]}\t{loop_recovered_rv2[-1]}\n")
 
     # filename = f"{star}_real_injector_results_logg={comp_logg}_obs{obsnum}.txt"
     # with open(filename, "w") as f:
