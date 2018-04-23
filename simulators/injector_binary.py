@@ -60,8 +60,8 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
         spec_list.append(obs_spec)
         error_list.append(errors * error_fudge)
     obs_spec, errors = spec_list, error_list
-    print("len(obs_spec)", len(obs_spec), "len(chip)", len(chip))
-    assert len(obs_spec) == len(chip)
+
+    assert len(obs_spec) == len(chip), "len(obs_spec)={0}, len(chip)={1} should be equal".format(len(obs_spec), len(chip))
 
     # Linearly normalize observation.
     obs_spec = [obs.normalize(method="linear") for obs in obs_spec]
@@ -327,8 +327,8 @@ def show_brute_solution(result, star, obsnum, chip, strict_mask=False, preloaded
         spec_list.append(obs_spec)
         error_list.append(errors * error_fudge)  # Errors larger
     obs_spec, errors = spec_list, error_list
-    print("len(obs_spec)", len(obs_spec), "len(chip)", len(chip))
-    assert len(obs_spec) == len(chip)
+
+    assert len(obs_spec) == len(chip), "len(obs_spec)={0}, len(chip)={1} should be equal".format(len(obs_spec), len(chip))
 
     # Linearlly normalize observation.
     obs_spec = [obs.normalize(method="linear") for obs in obs_spec]

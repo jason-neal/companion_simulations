@@ -7,9 +7,8 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
-from lmfit import Parameters, fit_report
-from spectrum_overload import Spectrum
-
+import simulators
+from lmfit import Parameters, report_fit
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.debug_utils import timeit
 from mingle.utilities.param_utils import closest_obs_params
@@ -18,6 +17,7 @@ from simulators.common_setup import load_observation_with_errors
 from simulators.iam_module import iam_magic_sauce
 from simulators.iam_module import observation_rv_limits
 from simulators.minimize_iam import brute_solve_iam
+from spectrum_overload import Spectrum
 
 error_fudge = 1
 binary_search = False
@@ -54,6 +54,7 @@ def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=Fal
         iter(chip)
     except:
         # Make iterable
+        assert chip < 4, "Only chips 1 2 and 3"
         chip = [chip]
 
     spec_list, error_list = [], []

@@ -84,11 +84,11 @@ def obs_name_template() -> str:
 
 
 @memory.cache
-def load_observation_with_errors(star, obsnum, chip, mode="iam", strict_mask=False, verbose=False):
+def load_observation_with_errors(star, obsnum, chip, mode="iam", strict_mask=False, verbose=False, **kwargs):
     obs_name, params, output_prefix = sim_helper_function(star, obsnum, chip, skip_params=False, mode=mode)
     if verbose:
         print("The observation used is ", obs_name, "\n")
-
+    assert not isinstance(chip, list)
     # Load observation
     obs_spec = load_spectrum(obs_name)
     # Mask out bad portion of observed spectra

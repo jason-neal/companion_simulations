@@ -395,8 +395,8 @@ def show_synth_brute_solution(result, star, obsnum, chip, strict_mask=False, pre
         spec_list.append(obs_spec)
         error_list.append(errors * error_fudge)  # Errors larger
     obs_spec, errors = spec_list, error_list
-    print("len(obs_spec)", len(obs_spec), "len(chip)", len(chip))
-    assert len(obs_spec) == len(chip)
+
+    assert len(obs_spec) == len(chip), "len(obs_spec)={0}, len(chip)={1} should be equal".format(len(obs_spec), len(chip))
 
     # Linearlly normalize observation.
     obs_spec = [obs.normalize(method="linear") for obs in obs_spec]

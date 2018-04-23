@@ -7,19 +7,18 @@ from typing import Dict, List, Optional, Tuple, Union
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import simulators
 from joblib import Memory
 from logutils import BraceMessage as __
-from numpy import float64, ndarray
-from spectrum_overload.spectrum import Spectrum
-from tqdm import tqdm
-
-import simulators
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.norm import chi2_model_norms, continuum, arbitrary_rescale, arbitrary_minimums
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
+from numpy import float64, ndarray
 from simulators.common_setup import setup_dirs, sim_helper_function
+from spectrum_overload.spectrum import Spectrum
+from tqdm import tqdm
 
 joblib_dir = os.path.join(os.path.expanduser("~"), ".tmp", "joblib")
 
@@ -149,9 +148,9 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             inherent_alpha = continuum_alpha(mod1_spec, mod2_spec, chip)
 
             # Combine model spectra with iam model
-            mod1_spec.plot(label=params1)
-            mod2_spec.plot(label=params2)
-            plt.close()
+            # mod1_spec.plot(label=params1)
+            # mod2_spec.plot(label=params2)
+            # plt.close()
 
             if fudge or (fudge is not None):
                 fudge_factor = float(fudge)
@@ -302,6 +301,7 @@ def iam_magic_sauce(obs_spec, params1, params2, rv1, rv2, chip=None,
     # Continuum normalize all iam_grid_models
     splits = kwargs.get("splits", 20)
     top = kwargs.get("top", 10)
+
     def axis_continuum(flux):
         """Continuum to apply along axis with predefined variables parameters."""
         return continuum(obs_spec.xaxis, flux, splits=splits, method="exponential", top=top)
@@ -384,9 +384,9 @@ def prepare_iam_model_spectra(params1: Union[List[float], List[Union[int, float]
     # Check correct models are loaded
     assert mod1_spec.header["PHXTEFF"] == params1[0]
     assert mod1_spec.header["PHXLOGG"] == params1[1]
-    assert mod1_spec.header["PHXM_H"] == params1[2]
     assert mod2_spec.header["PHXTEFF"] == params2[0]
     assert mod2_spec.header["PHXLOGG"] == params2[1]
+    assert mod1_spec.header["PHXM_H"] == params1[2]
     assert mod2_spec.header["PHXM_H"] == params2[2]
     return mod1_spec, mod2_spec
 

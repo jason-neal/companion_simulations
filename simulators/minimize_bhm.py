@@ -2,24 +2,14 @@
 import logging
 
 # Minimize function
-import lmfit
-import matplotlib.pyplot as plt
 import numpy as np
 from lmfit import Parameters, fit_report, Minimizer
-from logutils import BraceMessage as __
-from spectrum_overload import Spectrum
-
-import simulators
-from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.debug_utils import timeit2
-from mingle.utilities.errors import betasigma_error
-from mingle.utilities.masking import spectrum_masking
-from mingle.utilities.spectrum_utils import load_spectrum
-from simulators.iam_module import iam_magic_sauce
+from mingle.utilities.param_utils import closest_obs_params
 from simulators.bhm_module import bhm_magic_sauce
-from simulators.bhm_module import (bhm_helper_function, setup_bhm_dirs)
-
-from mingle.utilities.param_utils import closest_obs_params, closest_model_params
+from simulators.bhm_module import (setup_bhm_dirs)
+from simulators.iam_module import iam_magic_sauce
+from spectrum_overload import Spectrum
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -27,12 +17,12 @@ from simulators.common_setup import load_observation_with_errors
 
 
 @timeit2
-def main(star, obsnum, chip):
+def main(star, obsnum, chip, params=None, **kwargs):
     star = star.upper()
     setup_bhm_dirs(star)
 
     # Setup comparision spectra
-    obs_spec, errors, obs_params = load_observation_with_errors(star, obsnum, chip, mode="bhm")
+    obs_spec, errors, obs_params = load_observation_with_errors(star, obsnum, chip, mode="bhm", **kwargs)
 
     closest_host_model = closest_obs_params(obs_params, mode="bhm")
 
@@ -84,7 +74,7 @@ def bhm_func_array(pars, obs_wav, obs_flux, errors, chip=None, norm=True, norm_m
     feh_1 = round(parvals['feh_1'] * 2) / 2
     # feh_2 = round(parvals['feh_2'] * 2) / 2
     rv_1 = np.asarray([parvals['rv_1']])
-#    rv_2 = np.asarray([parvals['rv_2']])
+    #    rv_2 = np.asarray([parvals['rv_2']])
     arb_norm = parvals.get("arb_norm", 1)  # 1 if not provided
 
     obs_flux2, bhm_flux = bhm_magic_sauce(Spectrum(xaxis=obs_wav, flux=obs_flux),

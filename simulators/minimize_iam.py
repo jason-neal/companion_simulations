@@ -8,14 +8,13 @@ from typing import List
 # Minimize function
 import numpy as np
 from lmfit import Parameters, fit_report, Minimizer
-from spectrum_overload import Spectrum
-
 from mingle.utilities.debug_utils import timeit2
 from mingle.utilities.param_utils import closest_obs_params
 from simulators.common_setup import load_observation_with_errors
 from simulators.iam_module import iam_magic_sauce
 from simulators.iam_module import (setup_iam_dirs)
 from simulators.minimize_bhm import brute_solve_bhm
+from spectrum_overload import Spectrum
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
