@@ -24,6 +24,11 @@ binary_search = False
 
 rv_2, deltarv_2, rv2_step = 45, 8, 2
 deltarv_1, rv1_step = 2, 1
+if "CIFIST" in simulators.starfish_grid["hdf5_path"]:
+    injection_temps = np.arange(1300, 5001, 100)
+    print("Trying BTSETTL")
+else:
+    injection_temps = np.arange(2300, 5001, 100)
 
 
 def parse_args(args: List[str]) -> Namespace:
