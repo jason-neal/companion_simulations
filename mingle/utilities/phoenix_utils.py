@@ -68,7 +68,7 @@ def load_phoenix_spectrum(phoenix_name, limits=None, normalize=False):
     return spec
 
 
-@memory.cache
+#@memory.cache
 def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
                            area_scale=False, flux_rescale=False, wav_scale=True):
     """Load spectrum from hdf5 grid file.
@@ -134,7 +134,7 @@ def load_starfish_spectrum(params, limits=None, hdr=False, normalize=False,
     return spec
 
 
-@memory.cache
+#@memory.cache
 def load_btsettl_spectrum(params, limits=None, hdr=False, normalize=False, area_scale=False, flux_rescale=False):
     """Load spectrum from hdf5 grid file.
 

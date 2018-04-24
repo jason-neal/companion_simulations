@@ -185,7 +185,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             # RE-NORMALIZATION
             if chip == 4:
                 # Quadratically re-normalize anyway
-                obs_spec = renormalization(obs_spec, iam_grid_models, normalize=True, method="quadratic")
+                obs_spec = renormalization(obs_spec, iam_grid_models, normalize=norm, method="quadratic")
             obs_flux = renormalization(obs_spec, iam_grid_models, normalize=norm, method=norm_method)
 
             if grid_slices:
@@ -363,7 +363,7 @@ def observation_rv_limits(obs_spec: Spectrum, rvs: Union[int, List[int]], gammas
     return [obs_min - 1.1 * delta, obs_max + 1.1 * delta]
 
 
-@memory.cache
+#@memory.cache
 def prepare_iam_model_spectra(params1: Union[List[float], List[Union[int, float]]],
                               params2: Union[List[float], List[Union[int, float]], Tuple[int, float, float]],
                               limits: Union[List[float64], Tuple[int, int], List[int]], area_scale: bool = True,
