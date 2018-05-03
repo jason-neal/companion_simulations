@@ -21,8 +21,8 @@ error_fudge = 1
 binary_search = False
 
 # RV Grid parameters
-rv_1, deltarv_1, rv1_step = 0, 2, 0.25
-rv_2, deltarv_2, rv2_step = 100, 15, 1
+rv_1, deltarv_1, rv1_step = 0, 5, 0.25
+preset_rv_2, preset_deltarv_2, preset_rv2_step = 100, 15, 1
 
 if "CIFIST" in simulators.starfish_grid["hdf5_path"]:
     injection_temps = np.arange(1300, 5001, 100)
@@ -56,6 +56,9 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Chips 2 use e.g. "1, 2, 3"')
     parser.add_argument("--suffix", default="", type=str,
                         help='Add a suffix to file')
+    parser.add_argument("--rv_2", default=preset_rv_2, type=float)
+    parser.add_argument("--deltarv_2", default=preset_deltarv_2, type=float)
+    parser.add_argument("--rv_2_step", default=preset_rv2_step, type=float)
     return parser.parse_args(args)
 
 
@@ -67,6 +70,13 @@ def synthetic_injector_wrapper(star, obsnum, chip, **kwargs):
     strict_mask = kwargs.get("strict_mask", False)
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
+
+    # Companion params
+    rv_2 = kwargs.get("rv_2", preset_rv_2)
+    deltarv_2, = kwargs.get("deltarv_2", preset_deltarv_2)
+    rv2_step = kwargs.get("rv2_step", preset_rv2_step)
+    deltateff_2 = kwargs.get("deltateff_2", 1000)
+
     try:
         iter(chip)
     except:
@@ -138,12 +148,8 @@ def synthetic_injector_wrapper(star, obsnum, chip, **kwargs):
     # Currying a function two only take 1 parameter.
     def inject(teff_2):
         """Injector function that just takes a temperature."""
-        if teff_2 < 3500:
-            upper_limit = 1401
-        else:
-            upper_limit = 601
-        upper_limit = 1001
-        lower_limit = 1000
+        upper_limit = deltateff_2 + 1
+        lower_limit = deltateff_2
         inject_params = copy.deepcopy(params)
         inject_params.add('teff_2', value=teff_2, min=max([teff_2 - lower_limit, 2300]),
                           max=min([teff_2 + upper_limit, 7001]), vary=True, brute_step=100)
@@ -169,7 +175,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, **kwargs):
                 print("mod1_limts = [{},{}]".format(mod1_spec.xaxis[0], mod1_spec.xaxis[-1]))
                 print("mod2_limts = [{},{}]".format(mod2_spec.xaxis[0], mod2_spec.xaxis[-1]))
                 print("rv_limits[ii] = ".format(rv_limits[ii]))
-                print("chip_waves[ii] limits = ".format(chip_waves[ii][0],chip_waves[ii][-1]))
+                print("chip_waves[ii] limits = ".format(chip_waves[ii][0], chip_waves[ii][-1]))
             assert count_nan == 0.0, f"There are {count_nan} nans in synthetic model flux. Check wavelengths for interpolation"
 
             synthetic_model = Spectrum(xaxis=chip_waves[ii], flux=synthetic_model_flux)
@@ -216,17 +222,21 @@ def main(star, obsnum, **kwargs):
     strict_mask = kwargs.get("strict_mask", False)
     norm = kwargs.get("dont_norm", True)
 
+    # Companion params
+    rv_2 = kwargs.get("rv_2", preset_rv_2)
+    deltarv_2, = kwargs.get("deltarv_2", preset_deltarv_2)
+    rv2_step = kwargs.get("rv2_step", preset_rv2_step)
+
     loop_injection_temp = []
     loop_recovered_temp2 = []
     loop_recovered_rv1 = []
     loop_recovered_rv2 = []
 
     print("Before injector")
+    wrapper_kwargs = {"strict_mask": strict_mask, "comp_logg": comp_logg, plot: plot,
+                      "rv_2": rv_2, "deltarv_2": deltarv_2, "rv2_step": rv2_step}
+    injector, initial_params = synthetic_injector_wrapper(star, obsnum, chip, **wrapper_kwargs)
 
-    # injector = injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=strict_mask, comp_logg=comp_logg, plot=plot)
-    injector, initial_params = synthetic_injector_wrapper(star, obsnum, chip, strict_mask=strict_mask,
-                                                          comp_logg=comp_logg,
-                                                          plot=plot, error=error)
     print("inital params set:")
     initial_params.pretty_print()
 

@@ -22,8 +22,8 @@ from spectrum_overload import Spectrum
 error_fudge = 1
 binary_search = False
 
-rv_2, deltarv_2, rv2_step = 100, 20, 1
-deltarv_1, rv1_step = 2, 1
+preset_rv_2, preset_deltarv_2, preset_rv2_step = 100, 20, 1
+deltarv_1, rv1_step = 5, .5
 if "CIFIST" in simulators.starfish_grid["hdf5_path"]:
     injection_temps = np.arange(1300, 5001, 100)
     print("Trying BTSETTL")
@@ -54,6 +54,9 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Chips 2 use e.g. "1, 2, 3"')
     parser.add_argument("--suffix", default="", type=str,
                         help='Add a suffix to file')
+    parser.add_argument("--rv_2", default=preset_rv_2, type=float)
+    parser.add_argument("--deltarv_2", default=preset_deltarv_2, type=float)
+    parser.add_argument("--rv_2_step", default=preset_rv2_step, type=float)
     return parser.parse_args(args)
 
 
@@ -65,6 +68,13 @@ def injector_wrapper(star, obsnum, chip, **kwargs):
     strict_mask = kwargs.get("strict_mask", False)
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
+
+    # Companion params
+    rv_2 = kwargs.get("rv_2", preset_rv_2)
+    deltarv_2, = kwargs.get("deltarv_2", preset_deltarv_2)
+    rv2_step = kwargs.get("rv2_step", preset_rv2_step)
+    deltateff_2 = kwargs.get("deltateff_2", 1000)
+
     try:
         iter(chip)
     except:
@@ -119,12 +129,8 @@ def injector_wrapper(star, obsnum, chip, **kwargs):
     def inject(teff_2):
         """Injector function that just takes a temperature."""
 
-        if teff_2 < 3500:
-            upper_limit = 1401
-        else:
-            upper_limit = 601
-        upper_limit = 1001
-        lower_limit = 1000
+        upper_limit = deltateff_2 + 1
+        lower_limit = deltateff_2
         inject_params = copy.deepcopy(params)
         inject_params.add('teff_2', value=teff_2, min=max([teff_2 - lower_limit, 2300]),
                           max=min([teff_2 + upper_limit, 7001]),
@@ -204,6 +210,11 @@ def main(star, obsnum, **kwargs):
     plot = kwargs.get("plot", False)
     preloaded = kwargs.get("preloaded", False)
     suffix = kwargs.get("suffix", "")
+    # Companion params
+    rv_2 = kwargs.get("rv_2", preset_rv_2)
+    deltarv_2, = kwargs.get("deltarv_2", preset_deltarv_2)
+    rv2_step = kwargs.get("rv2_step", preset_rv2_step)
+
     loop_injection_temp = []
     loop_recovered_temp = []
     loop_recovered_rv1 = []
@@ -220,11 +231,11 @@ def main(star, obsnum, **kwargs):
 
     # raise UserWarning()
     # Adding teff_1 and rv_1 to fix those parameters.
-    injector, initial_params = injector_wrapper(star, obsnum, chip,
-                                                strict_mask=strict_mask,
-                                                comp_logg=comp_logg, plot=plot,
-                                                teff_1=result.params["teff_1"].value,
-                                                rv_1=result.params["rv_1"].value)
+    wrapper_kwargs = {"strict_mask": strict_mask, "comp_logg": comp_logg, plot: plot,
+                      "teff_1": result.params["teff_1"].value, "rv_1": result.params["rv_1"].value,
+                      "rv_2": rv_2, "deltarv_2": deltarv_2, "rv2_step": rv2_step}
+
+    injector, initial_params = injector_wrapper(star, obsnum, chip, **wrapper_kwargs)
     print("inital injector params set:")
     initial_params.pretty_print()
 
