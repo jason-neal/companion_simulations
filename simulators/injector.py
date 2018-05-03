@@ -208,7 +208,6 @@ def main(star, obsnum, **kwargs):
     chip = kwargs.get("chip", [1, 2, 3])
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
-    preloaded = kwargs.get("preloaded", False)
     suffix = kwargs.get("suffix", "")
     # Companion params
     rv_2 = kwargs.get("rv_2", preset_rv_2)
@@ -229,7 +228,6 @@ def main(star, obsnum, **kwargs):
     print("Teff_1 =", result.params["teff_1"].value)
     print("rv_1 =", result.params["rv_1"].value)
 
-    # raise UserWarning()
     # Adding teff_1 and rv_1 to fix those parameters.
     wrapper_kwargs = {"strict_mask": strict_mask, "comp_logg": comp_logg, plot: plot,
                       "teff_1": result.params["teff_1"].value, "rv_1": result.params["rv_1"].value,
@@ -362,8 +360,8 @@ if __name__ == "__main__":
         preload_spectra()
         print("Finished preloading")
 
-    opts.update(comp_logg=4.5)
-    answer4p5 = main(**opts)
+    # opts.update(comp_logg=4.5)
+    # answer4p5 = main(**opts)
 
     opts.update(comp_logg=5.0)
     answer5 = main(**opts)
