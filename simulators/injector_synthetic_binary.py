@@ -147,8 +147,14 @@ def synthetic_injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, com
                                                  rvs=params["rv_2"].value, gammas=params["rv_1"].value)
             synthetic_model_flux = iam_grid_func(chip_waves[ii]).squeeze()
 
-            assert not np.any(np.isnan(
-                synthetic_model_flux)), "There are nans in synthetic model flux. Check wavelengths for interpolation"
+            count_nan = np.sum(np.isnan(synthetic_model_flux))
+            if count_nan != 0.0:
+                print("mod1_limts = [{},{}]".format(mod1_spec.xaxis[0], mod1_spec.xaxis[-1]))
+                print("mod2_limts = [{},{}]".format(mod2_spec.xaxis[0], mod2_spec.xaxis[-1]))
+                print("rv_limits[ii] = ".format(rv_limits[ii]))
+                print("chip_waves[ii] limits = ".format(chip_waves[ii][0], chip_waves[ii][-1]))
+            assert count_nan == 0.0, f"There are {count_nan} nans in synthetic model flux. Check wavelengths for interpolation"
+
             synthetic_model = Spectrum(xaxis=chip_waves[ii], flux=synthetic_model_flux)
 
             continuum = synthetic_model.continuum(method="exponential")
