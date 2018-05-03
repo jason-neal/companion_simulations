@@ -97,8 +97,7 @@ def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=
 
     # Setup Fixed injection grid parameters
     params = Parameters()
-    params.add('teff_1', value=closest_host_model[0], min=4800, max=6600, vary=False, brute_step=100)
-    # asserts for now
+    params.add('teff_1', value=closest_host_model[0], min=4500, max=7000, vary=False, brute_step=100)
 
     if closest_host_model[2] != 0.0:
         import warnings

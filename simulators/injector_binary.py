@@ -76,7 +76,7 @@ def injector_wrapper(star, obsnum, chip, Ns=20, strict_mask=False, comp_logg=Non
 
     # Setup Fixed injection grid parameters
     params = Parameters()
-    params.add('teff_1', value=closest_host_model[0], min=5000, max=6000, vary=False, brute_step=100)
+    params.add('teff_1', value=closest_host_model[0], min=4500, max=7000, vary=False, brute_step=100)
     params.add('logg_1', value=closest_host_model[1], min=0, max=6, vary=False, brute_step=0.5)
     params.add('feh_1', value=closest_host_model[2], min=-2, max=1, vary=False, brute_step=0.5)
     params.add('feh_2', value=closest_comp_model[2], min=-2, max=1, vary=False, brute_step=0.5)
