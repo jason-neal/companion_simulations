@@ -56,7 +56,7 @@ def parse_args(args: List[str]) -> Namespace:
                         help='Add a suffix to file')
     parser.add_argument("--rv_2", default=preset_rv_2, type=float)
     parser.add_argument("--deltarv_2", default=preset_deltarv_2, type=float)
-    parser.add_argument("--rv_2_step", default=preset_rv2_step, type=float)
+    parser.add_argument("--rv2_step", default=preset_rv2_step, type=float)
     return parser.parse_args(args)
 
 
@@ -211,7 +211,7 @@ def main(star, obsnum, **kwargs):
     suffix = kwargs.get("suffix", "")
     # Companion params
     rv_2 = kwargs.get("rv_2", preset_rv_2)
-    deltarv_2, = kwargs.get("deltarv_2", preset_deltarv_2)
+    deltarv_2 = kwargs.get("deltarv_2", preset_deltarv_2)
     rv2_step = kwargs.get("rv2_step", preset_rv2_step)
 
     loop_injection_temp = []
