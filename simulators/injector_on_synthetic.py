@@ -59,10 +59,14 @@ def parse_args(args: List[str]) -> Namespace:
     return parser.parse_args(args)
 
 
-def synthetic_injector_wrapper(star, obsnum, chip, strict_mask=False, comp_logg=None, plot=False, error=None):
+def synthetic_injector_wrapper(star, obsnum, chip, **kwargs):
     """Inject onto a synthetic host spectra. Add noise level of star though.
 
     if error is not None it is the SNR level to experiment with"""
+    error = kwargs.get("error", None)
+    strict_mask = kwargs.get("strict_mask", False)
+    comp_logg = kwargs.get("comp_logg", None)
+    plot = kwargs.get("plot", False)
     try:
         iter(chip)
     except:

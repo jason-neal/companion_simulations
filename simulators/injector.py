@@ -57,8 +57,14 @@ def parse_args(args: List[str]) -> Namespace:
     return parser.parse_args(args)
 
 
-def injector_wrapper(star, obsnum, chip, teff_1=None, rv_1=None, strict_mask=False, comp_logg=None, plot=False):
+def injector_wrapper(star, obsnum, chip, **kwargs):
     """Take the Observation and prepare to inject different temperature companions."""
+
+    teff_1 = kwargs.get("teff_1", None)
+    rv_1 = kwargs.get("rv_1", None)
+    strict_mask = kwargs.get("strict_mask", False)
+    comp_logg = kwargs.get("comp_logg", None)
+    plot = kwargs.get("plot", False)
     try:
         iter(chip)
     except:
