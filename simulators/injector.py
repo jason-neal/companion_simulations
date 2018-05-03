@@ -71,7 +71,7 @@ def injector_wrapper(star, obsnum, chip, **kwargs):
 
     # Companion params
     rv_2 = kwargs.get("rv_2", preset_rv_2)
-    deltarv_2, = kwargs.get("deltarv_2", preset_deltarv_2)
+    deltarv_2 = kwargs.get("deltarv_2", preset_deltarv_2)
     rv2_step = kwargs.get("rv2_step", preset_rv2_step)
     deltateff_2 = kwargs.get("deltateff_2", 1000)
 
