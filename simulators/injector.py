@@ -206,6 +206,7 @@ def main(star, obsnum, **kwargs):
     strict_mask = kwargs.get("strict_mask", False)
     norm = kwargs.get("dont_norm", True)
     chip = kwargs.get("chip", [1, 2, 3])
+    preloaded = kwargs.get("preloaded", False)
     comp_logg = kwargs.get("comp_logg", None)
     plot = kwargs.get("plot", False)
     suffix = kwargs.get("suffix", "")
