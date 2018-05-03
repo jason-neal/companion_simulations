@@ -7,17 +7,16 @@ from typing import Tuple, Union, Dict, List, Optional
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import simulators
 import sqlalchemy as sa
 from matplotlib import ticker, cm
+from mingle.utilities import chi2_at_sigma
+from mingle.utilities.param_file import parse_paramfile
+from mingle.utilities.param_utils import target_params, closest_model_params
 from pandas.core.frame import DataFrame
 from py._path.local import LocalPath
 from sqlalchemy import and_, asc
 from sqlalchemy.sql.schema import Table
-
-import simulators
-from mingle.utilities import chi2_at_sigma
-from mingle.utilities.param_file import parse_paramfile
-from mingle.utilities.param_utils import target_params, closest_model_params
 
 odd_chi2s = ["chi2_123"]
 
@@ -116,7 +115,11 @@ class DBExtractor(object):
             df = pd.read_sql(
                 sa.select(table_columns).order_by(
                     self.cols[order_by].desc()).limit(limit), self.bind)
-        return self.combine_chi2(df, columns)
+
+        if "chi2_123" in columns:
+            return self.combine_chi2(df, columns)
+        else:
+            return df
 
     def fixed_ordered_extraction(self, columns: List[str], fixed: Dict[str, Union[int, float]], order_by: str,
                                  limit: int = -1,
@@ -175,12 +178,13 @@ class DBExtractor(object):
 class SingleSimReader(object):
     def __init__(self, base=".",
                  name="BSBHMNOISE",
-                 prefix="", mode="bhm", chi2_val="coadd_chi2", suffix="", obsnum="") -> None:
+                 prefix="", mode="bhm", chi2_val="coadd_chi2", suffix="", obsnum="", verbose=False) -> None:
         self.base = base
         self.name = name.upper()
         self.suffix = suffix
         self.prefix = prefix.upper()
         self.obsnum = obsnum
+        self.verbose = verbose
 
         if mode in ["iam", "tcm", "bhm"]:
             self.mode = mode
@@ -209,14 +213,15 @@ class SingleSimReader(object):
     def get_table(self) -> Table:
         directory = os.path.join(self.base, self.name, self.mode)
         looking_for = "{0}*{1}*_coadd_{2}_chisqr_results{3}.db".format(self.name, self.obsnum, self.mode, self.suffix)
-        print("looking in ", directory, "for\n", looking_for)
+        if self.verbose:
+            print("looking in ", directory, "for\n", looking_for)
         dbs = glob.glob(os.path.join(
             directory, looking_for))
         try:
             assert len(dbs) == 1, "len(dbs)={} not 1".format(len(dbs))
         except AssertionError as e:
-            print("check number of databases found (should be 1)")
-            print(dbs, len(dbs))
+            print("Check number of databases found (should be 1)")
+            print(dbs, "len(dbs)=", len(dbs))
             raise e
 
         dbname = dbs[0]
@@ -282,7 +287,7 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
     try:
         if grid:
             if logscale:
-                c = ax.pcolormeshf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis, linewidth=0,rasterized=True)
+                c = ax.pcolormeshf(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis, linewidth=0, rasterized=True)
             #  c = ax.contour(x, y, Z, locator=ticker.LogLocator(), cmap=cm.viridis)
             else:
                 half_step_x = np.unique(np.diff(x, axis=0).ravel())[0] / 2
@@ -301,8 +306,8 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
                 assert y2.shape == newy
                 assert y2.shape == Z2.shape
                 # c = ax.pcolormesh(x - half_step_x, y - half_step_y, Z, cmap=cm.viridis)
-                c = ax.pcolormesh(x2 - half_step_x, y2 - half_step_y, Z2, cmap=cm.viridis, linewidth=0,rasterized=True)
-                #c = ax.imshow(x2 - half_step_x, y2 - half_step_y, Z2, cmap=cm.viridis, linewidth=0)
+                c = ax.pcolormesh(x2 - half_step_x, y2 - half_step_y, Z2, cmap=cm.viridis, linewidth=0, rasterized=True)
+                # c = ax.imshow(x2 - half_step_x, y2 - half_step_y, Z2, cmap=cm.viridis, linewidth=0)
             #  c = ax.contour(x, y, Z, cmap=cm.viridis)
             c.set_edgecolor('face')
             c2 = plt.contour(x, y, Z, levels=sigmas, colors="w", linewidths=1)
@@ -342,11 +347,11 @@ def df_contour(df: DataFrame, xcol: str, ycol: str, zcol: str, df_min: DataFrame
     if correct:
         # Mark the "correct" location for the minimum chi squared
         errorbars = kwargs.get("errorbars", None)
-        red_alpha=1
+        red_alpha = 1
         try:
             if errorbars is not None:
-                plt.errorbar(correct[xcol], correct[ycol],
-                             xerr=errorbars[xcol], yerr=errorbars[ycol], ecolor="r", fmt="ro", markersize=ms, alpha=red_alpha)
+                plt.errorbar(correct[xcol], correct[ycol], xerr=errorbars[xcol], yerr=errorbars[ycol],
+                             ecolor="r", fmt="ro", markersize=ms, alpha=red_alpha)
             else:
                 plt.plot(correct[xcol], correct[ycol], "ro", markersize=ms, alpha=red_alpha)
         except:
