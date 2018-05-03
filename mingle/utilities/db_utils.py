@@ -104,6 +104,12 @@ class DBExtractor(object):
         if columns is not None:
             new_columns = self.chi2_columns(columns)
             table_columns = [self.cols[c] for c in new_columns]
+            if order_by in odd_chi2s:
+                if order_by == "chi2_123":
+                    selection = sa.sql.expression.label(order_by, self.cols["coadd_chi2"] - self.cols["chi2_4"])
+                else:
+                    raise NotImplementedError("order_by column {} is not catered for".format(order_by))
+                table_columns = self.cols + [selection]
         else:
             table_columns = self.cols
 
