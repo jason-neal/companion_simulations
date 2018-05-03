@@ -229,7 +229,7 @@ def main(star, obsnum, **kwargs):
     print("rv_1 =", result.params["rv_1"].value)
 
     # Adding teff_1 and rv_1 to fix those parameters.
-    wrapper_kwargs = {"strict_mask": strict_mask, "comp_logg": comp_logg, plot: plot,
+    wrapper_kwargs = {"strict_mask": strict_mask, "comp_logg": comp_logg, "plot": plot,
                       "teff_1": result.params["teff_1"].value, "rv_1": result.params["rv_1"].value,
                       "rv_2": rv_2, "deltarv_2": deltarv_2, "rv2_step": rv2_step}
 

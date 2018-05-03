@@ -233,7 +233,7 @@ def main(star, obsnum, **kwargs):
     loop_recovered_rv2 = []
 
     print("Before injector")
-    wrapper_kwargs = {"strict_mask": strict_mask, "comp_logg": comp_logg, plot: plot,
+    wrapper_kwargs = {"strict_mask": strict_mask, "comp_logg": comp_logg, "plot": plot,
                       "rv_2": rv_2, "deltarv_2": deltarv_2, "rv2_step": rv2_step}
     injector, initial_params = synthetic_injector_wrapper(star, obsnum, chip, **wrapper_kwargs)
 
