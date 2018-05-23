@@ -123,8 +123,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
 
                 broadcast_chisqr_vals[jj] = broadcast_chisquare.ravel()[np.argmin(broadcast_chisquare)]
             npix = obs_flux.shape[0]
-            save_full_tcm_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix,
-                                 verbose=verbose)
+            save_full_tcm_chisqr(save_filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix)
 
         if save_only:
             return None
@@ -134,7 +133,7 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
 
 def save_full_tcm_chisqr(filename: str, params1: List[Union[int, float]], params2: List[Union[int, float]],
                          alphas: ndarray, rvs: ndarray, gammas: ndarray, broadcast_chisquare: ndarray, npix: int,
-                         verbose: bool = False) -> None:
+                         ) -> None:
     """Save the iterations chisqr values to a cvs."""
     a_grid, r_grid, g_grid = np.meshgrid(alphas, rvs, gammas, indexing='ij')
     assert a_grid.shape == r_grid.shape
@@ -172,6 +171,4 @@ def save_full_tcm_chisqr(filename: str, params1: List[Union[int, float]], params
         # Add header at the top only
         df[columns].to_csv(filename, sep=',', mode="a", index=False, header=True)
 
-    if verbose:
-        print("Saved chi2 values to {}".format(filename))
     return None

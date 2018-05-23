@@ -28,15 +28,14 @@ import scipy.stats
 from joblib import Memory
 from tqdm import tqdm
 
-from obsolete.models.alpha_model import alpha_model
+from obsolete.models.alpha_model import alpha_model, combine_spectra
 from mingle.utilities.chisqr import chi_squared
 from obsolete.chisqr import parallel_chisqr
 from mingle.utilities.model_convolution import store_convolutions
 from obsolete.simulate_obs import \
     generate_observations2 as generate_observations
-from mingle.utilities.simulation_utilities import combine_spectra
 from mingle.utilities.spectrum_utils import spectrum_plotter
-from old_simulations.Planet_spectral_simulations import load_PHOENIX_hd211847
+from obsolete.simulations.Planet_spectral_simulations import load_PHOENIX_hd211847
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")

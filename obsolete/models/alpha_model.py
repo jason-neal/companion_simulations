@@ -3,8 +3,6 @@ import copy
 
 import numpy as np
 
-from mingle.utilities.simulation_utilities import combine_spectra
-
 
 def alpha_model(alpha, rv, host, companion, limits, new_x=None):
     """Entangled spectrum model.
@@ -110,3 +108,25 @@ def double_shifted_alpha_model(alpha, rv1, rv2, host, companion, limits, new_x=N
     # observation.wav_select(2100, 2200)
 
     return combined
+
+
+def combine_spectra(star, planet, alpha):
+    """Combine the Spectrum objects "star" and "planet" using direct ratio.
+
+    Strength ratio of alpha
+    spec = star + planet * alpha
+
+    """
+    star = copy.copy(star)
+    planet = copy.copy(planet)
+
+    if np.all(star.xaxis == planet.xaxis):  # make sure wavelengths even first
+        pass
+    else:
+        planet.interpolate1d_to(star)
+    # combined_spectrum = star + (planet*alpha)
+    # Combined spectra with proper normalization
+    norm_factor = 1 / (1 + alpha)
+    combined_spectrum = (star + (planet * alpha)) * norm_factor
+
+    return combined_spectrum

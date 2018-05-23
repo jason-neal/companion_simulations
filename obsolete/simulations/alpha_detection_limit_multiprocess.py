@@ -32,12 +32,11 @@ from tqdm import tqdm
 from mingle.utilities.chisqr import chi_squared
 from obsolete.chisqr import parallel_chisqr
 from mingle.utilities.model_convolution import store_convolutions
-from mingle.utilities.simulation_utilities import combine_spectra
 from mingle.utilities.spectrum_utils import spectrum_plotter
-from obsolete.models.alpha_model import alpha_model
+from obsolete.models.alpha_model import alpha_model, combine_spectra
 from obsolete.simulate_obs import \
     generate_observations2 as generate_observations
-from old_simulations.Planet_spectral_simulations import load_PHOENIX_hd30501
+from obsolete.simulations.Planet_spectral_simulations import load_PHOENIX_hd30501
 
 sys.path.append("/home/jneal/Phd/Codes/equanimous-octo-tribble/Convolution")
 sys.path.append("/home/jneal/Phd/Codes/UsefulModules/Convolution")

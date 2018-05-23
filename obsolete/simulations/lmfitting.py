@@ -11,7 +11,7 @@ from spectrum_overload import Spectrum
 import simulators
 from obsolete.models.alpha_model import double_shifted_alpha_model
 from mingle.utilities.phoenix_utils import local_normalization, spec_local_norm
-from old_simulations.Planet_spectral_simulations import simple_normalization
+from obsolete.simulations.Planet_spectral_simulations import simple_normalization
 
 
 def alpha_model_residual(params, x, data, eps_data, host_models, companion_models):

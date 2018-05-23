@@ -18,10 +18,10 @@ import sys
 import numpy as np
 import scipy as sp
 from astropy.io import fits
+from logutils import BraceMessage as __
 from tqdm import tqdm
 
 import simulators
-from logutils import BraceMessage as __
 from mingle.models.broadcasted_models import two_comp_model
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
@@ -30,15 +30,14 @@ from mingle.utilities.norm import chi2_model_norms  # , renormalize_observation
 from mingle.utilities.phoenix_utils import (closest_model_params,
                                             generate_close_params,
                                             load_starfish_spectrum)
-from old_simulations.Chisqr_of_observation import load_spectrum  # , select_observation
-from simulators.tcm_module import save_full_chisqr, tcm_helper_function
+from obsolete.simulations.Chisqr_of_observation import load_spectrum  # , select_observation
+from obsolete.simulations.tcm_module import save_full_chisqr, tcm_helper_function
 
 # from spectrum_overload import Spectrum
 
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
-
 
 model_base_dir = (simulators["raw_path"])
 wav_dir = simulators["raw_path"]
@@ -109,7 +108,7 @@ def main():
     print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
 
     bcast_chisqr_vals = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True,
-                              chip=chip, prefix=output_prefix)
+                                     chip=chip, prefix=output_prefix)
 
     print("tcm broadcast_chisquare shape", bcast_chisqr_vals.shape)
     print("tcm broadcast_chisquare", bcast_chisqr_vals)

@@ -23,7 +23,7 @@ from mingle.utilities.crires_utilities import (barycorr_crires_spectrum,
                                                crires_resolution)
 from mingle.utilities.debug_utils import pv
 from mingle.utilities.spectrum_utils import select_observation
-from old_simulations.Planet_spectral_simulations import (load_starfish_hd211847)
+from obsolete.simulations.Planet_spectral_simulations import (load_starfish_hd211847)
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')

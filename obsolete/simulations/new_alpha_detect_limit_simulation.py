@@ -11,7 +11,7 @@ import numpy as np
 
 from obsolete.models.alpha_model import alpha_model
 from obsolete.chisqr import parallel_chisqr
-from old_simulations.Planet_spectral_simulations import load_PHOENIX_hd30501
+from obsolete.simulations.Planet_spectral_simulations import load_PHOENIX_hd30501
 
 # self written modules
 

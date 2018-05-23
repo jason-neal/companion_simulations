@@ -1,11 +1,9 @@
-import os
-
 import numpy as np
 import pandas as pd
 
+from obsolete.simulations.tcm_module import save_full_tcm_chisqr
 from simulators.bhm_module import save_full_bhm_chisqr
 from simulators.iam_module import save_full_iam_chisqr
-from simulators.tcm_module import save_full_tcm_chisqr
 
 
 def test_save_full_iam_chisqr(tmpdir):
