@@ -14,15 +14,14 @@ the same I would think unless the lines changed dramatically).
 
 import argparse
 import logging
-import os
 import sys
+from argparse import Namespace
+from typing import List
 
 import numpy as np
-from astropy.io import fits
+import simulators
 from joblib import Parallel, delayed
 from logutils import BraceMessage as __
-
-import simulators
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
@@ -30,16 +29,8 @@ from mingle.utilities.phoenix_utils import closest_model_params, generate_close_
 from mingle.utilities.spectrum_utils import load_spectrum  # , select_observation
 from simulators.tcm_module import (tcm_analysis, tcm_helper_function, setup_tcm_dirs)
 
-from argparse import Namespace
-from typing import List
-
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
-
-wav_dir = simulators.starfish_grid["raw_path"]
-
-wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
-wav_model /= 10  # turn into nm
 
 gammas = np.arange(*simulators.sim_grid["gammas"])
 rvs = np.arange(*simulators.sim_grid["rvs"])

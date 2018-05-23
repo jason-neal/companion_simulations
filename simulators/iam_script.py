@@ -10,14 +10,15 @@ Using the flux ratio of the spectra themselves.
 import argparse
 import logging
 import sys
+from argparse import Namespace
+from typing import List
 
 import numpy as np
-from joblib import Parallel, delayed
-from logutils import BraceMessage as __
-
 import simulators
 from bin.coadd_analysis_script import main as coadd_analysis
 from bin.coadd_chi2_db import main as coadd_db
+from joblib import Parallel, delayed
+from logutils import BraceMessage as __
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
@@ -28,15 +29,8 @@ from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    setup_iam_dirs, target_params)
 
-from argparse import Namespace
-from typing import List
-
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
-
-# wav_dir = simulators.starfish_grid["raw_path"]
-# wav_model = fits.getdata(os.path.join(wav_dir, "WAVE_PHOENIX-ACES-AGSS-COND-2011.fits"))
-# wav_model /= 10  # turn into nm
 
 gammas = np.arange(*simulators.sim_grid["gammas"])
 rvs = np.arange(*simulators.sim_grid["rvs"])
