@@ -144,7 +144,7 @@ def test_fake_iam_simulation_with_fudge(fudge):
     rv = 2
     gamma = -5
     limits = [2070, 2180]
-    with pytest.warns(UserWarning, match="Fudging fake companion by *{0}".format(fudge)):
+    with pytest.warns(UserWarning, match="Fudging fake companion"):
         fake_wav, fake_flux = fake_iam_simulation(wav, [5000, 4.5, 0.5], params2=params, gamma=gamma, rv=-rv,
                                                   limits=limits, fudge=fudge)
     assert np.all(fake_wav < limits[1]) and np.all(fake_wav > limits[0])
