@@ -60,7 +60,7 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180), n
 
     if fudge is not None:
         mod2_spec.flux = mod2_spec.flux * fudge
-        warnings.warn("Fudging fake companion by '*{0}'".format(fudge))
+        warnings.warn("Fudging fake companion by *{0}".format(fudge))
     # Combine model spectra with iam model
     iam_grid_func = inherent_alpha_model(mod1_spec.xaxis, mod1_spec.flux, mod2_spec.flux,
                                          rvs=rv, gammas=gamma)
