@@ -3,7 +3,7 @@ matplotlib==2.2.2
 ephem==3.7.6.0
 joblib==0.12.0
 jsmin==2.2.2
-numba==0.38.1
+numba==0.39.0
 numpy==1.14.5
 multiprocess==0.70.6
 pandas==0.23.1
