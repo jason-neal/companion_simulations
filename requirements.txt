@@ -1,5 +1,5 @@
 astropy==3.0.4
-matplotlib==2.2.2
+matplotlib==2.2.3
 ephem==3.7.6.0
 joblib==0.12.2
 jsmin==2.2.2
