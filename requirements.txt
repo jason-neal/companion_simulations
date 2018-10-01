@@ -1,7 +1,7 @@
 astropy==3.0.4
 matplotlib==3.0.0
 ephem==3.7.6.0
-joblib==0.12.3
+joblib==0.12.5
 jsmin==2.2.2
 numba==0.39.0
 numpy==1.15.1
