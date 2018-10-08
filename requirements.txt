@@ -1,13 +1,13 @@
-astropy==2.0.4
-matplotlib==2.1.2
+astropy==3.0.4
+matplotlib
 ephem==3.7.6.0
 joblib==0.11
 jsmin==2.2.2
 numba==0.36.2
-numpy==1.14.0
+numpy
 multiprocess==0.70.5
 pandas==0.22.0
-scipy==1.0.0
+scipy
 spectrum-overload==0.2.1
 # Starfish
 sqlalchemy==1.2.2
