@@ -4,6 +4,10 @@ language: python
 python:
     - "3.5"
     - "3.6"
+    - "3.7"
+
+matrix:
+  fast_finish: true
 
 before_install:
   # http://conda.pydata.org/docs/travis.html
