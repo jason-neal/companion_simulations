@@ -13,6 +13,8 @@ environment:
 install:
   # We need wheel installed to build wheels
   - "%PYTHON%\\python.exe -m pip install wheel"
+  - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
+  - "%PYTHON%\\python.exe -m pip install -r test_requirements.txt"
 
   # Installing Starfish
   - "cd c:\\projects"
@@ -22,11 +24,8 @@ install:
   - "git checkout windows"
   - "%PYTHON%\\python.exe setup.py develop"
 
-
-  # Installing companion sims now
-  - "cd c:\\projects\\companion-simulations"
-  - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
-  - "%PYTHON%\\python.exe -m pip install -r test_requirements.txt"
+  # Installing companion sims
+  - "cd %APPVEYOR_BUILD_FOLDER%"
   - "%PYTHON%\\python.exe setup.py install"
 
 build: off
