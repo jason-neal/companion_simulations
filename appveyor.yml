@@ -7,8 +7,6 @@ environment:
     - PYTHON: "C:\\Python36"
     - PYTHON: "C:\\Python37"
     - PYTHON: "C:\\Python36-x64"
-    - fast_finish: true
-
 
 install:
   # We need wheel installed to build wheels
@@ -29,7 +27,8 @@ install:
   - "cd %APPVEYOR_BUILD_FOLDER%"
   - "%PYTHON%\\python.exe setup.py install"
 
-  - "copy tests\\config.yaml ."
+  # Handle config for windows
+  - "move tests\\appveyor_config.yaml config.yaml"
 
 build: off
 
@@ -59,3 +58,5 @@ artifacts:
 #  See Appveyor's documentation for more details. Or you can simply
 #  access your wheels from the Appveyor "artifacts" tab for your build.
 
+matrix:
+   fast_finish: true
