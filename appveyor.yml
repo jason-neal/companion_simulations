@@ -23,9 +23,13 @@ install:
   - "git checkout windows"
   - "%PYTHON%\\python.exe setup.py develop"
 
+
   # Installing companion sims
   - "cd %APPVEYOR_BUILD_FOLDER%"
   - "%PYTHON%\\python.exe setup.py install"
+
+  # Handle config for windows
+  - "move tests\\appveyor_config.yaml config.yaml"
 
 build: off
 

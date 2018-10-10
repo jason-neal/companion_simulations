@@ -6,11 +6,7 @@ python:
 before_install:
   # http://conda.pydata.org/docs/travis.html
   - travis_retry sudo apt-get update
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-       travis_retry wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-       travis_retry wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - travis_retry wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
@@ -43,10 +39,13 @@ install:
   - python setup.py install
 
 build:
-  pre-ci:
-    - cp tests/config.yaml .
+  # pre-ci:
+  #   - cp tests/config.yaml .
 
   ci:
+    # Use test configuration
+    - cp tests/config.yaml .
+
     # Create folders for test and code coverage
     - mkdir -p shippable/testresults
     - mkdir -p shippable/codecoverage
