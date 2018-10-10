@@ -12,6 +12,8 @@ cache:
     - $HOME/.cache/pip
 
 install:
+  - apt-get install libfreetype6-dev
+  - apt-get install libpng12-dev
   - source activate test-environment
   - travis_retry pip install -r test_requirements.txt
   - travis_retry pip install -r requirements.txt
