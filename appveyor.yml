@@ -5,7 +5,7 @@ environment:
     # http://www.appveyor.com/docs/installed-software#python
     - PYTHON: "C:\\Python35"
     - PYTHON: "C:\\Python36"
-    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python37"
     - PYTHON: "C:\\Python36-x64"
 
 install:
@@ -58,3 +58,6 @@ artifacts:
 #  You can use this step to upload your artifacts to a public website.
 #  See Appveyor's documentation for more details. Or you can simply
 #  access your wheels from the Appveyor "artifacts" tab for your build.
+
+matrix:
+   fast_finish: true
