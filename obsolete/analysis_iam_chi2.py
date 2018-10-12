@@ -14,11 +14,11 @@ import sys
 
 import sqlalchemy as sa
 
-from bin.analysis_module import (alpha_rv_contour, alpha_rv_contour_old,
-                                 fix_host_parameters,
-                                 fix_host_parameters_reduced_gamma,
-                                 get_column_limits, parabola_plots,
-                                 smallest_chi2_values, test_figure)
+from obsolete.analysis_module import (alpha_rv_contour, alpha_rv_contour_old,
+                                      fix_host_parameters,
+                                      fix_host_parameters_reduced_gamma,
+                                      get_column_limits, parabola_plots,
+                                      smallest_chi2_values, test_figure)
 from mingle.utilities.phoenix_utils import closest_model_params
 from mingle.utilities.param_file import get_host_params
 
@@ -38,7 +38,9 @@ def parse_args(args):
                                  "contour_old"])
     return parser.parse_args(args)
 
-from bin.coadd_analysis_script import decompose_database_name, load_sql_table
+
+from mingle.utilities.db_utils import decompose_database_name, load_sql_table
+
 
 def main(database, echo=False, mode="parabola"):
     path, star, obsnum, chip = decompose_database_name(database)

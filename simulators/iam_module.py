@@ -6,6 +6,7 @@ import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from logutils import BraceMessage as __
 from tqdm import tqdm
 
 import simulators
@@ -16,13 +17,18 @@ from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs, spec_max_delta
 from simulators.common_setup import setup_dirs, sim_helper_function
 
+from numpy import float64, ndarray
+from spectrum_overload.spectrum import Spectrum
+from typing import Dict, List, Optional, Tuple, Union
 
-def iam_helper_function(star, obsnum, chip, skip_params=False):
+
+def iam_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool = False) -> Tuple[
+    str,  Dict[str, Union[str, float, List[Union[str, float]]]], str]:
     """Specifies parameter files and output directories given observation parameters."""
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="iam")
 
 
-def setup_iam_dirs(star):
+def setup_iam_dirs(star: str) -> None:
     basedir = setup_dirs(star, mode="iam")
     os.makedirs(os.path.join(basedir, "grid_plots"), exist_ok=True)
     os.makedirs(os.path.join(basedir, "fudgeplots"), exist_ok=True)
@@ -37,9 +43,9 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
     gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
-        logging.debug("Number of close model_pars returned {0}".format(len(model1_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model1_pars)))
     if isinstance(model2_pars, list):
-        logging.debug("Number of close model_pars returned {0}".format(len(model2_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model2_pars)))
 
     # Solution Grids to return
     iam_grid_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
@@ -60,7 +66,7 @@ def iam_analysis(obs_spec, model1_pars, model2_pars, rvs=None, gammas=None,
         return iam_grid_chisqr_vals  # Just output the best value for each model pair
 
 
-def continuum_alpha(model1, model2, chip=None):
+def continuum_alpha(model1: Spectrum, model2: Spectrum, chip: Optional[int] = None) -> float64:
     """Inherent flux ratio between the continuum of the two models.
 
     Assumes already scaled by area.
@@ -91,7 +97,7 @@ def continuum_alpha(model1, model2, chip=None):
 
 
 def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
-                verbose=True, save_only=True, chip=None, prefix=None, errors=None,
+                verbose=False, save_only=True, chip=None, prefix=None, errors=None,
                 area_scale=True, wav_scale=True, grid_slices=False, norm_method="scalar",
                 fudge=None):
     """Wrapper for iteration loop of iam. params1 fixed, model2_pars are many.
@@ -123,7 +129,7 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
                 print(("Starting iteration with parameters: "
                        "{0}={1},{2}={3}").format(num, params1, jj, params2))
 
-            # ### Main Part ###
+            # Main Part
             rv_limits = observation_rv_limits(obs_spec, rvs, gammas)
 
             obs_spec = obs_spec.remove_nans()
@@ -172,6 +178,9 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             iam_grid_models = iam_grid_models / iam_grid_continuum
 
             # RE-NORMALIZATION
+            if chip == 4:
+                # Quadratically renormalize anyway
+                obs_spec = renormalization(obs_spec, iam_grid_models, normalize=True, method="quadratic")
             obs_flux = renormalization(obs_spec, iam_grid_models, normalize=norm, method=norm_method)
 
             if grid_slices:
@@ -216,7 +225,8 @@ def iam_wrapper(num, params1, model2_pars, rvs, gammas, obs_spec, norm=False,
             return iam_grid_chisqr_vals
 
 
-def renormalization(spectrum, model_grid, normalize=False, method="scalar"):
+def renormalization(spectrum: Union[ndarray, Spectrum], model_grid: ndarray, normalize: bool = False,
+                    method: Optional[str] = "scalar") -> ndarray:
     """Re-normalize the flux of spectrum to the continuum of the model_grid.
 
        Broadcast out spectrum to match the dimensions of model_grid.
@@ -235,7 +245,7 @@ def renormalization(spectrum, model_grid, normalize=False, method="scalar"):
     if normalize:
         if method not in ["scalar", "linear"]:
             raise ValueError("Renormalization method '{}' is not in ['scalar', 'linear']".format(method))
-        logging.info("{} Re-normalizing to observations!".format(method))
+        logging.info(__("{} Re-normalizing to observations!", method))
         norm_flux = chi2_model_norms(spectrum.xaxis, spectrum.flux,
                                      model_grid, method=method)
     else:
@@ -249,14 +259,18 @@ def renormalization(spectrum, model_grid, normalize=False, method="scalar"):
     return norm_flux
 
 
-def observation_rv_limits(obs_spec, rvs, gammas):
+def observation_rv_limits(obs_spec: Spectrum, rvs: Union[int, List[int]], gammas: Union[int, List[int]]) -> List[
+    float64]:
     """Calculate wavelength limits needed to cover RV shifts used."""
     delta = spec_max_delta(obs_spec, rvs, gammas)
     obs_min, obs_max = min(obs_spec.xaxis), max(obs_spec.xaxis)
     return [obs_min - 1.1 * delta, obs_max + 1.1 * delta]
 
 
-def prepare_iam_model_spectra(params1, params2, limits, area_scale=True, wav_scale=True):
+def prepare_iam_model_spectra(params1: Union[List[float], List[Union[int, float]]],
+                              params2: Union[List[float], List[Union[int, float]], Tuple[int, float, float]],
+                              limits: Union[List[float64], Tuple[int, int], List[int]], area_scale: bool = True,
+                              wav_scale: bool = True) -> Tuple[Spectrum, Spectrum]:
     """Load spectra with same settings."""
     if not area_scale:
         warnings.warn("Not using area_scale. This is incorrect for paper.")
@@ -280,8 +294,10 @@ def prepare_iam_model_spectra(params1, params2, limits, area_scale=True, wav_sca
     return mod1_spec, mod2_spec
 
 
-def save_full_iam_chisqr(filename, params1, params2, alpha, rvs, gammas,
-                         iam_grid_chisquare, arbitrary_norms, npix, verbose=False):
+def save_full_iam_chisqr(filename: str, params1: List[Union[int, float]], params2: List[Union[int, float]],
+                         alpha: Union[int, float64], rvs: Union[ndarray, List[int]], gammas: Union[ndarray, List[int]],
+                         iam_grid_chisquare: ndarray, arbitrary_norms: ndarray, npix: int,
+                         verbose: bool = False) -> None:
     """Save the iterations chisqr values to a cvs."""
     rv_grid, g_grid = np.meshgrid(rvs, gammas, indexing='ij')
     # assert A.shape == rv_grid.shape
@@ -394,7 +410,8 @@ def plot_iam_grid_slices(x, y, z, grid, xlabel=None, ylabel=None, zlabel=None, s
         plt.close(plt.gcf())
 
 
-def target_params(params, mode="iam"):
+def target_params(params: Dict[str, Union[str, float, int]], mode: Optional[str] = "iam") -> Union[
+    Tuple[List[Union[int, float]], List[Union[int, float]]], List[Union[int, float]], Tuple[List[float], List[float]]]:
     """Extract parameters from dict for each target.
 
     Includes logic for handling missing companion logg/fe_h.
@@ -403,12 +420,13 @@ def target_params(params, mode="iam"):
 
     # Specify the companion logg and metallicity in the parameter files.
     if params.get("comp_logg", None) is None:
-        logging.warning("Logg for companion 'comp_logg' is not set for {0}".format(params.get("name", params)))
-    comp_logg = params.get("comp_logg", params["logg"])  # Set equal to host if not given
-    comp_fe_h = params.get("comp_fe_h", params["fe_h"])  # Set equal to host if not given
-    comp_params = [params["comp_temp"], comp_logg, comp_fe_h]
-
+        logging.warning(__("Logg for companion 'comp_logg' is not set for {0}", params.get("name", params)))
+    print("mode in target params", mode)
     if mode == "iam":
+        comp_logg = params.get("comp_logg", params["logg"])  # Set equal to host if not given
+        comp_fe_h = params.get("comp_fe_h", params["fe_h"])  # Set equal to host if not given
+        comp_temp = params.get("comp_temp", 999999)  # Will go to largest grid
+        comp_params = [comp_temp, comp_logg, comp_fe_h]
         return host_params, comp_params
     elif mode == "bhm":
         return host_params

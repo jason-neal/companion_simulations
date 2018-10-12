@@ -51,11 +51,12 @@ def _parser():
 
 def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="",
          replace=False, n_jobs=4, betasigma=False,
-         renormalize=False, norm_method="scalar", noplots=False, onlyplots=False):
+         renormalize=False, norm_method="scalar", no_plots=False, only_plots=False):
     chips = range(1, 5)
 
-    if not onlyplots:
-        starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh}
+    if not only_plots:
+        starinfo = {"star": star, "temp": teff, "logg": logg, "fe_h": feh,
+                    "gamma": gamma, "name": star}
         make_fake_parameter_file(starinfo)
 
         params1 = "{}, {}, {}".format(teff, logg, feh)
@@ -72,15 +73,16 @@ def main(star, num, teff, logg, feh, gamma=0, noise=False, suffix="",
         # Generate db
         db_main(star=star, obsnum=num, suffix=suffix, move=True, replace=True)
 
-    if not noplots:
+    if not no_plots:
         # Do Analysis
         try:
             analyse_main(star=star, obsnum=num, suffix=suffix, mode="all")
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     print("Noise level =", noise)
     return 0
+
 
 if __name__ == "__main__":
     args = vars(_parser())

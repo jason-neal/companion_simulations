@@ -3,24 +3,29 @@ import os
 
 import numpy as np
 import pandas as pd
+from logutils import BraceMessage as __
 from tqdm import tqdm
 
 import simulators
 from mingle.models.broadcasted_models import two_comp_model
 from mingle.utilities.chisqr import chi_squared
-from mingle.utilities.norm import chi2_model_norms
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.simulation_utilities import check_inputs
-from simulators.iam_module import observation_rv_limits
 from simulators.common_setup import setup_dirs, sim_helper_function
+from simulators.iam_module import observation_rv_limits
 from simulators.iam_module import renormalization
 
-def setup_tcm_dirs(star):
+from numpy import ndarray
+from typing import Dict, List, Tuple, Union
+
+
+def setup_tcm_dirs(star: str) -> None:
     setup_dirs(star, mode="tcm")
     return None
 
 
-def tcm_helper_function(star, obsnum, chip, skip_params=False):
+def tcm_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool = False) -> Tuple[
+    str, Dict[str, Union[str, float, List[Union[str, float]]]], str]:
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="tcm")
 
 
@@ -33,14 +38,14 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
     gammas = check_inputs(gammas)
 
     if isinstance(model1_pars, list):
-        logging.debug("Number of close model_pars returned {}".format(len(model1_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model1_pars)))
     if isinstance(model2_pars, list):
-        logging.debug("Number of close model_pars returned {}".format(len(model2_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model2_pars)))
 
     args = [model2_pars, alphas, rvs, gammas, obs_spec]
     kwargs = {"norm": norm, "save_only": save_only, "chip": chip,
               "prefix": prefix, "verbose": verbose, "errors": errors,
-              "wav_scale": wav_scale, norm_method: norm_method}
+              "wav_scale": wav_scale, "norm_method": norm_method}
 
     broadcast_chisqr_vals = np.empty((len(model1_pars), len(model2_pars)))
 
@@ -54,7 +59,7 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None,
 
 
 def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
-                errors=None, norm=True, verbose=True, save_only=True,
+                errors=None, norm=True, verbose=False, save_only=True,
                 chip=None, prefix=None, wav_scale=True, norm_method="scalar"):
     """Wrapper for iteration loop of tcm. params1 fixed, model2_pars are many."""
     normalization_limits = [2105, 2185]  # small as possible?
@@ -102,6 +107,9 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
             assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
             # RE-NORMALIZATION
+            if chip == 4:
+                # Quadratically renormalize anyway
+                obs_spec = renormalization(obs_spec, broadcast_values, normalize=True, method="quadratic")
             obs_flux = renormalization(obs_spec, broadcast_values, normalize=norm, method=norm_method)
 
             # sp_chisquare is much faster but don't think I can add masking.
@@ -124,7 +132,9 @@ def tcm_wrapper(num, params1, model2_pars, alphas, rvs, gammas, obs_spec,
             return broadcast_chisqr_vals
 
 
-def save_full_tcm_chisqr(filename, params1, params2, alphas, rvs, gammas, broadcast_chisquare, npix, verbose=False):
+def save_full_tcm_chisqr(filename: str, params1: List[Union[int, float]], params2: List[Union[int, float]],
+                         alphas: ndarray, rvs: ndarray, gammas: ndarray, broadcast_chisquare: ndarray, npix: int,
+                         verbose: bool = False) -> None:
     """Save the iterations chisqr values to a cvs."""
     a_grid, r_grid, g_grid = np.meshgrid(alphas, rvs, gammas, indexing='ij')
     assert a_grid.shape == r_grid.shape

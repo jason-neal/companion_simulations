@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-"""two_compoonent_model.py.
+"""two_component_model.py.
 
 Jason Neal
-2nd Janurary 2017
+2nd January 2017
 
 Compare observed spectra to many different phoenix-aces spectral models to find which matches one is best fit by itself.
 
@@ -19,6 +19,8 @@ import sys
 
 import numpy as np
 from astropy.io import fits
+from joblib import Parallel, delayed
+from logutils import BraceMessage as __
 
 import simulators
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
@@ -27,6 +29,9 @@ from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import closest_model_params, generate_close_params
 from mingle.utilities.spectrum_utils import load_spectrum  # , select_observation
 from simulators.tcm_module import (tcm_analysis, tcm_helper_function, setup_tcm_dirs)
+
+from argparse import Namespace
+from typing import List
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -41,14 +46,13 @@ rvs = np.arange(*simulators.sim_grid["rvs"])
 alphas = np.arange(*simulators.sim_grid["alphas"])
 
 
-def parse_args(args):
+def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
 
     :returns: the args
     """
     parser = argparse.ArgumentParser(description='tcm')
     parser.add_argument('--chip', help='Chip Number.', default=None)
-    parser.add_argument('-s', '--small', help='Use smaller subset of parameters.', action="store_true")
     parser.add_argument("--error_off", help="Turn snr value errors off.", action="store_true")
     parser.add_argument('--disable_wav_scale', action="store_true",
                         help='Disable scaling by wavelength.')
@@ -58,11 +62,15 @@ def parse_args(args):
                         choices=["scalar", "linear"], default="scalar")
     parser.add_argument("-b", '--betasigma', help='Use BetaSigma std estimator.',
                         action="store_true")
+    parser.add_argument("-j", "--n_jobs", help="Number of parallel Jobs",
+                        default=1, type=int)
+    parser.add_argument('-v', '--verbose', action="store_true",
+                        help='Turn on Verbose.')
     return parser.parse_args(args)
 
 
-def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scale=False, renormalize=False,
-         norm_method="scalar", betasigma=False):
+def main(chip=None, verbose=False, error_off=False, disable_wav_scale=False, renormalize=False, norm_method="scalar",
+         betasigma=False):
     """Main function."""
     wav_scale = not disable_wav_scale
 
@@ -75,7 +83,7 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
 
     obs_name, params, output_prefix = tcm_helper_function(star, obsnum, chip)
 
-    logging.debug("The observation used is ", obs_name, "\n")
+    logging.debug(__("The observation used is {} \n", obs_name))
 
     host_params = [params["temp"], params["logg"], params["fe_h"]]
     comp_params = [params["comp_temp"], params["logg"], params["fe_h"]]
@@ -84,8 +92,8 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
     closest_comp_model = closest_model_params(*comp_params)
 
     # Function to find the good models I need from parameters
-    model1_pars = list(generate_close_params(closest_host_model, small=small))
-    model2_pars = list(generate_close_params(closest_comp_model, small=small))
+    model1_pars = list(generate_close_params(closest_host_model, small=True))
+    model2_pars = list(generate_close_params(closest_comp_model, small=True))
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
@@ -97,19 +105,19 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
     try:
         if betasigma:
             errors = betasigma_error(obs_spec)
-            logging.info("Beta-Sigma error value = {:6.5f}".format(errors))
+            logging.info(__("Beta-Sigma error value = {:6.5f}", errors))
         else:
             errors = spectrum_error(star, obsnum, chip, error_off=error_off)
-            logging.info("File obtained error value = {}".format(errors))
+            logging.info(__("File obtained error value = {}", errors))
     except KeyError as e:
         errors = None
 
     param_iter = len(alphas) * len(rvs) * len(gammas) * len(model2_pars) * len(model1_pars)
-    logging.info("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
-    logging.debug("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
+    logging.info(__("STARTING tcm_analysis\nWith {0} parameter iterations", param_iter))
+    logging.debug(__("model1_pars = {}, model2_pars = {} ", len(model1_pars), len(model2_pars)))
 
-    chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
-                              verbose=verbose, norm=renormalize, prefix=output_prefix, wav_scale=wav_scale, norm_method=norm_method)
+    tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, errors=errors,
+                 verbose=verbose, norm=renormalize, prefix=output_prefix, wav_scale=wav_scale, norm_method=norm_method)
 
     return 0
 
@@ -117,12 +125,18 @@ def main(chip=None, small=True, verbose=False, error_off=False, disable_wav_scal
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
+    n_jobs = opts.pop("n_jobs", 1)
+
+
+    def parallelized_main(main_opts, chip):
+        main_opts["chip"] = chip
+        return main(**main_opts)
+
 
     # Iterate over chips
     if opts["chip"] is None:
-        for chip in range(1, 5):
-            opts["chip"] = chip
-            res = main(**opts)
+        res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
+                                      for chip in range(1, 5))
         sys.exit(res)
     else:
         sys.exit(main(**opts))

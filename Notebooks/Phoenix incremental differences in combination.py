@@ -571,7 +571,8 @@ for i, cfeh in enumerate(comp):
             mean, std = stat(diff)
             host_mean.append(mean)
             host_std.append(std)
-        except:
+        except Exception as e:
+            print(e)
             host_mean.append(np.nan)
             host_std.append(np.nan)
     print(len(host), len(host_mean), len(host_std))

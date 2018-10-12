@@ -21,6 +21,7 @@ from astropy.io import fits
 from tqdm import tqdm
 
 import simulators
+from logutils import BraceMessage as __
 from mingle.models.broadcasted_models import two_comp_model
 from mingle.utilities.chisqr import chi_squared
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
@@ -106,11 +107,9 @@ def main():
 
     print("STARTING tcm_analysis\nWith {} parameter iterations".format(param_iter))
     print("model1_pars", len(model1_pars), "model2_pars", len(model2_pars))
-    ####
-    chi2_grids = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True,
-                              chip=chip, prefix=output_prefix)
 
-    bcast_chisqr_vals = chi2_grids
+    bcast_chisqr_vals = tcm_analysis(obs_spec, model1_pars, model2_pars, alphas, rvs, gammas, verbose=True, norm=True,
+                              chip=chip, prefix=output_prefix)
 
     print("tcm broadcast_chisquare shape", bcast_chisqr_vals.shape)
     print("tcm broadcast_chisquare", bcast_chisqr_vals)
@@ -141,9 +140,9 @@ def tcm_analysis(obs_spec, model1_pars, model2_pars, alphas=None, rvs=None, gamm
         gammas = np.asarray(gammas, dtype=np.float32)
 
     if isinstance(model1_pars, list):
-        logging.debug("Number of close model_pars returned {}".format(len(model1_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model1_pars)))
     if isinstance(model2_pars, list):
-        logging.debug("Number of close model_pars returned {}".format(len(model2_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model2_pars)))
 
     print("host params", model1_pars)
     print("companion params", model2_pars)

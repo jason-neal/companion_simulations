@@ -7,7 +7,7 @@ import sqlalchemy as sa
 
 import simulators
 from bin.coadd_analysis_module import smallest_chi2_values, slice_k_closest_around_x, parabola, fit_chi2_parabola
-from bin.coadd_analysis_script import load_sql_table, decompose_database_name
+from mingle.utilities.db_utils import decompose_database_name, load_sql_table
 from bin.coadd_chi2_db import main as iam_db_main
 from bin.coadd_chi2_db import parse_args
 # from bin.coadd_analysis_module import contours, smallest_chi2_values, compare_spectra
@@ -291,7 +291,7 @@ def test_coadd_chi2_bd_parser():
 @pytest.mark.parametrize("func", [smallest_chi2_values, ])
 def test_analysis_functions_run(capsys, func, db_table, db_params):
     res = func(db_table, db_params)
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert res is None
     #    assert
     assert False

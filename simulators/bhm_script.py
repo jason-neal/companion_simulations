@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 """Run bhm analysis for HD211847."""
 import argparse
@@ -7,18 +6,23 @@ import sys
 import numpy as np
 import logging
 import simulators
+from joblib import Parallel, delayed
+from logutils import BraceMessage as __
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
 from mingle.utilities.errors import spectrum_error, betasigma_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.spectrum_utils import load_spectrum
-from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_bh_model_pars
+from simulators.bhm_module import bhm_analysis, bhm_helper_function, get_bhm_model_pars
 from simulators.bhm_module import setup_bhm_dirs
 
 from bin.coadd_bhm_db import main as coadd_db
 from bin.coadd_bhm_analysis import main as coadd_analysis
 
+from argparse import Namespace
+from typing import List
 
-def parse_args(args):
+
+def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -27,6 +31,8 @@ def parse_args(args):
     parser.add_argument("star", help='Star name.', type=str)
     parser.add_argument("obsnum", help='Star observation number.')
     parser.add_argument('-c', '--chip', help='Chip Number.', default=None)
+    parser.add_argument("-j", "--n_jobs", help="Number of parallel Jobs",
+                        default=1, type=int)
     parser.add_argument('-s', '--suffix', type=str, default="",
                         help='Extra name identifier.')
     parser.add_argument("-n", "--renormalize", help="Scalar re-normalize flux to models. Default=False",
@@ -39,6 +45,8 @@ def parse_args(args):
                         help='Disable scaling by wavelength.')
     parser.add_argument("-b", '--betasigma', help='Use BetaSigma std estimator.',
                         action="store_true")
+    parser.add_argument('-v', '--verbose', action="store_true",
+                        help='Turn on Verbose.')
     return parser.parse_args(args)
 
 
@@ -59,8 +67,8 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
     print("The observation used is ", obs_name, "\n")
 
     # Host Model parameters to iterate over
-    # model_pars = get_bh_model_pars(params, method="close")
-    model_pars = get_bh_model_pars(params, method="config")  # Use config file
+    # model_pars = get_bhm_model_pars(params, method="close")
+    model_pars = get_bhm_model_pars(params, method="config")  # Use config file
 
     # Load observation
     obs_spec = load_spectrum(obs_name)
@@ -80,11 +88,11 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
             j = simulators.betasigma.get("j", 2)
             errors, derrors = betasigma_error(obs_spec, N=N, j=j)
             print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
-            logging.info("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
+            logging.info(__("Beta-Sigma error value = {:6.5f}+/-{:6.5f}", errors, derrors))
         else:
             print("NOT DOING BETASIGMA ERRORS")
             errors = spectrum_error(star, obsnum, chip, error_off=error_off)
-            logging.info("File obtained error value = {}".format(errors))
+            logging.info(__("File obtained error value = {0}", errors))
     except KeyError as e:
         print("ERRORS Failed so set to None")
         errors = None
@@ -93,34 +101,41 @@ def main(star, obsnum, chip=None, suffix=None, error_off=False, disable_wav_scal
                  wav_scale=wav_scale, prefix=output_prefix, norm_method=norm_method)
     print("after bhm_analysis")
 
-    # Testing shapes
-    print("Finished chi square generation")
     print("\nNow use bin/coadd_bhm_db.py")
+    return 0
 
 
 if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
-    star = opts.pop("star")
+    n_jobs = opts.pop("n_jobs", 1)
+    verbose = opts.pop("verbose", False)
 
-    chips = opts.pop("chip")
 
-    if chips is None:
-        chips = range(1, 5)
-        do_after = True
+    def parallelized_main(main_opts, chip):
+        main_opts["chip"] = chip
+        return main(**main_opts)
+
+
+    if opts["chip"] is None:
+        res = Parallel(n_jobs=n_jobs)(delayed(parallelized_main)(opts, chip)
+                                      for chip in range(1, 5))
+        if not sum(res):
+            try:
+                print("\nDoing analysis after simulations!\n")
+                coadd_db(opts["star"], opts["obsnum"], opts["suffix"], replace=True,
+                         verbose=verbose, move=True)
+
+                coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
+                               echo=False, mode="all", verbose=verbose, npars=1)
+
+                print("\nFinished the db analysis after bhm_script simulations!\n")
+                print("Initial bhm_script parameters = {}".format(args))
+                sys.exit(0)
+            except Exception as e:
+                print("Unable to correctly do chi2 analysis after bhm_script")
+                print(e)
+        else:
+            sys.exit(sum(res))
     else:
-        do_after = False
-
-    for chip in chips:
-        print("Doing chip {}".format(chip))
-        main(star, chip=chip, **opts)
-
-    if do_after:
-        print("\nDoing analysis after simulations!\n")
-        coadd_db(star, opts["obsnum"], opts["suffix"], replace=True,
-                 verbose=True, move=True)
-
-        coadd_analysis(star, opts["obsnum"], suffix=opts["suffix"],
-                       echo=False, mode="all", verbose=False, npars=3)
-
-        print("\nFinished the db analysis after iam_script simulations!\n")
+        sys.exit(main(**opts))

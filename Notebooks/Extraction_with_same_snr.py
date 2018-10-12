@@ -20,7 +20,8 @@ import numpy as np
 import pandas as pd
 import glob
 import sqlalchemy as sa
-from bin.coadd_analysis_script import load_sql_table
+from mingle.utilities.db_utils import load_sql_table
+
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
@@ -32,7 +33,7 @@ import yaml
 def get_sim_grid(path="/home/jneal/Phd/Analysis/sims_variable_params_same_snr/"):
     config_file = os.path.join(path, "config.yaml")
     with open(config_file) as f:
-        config = yaml.load(f)
+        config = yaml.safe_load(f)
     return config["sim_grid"]
 
 sim_grid = get_sim_grid()

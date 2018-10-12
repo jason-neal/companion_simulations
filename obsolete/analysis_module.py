@@ -73,7 +73,7 @@ def parabola_plots(table, params):
         print(min_chi2)
         plt.plot(unique_par, min_chi2)
 
-        popt, pcov = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
+        popt, _ = scipy.optimize.curve_fit(parabola, unique_par, min_chi2)
         print("params", popt)
         x = np.linspace(unique_par[0], unique_par[-1], 40)
         plt.plot(x, parabola(x, *popt), label="parabola")

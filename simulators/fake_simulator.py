@@ -6,21 +6,28 @@ import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
-import simulators
 from astropy.io import fits
+from logutils import BraceMessage as __
+from spectrum_overload import Spectrum
+
+import simulators
 from mingle.models.broadcasted_models import inherent_alpha_model
+from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.norm import continuum
+from mingle.utilities.phoenix_utils import load_starfish_spectrum
+from mingle.utilities.simulation_utilities import add_noise
 from mingle.utilities.simulation_utilities import spec_max_delta
 from simulators.common_setup import obs_name_template
 from simulators.iam_module import prepare_iam_model_spectra
-from spectrum_overload import Spectrum
 
-from mingle.models.broadcasted_models import one_comp_model
-from mingle.utilities.phoenix_utils import load_starfish_spectrum
-from mingle.utilities.simulation_utilities import add_noise
+from argparse import Namespace
+from astropy.io.fits.header import Header
+from numpy import bool_, float64, ndarray
+from spectrum_overload.spectrum import Spectrum
+from typing import Dict, List, Optional, Tuple, Union
 
 
-def parse_args(args):
+def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -64,9 +71,9 @@ def fake_iam_simulation(wav, params1, params2, gamma, rv, limits=(2070, 2180), n
         wav = mod1_spec.xaxis[mask]
 
     iam_grid_models = iam_grid_func(wav).squeeze()
-    logging.debug("iam_grid_func(wav).squeeze()", iam_grid_models)
-    logging.debug("number of nans", np.sum(~np.isfinite(iam_grid_models)))
-    logging.debug("iam_grid_models", iam_grid_models)
+    logging.debug(__("iam_grid_func(wav).squeeze() = {}", iam_grid_models))
+    logging.debug(__("number of nans {}", np.sum(~np.isfinite(iam_grid_models))))
+    logging.debug(__("iam_grid_models = {}", iam_grid_models))
 
     logging.debug("Continuum normalizing")
 
@@ -109,7 +116,7 @@ def fake_bhm_simulation(wav, params, gamma, limits=(2070, 2180), noise=None, hea
 
     bhm_grid_values = bhm_grid_func(wav).squeeze()
 
-    logging.debug("number of bhm nans", np.sum(~np.isfinite(bhm_grid_values)))
+    logging.debug(__("number of bhm nans = {}", np.sum(~np.isfinite(bhm_grid_values))))
 
     if noise is not None or noise is not 0:
         bhm_grid_values = add_noise(bhm_grid_values, noise)
@@ -167,8 +174,9 @@ def main(star, sim_num, params1=None, params2=None, gamma=None, rv=None, noise=N
     return None
 
 
-def save_fake_observation(spectrum, star, sim_num, params1, params2=None, gamma=None, rv=None, noise=None,
-                          replace=False, noplots=False):
+def save_fake_observation(spectrum: Spectrum, star: str, sim_num: int, params1: str, params2: Optional[str] = None,
+                          gamma: Optional[int] = None, rv: Optional[int] = None, noise: None = None,
+                          replace: bool = False, noplots: bool = False) -> None:
     # Detector limits
     detector_limits = [(2112, 2123), (2127, 2137), (2141, 2151), (2155, 2165)]
     npix = 1024
@@ -274,7 +282,8 @@ def testing_fake_spectrum(star, sim_num, params1, params2, gamma, rv, noise=None
     plt.show()
 
 
-def export_fits(filename, wavelength, flux, hdr, hdrkeys, hdrvals):
+def export_fits(filename: str, wavelength: ndarray, flux: ndarray, hdr: Header, hdrkeys: List[str],
+                hdrvals: List[Union[str, int, None]]) -> None:
     """Write Telluric Corrected spectra to a fits table file."""
     col1 = fits.Column(name="wavelength", format="E", array=wavelength)  # colums of data
     col2 = fits.Column(name="flux", format="E", array=flux)
@@ -289,7 +298,8 @@ def export_fits(filename, wavelength, flux, hdr, hdrkeys, hdrvals):
     return None
 
 
-def append_hdr(hdr, keys=None, values=None, item=0):
+def append_hdr(hdr: Header, keys: Optional[List[str]] = None, values: Optional[List[Union[str, int, None]]] = None,
+               item: int = 0) -> Header:
     """Append/change parameters to fits hdr.
 
     Can take list or tuple as input of keywords

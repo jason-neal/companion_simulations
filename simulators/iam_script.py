@@ -13,6 +13,7 @@ import sys
 
 import numpy as np
 from joblib import Parallel, delayed
+from logutils import BraceMessage as __
 
 import simulators
 from bin.coadd_analysis_script import main as coadd_analysis
@@ -26,6 +27,9 @@ from mingle.utilities.simulation_utilities import check_inputs
 from mingle.utilities.spectrum_utils import load_spectrum
 from simulators.iam_module import (iam_analysis, iam_helper_function,
                                    setup_iam_dirs, target_params)
+
+from argparse import Namespace
+from typing import List
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(levelname)s %(message)s')
@@ -41,7 +45,7 @@ check_inputs(rvs)
 check_inputs(gammas)
 
 
-def parse_args(args):
+def parse_args(args: List[str]) -> Namespace:
     """Take care of all the argparse stuff.
 
     :returns: the args
@@ -58,8 +62,6 @@ def parse_args(args):
                         choices=["scalar", "linear"], default="scalar")
     parser.add_argument("--error_off", help="Turn snr value errors off.",
                         action="store_true")
-    parser.add_argument('-s', '--small', action="store_true",
-                        help='Use smaller subset of parameters.')
     parser.add_argument('-a', '--area_scale', action="store_false",
                         help='Scaling by stellar area. (raise to disable)')
     parser.add_argument('--disable_wav_scale', action="store_true",
@@ -68,12 +70,13 @@ def parse_args(args):
     parser.add_argument('-f', '--fudge', help='Fudge factor to apply.', default=None)
     parser.add_argument("-b", '--betasigma', help='Use BetaSigma std estimator.',
                         action="store_true")
+    parser.add_argument('-v', '--verbose', action="store_true",
+                        help='Turn on Verbose.')
     return parser.parse_args(args)
 
 
-def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
-         suffix=None, error_off=False, area_scale=True, disable_wav_scale=False,
-         renormalize=False, norm_method="scalar", fudge=None, betasigma=False):
+def main(star, obsnum, chip=None, parallel=False, verbose=False, suffix=None, error_off=False, area_scale=True,
+         disable_wav_scale=False, renormalize=False, norm_method="scalar", fudge=None, betasigma=False):
     """Main function."""
 
     if fudge is not None:
@@ -115,11 +118,11 @@ def main(star, obsnum, chip=None, parallel=False, small=True, verbose=False,
             j = simulators.betasigma.get("j", 2)
             errors, derrors = betasigma_error(obs_spec, N=N, j=j)
             print("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
-            logging.info("Beta-Sigma error value = {:6.5f}+/-{:6.5f}".format(errors, derrors))
+            logging.info(__("Beta-Sigma error value = {:6.5f}+/-{:6.5f}", errors, derrors))
         else:
             print("NOT DOING BETASIGMA ERRORS")
             errors = spectrum_error(star, obsnum, chip, error_off=error_off)
-            logging.info("File obtained error value = {}".format(errors))
+            logging.info(__("File obtained error value = {}", errors))
     except KeyError as e:
         print("ERRORS Failed so set to None!")
         errors = None
@@ -144,11 +147,13 @@ if __name__ == "__main__":
     args = vars(parse_args(sys.argv[1:]))
     opts = {k: args[k] for k in args}
     n_jobs = opts.pop("n_jobs", 1)
+    verbose = opts.pop("verbose", False)
 
 
     def parallelized_main(main_opts, chip):
         main_opts["chip"] = chip
         return main(**main_opts)
+
 
     # Iterate over chips
     if opts["chip"] is None:
@@ -156,17 +161,21 @@ if __name__ == "__main__":
                                       for chip in range(1, 5))
         print("Finished parallel loops")
         if not sum(res):
+            try:
+                print("\nDoing analysis after simulations!\n")
+                coadd_db(opts["star"], opts["obsnum"], opts["suffix"], replace=True,
+                         verbose=verbose, move=True)
 
-            print("\nDoing analysis after simulations!\n")
-            coadd_db(opts["star"], opts["obsnum"], opts["suffix"], replace=True,
-                     verbose=True, move=True)
+                coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
+                               echo=False, mode="all", verbose=verbose, npars=3)
 
-            coadd_analysis(opts["star"], opts["obsnum"], suffix=opts["suffix"],
-                           echo=False, mode="all", verbose=False, npars=3)
+                print("\nFinished the db analysis after iam_script simulations!\n")
+                print("Initial parameters = {}".format(args))
+                sys.exit(0)
+            except Exception as e:
+                print("Unable to correctly do chi2 analysis after iam_script")
+                print(e)
 
-            print("\nFinished the db analysis after iam_script simulations!\n")
-            print("Inital parameters = {}".format(args))
-            sys.exit(0)
         else:
             sys.exit(sum(res))
     else:

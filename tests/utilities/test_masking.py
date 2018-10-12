@@ -58,6 +58,6 @@ def test_masking_file_not_found(sim_config, capsys):
     result = get_maskinfo("HD30501", "1", "5")
     assert result == []
 
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert "No Masking file/data present" in out
     assert " No such file or directory" in out

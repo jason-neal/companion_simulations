@@ -112,8 +112,9 @@ def main(star="HD211847", obsnum="2", chip=1):
 
     try:
         host_params = parameters[star]
-    except:
-        raise ValueError("Parameters for {} are not in parameters list. Improve this.".format(star))
+    except KeyError as e:
+        print("Parameters for {} are not in parameters list. Improve this.".format(star))
+        raise e
     host_params[1] = host_params[1] / 1000  # Convert K! to km/s
     host_params[2] = np.deg2rad(host_params[2])  # Omega needs to be in radians for ajplanet
 

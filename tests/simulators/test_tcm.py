@@ -42,15 +42,13 @@ def test_setup_tcm_dirs_creates_dirs(sim_config, tmpdir):
 def test_tcm_script_parser():
     parsed = parse_args([])
     assert parsed.chip is None
-    assert parsed.small is False
     assert parsed.error_off is False
     assert parsed.disable_wav_scale is False
 
 
 def test_tcm_script_parser_toggle():
-    args = ["--chip", "2", "-s", "--error_off", "--disable_wav_scale"]
+    args = ["--chip", "2", "--error_off", "--disable_wav_scale"]
     parsed = parse_args(args)
     assert parsed.chip is "2"
-    assert parsed.small is True
     assert parsed.error_off is True
     assert parsed.disable_wav_scale is True

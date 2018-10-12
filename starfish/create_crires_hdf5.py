@@ -7,11 +7,9 @@
 # 3. Resample the high resolution spectra to a lower resolution more suitably matched to the resolution of your spectrograph. For example, PHOENIX spectra are provided at R∼500,000
 # , while the TRES spectrograph has a resolution of R∼44,00
 
-import numpy as np
-
 import Starfish
-from Starfish.grid_tools import PHOENIXGridInterfaceNoAlpha as PHOENIX
 from Starfish.grid_tools import HDF5Creator, Instrument
+from Starfish.grid_tools import PHOENIXGridInterfaceNoAlpha as PHOENIX
 
 
 # Create CRIRES instrument at the resolution we have.

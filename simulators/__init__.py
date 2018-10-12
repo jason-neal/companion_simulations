@@ -9,14 +9,14 @@ matplotlib.use('Agg')
 __version__ = '0.2'
 __all__ = ["bhm_module", "bhm_script",
            "iam_module", "iam_script",
-           "tcm_script", "tcm_module.py",
+           "tcm_script", "tcm_module",
            "common_setup", "fake_simulator",]
 
 # Read the users config.yaml file.
 # If it doesn't exist, print a useful help message
 try:
     f = open("config.yaml")
-    config = yaml.load(f)
+    config = yaml.safe_load(f)
     f.close()
 except FileNotFoundError as e:
     default = os.path.join(__file__[:-11], "..", "config.yaml")
@@ -27,7 +27,7 @@ except FileNotFoundError as e:
                   "Please create a similar 'config.yaml' file in your "
                   "current working directory.".format(default), UserWarning)
     f = open(default)
-    config = yaml.load(f)
+    config = yaml.safe_load(f)
     f.close()
 
 # Read the YAML variables into package-level dictionaries to be used by the other programs.

@@ -10,7 +10,7 @@ from spectrum_overload import Spectrum
 
 from mingle.models.broadcasted_models import inherent_alpha_model
 from mingle.utilities.crires_utilities import barycorr_crires_spectrum
-from mingle.utilities.errors import spectrum_error
+# from mingle.utilities.errors import spectrum_error
 from mingle.utilities.masking import spectrum_masking
 from mingle.utilities.phoenix_utils import load_starfish_spectrum
 from mingle.utilities.spectrum_utils import load_spectrum
@@ -62,9 +62,9 @@ def main(star, obsnum, teff_1, logg_1, feh_1, teff_2, logg_2, feh_2, gamma, rv, 
         # Barycentric correct spectrum
         _obs_spec = barycorr_crires_spectrum(obs_spec, extra_offset=None)
 
-        error_off = False
         # Determine Spectrum Errors
-        errors = spectrum_error(star, obsnum, chip, error_off=error_off)
+        # error_off = False
+        # errors = spectrum_error(star, obsnum, chip, error_off=error_off)
 
         # Create model with given parameters
         host = load_starfish_spectrum([teff_1, logg_1, feh_1],
@@ -107,5 +107,3 @@ if __name__ == "__main__":
     opts = {k: args[k] for k in args}
 
     sys.exit(main(**opts))
-    sys.exit(main(star, obsnum, teff_1, logg_1, feh_1, teff_2,
-                  logg_2, feh_2, gamma, rv, **opts))

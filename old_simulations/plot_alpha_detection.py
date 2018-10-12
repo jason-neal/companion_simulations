@@ -3,9 +3,8 @@
 import os
 import pickle
 
-import numpy as np
-
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 
@@ -17,16 +16,16 @@ def main():
     snrs = np.load(os.path.join(path, "snr_values.npy"))
     resolutions = np.load(os.path.join(path, "Resolutions.npy"))
     # chisqr_store = np.load(os.path.join(path, "chisquare_data.npy"))
-# scipy_chisqr_store = np.load(os.path.join(path, "scipy_chisquare_data.npy"))
+    # scipy_chisqr_store = np.load(os.path.join(path, "scipy_chisquare_data.npy"))
     # X, Y = np.meshgrid(RVs, alphas)
 
     # unpickle parameter
     try:
         with open(os.path.join(path, "input_params.pickle"), "rb") as f:
             input_parameters = pickle.load(f)
-    except:
-        raise
+    except Exception as e:
         input_parameters = (999, 999)
+        raise e
 
     res_chisqr_snr = dict()
     res_error_chisqr_snr = dict()  # uses sigma on model instead of expected
@@ -38,15 +37,16 @@ def main():
             #                          "scipy_chisquare_data_snr_{}.npy".format(snr)
             #                                       ))
             chisqr_snr[snr] = np.load(os.path.join(path,
-                                      "scipy_chisquare_data_snr_{0}_res{1}.npy".format(snr, resolution)
+                                                   "scipy_chisquare_data_snr_{0}_res{1}.npy".format(snr, resolution)
                                                    ))
             error_chisqr_snr[snr] = np.load(os.path.join(path,
-                                            "error_chisquare_data_snr_{0}_res{1}.npy".format(snr, resolution)
+                                                         "error_chisquare_data_snr_{0}_res{1}.npy".format(snr,
+                                                                                                          resolution)
                                                          ))
         res_chisqr_snr[resolution] = chisqr_snr
         res_error_chisqr_snr[resolution] = error_chisqr_snr
 
-    df_list = []   # To make data frame
+    df_list = []  # To make data frame
     for resolution in resolutions:
         for snr in snrs:
             this_chisqr_snr = res_chisqr_snr[resolution][snr]

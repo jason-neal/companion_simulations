@@ -3,20 +3,24 @@ import os
 
 import numpy as np
 import pandas as pd
+from logutils import BraceMessage as __
+from tqdm import tqdm
+
 import simulators
 from mingle.models.broadcasted_models import one_comp_model
 from mingle.utilities.chisqr import chi_squared
-from mingle.utilities.norm import chi2_model_norms
+from mingle.utilities.phoenix_utils import generate_bhm_config_params
 from mingle.utilities.phoenix_utils import load_starfish_spectrum, closest_model_params, generate_close_params
 from mingle.utilities.xcorr import xcorr_peak
 from simulators.common_setup import setup_dirs, sim_helper_function
-from simulators.iam_module import renormalization
-from tqdm import tqdm
-from mingle.utilities.phoenix_utils import generate_bhm_config_params
 from simulators.iam_module import arbitrary_minimums, arbitrary_rescale
+from simulators.iam_module import renormalization
+
+from numpy import float64, int64, ndarray
+from typing import Dict, List, Optional, Tuple, Union
 
 
-def setup_bhm_dirs(star):
+def setup_bhm_dirs(star: str) -> None:
     setup_dirs(star, mode="bhm")
     return None
 
@@ -31,7 +35,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         gammas = np.asarray(gammas, dtype=np.float32)
 
     if isinstance(model_pars, list):
-        logging.debug("Number of close model_pars returned {}".format(len(model_pars)))
+        logging.debug(__("Number of close model_pars returned {0}", len(model_pars)))
 
     # Solution Grids to return
     model_chisqr_vals = np.empty(len(model_pars))
@@ -71,6 +75,9 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
         assert ~np.any(np.isnan(obs_spec.flux)), "Observation is nan"
 
         # RENORMALIZATION
+        if chip == 4:
+            # Quadratically renormalize anyway
+            obs_spec = renormalization(obs_spec, bhm_grid_values, normalize=True, method="quadratic")
         obs_flux = renormalization(obs_spec, bhm_grid_values, normalize=norm, method=norm_method)
 
         # Simple chi2
@@ -86,7 +93,7 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
 
         # Take minimum chi-squared value along Arbitrary normalization axis
         bhm_grid_chisquare, arbitrary_norms = arbitrary_minimums(bhm_norm_grid_chisquare, arb_norm)
-        
+
         assert np.any(
             bhm_grid_chisquare_old >= bhm_grid_chisquare), "All chi2 values are not better or same with arbitrary scaling"
 
@@ -122,8 +129,8 @@ def bhm_analysis(obs_spec, model_pars, gammas=None, errors=None, prefix=None, ve
             bhm_grid_chisqr_vals, bhm_grid_gamma, full_bhm_grid_chisquare)
 
 
-def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
-                         arbitrary_norms, npix, xcorr_value=None):
+def save_full_bhm_chisqr(name: str, params1: List[Union[int, float]], gammas: ndarray, bhm_grid_chisquare: ndarray,
+                         arbitrary_norms: ndarray, npix: int, xcorr_value: Optional[int] = None) -> None:
     """Save the bhm chisqr values to a cvs."""
     assert gammas.shape == bhm_grid_chisquare.shape
 
@@ -141,11 +148,13 @@ def save_full_bhm_chisqr(name, params1, gammas, bhm_grid_chisquare,
     return None
 
 
-def bhm_helper_function(star, obsnum, chip, skip_params=False):
+def bhm_helper_function(star: str, obsnum: Union[int, str], chip: int, skip_params: bool = False) -> Tuple[
+    str,  Dict[str, Union[str, float, List[Union[str, float]]]], str]:
     return sim_helper_function(star, obsnum, chip, skip_params=skip_params, mode="bhm")
 
 
-def get_bh_model_pars(params, method="close"):
+def get_bhm_model_pars(params: Dict[str, Union[int, float]], method: str = "close") -> List[
+    List[Union[int64, float64]]]:
     method = method.lower()
 
     host_params = [params["temp"], params["logg"], params["fe_h"]]
