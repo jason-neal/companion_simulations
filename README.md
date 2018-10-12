@@ -1,3 +1,6 @@
 # companion_simulations
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6dda4ddb78424a85977217105411da7a)](https://www.codacy.com/app/jason-neal/companion_simulations?utm_source=github.com&utm_medium=referral&utm_content=jason-neal/companion_simulations&utm_campaign=badger)[![Updates](https://pyup.io/repos/github/jason-neal/companion_simulations/shield.svg)](https://pyup.io/repos/github/jason-neal/companion_simulations/)[![Python 3](https://pyup.io/repos/github/jason-neal/companion_simulations/python-3-shield.svg)](https://pyup.io/repos/github/jason-neal/companion_simulations/)[![Master Build Status](https://travis-ci.org/jason-neal/companion_simulations.svg?branch=reorganize)](https://travis-ci.org/jason-neal/companion_simulations)[![Develop Build Status](https://travis-ci.org/jason-neal/companion_simulations.svg?branch=develop)](https://travis-ci.org/jason-neal/companion_simulations)
 [![Develop Coverage](https://coveralls.io/repos/github/jason-neal/companion_simulations/badge.svg?branch=develop)](https://coveralls.io/github/jason-neal/companion_simulations?branch=develop)
+
+With the limited number of CRIRES observations this work didn't turn out as expected.
+The lower temperature limit for our observations is around 3800K. This is much higher then the BD companions we were trying to detect < 2500K.
