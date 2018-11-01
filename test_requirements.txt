@@ -5,7 +5,7 @@ joblib==0.12.5
 jsmin==2.2.2
 numba==0.40.1
 numpy==1.15.3
-multiprocess==0.70.6
+multiprocess==0.70.6.1
 pandas==0.23.4
 scipy==1.1.0
 spectrum-overload==0.2.3
