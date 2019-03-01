@@ -7,7 +7,7 @@ numba==0.42.1
 numpy==1.16.2
 multiprocess==0.70.7
 pandas==0.24.1
-scipy==1.1.0
+scipy==1.2.1
 spectrum-overload==0.2.3
 # Starfish
 sqlalchemy==1.2.12
