@@ -6,7 +6,7 @@ jsmin==2.2.2
 numba==0.45.0
 numpy==1.17.0
 multiprocess==0.70.8
-pandas==0.24.2
+pandas==0.25.0
 scipy==1.2.1
 spectrum-overload==0.2.3
 # Starfish
