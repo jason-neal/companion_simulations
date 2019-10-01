@@ -18,7 +18,7 @@ pyyaml==5.1.2
 logutils==0.3.5
 codeclimate-test-reporter==0.2.3
 codacy-coverage==1.3.11
-hypothesis==4.32.2
+hypothesis==4.37.0
 pytest==5.0.1
 pytest-cov==2.7.1
 python-coveralls==2.9.2
