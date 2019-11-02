@@ -5,7 +5,7 @@ environment:
     # http://www.appveyor.com/docs/installed-software#python
     - PYTHON: "C:\\Python36"
     - PYTHON: "C:\\Python37"
-    - PYTHON: "C:\\Python38"
+#    - PYTHON: "C:\\Python38"
     - PYTHON: "C:\\Python36-x64"
 
 install:
