@@ -17,12 +17,13 @@ install:
 
 
   # Installing Starfish
-  - "cd c:\\projects"
-  - "git clone https://github.com/jason-neal/Starfish.git"
-  - "cd c:\\projects\\Starfish"
-  - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
-  - "git checkout eniric_suitable"
-  - "%PYTHON%\\python.exe setup.py develop"
+  - "%PYTHON%\\python.exe -m pip install astrostarfish"
+  #- "cd c:\\projects"
+  #- "git clone https://github.com/jason-neal/Starfish.git"
+  #- "cd c:\\projects\\Starfish"
+  #- "%PYTHON%\\python.exe -m pip install -r requirements.txt"
+  #- "git checkout eniric_suitable"
+  #- "%PYTHON%\\python.exe setup.py develop"
 
 
   # Installing companion sims
