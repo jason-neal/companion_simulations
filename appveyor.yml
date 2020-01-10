@@ -14,9 +14,6 @@ install:
   - "%PYTHON%\\python.exe -m pip install wheel"
   - "%PYTHON%\\python.exe -m pip install -r test_requirements.txt"
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
-
-  # Installing companion sims
-  - "cd %APPVEYOR_BUILD_FOLDER%"
   - "%PYTHON%\\python.exe setup.py install"
 
   # Handle config for windows
