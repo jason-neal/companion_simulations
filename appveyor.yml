@@ -8,26 +8,16 @@ environment:
 #    - PYTHON: "C:\\Python38"
     - PYTHON: "C:\\Python36-x64"
 
+cache:
+  - "%LOCALAPPDATA%\\pip\\Cache -> appveyor.yml" 
+  
 install:
+  - SET PATH=%PYTHON%;%PYTHON%\Scripts\;%path%
   # We need wheel installed to build wheels
-  - "%PYTHON%\\python.exe -m pip install --upgrade pip
+  - "%PYTHON%\\python.exe -m pip install --upgrade pip"
   - "%PYTHON%\\python.exe -m pip install wheel"
   - "%PYTHON%\\python.exe -m pip install -r test_requirements.txt"
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
-
-
-  # Installing Starfish
-  - "%PYTHON%\\python.exe -m pip install astrostarfish"
-  #- "cd c:\\projects"
-  #- "git clone https://github.com/jason-neal/Starfish.git"
-  #- "cd c:\\projects\\Starfish"
-  #- "%PYTHON%\\python.exe -m pip install -r requirements.txt"
-  #- "git checkout eniric_suitable"
-  #- "%PYTHON%\\python.exe setup.py develop"
-
-
-  # Installing companion sims
-  - "cd %APPVEYOR_BUILD_FOLDER%"
   - "%PYTHON%\\python.exe setup.py install"
 
   # Handle config for windows
